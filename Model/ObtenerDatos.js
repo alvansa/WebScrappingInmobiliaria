@@ -2,6 +2,8 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const fs = require('fs');
 
+const comunas = require('./comunas.js');
+
 class Caso{
     #fechahoy;
     #texto;
@@ -12,6 +14,8 @@ class Caso{
     #formatoEntrega;
     #fechaRemate;
     #montoMinimo;
+    #multiples;
+    #comuna;
 
     constructor(fechahoy,link){
         this.#fechahoy = fechahoy;
@@ -23,6 +27,8 @@ class Caso{
         this.#formatoEntrega = 'N/A';
         this.#fechaRemate = 'N/A';
         this.#montoMinimo = 'N/A';
+        this.#multiples = false;
+        this.#comuna = 'N/A';
     }
     darCausa(causa){
         this.#causa = causa;
@@ -42,6 +48,12 @@ class Caso{
     darMontoMinimo(montoMinimo){
         this.#montoMinimo = montoMinimo;
     }
+    darMultiples(multiples){
+        this.#multiples = multiples;
+    }
+    darComuna(comuna){
+        this.#comuna = comuna;
+    }
 
     getLink(){ 
         return this.#link;
@@ -58,6 +70,8 @@ class Caso{
             formatoEntrega: this.#formatoEntrega,
             fechaRemate: this.#fechaRemate,
             montoMinimo: this.#montoMinimo,
+            multiples: this.#multiples,
+            comuna: this.#comuna,
         };
     }
 }
@@ -125,6 +139,8 @@ async function getEconomico(urlEspecifica, caso) {
             const formatoEntrega = getFormatoEntrega(description);
             const fechaRemate = getFechaRemate(description);
             const montoMinimo = getMontoMinimo(description);
+            const multiples = getMultiples(description);
+            const comuna = getComuna(description);
 
             if (causa) {
                 caso.darCausa(causa[0]); // Asigna causa al caso
@@ -149,6 +165,14 @@ async function getEconomico(urlEspecifica, caso) {
             if (montoMinimo) {
                 caso.darMontoMinimo(montoMinimo[0]); // Asigna monto mínimo al caso
                 //console.log("monto minimo: ", montoMinimo[0]);
+            }
+            if (multiples) {
+                caso.darMultiples(multiples); // Asigna multiples al caso
+                //console.log("multiples: ", multiples);
+            }
+            if (comuna) {
+                caso.darComuna(comuna); // Asigna comuna al caso
+                //console.log("comuna: ", comuna[0]);
             }
 
             return caso; // Retorna el caso actualizado
@@ -221,6 +245,31 @@ function getMontoMinimo(data) {
     return montoMinimo;
 }
 
+function getMultiples(data) {
+    const regex = /([a-zA-ZáéíóúñÑ])*(propiedades|inmuebles)/;
+
+    const multiples = data.match(regex);
+    if (multiples != null) {
+        return true;
+    }else{
+        return false
+    }
+}
+
+function getComuna(data) {
+    
+    //let comuna;
+    for (let comuna of comunas){
+        comuna = 'Comuna de ' + comuna;
+        
+        if (data.includes(comuna)){
+            return comuna;
+        }
+    }
+    return "N/A";
+}
+
+
 function testCausasIguales(casos) {
     for (let i = 0; i < casos.length; i++) {
         for (let j = i + 1; j < casos.length; j++) {
@@ -247,6 +296,7 @@ function escribirEnArchivo(casos) {
 
 async function main() {
     try {
+        
         var start = new Date().getTime();
         const casos = await getPaginas();
         //console.log(casos);

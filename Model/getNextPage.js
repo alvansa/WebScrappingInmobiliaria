@@ -69,6 +69,7 @@ async function getPaginas() {
 async function obtenerPaginas(params) {
     try {
         const resultados = await getPaginas();
+        console.log(resultados);
         return resultados;
     } catch (error) {
         console.error('Error:', error.message);
