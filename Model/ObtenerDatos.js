@@ -101,7 +101,7 @@ async function getPaginas() {
                 const href = $(links[i]).attr('href');
                 console.log(href,"a");  // Imprimir cada href
                 const caso = new Caso(fechaHoy, urlBase + href);
-                promises.push(getEconomico(caso.getLink(), caso));
+                promises.push(getRemates(caso.getLink(), caso));
             }
             casos = await Promise.all(promises);
 
@@ -120,7 +120,7 @@ async function getPaginas() {
     }
 }
 
-async function getEconomico(urlEspecifica, caso) {
+async function getRemates(urlEspecifica, caso) {
     const maxRetries = 10;  // Número máximo de reintentos
     let attempt = 0;  // Contador de intentos
 
@@ -231,7 +231,7 @@ function getFormatoEntrega(data) {
 }
 
 function getFechaRemate(data) {
-    const regexFechaRemate = new RegExp(/(\d{1,2})\s*(de\s+)?(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)[\s*](de\s+)?(\d{4})/i.source +
+    const regexFechaRemate = new RegExp(/(\d{1,2})\s*(de\s+)?(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)[\s]*((de|del)\s+)?(\d{4})/i.source +
         /|(lunes|martes|miércoles|jueves|viernes|sábado|domingo)?\s*([a-zA-Záéíóú]*\s+)(de\s+)?(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)(\s+de)\s+(dos mil (veinticuatro|veinticinco|veintiseis|veintisiete|veintiocho|veintinueve|treinta|treinta y uno)?)?/i.source
     , 'i');
     const fechaRemate = data.match(regexFechaRemate);
@@ -260,8 +260,8 @@ function getComuna(data) {
     
     //let comuna;
     for (let comuna of comunas){
-        comuna = 'Comuna de ' + comuna;
-        
+        comunaMinuscula = 'comuna de ' + comuna;
+        comunaMayuscula = 'Comuna de ' + comuna;
         if (data.includes(comuna)){
             return comuna;
         }
@@ -311,7 +311,7 @@ async function main() {
     }
 }
 
-// Ejecutar la función principal
-main();
+// // Ejecutar la función principal
+// main();
 
-module.exports = {getEconomico, getPaginas};
+module.exports = {getRemates, getPaginas};

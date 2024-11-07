@@ -1,14 +1,13 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 
+const {Caso} = require('./caso.js');
 
 let url = 'https://www.economicos.cl/todo_chile/remates_de_propiedades_el_mercurio'
 let urlBase = "https://www.economicos.cl"
 
-
-async function getPaginas() {
-    const fechaHoy = new Date();
-    const maxDiffDate = 7; 
+async function getPaginas(fechaHoy,maxDiffDate) {
+    // const maxDiffDate = 7; 
     const maxRetries = 5;  // Número máximo de reintentos
     let attempt = 0;  // Contador de intentos
     let stopFlag = false;
@@ -24,7 +23,8 @@ async function getPaginas() {
             const bloqueCasos = $('div.result.row-fluid');
             bloqueCasos.each((index, element) => {
                 const dateTimeStr = $(element).find('time.timeago').attr('datetime');
-                console.log(dateTimeStr);
+                // console.log(dateTimeStr);
+
                 if (dateTimeStr) { // Check if datetime attribute exists
                     const announcementDate = new Date(dateTimeStr);
                     const diff = Math.abs(fechaHoy - announcementDate)/ (1000 * 60 * 60 * 24);
@@ -32,9 +32,13 @@ async function getPaginas() {
                         stopFlag = true;
                         return false;
                     }else{
-                        announcement = $(element).find('div.col2.span6 a').attr('href');
+                        let announcement = $(element).find('div.col2.span6 a').attr('href');
                         if (announcement)
-                            casosARevisar.push(announcement);
+                            announcement = urlBase + announcement;
+                            const fechaPublicacion = announcementDate.toLocaleDateString("es-CL");
+                            const fechaHoyCaso = fechaHoy.toLocaleDateString("es-CL");
+                            const caso = new Caso(fechaHoyCaso,fechaPublicacion,announcement);
+                            casosARevisar.push(caso);
                     }
                 }
             });
@@ -52,7 +56,7 @@ async function getPaginas() {
             }
                     
         } catch (error) {
-            if (error.response.status === 503) {
+            if (error.response && error.response.status === 503) {
                 console.error('Error 503:', error.message);
                 await delay(2 ** attempt * 1000);  // Esperar con backoff exponencial
                 attempt++;  // Aumentar el contador de intentos
@@ -61,9 +65,36 @@ async function getPaginas() {
                 return false;  // Si el error no es 503, salir y devolver false
             }
         }
-        console.log(casosARevisar.length)
+        
         return casosARevisar;
     }
+
+async function getRemates(url,maxRetries){
+    let attempt = 0;  // Contador de intentos
+    
+    while(attempt < maxRetries){
+        try {
+            console.log("intento: ",attempt, "de ",maxRetries);
+            const { data } = await axios.get(url);
+            const $ = cheerio.load(data);
+            const description = $('div#description p').text();
+            return description;
+        } catch (error) {
+            if (error.response && error.response.status === 503) {
+                console.error('Error 503:', error.message);
+                await delay(2 ** attempt * 1000);  // Esperar con backoff exponencial
+                attempt++;  // Aumentar el contador de intentos
+            }else{
+                console.error('Error:', error.message);
+                return false;  // Si el error no es 503, salir y devolver false
+            }
+        }
+    }
+}
+ 
+// Función para manejar reintentos con backoff exponencial
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
 
 // Funcion de ejemplo para mostrar como se utiliza el getPaginas
 async function obtenerPaginas(params) {
@@ -77,4 +108,5 @@ async function obtenerPaginas(params) {
     }
     
 }
-obtenerPaginas();
+
+module.exports = { getPaginas, getRemates }
