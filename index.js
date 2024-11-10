@@ -45,7 +45,7 @@ function escribirEnArchivo(casos) {
 async function main(){
     try {
         const fechaHoy = new Date();
-        const maxDiffDate = 1;
+        const maxDiffDate = 2;
         const maxRetries = 10;
         const casos = await getDatosRemate(fechaHoy,maxDiffDate,maxRetries);
         escribirEnArchivo(casos);

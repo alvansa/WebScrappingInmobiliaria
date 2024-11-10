@@ -11,6 +11,7 @@ class Caso{
     #montoMinimo;
     #multiples;
     #comuna;
+    #foja;
 
     constructor(fechaHoy,fechaPublicacion,link){
         this.#fechaPublicacion = fechaPublicacion;
@@ -25,6 +26,7 @@ class Caso{
         this.#montoMinimo = 'N/A';
         this.#multiples = false;
         this.#comuna = 'N/A';
+        this.#foja = 'N/A';
     }
     darTexto(texto){
         this.#texto = texto;
@@ -52,6 +54,9 @@ class Caso{
     }
     darComuna(comuna){
         this.#comuna = comuna;
+    }
+    darFoja(foja){
+        this.#foja = foja;
     }
 
     getLink(){ 
@@ -89,6 +94,7 @@ class Caso{
             montoMinimo: this.#montoMinimo,
             multiples: this.#multiples,
             comuna: this.#comuna,
+            foja: this.#foja,
         };
     }
 }

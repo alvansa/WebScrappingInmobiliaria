@@ -27,7 +27,10 @@ async function getPaginas(fechaHoy,maxDiffDate) {
 
                 if (dateTimeStr) { // Check if datetime attribute exists
                     const announcementDate = new Date(dateTimeStr);
-                    const diff = Math.abs(fechaHoy - announcementDate)/ (1000 * 60 * 60 * 24);
+                    // console.log('Fecha de publicacion : ',announcementDate, 'Fecha de hoy: ',fechaHoy);
+                    // console.log('Diferencia entre fechas : ',fechaHoy - announcementDate, 'dias: ',(fechaHoy - announcementDate)/ (1000 * 60 * 60 * 24));
+                    const diff = (fechaHoy - announcementDate)/ (1000 * 60 * 60 * 24);
+                    // const diff = Math.abs(fechaHoy - announcementDate)/ (1000 * 60 * 60 * 24);
                     if (diff > maxDiffDate) {
                         stopFlag = true;
                         return false;
