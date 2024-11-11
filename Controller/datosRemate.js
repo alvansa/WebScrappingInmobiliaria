@@ -15,15 +15,17 @@ async function getDatosRemate(fechaHoy,maxDiffDate,maxRetries){
             // console.log("Remates ",pagina,":  obtenido");
         }
         for(let caso of casos){
-            const causa = getCausa(caso.getTexto());
-            const juzgado = getJuzgado(caso.getTexto());
-            const porcentaje = getPorcentaje(caso.getTexto());
-            const formatoEntrega = getFormatoEntrega(caso.getTexto());
-            const fechaRemate = getFechaRemate(caso.getTexto());
-            const montoMinimo = getMontoMinimo(caso.getTexto());
-            const multiples = getMultiples(caso.getTexto());
-            const comuna = getComuna(caso.getTexto());
-            const foja = getFoja(caso.getTexto());
+            texto = caso.texto;
+            const causa = getCausa(texto);
+            const juzgado = getJuzgado(texto);
+            const porcentaje = getPorcentaje(texto);
+            const formatoEntrega = getFormatoEntrega(texto);
+            const fechaRemate = getFechaRemate(texto);
+            const montoMinimo = getMontoMinimo(texto);
+            const multiples = getMultiples(texto);
+            const comuna = getComuna(texto);
+            const foja = getFoja(texto);
+            const numero = getNumero(texto);
 
             if (causa != null){
                 caso.darCausa(causa[0]);
@@ -43,12 +45,21 @@ async function getDatosRemate(fechaHoy,maxDiffDate,maxRetries){
             if (montoMinimo != null){
                 caso.darMontoMinimo(montoMinimo[0]);
             }
+
             caso.darMultiples(multiples);
+            if(foja.length > 1){
+
+                caso.darMultiplesFoja(true);
+                console.log(foja);
+            }
             if (comuna != null){
                 caso.darComuna(comuna);
             }
             if (foja != null){
                 caso.darFoja(foja[0]);
+            }
+            if (numero != null){
+                caso.darNumero(numero[1]);
             }
         }
         return casos;
@@ -72,6 +83,7 @@ function getCausa(data) {
 function getJuzgado(data) {
     
     data = data.toLowerCase();
+    data = data.replace(",",'');
     for (let tribunal of tribunales){
         tribunal = tribunal.toLowerCase();
         const numero = tribunal.match(/\d{1,2}/);
@@ -96,14 +108,14 @@ function getJuzgado(data) {
 }
 
 function getPorcentaje(data) {
-    //const regex = /\d{1,3}\s*%\s*(del\s+)?(mínimo|valor|precio)+|(garantía|Garantía)\s+(suficiente\s+)?(de\s+)?(\$\s*)?(\d{1,3}.)+(\d{1,3})|(caución\s+)+(interesados\s+)+\d{1,3}\s*%|(garantía|Garantía)\s+(suficiente\s+)?(por\s+)?(el\s+)?\d{1,3}%/;
+    const regex = /\d{1,3}\s*%\s*(del\s+)?(mínimo|valor|precio)+|(garantía|Garantía)\s+(suficiente\s+)?(de\s+)?(\$\s*)?(\d{1,3}.)+(\d{1,3})|(caución\s+)+(interesados\s+)+\d{1,3}\s*%|(garantía|Garantía)\s+(suficiente\s+)?(por\s+)?(el\s+)?\d{1,3}%/;
 
-    // const porcetajeRegex = new RegExp(/\d{1,3}\s*%\s*(?:del\s+)?(?:mínimo|valor|precio)+/.source +
-    //     /|(garantía|Garantía)\s+(suficiente\s+)?(de\s+)?(\$\s*)?(\d{1,3}.)+(\d{1,3})/.source +
-    //     /|(caución|interesados\s+)([a-zA-ZáéíóúÑñ:\s]*)\d{1,3}\s*%/.source +
-    //     /|(garantía|Garantía)\s+(suficiente\s+)?(por\s+)?(el\s+)?\d{1,3}%/.source );
+    const porcetajeRegex = new RegExp(/\d{1,3}\s*%\s*(?:del\s+)?(?:mínimo|valor|precio)+/.source +
+        /|(garantía|Garantía)\s+(suficiente\s+)?(de\s+)?(\$\s*)?(\d{1,3}.)+(\d{1,3})/.source +
+        /|(caución|interesados\s+)([a-zA-ZáéíóúÑñ:\s]*)\d{1,3}\s*%/.source +
+        /|(garantía|Garantía)\s+(suficiente\s+)?(por\s+)?(el\s+)?\d{1,3}%/.source );
     
-    const porcetajeRegex = "/\d{1,3}%/"
+    // const porcetajeRegex = "/\d{1,3}%/"
     const porcentaje = data.match(porcetajeRegex);
 
     return porcentaje;
@@ -132,7 +144,7 @@ function getMontoMinimo(data) {
 
 function getMultiples(data) {
     const regex = /([a-zA-ZáéíóúñÑ])*(propiedades|inmuebles)/;
-
+    const regexFojas = /(fojas|fs)(.)?\s+(N°\s+)?((\d{1,3}.)*)(\d{1,3})/ig ;
     const multiples = data.match(regex);
     if (multiples != null) {
         return true;
@@ -155,31 +167,41 @@ function getComuna(data) {
 }
 
 function getFoja(data) {
-    const regexFoja = /(fojas|fs)(.)?\s+(N°\s+)?((\d{1,3}.)*)(\d{1,3})/i ;
+    const regexFoja = /(fojas|fs)(.)?\s+(N°\s+)?((\d{1,3}.)*)(\d{1,3})/ig ;
     const foja = data.match(regexFoja);
     return foja;
 }
 
+function getNumero(data) {
+    const regexNumero = /fojas\s((?:\d{1,3}.)*\d{1,3}),?\s(?:N(?:°|º)|número)\s*((?:\d{1,3}.)*\d{1,3})[\sdel\saño\s\d{4}]?/i;
+    const numero = data.match(regexNumero);
+    return numero;
+    //fojas\s((?:\d{1,3},)*\d{1,3}),?\sN[°|º]\s*((?:\d{1,3},)*\d{1,3})[\sdel\saño\s\d{4}]?
+}
+
 async function testUnico(fecha,link){
     // const link = "https://www.economicos.cl/remates/clasificados-remates-cod7477417.html";
-    caso = new Caso(fecha,link);
+    caso = new Caso(fecha,fecha,link);
     const maxRetries = 2;
     description =  await getRemates(link,maxRetries,caso);
     caso.darTexto(description);
-
-    causa = getCausa(caso.getTexto());
-    juzgado = getJuzgado(caso.getTexto());
-    porcentaje = getPorcentaje(caso.getTexto());
-    formatoEntrega = getFormatoEntrega(caso.getTexto());
-    fechaRemate = getFechaRemate(caso.getTexto());
-    montoMinimo = getMontoMinimo(caso.getTexto());
-    multiples = getMultiples(caso.getTexto());
-    comuna = getComuna(caso.getTexto())
+    texto = caso.texto;
+    causa = getCausa(texto);
+    juzgado = getJuzgado(texto);
+    porcentaje = getPorcentaje(texto);
+    formatoEntrega = getFormatoEntrega(texto);
+    fechaRemate = getFechaRemate(texto);
+    montoMinimo = getMontoMinimo(texto);
+    multiples = getMultiples(texto);
+    comuna = getComuna(texto)
+    foja = getFoja(texto);
+    
     if (causa != null){
         caso.darCausa(causa[0]);
     }
     if (juzgado != null){
-        caso.darJuzgado(juzgado[0]);
+        caso.darJuzgado(juzgado);
+        console.log(juzgado);
     }
     if (porcentaje != null){
         caso.darPorcentaje(porcentaje[0]);
@@ -194,8 +216,16 @@ async function testUnico(fecha,link){
         caso.darMontoMinimo(montoMinimo[0]);
     }
     caso.darMultiples(multiples);
+    if(foja.length > 0){
+        caso.darMultiplesFoja(true);
+        console.log(foja);
+    }
+    
     if (comuna != null){
         caso.darComuna(comuna);
+    }
+    if (foja != null){
+        caso.darFoja(foja[0]);
     }
 
     console.log(caso.toObject());
@@ -203,7 +233,7 @@ async function testUnico(fecha,link){
 
 function convertirANombre(numero) {
     const nombres = [
-        "primero", "segundo", "tercero", "cuarto", "quinto", "sexto", "séptimo", "octavo", "noveno", "décimo",
+        "primer", "segundo", "tercer", "cuarto", "quinto", "sexto", "séptimo", "octavo", "noveno", "décimo",
         "undécimo", "duodécimo", "decimotercero", "decimocuarto", "decimoquinto", "decimosexto", "decimoséptimo", "decimoctavo", "decimonoveno", "vigésimo",
         "vigésimo primero", "vigésimo segundo", "vigésimo tercero", "vigésimo cuarto", "vigésimo quinto", "vigésimo sexto", "vigésimo séptimo", "vigésimo octavo", "vigésimo noveno", "trigésimo",
         "trigésimo primero", "trigésimo segundo", "trigésimo tercero", "trigésimo cuarto", "trigésimo quinto", "trigésimo sexto", "trigésimo séptimo", "trigésimo octavo", "trigésimo noveno", "cuadragésimo"

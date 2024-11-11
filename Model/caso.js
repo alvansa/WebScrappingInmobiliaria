@@ -1,6 +1,6 @@
 class Caso{
     #fechaPublicacion;
-    #fechahoy;
+    #fechaObtencion;
     #texto;
     #link;
     #causa;
@@ -10,12 +10,14 @@ class Caso{
     #fechaRemate;
     #montoMinimo;
     #multiples;
+    #multiplesFoja;
     #comuna;
     #foja;
+    #numero;
 
-    constructor(fechaHoy,fechaPublicacion,link){
+    constructor(fechaObtencion,fechaPublicacion,link){
         this.#fechaPublicacion = fechaPublicacion;
-        this.#fechahoy = fechaHoy;
+        this.#fechaObtencion = fechaObtencion;
         this.#texto = '';
         this.#link = link
         this.#causa = 'N/A';
@@ -27,6 +29,8 @@ class Caso{
         this.#multiples = false;
         this.#comuna = 'N/A';
         this.#foja = 'N/A';
+        this.#multiplesFoja = false;
+        this.#numero = 'N/A';
     }
     darTexto(texto){
         this.#texto = texto;
@@ -58,32 +62,24 @@ class Caso{
     darFoja(foja){
         this.#foja = foja;
     }
+    darMultiplesFoja(multiplesFoja){
+        this.#multiplesFoja = multiplesFoja;
+    }
+    darNumero(numero){
+        this.#numero = numero;
+    }
 
     getLink(){ 
         return this.#link;
     }
-    getTexto(){
+    get texto(){
         return String(this.#texto);
     }
-    getData(){
-        return {
-            fechaHoy: this.#fechahoy,
-            texto: this.#texto,
-            link: this.#link,
-            causa: this.#causa,
-            juzgado: this.#juzgado,
-            porcentaje: this.#porcentaje,
-            formatoEntrega: this.#formatoEntrega,
-            fechaRemate: this.#fechaRemate,
-            montoMinimo: this.#montoMinimo,
-            multiples: this.#multiples,
-            comuna: this.#comuna,
-        };
-    }
+  
 
     toObject() {
         return {
-            fechaHoy: this.#fechahoy,
+            fechaObtencion: this.#fechaObtencion,
             fechaPublicacion: this.#fechaPublicacion,
             link: this.#link,
             causa: this.#causa,
@@ -93,8 +89,10 @@ class Caso{
             fechaRemate: this.#fechaRemate,
             montoMinimo: this.#montoMinimo,
             multiples: this.#multiples,
+            multiplesFoja : this.#multiplesFoja,
             comuna: this.#comuna,
             foja: this.#foja,
+            numero: this.#numero
         };
     }
 }
