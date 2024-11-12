@@ -46,23 +46,23 @@ function crearBase() {
 
     // Define cada celda con el valor y el tipo
     ws['B5'] = { v: 'Link', t: 's' };
-    ws['C5'] = { v: 'Fecha Obtencion', t: 's' };
-    ws['D5'] = { v: 'Fecha Publicacion', t: 's' };
+    ws['C5'] = { v: 'Fecha Obtención', t: 's' };
+    ws['D5'] = { v: 'Fecha Publicación', t: 's' };
     ws['E5'] = { v: 'Fecha Remate', t: 's' };
     ws['F5'] = { v: 'Causa', t: 's' };
     ws['G5'] = { v: 'Juzgado', t: 's' };
     ws['H5'] = { v: 'Partes', t: 's' };
     ws['I5'] = { v: 'Que es? 1', t: 's' };
-    ws['J5'] = { v: 'Direccion', t: 's' };
+    ws['J5'] = { v: 'Dirección', t: 's' };
     ws['K5'] = { v: 'Que es? 2', t: 's' };
     ws['L5'] = { v: 'Comuna', t: 's' };
     ws['M5'] = { v: 'Foja', t: 's' };
     ws['N5'] = { v: 'Numero', t: 's' };
     ws['O5'] = { v: 'Año', t: 's' };
-    ws['P5'] = { v: 'VV o Cupon', t: 's' };
+    ws['P5'] = { v: 'VV o Cupón', t: 's' };
     ws['Q5'] = { v: 'Porcentaje', t: 's' };
-    ws['R5'] = { v: 'Dia entrega', t: 's' };
-    ws['S5'] = { v: 'Monto Minimo', t: 's' };
+    ws['R5'] = { v: 'Día entrega', t: 's' };
+    ws['S5'] = { v: 'Monto Mínimo', t: 's' };
 
     // Ajusta el ancho de las columnas
     cambiarAnchoColumnas(ws);
@@ -88,11 +88,17 @@ async function insertarDatos(fechaHoy,maxDiffDate,maxRetries){
     const filePath = path.join(__dirname, 'Remates.xlsx');
     if(!fs.existsSync(path.join(__dirname, 'Remates.xlsx'))){
         crearBase();
+        console.log('Archivo creado');
     }
     const wb = XLSX.readFile(path.join(__dirname, 'Remates.xlsx'));
     const ws = wb.Sheets['Remates'];
+    cambiarAnchoColumnas(ws);
     try{
-        const datos = await getDatosRemate(fechaHoy,maxDiffDate,maxRetries);
+        const datos = await getDatosRemate(fechaHoy,maxDiffDate,maxRetries) || [];
+        if (!Array.isArray(datos) || datos.length === 0) {
+            console.log("No se encontraron datos para insertar.");
+            return;
+        }
         const datosObj = datos.map(dato => dato.toObject());
         console.log("Cantidad de casos obtenidos: ",datosObj.length);
         let i = 6;
@@ -134,12 +140,12 @@ async function insertarDatos(fechaHoy,maxDiffDate,maxRetries){
 function cambiarAnchoColumnas(ws){
     ws['!cols'] = [
         { wch: 15 },  // A
-        { wch: 15 },  // B
+        { wch: 60 },  // B
         { wch: 20 },  // C
         { wch: 20 },  // D
         { wch: 15 },  // E
         { wch: 15 },  // F
-        { wch: 15 },  // G
+        { wch: 50 },  // G
         { wch: 15 },  // H
         { wch: 15 },  // I
         { wch: 15 },  // J
@@ -149,9 +155,9 @@ function cambiarAnchoColumnas(ws){
         { wch: 15 },  // N
         { wch: 15 },  // O
         { wch: 15 },  // P
-        { wch: 15 },  // Q
+        { wch: 70 },  // Q
         { wch: 15 },  // R
-        { wch: 15 },  // S
+        { wch: 60 },  // S
         { wch: 15 },  // T
         { wch: 15 },  // V
         { wch: 15 },  // W

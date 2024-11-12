@@ -64,7 +64,7 @@ async function getPaginas(fechaHoy,maxDiffDate) {
                 await delay(2 ** attempt * 1000);  // Esperar con backoff exponencial
                 attempt++;  // Aumentar el contador de intentos
             }
-                console.error('Error:', error.message);
+                console.error('Error en el modelo:', error.message);
                 return false;  // Si el error no es 503, salir y devolver false
             }
         }

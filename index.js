@@ -45,7 +45,7 @@ function escribirEnArchivo(casos) {
 async function main(){
     try {
         const fechaHoy = new Date();
-        const maxDiffDate = 1;
+        const maxDiffDate = 2;
         const maxRetries = 10;
         const tiempoInicio = new Date();
         const casos = await getDatosRemate(fechaHoy,maxDiffDate,maxRetries);
@@ -54,7 +54,7 @@ async function main(){
         console.log(typeof(casos));
         console.log("Tiempo de ejecución para ",casos.length ," casos: ", (tiempoFin-tiempoInicio)/1000, "segundos");
     }catch (error) {
-        console.error('Error al obtener resultados:', error);
+        console.error('Error al obtener resultados en el index.js:', error);
     }
     
 }

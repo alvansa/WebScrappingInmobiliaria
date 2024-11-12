@@ -4,7 +4,7 @@ const { Caso } = require('../Model/caso.js');
 
 async function getDatosRemate(fechaHoy,maxDiffDate,maxRetries){
     try {
-        let caso
+        let caso;
         const casos = await getPaginas(fechaHoy,maxDiffDate);
         for (caso of casos){
             pagina = caso.getLink();
@@ -47,11 +47,7 @@ async function getDatosRemate(fechaHoy,maxDiffDate,maxRetries){
             }
 
             caso.darMultiples(multiples);
-            if(foja.length > 1){
-
-                caso.darMultiplesFoja(true);
-                console.log(foja);
-            }
+            
             if (comuna != null){
                 caso.darComuna(comuna);
             }
@@ -65,7 +61,7 @@ async function getDatosRemate(fechaHoy,maxDiffDate,maxRetries){
         return casos;
     }
     catch (error) {
-        console.error('Error al obtener resultados:', error);
+        console.error('Error al obtener resultados en el controlador:', error);
     }
 }
 

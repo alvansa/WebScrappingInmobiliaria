@@ -3,7 +3,7 @@ const {crearBase,insertarDatos} = require('./Controller/createXLSX');
 async function main(){
     try{
         const fechaHoy = new Date();
-        const maxDiffDate = 7;
+        const maxDiffDate = 2;
         const maxRetries = 10;
         resultado = await insertarDatos(fechaHoy,maxDiffDate,maxRetries);
         if(resultado){

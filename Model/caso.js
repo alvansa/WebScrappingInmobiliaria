@@ -86,12 +86,12 @@ class Caso{
             juzgado: this.#juzgado,
             porcentaje: this.#porcentaje,
             formatoEntrega: this.#formatoEntrega,
-            fechaRemate: this.#fechaRemate,
+            // fechaRemate: this.#fechaRemate,
             montoMinimo: this.#montoMinimo,
             multiples: this.#multiples,
             multiplesFoja : this.#multiplesFoja,
-            comuna: this.#comuna,
-            foja: this.#foja,
+            // comuna: this.#comuna,
+            // foja: this.#foja,
             numero: this.#numero
         };
     }
