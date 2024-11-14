@@ -11,57 +11,71 @@ async function getDatosRemate(fechaHoy,maxDiffDate,maxRetries){
             console.log(pagina);
             const description = await getRemates(pagina,maxRetries);
             caso.darTexto(description);
-            
-            // console.log("Remates ",pagina,":  obtenido");
         }
         for(let caso of casos){
-            texto = caso.texto;
-            const causa = getCausa(texto);
-            const juzgado = getJuzgado(texto);
-            const porcentaje = getPorcentaje(texto);
-            const formatoEntrega = getFormatoEntrega(texto);
-            const fechaRemate = getFechaRemate(texto);
-            const montoMinimo = getMontoMinimo(texto);
-            const multiples = getMultiples(texto);
-            const comuna = getComuna(texto);
-            const foja = getFoja(texto);
-            const numero = getNumero(texto);
-
-            if (causa != null){
-                caso.darCausa(causa[0]);
-            }
-            if (juzgado != null){
-                caso.darJuzgado(juzgado);
-            }
-            if (porcentaje != null){
-                caso.darPorcentaje(porcentaje[0]);
-            }
-            if (formatoEntrega != null){
-                caso.darFormatoEntrega(formatoEntrega[0]);
-            }
-            if (fechaRemate != null){
-                caso.darFechaRemate(fechaRemate[0]);
-            }
-            if (montoMinimo != null){
-                caso.darMontoMinimo(montoMinimo[0]);
-            }
-
-            caso.darMultiples(multiples);
-            
-            if (comuna != null){
-                caso.darComuna(comuna);
-            }
-            if (foja != null){
-                caso.darFoja(foja[0]);
-            }
-            if (numero != null){
-                caso.darNumero(numero[1]);
-            }
+            procesarDatosRemate(caso);
         }
         return casos;
     }
     catch (error) {
         console.error('Error al obtener resultados en el controlador:', error);
+    }
+}
+//Funcion que procesa los datos de un remate y obtiene la informacion necesaria
+function procesarDatosRemate(caso){
+    texto = caso.texto;
+    const causa = getCausa(texto);
+    const juzgado = getJuzgado(texto);
+    const porcentaje = getPorcentaje(texto);
+    const formatoEntrega = getFormatoEntrega(texto);
+    const fechaRemate = getFechaRemate(texto);
+    const montoMinimo = getMontoMinimo(texto);
+    const multiples = getMultiples(texto);
+    const comuna = getComuna(texto);
+    const foja = getFoja(texto);
+    const numero = getNumero(texto);
+    const partes = getPartes(texto);
+    const tipoPropiedad = getTipoPropiedad(texto)
+    const tipoDerecho = getTipoDerecho(texto)
+
+    if (causa != null){
+        caso.darCausa(causa[0]);
+    }
+    if (juzgado != null){
+        caso.darJuzgado(juzgado);
+    }
+    if (porcentaje != null){
+        caso.darPorcentaje(porcentaje[0]);
+    }
+    if (formatoEntrega != null){
+        caso.darFormatoEntrega(formatoEntrega[0]);
+    }
+    if (fechaRemate != null){
+        caso.darFechaRemate(fechaRemate[0]);
+    }
+    if (montoMinimo != null){
+        monto = montoMinimo[0].match(/(\d{1,3}\.)*\d{1,3}(,\d{1,5})*/);
+        caso.darMontoMinimo(monto[0]);
+    }
+    caso.darMultiples(multiples);
+    
+    if (comuna != null){
+        caso.darComuna(comuna);
+    }
+    if (foja != null){
+        caso.darFoja(foja[0]);
+    }
+    if (numero != null){
+        caso.darNumero(numero[1]);
+    }
+    if (partes != null){
+        caso.darPartes(partes[0]);
+    }
+    if (tipoPropiedad != null){
+        caso.darTipoPropiedad(tipoPropiedad[0]);
+    }
+    if (tipoDerecho != null){
+        caso.darTipoDerecho(tipoDerecho[0]);
     }
 }
 
@@ -92,10 +106,11 @@ function getJuzgado(data) {
             //º
             tribunalBolita1 = tribunal.replace('°', 'º');
         }
+        const dataSinDe = data.replaceAll("de ",'');
         const tribunalSinDe = tribunal.replaceAll("de ",'');
         // const tribunalSinDe = tribunal.replaceAll(/de\s+/,'');
         tribunalBolita1SinDe = tribunalBolita1.replace(/de\s+/,'');
-        if (data.includes(tribunal) | data.includes(tribunalOrdinal) | data.includes(tribunalSinDe) | data.includes(tribunalBolita1) | data.includes(tribunalBolita1SinDe) | data.includes(tribunalOrdinalSinDe)){
+        if (data.includes(tribunal) | data.includes(tribunalOrdinal) | data.includes(tribunalSinDe) | data.includes(tribunalBolita1) | data.includes(tribunalBolita1SinDe) | data.includes(tribunalOrdinalSinDe) | dataSinDe.includes(tribunalSinDe)){
             // juzgado = tribunal;
             return tribunal;
         } 
@@ -132,7 +147,7 @@ function getFechaRemate(data) {
 }
 
 function getMontoMinimo(data) {
-    const regex = /(subasta|mínimo)\s*([a-zA-ZáéíóúÑñ:\s]*)\s+((\$)\s*(\d{1,3}.)+(\d{1,3})|(\d{1,3}.)+(\d{1,3})(,\d{1,10})?\s*(Unidades de Fomento|UF|U.F.)|(Unidades de Fomento|UF|U.F.)\s+(\d{1,3}.)+(\d{1,3})(,\d{1,10})?)/i;
+    const regex = /(subasta|mínimo)\s*([a-zA-ZáéíóúÑñ:\s]*)\s+((\$)\s*(\d{1,3}.)+(\d{1,3})|(\d{1,3}.)+(\d{1,3})(,\d{1,10})?\s*(Unidades de Fomento|UF|U.F.)|(Unidades de Fomento|U\.?F\.?)\s*(\d{1,3}\.)+(\d{1,3})(,\d{1,10})?)/i;
     // (Mínimo\s+)?(subasta\s+)?((\$)\s*(\d{1,3}.)+(\d{1,3})|(\d{1,3}.)*(\d{1,3}),?(\d{1,10})?\s*(?:Unidades de Fomento|U.F.|UF))
     const montoMinimo = data.match(regex);
     return montoMinimo;
@@ -175,55 +190,33 @@ function getNumero(data) {
     //fojas\s((?:\d{1,3},)*\d{1,3}),?\sN[°|º]\s*((?:\d{1,3},)*\d{1,3})[\sdel\saño\s\d{4}]?
 }
 
+function getPartes(data){
+    data = data.replaceAll("'", ""); //Elimina comillas simples
+    data = data.replaceAll('"', ""); //Elimina comillas dobles
+    const regexPartes = /(?:caratulado?a?s?|expediente)\s*[:]?(?:(?:Rol\s)?\s*C\s*-\s*\d{1,5}\s*-\s*\d{1,5},?)?(\s*[a-zA-ZáéíóúñÑ-]+){1,5}\s*(S\.A\.G\.R\.|S\.A\.G\.R\.|S\.A\.?\/?|con|\/)(\s*[a-zA-ZáéíóúñÑ]+){1,4}/i;
+    const partes = data.match(regexPartes);
+    return partes;
+}
+
+function getTipoPropiedad(data){
+    const regexPropiedad = /(?:casa|departamento|terreno|parcela|sitio|local|bodega|oficina|vivienda)/i;
+    const tipoPropiedad = data.match(regexPropiedad);
+    return tipoPropiedad;
+}
+
+function getTipoDerecho(data){
+    const regexDerecho = /(?:dominio|posesión|propiedad|inmueble|usufructo|nuda propiedad)/i;
+    const tipoDerecho = data.match(regexDerecho);
+    return tipoDerecho;
+}
+
 async function testUnico(fecha,link){
     // const link = "https://www.economicos.cl/remates/clasificados-remates-cod7477417.html";
     caso = new Caso(fecha,fecha,link);
     const maxRetries = 2;
     description =  await getRemates(link,maxRetries,caso);
     caso.darTexto(description);
-    texto = caso.texto;
-    causa = getCausa(texto);
-    juzgado = getJuzgado(texto);
-    porcentaje = getPorcentaje(texto);
-    formatoEntrega = getFormatoEntrega(texto);
-    fechaRemate = getFechaRemate(texto);
-    montoMinimo = getMontoMinimo(texto);
-    multiples = getMultiples(texto);
-    comuna = getComuna(texto)
-    foja = getFoja(texto);
-    
-    if (causa != null){
-        caso.darCausa(causa[0]);
-    }
-    if (juzgado != null){
-        caso.darJuzgado(juzgado);
-        console.log(juzgado);
-    }
-    if (porcentaje != null){
-        caso.darPorcentaje(porcentaje[0]);
-    }
-    if (formatoEntrega != null){
-        caso.darFormatoEntrega(formatoEntrega[0]);
-    }
-    if (fechaRemate != null){
-        caso.darFechaRemate(fechaRemate[0]);
-    }
-    if (montoMinimo != null){
-        caso.darMontoMinimo(montoMinimo[0]);
-    }
-    caso.darMultiples(multiples);
-    if(foja.length > 0){
-        caso.darMultiplesFoja(true);
-        console.log(foja);
-    }
-    
-    if (comuna != null){
-        caso.darComuna(comuna);
-    }
-    if (foja != null){
-        caso.darFoja(foja[0]);
-    }
-
+    procesarDatosRemate(caso);
     console.log(caso.toObject());
 }
 

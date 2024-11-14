@@ -14,6 +14,9 @@ class Caso{
     #comuna;
     #foja;
     #numero;
+    #partes;
+    #tipoPropiedad;
+    #tipoDerecho;
 
     constructor(fechaObtencion,fechaPublicacion,link){
         this.#fechaPublicacion = fechaPublicacion;
@@ -31,6 +34,9 @@ class Caso{
         this.#foja = 'N/A';
         this.#multiplesFoja = false;
         this.#numero = 'N/A';
+        this.#partes = "N/A";
+        this.#tipoPropiedad = 'N/A';
+        this.#tipoDerecho = 'N/A';
     }
     darTexto(texto){
         this.#texto = texto;
@@ -68,6 +74,15 @@ class Caso{
     darNumero(numero){
         this.#numero = numero;
     }
+    darPartes(partes){
+        this.#partes = partes;
+    }
+    darTipoPropiedad(tipoPropiedad){
+        this.#tipoPropiedad = tipoPropiedad;
+    }
+    darTipoDerecho(tipoDerecho){
+        this.#tipoDerecho = tipoDerecho;
+    }
 
     getLink(){ 
         return this.#link;
@@ -92,7 +107,10 @@ class Caso{
             multiplesFoja : this.#multiplesFoja,
             // comuna: this.#comuna,
             // foja: this.#foja,
-            numero: this.#numero
+            numero: this.#numero,
+            partes: this.#partes,
+            tipoPropiedad: this.#tipoPropiedad,
+            tipoDerecho: this.#tipoDerecho,
         };
     }
 }
