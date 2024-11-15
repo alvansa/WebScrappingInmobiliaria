@@ -6,7 +6,9 @@ const {Caso} = require('./caso.js');
 let url = 'https://www.economicos.cl/todo_chile/remates_de_propiedades_el_mercurio'
 let urlBase = "https://www.economicos.cl"
 
-async function getPaginas(fechaHoy,maxDiffDate) {
+async function getPaginas(fechaHoy,fechaInicioStr,fechaFinStr) {
+    fechaInicio = setStrToDateTime(fechaInicioStr);
+    fechaFin = setStrToDateTime(fechaFinStr);
     // const maxDiffDate = 7; 
     const maxRetries = 5;  // Número máximo de reintentos
     let attempt = 0;  // Contador de intentos
@@ -23,23 +25,20 @@ async function getPaginas(fechaHoy,maxDiffDate) {
             const bloqueCasos = $('div.result.row-fluid');
             bloqueCasos.each((index, element) => {
                 const dateTimeStr = $(element).find('time.timeago').attr('datetime');
-                // console.log(dateTimeStr);
 
-                if (dateTimeStr) { // Check if datetime attribute exists
-                    const announcementDate = new Date(dateTimeStr);
-                    // console.log('Fecha de publicacion : ',announcementDate, 'Fecha de hoy: ',fechaHoy);
-                    // console.log('Diferencia entre fechas : ',fechaHoy - announcementDate, 'dias: ',(fechaHoy - announcementDate)/ (1000 * 60 * 60 * 24));
-                    const diff = (fechaHoy - announcementDate)/ (1000 * 60 * 60 * 24);
-                    // const diff = Math.abs(fechaHoy - announcementDate)/ (1000 * 60 * 60 * 24);
-                    if (diff > maxDiffDate) {
+                if (dateTimeStr) { // Revisa si pudo obtener la fecha de publicación
+                    const announcementDate = setStrToDateTime(dateTimeStr);
+                    console.log(announcementDate+" // "+fechaInicio+" // "+fechaFin);
+                    // console.log(dateTimeStr+" // "+fechaInicioStr+" // "+fechaFinStr);
+                    if (announcementDate < fechaInicio) {
                         stopFlag = true;
                         return false;
-                    }else{
+                    }else if (announcementDate >= fechaInicio && announcementDate <= fechaFin) {
                         let announcement = $(element).find('div.col2.span6 a').attr('href');
                         if (announcement)
                             announcement = urlBase + announcement;
-                            const fechaPublicacion = announcementDate.toLocaleDateString("es-CL");
-                            const fechaHoyCaso = fechaHoy.toLocaleDateString("es-CL");
+                            const fechaPublicacion = announcementDate;
+                            const fechaHoyCaso = fechaHoy.toISOString().split("T")[0];
                             const caso = new Caso(fechaHoyCaso,fechaPublicacion,announcement);
                             casosARevisar.push(caso);
                     }
@@ -110,6 +109,12 @@ async function obtenerPaginas(params) {
         return false;
     }
     
+}
+
+function setStrToDateTime(dateStr){
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const parsedDate = new Date(Date.UTC(year, month - 1, day));
+    return parsedDate.toISOString().split("T")[0];
 }
 
 module.exports = { getPaginas, getRemates }

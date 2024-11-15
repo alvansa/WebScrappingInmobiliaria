@@ -5,13 +5,17 @@
     <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://www.economicos.cl; img-src 'self' data: https://www.economicos.cl; script-src 'self' 'unsafe-eval'">
     <title>Hello World!</title>
+    <link rel="stylesheet" href="./css/styles.css">
     
   </head>
   <body>
-    <h1>Buscador de precios</h1>
-    <button id="obtenerResultados" >Obtener Resultados</button>
-    <div id="resultados"></div>
-    <script src="index.js"></script>
+    <div class="container">
+      <input type="date" id="startDate" />
+      <input type="date" id="endDate" />
+      <button id="logButton">Mostrar Fechas</button>
+      <button id="showButton">Mostrar mensaje</button>
+    </div>
+    <script src="./Electron/renderer.js"></script>
+
   </body>
-  
 </html>

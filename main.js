@@ -1,12 +1,14 @@
-const {app, BrowserWindow} = require('electron')
+const {app, BrowserWindow} = require('electron');
+const path = require('node:path');
 
 const createWindow = () => {
+
     const win = new BrowserWindow({
         width: 800,
         height: 600,
         webPreferences: {
-            nodeIntegration: true, // Habilita Node.js en el renderer process
-            contextIsolation: false, // Deshabilita el aislamiento de contexto (opcional, solo si usas Node.js)
+            preload: path.join(__dirname, './Electron/preload.js'), // Archivo que se ejecutará antes de cargar el renderer process
+            nodeIntegration: true
         },
     })
 

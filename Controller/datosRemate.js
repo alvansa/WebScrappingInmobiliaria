@@ -2,10 +2,10 @@ const { getPaginas, getRemates } = require('../Model/getNextPage.js');
 const { comunas, tribunales } = require('../Model/datosLocales.js');
 const { Caso } = require('../Model/caso.js');
 
-async function getDatosRemate(fechaHoy,maxDiffDate,maxRetries){
+async function getDatosRemate(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries){
     try {
         let caso;
-        const casos = await getPaginas(fechaHoy,maxDiffDate);
+        const casos = await getPaginas(fechaHoy,fechaInicioStr,fechaFinStr);
         for (caso of casos){
             pagina = caso.getLink();
             console.log(pagina);
