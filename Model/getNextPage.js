@@ -7,8 +7,8 @@ let url = 'https://www.economicos.cl/todo_chile/remates_de_propiedades_el_mercur
 let urlBase = "https://www.economicos.cl"
 
 async function getPaginas(fechaHoy,fechaInicioStr,fechaFinStr) {
-    fechaInicio = setStrToDateTime(fechaInicioStr);
-    fechaFin = setStrToDateTime(fechaFinStr);
+    fechaInicio = new Date(fechaInicioStr);
+    fechaFin = new Date(fechaFinStr);
     // const maxDiffDate = 7; 
     const maxRetries = 5;  // Número máximo de reintentos
     let attempt = 0;  // Contador de intentos
@@ -27,9 +27,9 @@ async function getPaginas(fechaHoy,fechaInicioStr,fechaFinStr) {
                 const dateTimeStr = $(element).find('time.timeago').attr('datetime');
 
                 if (dateTimeStr) { // Revisa si pudo obtener la fecha de publicación
-                    const announcementDate = setStrToDateTime(dateTimeStr);
+                    const announcementDate = new Date(dateTimeStr);
                     console.log(announcementDate+" // "+fechaInicio+" // "+fechaFin);
-                    // console.log(dateTimeStr+" // "+fechaInicioStr+" // "+fechaFinStr);
+                    
                     if (announcementDate < fechaInicio) {
                         stopFlag = true;
                         return false;
@@ -38,7 +38,8 @@ async function getPaginas(fechaHoy,fechaInicioStr,fechaFinStr) {
                         if (announcement)
                             announcement = urlBase + announcement;
                             const fechaPublicacion = announcementDate;
-                            const fechaHoyCaso = fechaHoy.toISOString().split("T")[0];
+                            // const fechaHoyCaso = fechaHoy.toISOString().split("T")[0];
+                            const fechaHoyCaso = fechaHoy;
                             const caso = new Caso(fechaHoyCaso,fechaPublicacion,announcement);
                             casosARevisar.push(caso);
                     }

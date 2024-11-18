@@ -8,36 +8,8 @@ const fs = require('fs');
 const path = require('path');
 
 const {getDatosRemate} = require('../Controller/datosRemate'); 
+const {getPJUD} = require('../Model/testPjud');
 // const {getPaginas} = require('../Model/ObtenerDatos');
-
-function crearExcel(){
-    //Creamos un libro de excel
-    const workbook = XLSX.utils.book_new();
-
-    //Creamos una hoja de excel
-    const worksheet = XLSX.utils.json_to_sheet([{nombre: 'Juan', apellido: 'Perez', edad: 25}, {nombre: 'Maria', apellido: 'Gomez', edad: 30}]);
-
-    //Añadimos la hoja al libro
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Personas');
-
-    //Guardamos el libro en un archivo
-    XLSX.writeFile(workbook, path.join(__dirname, 'personas.xlsx'));
-}
-
-function modificarExcel(nombre){
-    const workbook = XLSX.readFile(path.join(__dirname, 'personas.xlsx'));
-    const worksheet = workbook.Sheets['Personas'];
-    
-    const fechaHoy = new Date();
-
-    worksheet['A1'] = {v: fechaHoy, t: 'd'};
-    worksheet['B1'] = {v: "Nombre", t: 's'};
-    worksheet['C1'] = {v: "Causa", t: 's'};
-
-    worksheet['!cols'] = [{ wch: 15 }];
-    XLSX.writeFile(workbook, path.join(__dirname, nombre + '.xlsx'));
-
-}
 
 
 function crearBase() {
@@ -84,8 +56,8 @@ function crearBase() {
     XLSX.writeFile(wb, path.join(__dirname, 'Remates.xlsx'));
 }
 
-async function insertarDatos(fechaHoy,maxDiffDate,maxRetries){
-    const filePath = path.join(__dirname, 'Remates.xlsx');
+async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries){
+    var filePath = path.join(__dirname, 'Remates.xlsx');
     if(!fs.existsSync(path.join(__dirname, 'Remates.xlsx'))){
         crearBase();
         console.log('Archivo creado');
@@ -94,47 +66,79 @@ async function insertarDatos(fechaHoy,maxDiffDate,maxRetries){
     const ws = wb.Sheets['Remates'];
     cambiarAnchoColumnas(ws);
     try{
-        const datos = await getDatosRemate(fechaHoy,maxDiffDate,maxRetries) || [];
-        if (!Array.isArray(datos) || datos.length === 0) {
-            console.log("No se encontraron datos para insertar.");
-            return;
-        }
-        const datosObj = datos.map(dato => dato.toObject());
-        console.log("Cantidad de casos obtenidos: ",datosObj.length);
         let i = 6;
-        for(let dato of datosObj){
-            console.log("caso:",i-5,"causa:",dato.causa);
-            console.log("caso:",i-5,"direccion:",dato.direccion);
-            ws['B' + i] = { v: dato.link, t: 's' };
-            ws['C' + i] = { v: dato.fechaObtencion, t: 'd' };
-            ws['D' + i] = { v: dato.fechaPublicacion, t: 'd' };
-            ws['E' + i] = { v: dato.fechaRemate, t: 's' };
-            ws['F' + i] = { v: dato.causa, t: 's' };
-            ws['G' + i] = { v: dato.juzgado, t: 's' };
-            // ws['H' + i] = { v: dato.partes, t: 's' };
-            // ws['I' + i] = { v: dato.queEs1, t: 's' };
-            // ws['J' + i] = { v: dato.direccion, t: 's' };
-            // ws['K' + i] = { v: dato.queEs2, t: 's' };
-            ws['L' + i] = { v: dato.comuna, t: 's' };
-            ws['M' + i] = { v: dato.foja, t: 's' };
-            // ws['N' + i] = { v: dato.numero, t: 's' };
-            // ws['O' + i] = { v: dato.ano, t: 's' };
-            ws['P' + i] = { v: dato.formatoEntrega, t: 's' };
-            ws['Q' + i] = { v: dato.porcentaje, t: 's' };
-            ws['R' + i] = { v: dato.diaEntrega, t: 's' };
-            ws['S' + i] = { v: dato.montoMinimo, t: 's' };
-            i++;
-        }
+        i = await getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i);
+        // i = await getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i);
+        i--;
         ws['!ref'] = 'B5:S'+i;
+        fechaInicioDMA = cambiarFormatoFecha(fechaInicioStr);
+        fechaFinDMA = cambiarFormatoFecha(fechaFinStr);
+        filePath = path.join(__dirname, 'Remates_'+fechaInicioDMA+'_a_'+fechaFinDMA+'.xlsx');
         XLSX.writeFile(wb, filePath);
-        return true;
+        console.log(filePath);
+        return filePath;
     }catch(error){
         console.error('Error al obtener resultados:', error);
-        return false;
+        return null;
     }
     
 }
 
+async function getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i){
+    const datos = await getDatosRemate(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries) || [];
+    if (!Array.isArray(datos) || datos.length === 0) {
+        console.log("No se encontraron datos para insertar.");
+        return;
+    }
+    const datosObj = datos.map(dato => dato.toObject());
+    console.log("Cantidad de casos obtenidos: ",datosObj.length);
+    
+    for(let dato of datosObj){
+        // console.log("caso:",i-5,"causa:",dato.causa);
+        // console.log("caso:",i-5,"direccion:",dato.direccion);
+        ws['B' + i] = { v: dato.link, t: 's' };
+        // const fechaObtencion = formatoFechaExcel(dato.fechaObtencion);
+        // console.log("fechaObtencion:",fechaObtencion);
+        ws['C' + i] = { v: dato.fechaObtencion, t: 'd' };
+        dato.fechaPublicacion.setHours( dato.fechaPublicacion.getHours() + 6);
+        console.log("caso:",i-5,"fecha Obtencion:",dato.fechaPublicacion);
+        ws['D' + i] = { v: dato.fechaPublicacion, t: 'd' };
+        // ws['E' + i] = { v: dato.fechaRemate, t: 's' };
+        ws['F' + i] = { v: dato.causa, t: 's' };
+        ws['G' + i] = { v: dato.juzgado, t: 's' };
+        // ws['H' + i] = { v: dato.partes, t: 's' };
+        ws['I' + i] = { v: dato.tipoPropiedad, t: 's' };
+        // ws['J' + i] = { v: dato.direccion, t: 's' };
+        ws['K' + i] = { v: dato.tipoDerecho, t: 's' };
+        ws['L' + i] = { v: dato.comuna, t: 's' };
+        // ws['M' + i] = { v: dato.foja, t: 's' };
+        // ws['N' + i] = { v: dato.numero, t: 's' };
+        // ws['O' + i] = { v: dato.ano, t: 's' };
+        ws['P' + i] = { v: dato.formatoEntrega, t: 's' };
+        ws['Q' + i] = { v: dato.porcentaje, t: 's' };
+        ws['R' + i] = { v: dato.diaEntrega, t: 's' };
+        ws['S' + i] = { v: dato.montoMinimo, t: 's' };
+        i++;
+    }
+    return i;
+}
+
+async function getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i){
+    fechaInicioPjud = formatoFechaPjud(fechaInicioStr);
+    fechaFinPjud = formatoFechaPjud(fechaFinStr);
+    console.log("Fechas: ",fechaInicioPjud,fechaFinPjud);
+    const datoPjud = await getPJUD(fechaInicioPjud,fechaFinPjud) || [];
+    for (let dato of datoPjud){
+        let fecha = transformarFechaPjud(dato.fechaHora);
+        fecha.setHours( fecha.getHours() + 6);
+        ws['C' + i] = { v: fechaHoy, t: 'd' };
+        ws['D' + i] = { v: fecha, t: 'd' };
+        ws['F' + i] = { v: dato.causa, t: 's' };
+        ws['G' + i] = { v: dato.tribunal, t: 's' };
+        i++;
+    }
+    return i;
+} 
 
 
 function cambiarAnchoColumnas(ws){
@@ -143,7 +147,7 @@ function cambiarAnchoColumnas(ws){
         { wch: 60 },  // B
         { wch: 20 },  // C
         { wch: 20 },  // D
-        { wch: 15 },  // E
+        { wch: 25 },  // E
         { wch: 15 },  // F
         { wch: 50 },  // G
         { wch: 15 },  // H
@@ -155,9 +159,9 @@ function cambiarAnchoColumnas(ws){
         { wch: 15 },  // N
         { wch: 15 },  // O
         { wch: 15 },  // P
-        { wch: 70 },  // Q
+        { wch: 15 },  // Q
         { wch: 15 },  // R
-        { wch: 60 },  // S
+        { wch: 30 },  // S
         { wch: 15 },  // T
         { wch: 15 },  // V
         { wch: 15 },  // W
@@ -167,8 +171,31 @@ function cambiarAnchoColumnas(ws){
     ];
 }
 
+function cambiarFormatoFecha(fecha) {
+    const partes = fecha.split("-"); // Dividimos la fecha en partes [año, mes, día]
+    const [año, mes, día] = partes; // Desestructuramos las partes
+    return `${día}-${mes}-${año}`;  // Construimos el nuevo formato
+}
 
+function formatoFechaPjud(fecha,desfaseHoras = 4) {
+    const partes = fecha.split("-"); // Dividimos la fecha en partes [año, mes, día]
+    const [año, mes, día] = partes; // Desestructuramos las partes
+    return `${día}/${mes}/${año}`;
+}
+
+function transformarFechaPjud(fechaHora) {
+    // Separar la fecha y la hora
+    const [fecha, hora] = fechaHora.split(" ");
+    
+    // Separar día, mes y año
+    const [mes, dia, año] = fecha.split("/");
+    
+    // Formatear la fecha en "dd-mm-yyyy"
+    const fechaFormateada = new Date(`${dia}-${mes}-${año}`);
+    
+    return fechaFormateada;
+  }
 //crearExcel();
 // modificarExcel('personasModificado');
 
-module.exports = {crearExcel, modificarExcel, crearBase,insertarDatos};
+module.exports = { crearBase,insertarDatos};

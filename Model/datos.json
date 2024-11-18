@@ -7,13 +7,6 @@
     "estadoRemate": "Reprogramado"
   },
   {
-    "tribunal": "29º JUZGADO CIVIL DE SANTIAGO",
-    "competencia": "Civil",
-    "causa": "C-16116-2023",
-    "fechaHora": "11/11/2024 15:30",
-    "estadoRemate": "Agendado"
-  },
-  {
     "tribunal": "25º JUZGADO CIVIL DE SANTIAGO",
     "competencia": "Civil",
     "causa": "C-14502-2023",
@@ -49,18 +42,18 @@
     "estadoRemate": "Agendado"
   },
   {
+    "tribunal": "22º JUZGADO CIVIL DE SANTIAGO",
+    "competencia": "Civil",
+    "causa": "C-8717-2022",
+    "fechaHora": "11/11/2024 13:00",
+    "estadoRemate": "Agendado"
+  },
+  {
     "tribunal": "1º JUZGADO DE LETRAS DE LOS ANGELES",
     "competencia": "Civil",
     "causa": "C-2477-2022",
     "fechaHora": "11/11/2024 13:00",
     "estadoRemate": "Agendado"
-  },
-  {
-    "tribunal": "1º JUZGADO CIVIL DE CHILLAN",
-    "competencia": "Civil",
-    "causa": "C-4341-2020",
-    "fechaHora": "11/11/2024 13:00",
-    "estadoRemate": "Reprogramado"
   },
   {
     "tribunal": "3º JUZGADO CIVIL DE SANTIAGO",
@@ -70,11 +63,11 @@
     "estadoRemate": "Agendado"
   },
   {
-    "tribunal": "22º JUZGADO CIVIL DE SANTIAGO",
+    "tribunal": "1º JUZGADO CIVIL DE CHILLAN",
     "competencia": "Civil",
-    "causa": "C-8717-2022",
+    "causa": "C-4341-2020",
     "fechaHora": "11/11/2024 13:00",
-    "estadoRemate": "Agendado"
+    "estadoRemate": "Reprogramado"
   },
   {
     "tribunal": "22º JUZGADO CIVIL DE SANTIAGO",
@@ -91,9 +84,16 @@
     "estadoRemate": "Agendado"
   },
   {
-    "tribunal": "1º JUZGADO DE LETRAS DE COQUIMBO",
+    "tribunal": "2º JUZGADO CIVIL DE TEMUCO",
     "competencia": "Civil",
-    "causa": "C-5-2020",
+    "causa": "C-2473-2024",
+    "fechaHora": "11/11/2024 12:00",
+    "estadoRemate": "Agendado"
+  },
+  {
+    "tribunal": "3º JUZGADO DE LETRAS DE OVALLE",
+    "competencia": "Civil",
+    "causa": "C-1138-2023",
     "fechaHora": "11/11/2024 12:00",
     "estadoRemate": "Reprogramado"
   },
@@ -101,6 +101,13 @@
     "tribunal": "4º JUZGADO DE LETRAS DE TALCA",
     "competencia": "Civil",
     "causa": "C-426-2024",
+    "fechaHora": "11/11/2024 12:00",
+    "estadoRemate": "Reprogramado"
+  },
+  {
+    "tribunal": "2º JUZGADO DE LETRAS DE ARICA",
+    "competencia": "Civil",
+    "causa": "C-2404-2023",
     "fechaHora": "11/11/2024 12:00",
     "estadoRemate": "Reprogramado"
   },
@@ -119,24 +126,17 @@
     "estadoRemate": "Agendado"
   },
   {
-    "tribunal": "2º JUZGADO DE LETRAS DE ARICA",
+    "tribunal": "22º JUZGADO CIVIL DE SANTIAGO",
     "competencia": "Civil",
-    "causa": "C-2404-2023",
-    "fechaHora": "11/11/2024 12:00",
-    "estadoRemate": "Reprogramado"
+    "causa": "C-31409-2016",
+    "fechaHora": "11/11/2024 11:30",
+    "estadoRemate": "Agendado"
   },
   {
-    "tribunal": "3º JUZGADO DE LETRAS DE OVALLE",
+    "tribunal": "1º JUZGADO DE LETRAS EN LO CIVIL DE ANTOFAGASTA",
     "competencia": "Civil",
-    "causa": "C-1138-2023",
-    "fechaHora": "11/11/2024 12:00",
-    "estadoRemate": "Reprogramado"
-  },
-  {
-    "tribunal": "2º JUZGADO CIVIL DE TEMUCO",
-    "competencia": "Civil",
-    "causa": "C-2473-2024",
-    "fechaHora": "11/11/2024 12:00",
+    "causa": "C-1880-2024",
+    "fechaHora": "11/11/2024 11:30",
     "estadoRemate": "Agendado"
   },
   {
@@ -161,25 +161,18 @@
     "estadoRemate": "Reprogramado"
   },
   {
-    "tribunal": "22º JUZGADO CIVIL DE SANTIAGO",
-    "competencia": "Civil",
-    "causa": "C-31409-2016",
-    "fechaHora": "11/11/2024 11:30",
-    "estadoRemate": "Agendado"
-  },
-  {
-    "tribunal": "1º JUZGADO DE LETRAS EN LO CIVIL DE ANTOFAGASTA",
-    "competencia": "Civil",
-    "causa": "C-1880-2024",
-    "fechaHora": "11/11/2024 11:30",
-    "estadoRemate": "Agendado"
-  },
-  {
     "tribunal": "2º JUZGADO CIVIL DE RANCAGUA",
     "competencia": "Civil",
     "causa": "C-2725-2024",
     "fechaHora": "11/11/2024 11:00",
     "estadoRemate": "Agendado"
+  },
+  {
+    "tribunal": "9º JUZGADO CIVIL DE SANTIAGO",
+    "competencia": "Civil",
+    "causa": "C-163-2024",
+    "fechaHora": "11/11/2024 11:00",
+    "estadoRemate": "Reprogramado"
   },
   {
     "tribunal": "JUZGADO DE LETRAS Y GARANTIA DE PAILLACO",
@@ -189,16 +182,16 @@
     "estadoRemate": "Agendado"
   },
   {
-    "tribunal": "1º JUZGADO DE LETRAS DE LOS ANGELES",
+    "tribunal": "2º JUZGADO CIVIL DE RANCAGUA",
     "competencia": "Civil",
-    "causa": "C-3957-2023",
+    "causa": "C-3805-2023",
     "fechaHora": "11/11/2024 11:00",
     "estadoRemate": "Reprogramado"
   },
   {
-    "tribunal": "2º JUZGADO CIVIL DE RANCAGUA",
+    "tribunal": "1º JUZGADO DE LETRAS DE LOS ANGELES",
     "competencia": "Civil",
-    "causa": "C-3805-2023",
+    "causa": "C-3957-2023",
     "fechaHora": "11/11/2024 11:00",
     "estadoRemate": "Reprogramado"
   },
@@ -210,11 +203,11 @@
     "estadoRemate": "Agendado"
   },
   {
-    "tribunal": "9º JUZGADO CIVIL DE SANTIAGO",
+    "tribunal": "2º JUZGADO CIVIL DE RANCAGUA",
     "competencia": "Civil",
-    "causa": "C-163-2024",
-    "fechaHora": "11/11/2024 11:00",
-    "estadoRemate": "Reprogramado"
+    "causa": "C-1126-2024",
+    "fechaHora": "11/11/2024 10:00",
+    "estadoRemate": "Agendado"
   },
   {
     "tribunal": "22º JUZGADO CIVIL DE SANTIAGO",
@@ -231,20 +224,6 @@
     "estadoRemate": "Agendado"
   },
   {
-    "tribunal": "3º JUZGADO DE LETRAS DE LA SERENA",
-    "competencia": "Civil",
-    "causa": "C-1926-2023",
-    "fechaHora": "11/11/2024 10:00",
-    "estadoRemate": "Reprogramado"
-  },
-  {
-    "tribunal": "2º JUZGADO CIVIL DE RANCAGUA",
-    "competencia": "Civil",
-    "causa": "C-1126-2024",
-    "fechaHora": "11/11/2024 10:00",
-    "estadoRemate": "Agendado"
-  },
-  {
     "tribunal": "JUZGADO DE LETRAS Y GARANTIA DE CABRERO",
     "competencia": "Civil",
     "causa": "C-161-2024",
@@ -257,209 +236,6 @@
     "causa": "C-2207-2023",
     "fechaHora": "11/11/2024 09:00",
     "estadoRemate": "Reprogramado"
-  },
-  {
-    "tribunal": "2º JUZGADO DE LETRAS DE OVALLE",
-    "competencia": "Civil",
-    "causa": "C-496-2021",
-    "fechaHora": "08/11/2024 15:00",
-    "estadoRemate": "Agendado"
-  },
-  {
-    "tribunal": "JUZGADO DE LETRAS DE MARIQUINA",
-    "competencia": "Civil",
-    "causa": "C-190-2024",
-    "fechaHora": "08/11/2024 13:30",
-    "estadoRemate": "Reprogramado"
-  },
-  {
-    "tribunal": "1º JUZGADO CIVIL DE CHILLAN",
-    "competencia": "Civil",
-    "causa": "C-4836-2023",
-    "fechaHora": "08/11/2024 13:00",
-    "estadoRemate": "Reprogramado"
-  },
-  {
-    "tribunal": "2º JUZGADO DE LETRAS DE ARICA",
-    "competencia": "Civil",
-    "causa": "C-2707-2023",
-    "fechaHora": "08/11/2024 12:00",
-    "estadoRemate": "Reprogramado"
-  },
-  {
-    "tribunal": "",
-    "competencia": "",
-    "causa": "",
-    "fechaHora": "",
-    "estadoRemate": ""
-  },
-  {
-    "tribunal": "JUZGADO DE LETRAS DE ANCUD",
-    "competencia": "Civil",
-    "causa": "C-990-2024",
-    "fechaHora": "08/11/2024 12:00",
-    "estadoRemate": "Agendado"
-  },
-  {
-    "tribunal": "2º JUZGADO DE LETRAS DE COPIAPO",
-    "competencia": "Civil",
-    "causa": "C-736-2021",
-    "fechaHora": "08/11/2024 12:00",
-    "estadoRemate": "Reprogramado"
-  },
-  {
-    "tribunal": "2º JUZGADO DE LETRAS DE OVALLE",
-    "competencia": "Civil",
-    "causa": "C-319-2023",
-    "fechaHora": "08/11/2024 12:00",
-    "estadoRemate": "Agendado"
-  },
-  {
-    "tribunal": "JUZGADO DE LETRAS DE CAÑETE",
-    "competencia": "Civil",
-    "causa": "C-320-2024",
-    "fechaHora": "08/11/2024 12:00",
-    "estadoRemate": "Agendado"
-  },
-  {
-    "tribunal": "3º JUZGADO DE LETRAS DE ARICA",
-    "competencia": "Civil",
-    "causa": "C-1828-2023",
-    "fechaHora": "08/11/2024 12:00",
-    "estadoRemate": "Reprogramado"
-  },
-  {
-    "tribunal": "3º JUZGADO CIVIL DE CONCEPCION",
-    "competencia": "Civil",
-    "causa": "C-166-2023",
-    "fechaHora": "08/11/2024 12:00",
-    "estadoRemate": "Agendado"
-  },
-  {
-    "tribunal": "4º JUZGADO DE LETRAS DE TALCA",
-    "competencia": "Civil",
-    "causa": "C-3958-2018",
-    "fechaHora": "08/11/2024 12:00",
-    "estadoRemate": "Reprogramado"
-  },
-  {
-    "tribunal": "1º JUZGADO CIVIL DE CONCEPCION",
-    "competencia": "Civil",
-    "causa": "C-4171-2024",
-    "fechaHora": "08/11/2024 11:30",
-    "estadoRemate": "Agendado"
-  },
-  {
-    "tribunal": "2º JUZGADO CIVIL DE CONCEPCION",
-    "competencia": "Civil",
-    "causa": "C-2038-2024",
-    "fechaHora": "08/11/2024 11:30",
-    "estadoRemate": "Agendado"
-  },
-  {
-    "tribunal": "1º JUZGADO CIVIL DE RANCAGUA",
-    "competencia": "Civil",
-    "causa": "C-9412-2023",
-    "fechaHora": "08/11/2024 11:00",
-    "estadoRemate": "Agendado"
-  },
-  {
-    "tribunal": "1º JUZGADO CIVIL DE CONCEPCION",
-    "competencia": "Civil",
-    "causa": "C-2183-2024",
-    "fechaHora": "08/11/2024 11:00",
-    "estadoRemate": "Agendado"
-  },
-  {
-    "tribunal": "1º JUZGADO CIVIL DE TEMUCO",
-    "competencia": "Civil",
-    "causa": "C-4532-2024",
-    "fechaHora": "08/11/2024 11:00",
-    "estadoRemate": "Agendado"
-  },
-  {
-    "tribunal": "JUZGADO DE LETRAS DE LIMACHE",
-    "competencia": "Civil",
-    "causa": "C-416-2022",
-    "fechaHora": "08/11/2024 11:00",
-    "estadoRemate": "Agendado"
-  },
-  {
-    "tribunal": "2º JUZGADO CIVIL DE CHILLAN",
-    "competencia": "Civil",
-    "causa": "C-4382-2023",
-    "fechaHora": "08/11/2024 11:00",
-    "estadoRemate": "Reprogramado"
-  },
-  {
-    "tribunal": "2º JUZGADO DE LETRAS DE COPIAPO",
-    "competencia": "Civil",
-    "causa": "C-782-2021",
-    "fechaHora": "08/11/2024 11:00",
-    "estadoRemate": "Reprogramado"
-  },
-  {
-    "tribunal": "JUZGADO DE LETRAS Y GARANTIA DE RIO BUENO",
-    "competencia": "Civil",
-    "causa": "C-695-2023",
-    "fechaHora": "08/11/2024 11:00",
-    "estadoRemate": "Reprogramado"
-  },
-  {
-    "tribunal": "1º JUZGADO CIVIL DE CONCEPCION",
-    "competencia": "Civil",
-    "causa": "C-2743-2024",
-    "fechaHora": "08/11/2024 10:30",
-    "estadoRemate": "Agendado"
-  },
-  {
-    "tribunal": "3º JUZGADO CIVIL DE CONCEPCION",
-    "competencia": "Civil",
-    "causa": "C-648-2024",
-    "fechaHora": "08/11/2024 10:01",
-    "estadoRemate": "Agendado"
-  },
-  {
-    "tribunal": "JUZGADO DE LETRAS Y GARANTIA DE MARIA ELENA",
-    "competencia": "Civil",
-    "causa": "C-23-2024",
-    "fechaHora": "08/11/2024 10:00",
-    "estadoRemate": "Agendado"
-  },
-  {
-    "tribunal": "JUZGADO DE LETRAS DE LOS LAGOS",
-    "competencia": "Civil",
-    "causa": "C-334-2024",
-    "fechaHora": "08/11/2024 10:00",
-    "estadoRemate": "Agendado"
-  },
-  {
-    "tribunal": "",
-    "competencia": "",
-    "causa": "",
-    "fechaHora": "",
-    "estadoRemate": ""
-  },
-  {
-    "tribunal": "3º JUZGADO DE LETRAS DE LA SERENA",
-    "competencia": "Civil",
-    "causa": "C-1849-2022",
-    "fechaHora": "08/11/2024 10:00",
-    "estadoRemate": "Reprogramado"
-  },
-  {
-    "tribunal": "2º JUZGADO CIVIL DE CONCEPCION",
-    "competencia": "Civil",
-    "causa": "C-4700-2024",
-    "fechaHora": "08/11/2024 09:30",
-    "estadoRemate": "Agendado"
-  },
-  {
-    "tribunal": "3er JUZGADO CIVIL DE TEMUCO",
-    "competencia": "Civil",
-    "causa": "C-2448-2024",
-    "fechaHora": "08/11/2024 09:00",
-    "estadoRemate": "Agendado"
   },
   {
     "tribunal": "",

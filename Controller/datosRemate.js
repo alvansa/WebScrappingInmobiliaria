@@ -46,6 +46,14 @@ function procesarDatosRemate(caso){
     }
     if (porcentaje != null){
         caso.darPorcentaje(porcentaje[0]);
+        const minimoPorcentaje =porcentaje[0].match(/\d{1,3}\s*%/);
+        const minimoPesos = porcentaje[0].match(/(\d{1,3}\.)*\d{1,3}(,\d{1,5})*/);
+        if(minimoPorcentaje != null){
+            caso.darPorcentaje(minimoPorcentaje[0]);
+        }else if(minimoPesos != null){
+            caso.darPorcentaje(minimoPesos[0]);
+        }
+
     }
     if (formatoEntrega != null){
         caso.darFormatoEntrega(formatoEntrega[0]);
@@ -54,8 +62,18 @@ function procesarDatosRemate(caso){
         caso.darFechaRemate(fechaRemate[0]);
     }
     if (montoMinimo != null){
-        monto = montoMinimo[0].match(/(\d{1,3}\.)*\d{1,3}(,\d{1,5})*/);
-        caso.darMontoMinimo(monto[0]);
+        // monto = montoMinimo[0].match(/(\d{1,3}\.)*\d{1,3}(,\d{1,5})*/);
+        // caso.darMontoMinimo(monto[0]);
+        caso.darMontoMinimo(montoMinimo[0]);
+        
+        montoPesos = montoMinimo[0].match(/(\$)\s*(\d{1,3}\.)*\d{1,3}(,\d{1,5})*/);
+        montoUf = montoMinimo[0].match(/(\d{1,3}\.)*\d{1,3}(,\d{1,5})*\s*(Unidades de Fomento|U\.?F\.?)/i);
+        if (montoPesos != null){
+            caso.darMontoMinimo(montoPesos[0]);
+        }else if (montoUf != null){
+            caso.darMontoMinimo(montoUf[0]);
+        }
+
     }
     caso.darMultiples(multiples);
     

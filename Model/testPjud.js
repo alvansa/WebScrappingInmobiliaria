@@ -2,39 +2,45 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 const { get } = require('request');
 
-async function getPJUD(){
-    const browser = await puppeteer.launch({headless: false});
-    const page = await browser.newPage();
-    await page.goto('https://oficinajudicialvirtual.pjud.cl/indexN.php');
-    await page.evaluate(() => {
-        verRemates();
-      });
-    await setValoresInciales(page);
-    
-    await setDates(page,'#desde','08/11/2024');
-    await setDates(page,'#hasta','12/11/2024');
+async function getPJUD(fechaDesde,fechaHasta){
+    try{    
+        const browser = await puppeteer.launch({headless: false});
+        const page = await browser.newPage();
+        await page.goto('https://oficinajudicialvirtual.pjud.cl/indexN.php');
+        await page.evaluate(() => {
+            verRemates();
+          });
+        await setValoresInciales(page);
+      
+        await setDates(page,'#desde',fechaDesde);
+        await setDates(page,'#hasta',fechaHasta);
 
 
-    await page.waitForSelector('#btnConsultaRemates.btn.btn-primary');
-    await page.click('#btnConsultaRemates.btn.btn-primary').then(() => console.log("Botón de consulta clickeado"));
-    // Esperar a que la tabla aparezca después de hacer clic en el botón de consulta
-    console.log("Esperando tabla");
-    await page.waitForSelector('#dtaTableDetalleRemate', { visible: true });
-    console.log("Tabla encontrada");
-    
-    let tableData = [];
-    let tienePaginaSiguiente = true;
+        await page.waitForSelector('#btnConsultaRemates.btn.btn-primary');
+        await page.click('#btnConsultaRemates.btn.btn-primary').then(() => console.log("Botón de consulta clickeado"));
+        // Esperar a que la tabla aparezca después de hacer clic en el botón de consulta
+        console.log("Esperando tabla");
+        await page.waitForSelector('#dtaTableDetalleRemate', { visible: true });
+        console.log("Tabla encontrada");
+      
+        let tableData = [];
+        let tienePaginaSiguiente = true;
 
-    while (tienePaginaSiguiente){
-        let firstRowContent = await getPrimeraLinea(page);
-        let datosTabla = await getDatosTabla(page);
-        tableData.push(...datosTabla);
+        while (tienePaginaSiguiente){
+            let firstRowContent = await getPrimeraLinea(page);
+            let datosTabla = await getDatosTabla(page);
+            tableData.push(...datosTabla);
 
-        tienePaginaSiguiente = await manejarPaginaSiguiente(page,firstRowContent);
-    }
-    
+            tienePaginaSiguiente = await manejarPaginaSiguiente(page,firstRowContent);
+        }
+
+        await browser.close();
+        return tableData;
+}catch(error){
+    console.error('Error en la función getPJUD:', error);
     await browser.close();
-    return tableData;
+    return [];
+}
 } 
 
 // Guarda los valores inciiiales en la página de busqueda
@@ -46,6 +52,7 @@ async function setValoresInciales(page){
     await page.waitForSelector('#tipo');
     await page.type('#tipo', 'C');
 }
+
 // Función para establecer las fechas en los campos de fecha
 async function setDates(page,selector,date){
     await page.waitForSelector(selector);
@@ -54,10 +61,11 @@ async function setDates(page,selector,date){
         dateField.value = date;
         dateField.dispatchEvent(new Event('change', { bubbles: true }));
     }, selector, date);
+    console.log('seteando fecha:',selector);
 }
 // Obtiene la primera linea de la tabla
 async function getPrimeraLinea(page){
-    primeraLinea = await page.$eval('#dtaTableDetalleRemate tbody tr:first-child', (row) => {
+    const primeraLinea = await page.$eval('#dtaTableDetalleRemate tbody tr:first-child', (row) => {
         const cells = row.querySelectorAll('td');
         return Array.from(cells).map(cell => cell.innerText.trim()).join(' ');
       });
@@ -134,7 +142,9 @@ function writeData(datos){
 
 async function main(){
     try {
-        const datos = await getPJUD();
+        const fechaDesde = '11/11/2024';
+        const fechaHasta = '12/11/2024';
+        const datos = await getPJUD(fechaDesde,fechaHasta);
         console.log("datos conseguidos");
         // console.log(datos);
         writeData(datos);
@@ -143,4 +153,5 @@ async function main(){
     }
 }
 
-main();
+module.exports = {getPJUD};
+// main();

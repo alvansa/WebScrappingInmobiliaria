@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const {getDatosRemate, testUnico} = require('../Controller/datosRemate.js');
+const {getDatosRemate, testUnico} = require('./Controller/datosRemate.js');
 
 // Esperar a que el DOM esté completamente cargado
 // document.addEventListener('DOMContentLoaded', () => {
@@ -45,7 +45,7 @@ function escribirEnArchivo(casos) {
 async function main(){
     try {
         const fechaHoy = new Date();
-        const fechaInicioStr = "2024-11-14";
+        const fechaInicioStr = "2024-11-15";
         const fechaFinStr = "2024-11-15";
         const maxDiffDate = 1;
         const maxRetries = 10;
@@ -61,7 +61,7 @@ async function main(){
     
 }
 
-
+main();
 function test(){
     console.log("test");
 }

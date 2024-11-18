@@ -1,5 +1,6 @@
 const { contextBridge } = require('electron');
 const {getDatosRemate} = require('../Controller/datosRemate.js');
+const {crearBase,insertarDatos} = require('../Controller/createXLSX');
 const nodePath = require('path');
 // const {cpu, totalmem} = require('os-utils');
 // const test = require('./index.js');
@@ -11,14 +12,21 @@ contextBridge.exposeInMainWorld('api', {
         const maxRetries = 10;
         var casos = [];
         // console.log(path.join(__dirname, './Controller/datosRemate.js'));
-        if(!startDate || !endDate){
+        if(!startDate && !endDate){
             console.log("No se ingresaron fechas");
-            return;
+            return 0
+        }else if(!startDate){
+            console.log("No se ingreso la fecha de inicio");
+            return 1;
+        }else if(!endDate){
+            console.log("No se ingreso la fecha de fin");
+            return 2;
         }
-        casos = await getDatosRemate(fechaHoy,startDate, endDate,maxRetries);
-        console.log(casos.length);
+        filePath = await insertarDatos(fechaHoy,startDate,endDate,maxRetries);
+        return filePath;
     }catch (error) {
         console.error('Error al obtener resultados en el index.js:', error.message);
+        return null;
     }
   },
   printConsole: (message) => {
