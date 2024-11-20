@@ -10,6 +10,13 @@
   </head>
   <body>
     <div class="container">
+      <div class="folder-selector-container">
+        <label for="folder-input" class="folder-label">Seleccionar carpeta</label>
+        <div class="folder-selector">
+            <input type="text" id="folder-input" class="folder-input" readonly placeholder="No se ha seleccionado ninguna carpeta">
+            <button id="select-folder-btn" class="folder-btn">Seleccionar</button>
+        </div>
+    </div>
       <input type="date" id="startDate" />
       <input type="date" id="endDate" />
       <button id="logButton">Obtener remates</button>

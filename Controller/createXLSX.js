@@ -8,7 +8,8 @@ const fs = require('fs');
 const path = require('path');
 
 const {getDatosRemate} = require('../Controller/datosRemate'); 
-const {getPJUD} = require('../Model/testPjud');
+const {getPJUD} = require('../Model/getPjud');
+const { crash } = require('process');
 // const {getPaginas} = require('../Model/ObtenerDatos');
 
 
@@ -56,7 +57,7 @@ function crearBase() {
     XLSX.writeFile(wb, path.join(__dirname, 'Remates.xlsx'));
 }
 
-async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries){
+async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,saveFile) {
     var filePath = path.join(__dirname, 'Remates.xlsx');
     if(!fs.existsSync(path.join(__dirname, 'Remates.xlsx'))){
         crearBase();
@@ -68,12 +69,12 @@ async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries){
     try{
         let i = 6;
         i = await getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i);
-        // i = await getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i);
+        i = await getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i);
         i--;
         ws['!ref'] = 'B5:S'+i;
         fechaInicioDMA = cambiarFormatoFecha(fechaInicioStr);
         fechaFinDMA = cambiarFormatoFecha(fechaFinStr);
-        filePath = path.join(__dirname, 'Remates_'+fechaInicioDMA+'_a_'+fechaFinDMA+'.xlsx');
+        filePath = path.join(saveFile, 'Remates_'+fechaInicioDMA+'_a_'+fechaFinDMA+'.xlsx');
         XLSX.writeFile(wb, filePath);
         console.log(filePath);
         return filePath;
@@ -124,19 +125,30 @@ async function getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries
 }
 
 async function getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i){
-    fechaInicioPjud = formatoFechaPjud(fechaInicioStr);
-    fechaFinPjud = formatoFechaPjud(fechaFinStr);
-    console.log("Fechas: ",fechaInicioPjud,fechaFinPjud);
-    const datoPjud = await getPJUD(fechaInicioPjud,fechaFinPjud) || [];
-    for (let dato of datoPjud){
-        let fecha = transformarFechaPjud(dato.fechaHora);
-        fecha.setHours( fecha.getHours() + 6);
-        ws['C' + i] = { v: fechaHoy, t: 'd' };
-        ws['D' + i] = { v: fecha, t: 'd' };
-        ws['F' + i] = { v: dato.causa, t: 's' };
-        ws['G' + i] = { v: dato.tribunal, t: 's' };
-        i++;
+    i_aux = i;
+    try{
+        fechaInicioPjud = formatoFechaPjud(fechaInicioStr);
+        fechaFinPjud = formatoFechaPjud(fechaFinStr);
+        console.log("Fechas: ",fechaInicioPjud,fechaFinPjud);
+        const datoPjud = await getPJUD(fechaInicioPjud,fechaFinPjud) || [];
+        for (let dato of datoPjud){
+            if(dato.tribunal != ''){
+                ws['B' + i] = { v:"Letra grande/ Pjud", t: 's' };
+                let fecha = transformarFechaPjud(dato.fechaHora);
+                fecha.setHours( fecha.getHours() + 6);
+                ws['C' + i] = { v: fechaHoy, t: 'd' };
+                ws['D' + i] = { v: fecha, t: 'd' };
+                ws['F' + i] = { v: dato.causa, t: 's' };
+                ws['G' + i] = { v: dato.tribunal, t: 's' };
+                i++;
+            }
+            
+        }
+    }catch(error){
+        console.error('Error al obtener resultados:', error);
+        i = i_aux;
     }
+    
     return i;
 } 
 

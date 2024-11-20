@@ -1,7 +1,8 @@
 const puppeteer = require("puppeteer");
 const path = require("path");
+const fs = require("fs");
 
-(async () => {
+async function getDatosBoletin (){
   // Configura el directorio para guardar descargas
   const downloadPath = path.resolve(__dirname, "downloads");
 
@@ -29,7 +30,7 @@ const path = require("path");
   const svgElements = await page.$$('#tblRematesInmuebles svg');
   for (let svgElement of svgElements) {
     await svgElement.click();
-    await delay(1000);
+    await delay(100);
     }
 //   const datos = await getTableData(page);
 
@@ -37,8 +38,28 @@ const path = require("path");
 
   // Cierra el navegador
   await browser.close();
-})();
+  deleteFiles();
+};
 
+function deleteFiles() {
+
+  const downloadPath = path.resolve(__dirname, "downloads");
+  fs.readdir(downloadPath, (err, files) => {
+      if (err) {
+          console.error("Error al leer el directorio:", err);
+          return;
+      }
+      for (const file of files) {
+          fs.unlink(path.join(downloadPath, file), (err) => {
+              if (err) {
+                  console.error("Error al eliminar el archivo:", err);
+                  return;
+              }
+              console.log("Archivo eliminado:", file);
+          });
+      }
+  });
+}
 
 
 async function getTableData(page) {
@@ -85,3 +106,6 @@ function delay(time) {
         setTimeout(resolve, time)
     });
  }
+
+
+module.exports = { getDatosBoletin };

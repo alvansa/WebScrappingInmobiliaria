@@ -14,6 +14,7 @@ class Caso{
     #comuna;
     #foja;
     #numero;
+    #anno;
     #partes;
     #tipoPropiedad;
     #tipoDerecho;
@@ -37,6 +38,7 @@ class Caso{
         this.#partes = "N/A";
         this.#tipoPropiedad = 'N/A';
         this.#tipoDerecho = 'N/A';
+        this.#anno = 'N/A';
     }
     darTexto(texto){
         this.#texto = texto;
@@ -83,6 +85,9 @@ class Caso{
     darTipoDerecho(tipoDerecho){
         this.#tipoDerecho = tipoDerecho;
     }
+    darAnno(anno){
+        this.#anno = anno;
+    }
 
     getLink(){ 
         return this.#link;
@@ -111,6 +116,7 @@ class Caso{
             partes: this.#partes,
             tipoPropiedad: this.#tipoPropiedad,
             tipoDerecho: this.#tipoDerecho,
+            año: this.#anno,
         };
     }
 }

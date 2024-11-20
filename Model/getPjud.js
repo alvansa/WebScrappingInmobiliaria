@@ -3,18 +3,22 @@ const fs = require('fs');
 const { get } = require('request');
 
 async function getPJUD(fechaDesde,fechaHasta){
+    const browser = await puppeteer.launch({headless: false});
+    const page = await browser.newPage();
+    await page.goto('https://oficinajudicialvirtual.pjud.cl/indexN.php');
     try{    
-        const browser = await puppeteer.launch({headless: false});
-        const page = await browser.newPage();
-        await page.goto('https://oficinajudicialvirtual.pjud.cl/indexN.php');
+        
         await page.evaluate(() => {
             verRemates();
           });
         await setValoresInciales(page);
-      
+        console.log("Valores fecha :",fechaDesde,fechaHasta);
         await setDates(page,'#desde',fechaDesde);
+        const desdeValue = await page.$eval('#desde', el => el.value);
+        console.log(desdeValue);
         await setDates(page,'#hasta',fechaHasta);
-
+        const hastaValue = await page.$eval('#hasta', el => el.value);
+        console.log(hastaValue);
 
         await page.waitForSelector('#btnConsultaRemates.btn.btn-primary');
         await page.click('#btnConsultaRemates.btn.btn-primary').then(() => console.log("Botón de consulta clickeado"));
@@ -59,7 +63,7 @@ async function setDates(page,selector,date){
     await page.evaluate((selector, date) => {
         const dateField = document.querySelector(selector);
         dateField.value = date;
-        dateField.dispatchEvent(new Event('change', { bubbles: true }));
+        // dateField.dispatchEvent(new Event('change', { bubbles: true }));
     }, selector, date);
     console.log('seteando fecha:',selector);
 }

@@ -1,4 +1,4 @@
-const { contextBridge } = require('electron');
+const { contextBridge,ipcRenderer } = require('electron');
 const {getDatosRemate} = require('../Controller/datosRemate.js');
 const {crearBase,insertarDatos} = require('../Controller/createXLSX');
 const nodePath = require('path');
@@ -6,7 +6,7 @@ const nodePath = require('path');
 // const test = require('./index.js');
 
 contextBridge.exposeInMainWorld('api', {
-  logDates:async (startDate, endDate) => {
+  logDates:async (startDate, endDate,saveFile) => {
     try {
         const fechaHoy = new Date();
         const maxRetries = 10;
@@ -22,7 +22,7 @@ contextBridge.exposeInMainWorld('api', {
             console.log("No se ingreso la fecha de fin");
             return 2;
         }
-        filePath = await insertarDatos(fechaHoy,startDate,endDate,maxRetries);
+        filePath = await insertarDatos(fechaHoy,startDate,endDate,maxRetries,saveFile);
         return filePath;
     }catch (error) {
         console.error('Error al obtener resultados en el index.js:', error.message);
@@ -33,5 +33,6 @@ contextBridge.exposeInMainWorld('api', {
     console.log(message);
     // test();
     console.log(nodePath.join(__dirname, './Controller/datosRemate.js'));
-  }
+  },
+  selectFolder: () => ipcRenderer.invoke('select-folder-btn')
 });

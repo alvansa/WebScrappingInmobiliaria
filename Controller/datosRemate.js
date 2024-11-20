@@ -35,8 +35,9 @@ function procesarDatosRemate(caso){
     const foja = getFoja(texto);
     const numero = getNumero(texto);
     const partes = getPartes(texto);
-    const tipoPropiedad = getTipoPropiedad(texto)
-    const tipoDerecho = getTipoDerecho(texto)
+    const tipoPropiedad = getTipoPropiedad(texto);
+    const tipoDerecho = getTipoDerecho(texto);
+    const anno = getAnno(texto);
 
     if (causa != null){
         caso.darCausa(causa[0]);
@@ -94,6 +95,9 @@ function procesarDatosRemate(caso){
     }
     if (tipoDerecho != null){
         caso.darTipoDerecho(tipoDerecho[0]);
+    }
+    if (anno != null){
+        caso.darAnno(anno[0]);
     }
 }
 
@@ -226,6 +230,12 @@ function getTipoDerecho(data){
     const regexDerecho = /(?:dominio|posesión|propiedad|inmueble|usufructo|nuda propiedad)/i;
     const tipoDerecho = data.match(regexDerecho);
     return tipoDerecho;
+}
+
+function getAnno(data){
+    const regexAnno = /(año)\s*(\d{4})/i;
+    const anno = data.match(regexAnno);
+    return anno;
 }
 
 async function testUnico(fecha,link){

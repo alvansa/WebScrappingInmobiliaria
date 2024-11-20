@@ -24,7 +24,12 @@ document.getElementById('logButton').addEventListener('click', async () => {
   try {
     // Verifica que window.api exista antes de usarla
     if (window.api && window.api.logDates) {
-      const filePath = await window.api.logDates(startDate, endDate); // Operación que toma tiempo
+      const saveFile = document.getElementById('folder-input').value;
+      if (saveFile == 'No se seleccionó ninguna carpeta.' || saveFile == '') {
+        alert('No se ha seleccionado una carpeta para guardar los datos');
+        return;
+      }
+      const filePath = await window.api.logDates(startDate, endDate,saveFile); // Operación que toma tiempo
       if (typeof(filePath) != 'number') {
         alert('¡Éxito! Los datos se han registrado correctamente en el archivo: ' + filePath);
       } else if (filePath == 0) {
@@ -49,12 +54,26 @@ document.getElementById('logButton').addEventListener('click', async () => {
 });
 
 
-document.getElementById("showButton").addEventListener('click',async () => {
-    // Verifica que window.api exista antes de usarla
-    if (window.api && window.api.printConsole) {
-      await window.api.printConsole("Hola desde el renderer");
-    } else {
-      console.error('La API no está disponible');
-    }
-  });
+// document.getElementById("showButton").addEventListener('click',async () => {
+//     // Verifica que window.api exista antes de usarla
+//     if (window.api && window.api.printConsole) {
+//       await window.api.printConsole("Hola desde el renderer");
+//     } else {
+//       console.error('La API no está disponible');
+//     }
+//   });
   
+document.getElementById('select-folder-btn').addEventListener('click', async () => {
+  // Llama al proceso principal para abrir el selector de carpetas
+  const folderPath = await window.api.selectFolder();
+  console.log(folderPath);
+  const folderInput = document.getElementById('folder-input'); // Obtén el input
+  
+  if (folderPath) {
+      console.log('Carpeta seleccionada:', folderPath);
+      folderInput.value = folderPath;
+  } else {
+      console.log('Selección cancelada.');
+      folderInput.value = 'No se seleccionó ninguna carpeta.';
+  }
+});
