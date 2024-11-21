@@ -19,7 +19,7 @@ class Caso{
     #tipoPropiedad;
     #tipoDerecho;
 
-    constructor(fechaObtencion,fechaPublicacion,link){
+    constructor(fechaObtencion,fechaPublicacion='N/A',link='N/A'){    
         this.#fechaPublicacion = fechaPublicacion;
         this.#fechaObtencion = fechaObtencion;
         this.#texto = '';
@@ -39,6 +39,9 @@ class Caso{
         this.#tipoPropiedad = 'N/A';
         this.#tipoDerecho = 'N/A';
         this.#anno = 'N/A';
+    }
+    darfechaPublicacion(fechaPublicacion){
+        this.#fechaPublicacion = fechaPublicacion;
     }
     darTexto(texto){
         this.#texto = texto;
