@@ -1,16 +1,12 @@
 //Necesario si o si
 const XLSX = require('xlsx');
-// var xl = require('excel4node');
 
 const fs = require('fs');
-//Probablemente no necesites este módulo
-//const jsontoxml = require('jsontoxml');
+
 const path = require('path');
 
 const {getDatosRemate} = require('../Controller/datosRemate'); 
 const {getPJUD} = require('../Model/getPjud');
-const { crash } = require('process');
-// const {getPaginas} = require('../Model/ObtenerDatos');
 
 
 function crearBase() {
@@ -69,7 +65,7 @@ async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,save
     try{
         let i = 6;
         i = await getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i);
-        i = await getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i);
+        // i = await getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i);
         i--;
         ws['!ref'] = 'B5:S'+i;
         fechaInicioDMA = cambiarFormatoFecha(fechaInicioStr);
@@ -95,11 +91,7 @@ async function getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries
     console.log("Cantidad de casos obtenidos: ",datosObj.length);
     
     for(let dato of datosObj){
-        // console.log("caso:",i-5,"causa:",dato.causa);
-        // console.log("caso:",i-5,"direccion:",dato.direccion);
         ws['B' + i] = { v: dato.link, t: 's' };
-        // const fechaObtencion = formatoFechaExcel(dato.fechaObtencion);
-        // console.log("fechaObtencion:",fechaObtencion);
         ws['C' + i] = { v: dato.fechaObtencion, t: 'd' };
         dato.fechaPublicacion.setHours( dato.fechaPublicacion.getHours() + 6);
         console.log("caso:",i-5,"fecha Obtencion:",dato.fechaPublicacion);

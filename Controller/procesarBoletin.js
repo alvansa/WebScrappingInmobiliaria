@@ -9,12 +9,17 @@ const {getDatosBoletin} = require('../Model/getBoletinConcursal');
 function obtainDataRematesPdf(data,caso) {
     const fechaRemate = getfechaRemate(data);
     const causa = getCausa(data);
+    const tribunal = getTribunal(data);
 
     if(fechaRemate){
         caso.darFechaRemate(fechaRemate);
     }
     if(causa){
         caso.darCausa(causa[0]);
+    }
+    if(tribunal){
+        const juzgado = tribunal[0].split(":")[1];
+        caso.darJuzgado(juzgado);
     }
 
 }
@@ -57,7 +62,6 @@ function deleteFiles() {
                     console.error("Error al eliminar el archivo:", err);
                     return;
                 }
-                // console.log("Archivo eliminado:", file);
             });
         }
     });
@@ -77,6 +81,12 @@ function getCausa(texto) {
     const regex = /C-\d{3,5}-\d{4}/g;
     let causa = texto.match(regex);
     return causa;
+}
+
+function getTribunal(texto){
+    const regex = /tribunal:\s*([a-zA-ZñÑ123456789ºáéíóú]*\s)*/gi;
+    let tribunal = texto.match(regex);
+    return tribunal;
 }
 
 

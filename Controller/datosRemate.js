@@ -21,6 +21,7 @@ async function getDatosRemate(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries){
         console.error('Error al obtener resultados en el controlador:', error);
     }
 }
+
 //Funcion que procesa los datos de un remate y obtiene la informacion necesaria
 function procesarDatosRemate(caso){
     texto = caso.texto;
