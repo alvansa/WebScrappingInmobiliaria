@@ -32,6 +32,7 @@ async function getPdfData(fechaInicio,fechaFin,fechaHoy) {
         const pdfs = fs.readdirSync(path.join(__dirname, '../Model/downloads'));
         for (let pdf of pdfs) {
             const pdfFile = fs.readFileSync(path.join(__dirname, '../Model/downloads/', pdf));
+            console.log("Leyendo archivo: ",pdfFile,"con el nombre: ",pdf);
             const pdfData = await pdfparse(pdfFile);
             const pdfText = pdfData.text;
             const caso = new Caso(fechaHoy);
@@ -97,8 +98,8 @@ function parseDate(dateString) {
 
 async function main() {
     try {
-        const startDate = new Date('2024/11/19'); // Fecha de inicio
-        const endDate = new Date('2024/11/21'); 
+        const startDate = new Date('2024/11/21'); // Fecha de inicio
+        const endDate = new Date('2024/11/22'); 
         const fechaHoy = new Date();
         const casos = await getPdfData(startDate,endDate,fechaHoy);
         console.log("Casos obtenidos: ",casos.length);
@@ -110,4 +111,5 @@ async function main() {
     }
 }
 
-main();
+// main();
+module.exports = { getPdfData }

@@ -117,9 +117,12 @@ function getJuzgado(data) {
     
     data = data.toLowerCase();
     data = data.replace(",",'');
+    const dataSinDe = data.replaceAll("de ",'');
+    // console.log(dataSinDe);
+    let tribunalesAceptados = [];
     for (let tribunal of tribunales){
         tribunal = tribunal.toLowerCase();
-        const numero = tribunal.match(/\d{1,2}/);
+        const numero = tribunal.match(/\d{1,2}/);    
         let tribunalOrdinal = tribunal;
         let tribunalBolita1 = tribunal;
         if (numero){
@@ -128,15 +131,72 @@ function getJuzgado(data) {
             tribunalOrdinalSinDe = tribunalOrdinal.replace(/de\s+/,'');
             //º
             tribunalBolita1 = tribunal.replace('°', 'º');
+            tribunalBolita1SinDe = tribunalBolita1.replace(/de\s+/,'');
+            if(dataSinDe.includes(tribunalBolita1) | data.includes(tribunalOrdinal) | dataSinDe.includes(tribunalOrdinalSinDe) | dataSinDe.includes(tribunalBolita1SinDe)){
+                
+                tribunalesAceptados.push(tribunal);
+            }
         }
-        const dataSinDe = data.replaceAll("de ",'');
+        
         const tribunalSinDe = tribunal.replaceAll("de ",'');
         // const tribunalSinDe = tribunal.replaceAll(/de\s+/,'');
-        tribunalBolita1SinDe = tribunalBolita1.replace(/de\s+/,'');
-        if (data.includes(tribunal) | data.includes(tribunalOrdinal) | data.includes(tribunalSinDe) | data.includes(tribunalBolita1) | data.includes(tribunalBolita1SinDe) | data.includes(tribunalOrdinalSinDe) | dataSinDe.includes(tribunalSinDe)){
-            // juzgado = tribunal;
-            return tribunal;
+        if (data.includes(tribunal) | data.includes(tribunalSinDe)|  dataSinDe.includes(tribunalSinDe)){
+            
+            tribunalesAceptados.push(tribunal);
         } 
+    }
+    if (tribunalesAceptados.length == 0){
+        return "N/A";
+    }else{
+        // console.log(tribunalesAceptados);
+        return tribunalesAceptados.at(-1);
+    }
+}
+
+
+function getJuzgado2(data) {
+    data = data.toLowerCase();
+    data = data.replace(",",'');
+    //Eliminar todas las palabras "de"
+    data = data.replaceAll("de ",'');
+    //Eliminamos la el simbolo "°"
+    data = data.replace('°', '');
+    //Eliminamos la el simbolo "º"
+    data = data.replace('º', '');
+    // console.log(data);
+    for (let tribunal of tribunales){
+        const tribunalAux = tribunal.toLowerCase();
+        tribunal = tribunal.toLowerCase();
+        //Eliminamos la palabra "de"
+        const tribunalSinDe = tribunalAux.replaceAll("de ",'');
+        
+        const numero = tribunalSinDe.match(/\d{1,2}/);
+        let tribunalOrdinal = tribunalAux;
+    
+        if (numero){
+            const numeroOrdinal = convertirANombre(parseInt(numero));
+            tribunalOrdinal = tribunalSinDe.replace(/\d{1,2}/,numeroOrdinal);
+            if(tribunalOrdinal.includes("°")){
+                tribunalOrdinal = tribunalOrdinal.replace('°', '');
+            }else if(tribunalOrdinal.includes("º")){
+                tribunalOrdinal = tribunalOrdinal.replace('º', '');
+            }
+            
+        }
+        console.log(tribunal);
+        tribunalSinSimbolo = tribunalSinDe.replaceAll("°","");
+
+        
+        if(tribunal.includes("18")){
+            console.log(tribunalAux);
+            console.log(tribunal);
+            console.log(tribunalOrdinal);
+            console.log(tribunalSinSimbolo);
+            console.log(parseInt(numero));
+        }
+        if (data.includes(tribunal) | data.includes(tribunalOrdinal) | data.includes(tribunalSinSimbolo)){
+            return tribunal;
+        }
     }
     return "N/A";
 }
@@ -228,7 +288,7 @@ function getTipoPropiedad(data){
 }
 
 function getTipoDerecho(data){
-    const regexDerecho = /(?:dominio|posesión|propiedad|inmueble|usufructo|nuda propiedad)/i;
+    const regexDerecho = /(?:posesión|usufructo|nuda propiedad|bien familiar)/i;
     const tipoDerecho = data.match(regexDerecho);
     return tipoDerecho;
 }

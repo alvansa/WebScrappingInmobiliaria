@@ -45,8 +45,8 @@ function escribirEnArchivo(casos) {
 async function main(){
     try {
         const fechaHoy = new Date();
-        const fechaInicioStr = "2024-11-15";
-        const fechaFinStr = "2024-11-15";
+        const fechaInicioStr = "2024-11-21";
+        const fechaFinStr = "2024-11-22";
         const maxDiffDate = 1;
         const maxRetries = 10;
         const tiempoInicio = new Date();

@@ -7,6 +7,7 @@ const path = require('path');
 
 const {getDatosRemate} = require('../Controller/datosRemate'); 
 const {getPJUD} = require('../Model/getPjud');
+const {getPdfData} = require('./procesarBoletin');
 
 
 function crearBase() {
@@ -65,7 +66,9 @@ async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,save
     try{
         let i = 6;
         i = await getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i);
-        // i = await getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i);
+        i = await getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i);
+        console.log("Fechas a enviar a el boletin ",fechaInicioStr,fechaFinStr);    
+        // i = await getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i);
         i--;
         ws['!ref'] = 'B5:S'+i;
         fechaInicioDMA = cambiarFormatoFecha(fechaInicioStr);
@@ -82,36 +85,42 @@ async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,save
 }
 
 async function getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i){
-    const datos = await getDatosRemate(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries) || [];
-    if (!Array.isArray(datos) || datos.length === 0) {
-        console.log("No se encontraron datos para insertar.");
-        return;
-    }
-    const datosObj = datos.map(dato => dato.toObject());
-    console.log("Cantidad de casos obtenidos: ",datosObj.length);
-    
-    for(let dato of datosObj){
-        ws['B' + i] = { v: dato.link, t: 's' };
-        ws['C' + i] = { v: dato.fechaObtencion, t: 'd' };
-        dato.fechaPublicacion.setHours( dato.fechaPublicacion.getHours() + 6);
-        console.log("caso:",i-5,"fecha Obtencion:",dato.fechaPublicacion);
-        ws['D' + i] = { v: dato.fechaPublicacion, t: 'd' };
-        // ws['E' + i] = { v: dato.fechaRemate, t: 's' };
-        ws['F' + i] = { v: dato.causa, t: 's' };
-        ws['G' + i] = { v: dato.juzgado, t: 's' };
-        // ws['H' + i] = { v: dato.partes, t: 's' };
-        ws['I' + i] = { v: dato.tipoPropiedad, t: 's' };
-        // ws['J' + i] = { v: dato.direccion, t: 's' };
-        ws['K' + i] = { v: dato.tipoDerecho, t: 's' };
-        ws['L' + i] = { v: dato.comuna, t: 's' };
-        // ws['M' + i] = { v: dato.foja, t: 's' };
-        // ws['N' + i] = { v: dato.numero, t: 's' };
-        // ws['O' + i] = { v: dato.ano, t: 's' };
-        ws['P' + i] = { v: dato.formatoEntrega, t: 's' };
+    i_aux = i;
+    try{
+        const datos = await getDatosRemate(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries) || [];
+        if (!Array.isArray(datos) || datos.length === 0) {
+            console.log("No se encontraron datos para insertar.");
+            return;
+        }
+        const datosObj = datos.map(dato => dato.toObject());
+        console.log("Cantidad de casos obtenidos: ",datosObj.length);
+        
+        for(let dato of datosObj){
+            ws['B' + i] = { v: dato.link, t: 's' };
+            ws['C' + i] = { v: dato.fechaObtencion, t: 'd' };
+            dato.fechaPublicacion.setHours( dato.fechaPublicacion.getHours() + 6);
+            console.log("caso:",i-5,"fecha Obtencion:",dato.fechaPublicacion);
+            ws['D' + i] = { v: dato.fechaPublicacion, t: 'd' };
+            ws['E' + i] = { v: dato.fechaRemate, t: 's' };
+            ws['F' + i] = { v: dato.causa, t: 's' };
+            ws['G' + i] = { v: dato.juzgado, t: 's' };
+            ws['H' + i] = { v: dato.partes, t: 's' };
+            ws['I' + i] = { v: dato.tipoPropiedad, t: 's' };
+            // ws['J' + i] = { v: dato.direccion, t: 's' };
+            ws['K' + i] = { v: dato.tipoDerecho, t: 's' };
+            ws['L' + i] = { v: dato.comuna, t: 's' };
+            // ws['M' + i] = { v: dato.foja, t: 's' };
+            // ws['N' + i] = { v: dato.numero, t: 's' };
+            ws['O' + i] = { v: dato.anno, t: 's' };
+            ws['P' + i] = { v: dato.formatoEntrega, t: 's' };
         ws['Q' + i] = { v: dato.porcentaje, t: 's' };
         ws['R' + i] = { v: dato.diaEntrega, t: 's' };
         ws['S' + i] = { v: dato.montoMinimo, t: 's' };
         i++;
+    }
+    }catch(error){
+        console.error('Error al obtener resultados en el economico:', error);
+        i = i_aux;
     }
     return i;
 }
@@ -137,12 +146,50 @@ async function getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i){
             
         }
     }catch(error){
-        console.error('Error al obtener resultados:', error);
+        console.error('Error al obtener resultados en el pjud:', error);
         i = i_aux;
     }
     
     return i;
 } 
+
+
+async function getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i){
+    i_aux = i;
+    try{
+        const startDate = formatoFechaBoletin(fechaInicioStr);
+        const endDate = formatoFechaBoletin(fechaFinStr);
+        const casos = await getPdfData(startDate,endDate,fechaHoy) || [];
+        const casosObj = casos.map(caso => caso.toObject());
+        for (let caso of casosObj){
+            ws['B' + i] = { v: "Boletin concursal", t: 's' };
+            ws['C' + i] = { v: caso.fechaObtencion, t: 'd' };
+            // dato.fechaPublicacion.setHours( dato.fechaPublicacion.getHours() + 6);
+            // console.log("caso:",i-5,"fecha Obtencion:",dato.fechaPublicacion);
+            // ws['D' + i] = { v: caso.fechaPublicacion, t: 'd' };
+            // ws['E' + i] = { v: caso.fechaRemate, t: 's' };
+            ws['F' + i] = { v: caso.causa, t: 's' };
+            ws['G' + i] = { v: caso.juzgado, t: 's' };
+            // ws['H' + i] = { v: caso.partes, t: 's' };
+            // ws['I' + i] = { v: caso.tipoPropiedad, t: 's' };
+            // ws['J' + i] = { v: caso.direccion, t: 's' };
+            // ws['K' + i] = { v: caso.tipoDerecho, t: 's' };
+            // ws['L' + i] = { v: caso.comuna, t: 's' };
+            // ws['M' + i] = { v: caso.foja, t: 's' };
+            // ws['N' + i] = { v: caso.numero, t: 's' };
+            // ws['O' + i] = { v: caso.anno, t: 's' };
+            // ws['P' + i] = { v: caso.formatoEntrega, t: 's' };
+            // ws['Q' + i] = { v: caso.porcentaje, t: 's' };
+            // ws['R' + i] = { v: caso.diaEntrega, t: 's' };
+            // ws['S' + i] = { v: caso.montoMinimo, t: 's' };
+            i++;
+        }
+    }catch(error){
+        console.error('Error al obtener resultados en el boletin:', error);
+        i = i_aux;
+    }
+    return i;
+}
 
 
 function cambiarAnchoColumnas(ws){
@@ -185,6 +232,11 @@ function formatoFechaPjud(fecha,desfaseHoras = 4) {
     const partes = fecha.split("-"); // Dividimos la fecha en partes [año, mes, día]
     const [año, mes, día] = partes; // Desestructuramos las partes
     return `${día}/${mes}/${año}`;
+}
+function formatoFechaBoletin(fecha) {
+    const partes = fecha.split("-"); // Dividimos la fecha en partes [año, mes, día]
+    const [año, mes, día] = partes; // Desestructuramos las partes
+    return new Date(`${año}/${mes}/${día}`);
 }
 
 function transformarFechaPjud(fechaHora) {
