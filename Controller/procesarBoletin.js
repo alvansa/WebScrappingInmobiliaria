@@ -1,10 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 const pdfparse = require('pdf-parse');
-const {Caso} = require('../Model/caso');
-const {getDatosBoletin} = require('../Model/getBoletinConcursal');
+const Caso  = require('../Model/Caso');
+const {getDatosBoletin} = require('../Model/getBoletinConcursal.js');
 
-
+// const pdfjsLib = require('pdfjs-dist/legacy/build/pdf.js');
 
 function obtainDataRematesPdf(data,caso) {
     const fechaRemate = getfechaRemate(data);
@@ -27,12 +27,15 @@ function obtainDataRematesPdf(data,caso) {
 
 async function getPdfData(fechaInicio,fechaFin,fechaHoy) {
     let casos = [];
+    
+    // Configuracion del worker de pdfjs, necesario hacerlo manualmente para que funcione en node
+    // pdfjsLib.GlobalWorkerOptions.workerSrc = './node_modules/pdfjs-dist/build/pdf.worker.mjs'
     try{
         await getDatosBoletin(fechaInicio,fechaFin,casos,fechaHoy);
         const pdfs = fs.readdirSync(path.join(__dirname, '../Model/downloads'));
         for (let pdf of pdfs) {
             const pdfFile = fs.readFileSync(path.join(__dirname, '../Model/downloads/', pdf));
-            console.log("Leyendo archivo: ",pdfFile,"con el nombre: ",pdf);
+            console.log("Leyendo archivo: ",path.join(__dirname, '../Model/downloads/', pdf),"con el nombre: ",pdf);
             const pdfData = await pdfparse(pdfFile);
             const pdfText = pdfData.text;
             const caso = new Caso(fechaHoy);
@@ -40,10 +43,10 @@ async function getPdfData(fechaInicio,fechaFin,fechaHoy) {
             casos.push(caso);
             // casos = pdfparse(pdfFile).then(data => getTextFromPdf(data,fechaHoy,casos));
         }
-        deleteFiles();
     }catch (error) {
         console.error("Error en getPdfData:", error);
     }
+    deleteFiles();
     return casos;
 }
 

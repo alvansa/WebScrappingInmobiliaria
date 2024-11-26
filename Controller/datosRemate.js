@@ -1,6 +1,6 @@
 const { getPaginas, getRemates } = require('../Model/getNextPage.js');
 const { comunas, tribunales } = require('../Model/datosLocales.js');
-const { Caso } = require('../Model/caso.js');
+const Caso  = require('../Model/Caso');
 
 async function getDatosRemate(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries){
     try {

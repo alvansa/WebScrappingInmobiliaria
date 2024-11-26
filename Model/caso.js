@@ -124,4 +124,4 @@ class Caso{
     }
 }
 
-module.exports = { Caso }
+module.exports = Caso;

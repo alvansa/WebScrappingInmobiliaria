@@ -109,15 +109,15 @@ async function getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries
             // ws['J' + i] = { v: dato.direccion, t: 's' };
             ws['K' + i] = { v: dato.tipoDerecho, t: 's' };
             ws['L' + i] = { v: dato.comuna, t: 's' };
-            // ws['M' + i] = { v: dato.foja, t: 's' };
+            ws['M' + i] = { v: dato.foja, t: 's' };
             // ws['N' + i] = { v: dato.numero, t: 's' };
-            ws['O' + i] = { v: dato.anno, t: 's' };
+            ws['O' + i] = { v: dato.año, t: 's' };
             ws['P' + i] = { v: dato.formatoEntrega, t: 's' };
-        ws['Q' + i] = { v: dato.porcentaje, t: 's' };
-        ws['R' + i] = { v: dato.diaEntrega, t: 's' };
-        ws['S' + i] = { v: dato.montoMinimo, t: 's' };
-        i++;
-    }
+            ws['Q' + i] = { v: dato.porcentaje, t: 's' };
+            ws['R' + i] = { v: dato.diaEntrega, t: 's' };
+            ws['S' + i] = { v: dato.montoMinimo, t: 's' };
+            i++;
+        }
     }catch(error){
         console.error('Error al obtener resultados en el economico:', error);
         i = i_aux;
