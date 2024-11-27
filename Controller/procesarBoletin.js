@@ -8,8 +8,8 @@ const pdfparse = require('pdf-parse');
 // import pdfparse from 'pdf-parse';
 // const PdfReader = require('pdfreader');
 // const pdfjsLib = require('pdfjs-dist/legacy/build/pdf.js');
-// const { ipcRenderer } = require( 'electron' );
-const PDFJS = require('../node_modules/pdf-parse/lib/pdf.js/v2.0.550/build/pdf.js')
+const { ipcRenderer } = require( 'electron' );
+// const PDFJS = require('../node_modules/pdf-parse/lib/pdf.js/v2.0.550/build/pdf.js')
 let PDFParser = require("pdf2json");
 // import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs"
 
@@ -37,7 +37,7 @@ async function getPdfData2(fechaInicio,fechaFin,fechaHoy) {
     let casos = [];
     
     // Configuracion del worker de pdfjs, necesario hacerlo manualmente para que funcione en node
-    PDFJS.workerSrc = '../node_modules/pdf-parse/lib/pdf.js/v2.0.550/build/pdf.worker.js';
+    // PDFJS.workerSrc = '../node_modules/pdf-parse/lib/pdf.js/v2.0.550/build/pdf.worker.js';
     try{
         await getDatosBoletin(fechaInicio,fechaFin,casos,fechaHoy);
         const pdfs = fs.readdirSync(path.join(__dirname, '../Model/downloads'));
@@ -77,6 +77,8 @@ async function getPdfData(fechaInicio,fechaFin,fechaHoy) {
                 });
                 texto = pdfData ? pdfData : "";
                 console.log(texto.length);
+                const caso = new Caso(fechaHoy);
+                casos.push(caso);
             }
             
             // casos = pdfparse(pdfFile).then(data => getTextFromPdf(data,fechaHoy,casos));
@@ -142,7 +144,7 @@ async function main() {
         const startDate = new Date('2024/11/21'); // Fecha de inicio
         const endDate = new Date('2024/11/22'); 
         const fechaHoy = new Date();
-        const casos = await getPdfData2(startDate,endDate,fechaHoy);
+        const casos = await getPdfData(startDate,endDate,fechaHoy);
         console.log("Casos obtenidos: ",casos.length);
         casoObj = casos.map(caso => caso.toObject());
         console.log(casoObj);
