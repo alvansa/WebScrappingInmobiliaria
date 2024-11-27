@@ -1,5 +1,6 @@
 const {app, BrowserWindow, ipcMain, dialog} = require('electron');
 const path = require('node:path');
+const PDFParser = require( 'pdf2json' );
 
 
 class MainApp{
@@ -52,5 +53,26 @@ class MainApp{
         });
     }
 }
+
+ipcMain.on('prefix-convert-pdf', (event, filePath) => {
+    const pdfParser = new PDFParser(this,1);
+
+    pdfParser.on('pdfParser_dataError', errData => {
+        console.error('Error al procesar PDF:', errData.parserError);
+        event.sender.send('prefix-pdf-converted-error', errData.parserError);
+    });
+
+    pdfParser.on('pdfParser_dataReady', pdfData => {
+        console.log('PDF procesado exitosamente.');
+        event.sender.send('prefix-pdf-converted', pdfParser.getRawTextContent());
+    });
+
+    try {
+        pdfParser.loadPDF(filePath);
+    } catch (error) {
+        console.error('Error al cargar el archivo PDF:', error);
+        event.sender.send('prefix-pdf-converted-error', error);
+    }
+});
 
 new MainApp();

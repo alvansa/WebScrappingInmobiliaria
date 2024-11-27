@@ -1,15 +1,23 @@
-const fs = require('fs');
-const path = require('path');
-const pdfparse = require('pdf-parse');
-const Caso  = require('../Model/Caso');
+const Caso  = require('../Model/caso.js');
 const {getDatosBoletin} = require('../Model/getBoletinConcursal.js');
-
+const fs = require('fs');
+// import fs from 'fs';
+const path = require('path');
+// import path from 'path';
+const pdfparse = require('pdf-parse');
+// import pdfparse from 'pdf-parse';
+// const PdfReader = require('pdfreader');
 // const pdfjsLib = require('pdfjs-dist/legacy/build/pdf.js');
+// const { ipcRenderer } = require( 'electron' );
+const PDFJS = require('../node_modules/pdf-parse/lib/pdf.js/v2.0.550/build/pdf.js')
+let PDFParser = require("pdf2json");
+// import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs"
+
 
 function obtainDataRematesPdf(data,caso) {
     const fechaRemate = getfechaRemate(data);
     const causa = getCausa(data);
-    const tribunal = getTribunal(data);
+    const tribunal = getTribunal(data);``
 
     if(fechaRemate){
         caso.darFechaRemate(fechaRemate);
@@ -25,11 +33,11 @@ function obtainDataRematesPdf(data,caso) {
 }
 
 
-async function getPdfData(fechaInicio,fechaFin,fechaHoy) {
+async function getPdfData2(fechaInicio,fechaFin,fechaHoy) {
     let casos = [];
     
     // Configuracion del worker de pdfjs, necesario hacerlo manualmente para que funcione en node
-    // pdfjsLib.GlobalWorkerOptions.workerSrc = './node_modules/pdfjs-dist/build/pdf.worker.mjs'
+    PDFJS.workerSrc = '../node_modules/pdf-parse/lib/pdf.js/v2.0.550/build/pdf.worker.js';
     try{
         await getDatosBoletin(fechaInicio,fechaFin,casos,fechaHoy);
         const pdfs = fs.readdirSync(path.join(__dirname, '../Model/downloads'));
@@ -50,6 +58,36 @@ async function getPdfData(fechaInicio,fechaFin,fechaHoy) {
     return casos;
 }
 
+async function getPdfData(fechaInicio,fechaFin,fechaHoy) {
+    let casos = [];
+    
+    // Configuracion del worker de pdfjs, necesario hacerlo manualmente para que funcione en node
+    // pdfjsLib.GlobalWorkerOptions.workerSrc = './node_modules/pdfjs-dist/build/pdf.worker.mjs'
+    // PDFJS.workerSrc = '/static/js/pdf.worker.js';
+    try{
+        await getDatosBoletin(fechaInicio,fechaFin,casos,fechaHoy);
+        const pdfs = fs.readdirSync(path.join(__dirname, '../Model/downloads'));
+        for (let pdf of pdfs) {
+            const pdfFile = path.join(__dirname, '../Model/downloads/', pdf);
+            if(fs.existsSync(pdfFile)){
+                const pdfData = await new Promise((resolve, reject) => {
+                    ipcRenderer.once('prefix-pdf-converted', (event, data) => resolve(data));
+                    ipcRenderer.once('prefix-pdf-converted-error', (event, error) => reject(error));
+                    ipcRenderer.send('prefix-convert-pdf', pdfFile);
+                });
+                texto = pdfData ? pdfData : "";
+                console.log(texto.length);
+            }
+            
+            // casos = pdfparse(pdfFile).then(data => getTextFromPdf(data,fechaHoy,casos));
+        }
+    }catch (error) {
+        console.error("Error en getPdfData:", error);
+        // console.log(1);
+    }
+    deleteFiles();
+    return casos;
+}
 
 
 function deleteFiles() {
@@ -104,7 +142,7 @@ async function main() {
         const startDate = new Date('2024/11/21'); // Fecha de inicio
         const endDate = new Date('2024/11/22'); 
         const fechaHoy = new Date();
-        const casos = await getPdfData(startDate,endDate,fechaHoy);
+        const casos = await getPdfData2(startDate,endDate,fechaHoy);
         console.log("Casos obtenidos: ",casos.length);
         casoObj = casos.map(caso => caso.toObject());
         console.log(casoObj);
@@ -114,5 +152,31 @@ async function main() {
     }
 }
 
-// main();
 module.exports = { getPdfData }
+
+function readPdf(){
+    let path = "./PublicacionBoletin_49610.pdf";
+    let pdfParser = new PDFParser(this,1);
+    pdfParser.on("pdfParser_dataError", errData => console.error(errData.parserError) );
+    pdfParser.on("pdfParser_dataReady", (pdfData) => {
+        texto = pdfParser.getRawTextContent();
+        console.log(texto);
+    });
+    console.log("Leyendo archivo: ",path,typeof path);
+    pdfParser.loadPDF(path);   
+}
+
+function readerPDF(){
+    
+    fs.readFile("PublicacionBoletin_49610.pdf", (err, pdfBuffer) => {
+      // pdfBuffer contains the file content
+      new PdfReader().parseBuffer(pdfBuffer, function(err, item) {
+        if (err) callback(err);
+        else if (!item) callback();
+        else if (item.text) console.log(item.text);
+      });
+    });
+}
+main();
+// readPdf();
+// readerPDF();

@@ -2,8 +2,7 @@ const { contextBridge,ipcRenderer } = require('electron');
 const {getDatosRemate} = require('../Controller/datosRemate.js');
 const {crearBase,insertarDatos} = require('../Controller/createXLSX');
 const nodePath = require('path');
-// const {cpu, totalmem} = require('os-utils');
-// const test = require('./index.js');
+
 
 contextBridge.exposeInMainWorld('api', {
   logDates:async (startDate, endDate,saveFile) => {
@@ -35,4 +34,10 @@ contextBridge.exposeInMainWorld('api', {
     console.log(nodePath.join(__dirname, './Controller/datosRemate.js'));
   },
   selectFolder: () => ipcRenderer.invoke('select-folder-btn')
+});
+
+contextBridge.exposeInMainWorld('electronAPI', {
+  sendPdfForProcessing: (filePath) => ipcRenderer.send('prefix-convert-pdf', filePath),
+  onPdfProcessed: (callback) => ipcRenderer.once('prefix-pdf-converted', (event, data) => callback(data)),
+  onPdfProcessingError: (callback) => ipcRenderer.once('prefix-pdf-converted-error', (event, error) => callback(error)),
 });

@@ -54,14 +54,7 @@ document.getElementById('logButton').addEventListener('click', async () => {
 });
 
 
-// document.getElementById("showButton").addEventListener('click',async () => {
-//     // Verifica que window.api exista antes de usarla
-//     if (window.api && window.api.printConsole) {
-//       await window.api.printConsole("Hola desde el renderer");
-//     } else {
-//       console.error('La API no está disponible');
-//     }
-//   });
+
   
 document.getElementById('select-folder-btn').addEventListener('click', async () => {
   // Llama al proceso principal para abrir el selector de carpetas
