@@ -7,7 +7,7 @@ async function getDatosRemate(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries){
         let caso;
         const casos = await getPaginas(fechaHoy,fechaInicioStr,fechaFinStr);
         for (caso of casos){
-            pagina = caso.getLink();
+            pagina = caso.link;
             console.log(pagina);
             const description = await getRemates(pagina,maxRetries);
             caso.darTexto(description);

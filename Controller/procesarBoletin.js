@@ -1,26 +1,24 @@
 const Caso  = require('../Model/caso.js');
 const {getDatosBoletin} = require('../Model/getBoletinConcursal.js');
 const fs = require('fs');
-// import fs from 'fs';
+const { comunas, tribunales } = require('../Model/datosLocales.js');
 const path = require('path');
-// import path from 'path';
-const pdfparse = require('pdf-parse');
-// import pdfparse from 'pdf-parse';
-// const PdfReader = require('pdfreader');
-// const pdfjsLib = require('pdfjs-dist/legacy/build/pdf.js');
 const { ipcRenderer } = require( 'electron' );
-// const PDFJS = require('../node_modules/pdf-parse/lib/pdf.js/v2.0.550/build/pdf.js')
-let PDFParser = require("pdf2json");
-// import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs"
+const { get } = require('request');
+
+
 
 
 function obtainDataRematesPdf(data,caso) {
     const fechaRemate = getfechaRemate(data);
     const causa = getCausa(data);
-    const tribunal = getTribunal(data);``
+    const tribunal = getTribunal(data);
+    const comuna = getComuna(data);
+    const monto = montoMinimo(data);
 
     if(fechaRemate){
-        caso.darFechaRemate(fechaRemate);
+        console.log(fechaRemate);
+        caso.darFechaRemate(new Date(fechaRemate));
     }
     if(causa){
         caso.darCausa(causa[0]);
@@ -29,34 +27,17 @@ function obtainDataRematesPdf(data,caso) {
         const juzgado = tribunal[0].split(":")[1];
         caso.darJuzgado(juzgado);
     }
-
-}
-
-
-async function getPdfData2(fechaInicio,fechaFin,fechaHoy) {
-    let casos = [];
-    
-    // Configuracion del worker de pdfjs, necesario hacerlo manualmente para que funcione en node
-    // PDFJS.workerSrc = '../node_modules/pdf-parse/lib/pdf.js/v2.0.550/build/pdf.worker.js';
-    try{
-        await getDatosBoletin(fechaInicio,fechaFin,casos,fechaHoy);
-        const pdfs = fs.readdirSync(path.join(__dirname, '../Model/downloads'));
-        for (let pdf of pdfs) {
-            const pdfFile = fs.readFileSync(path.join(__dirname, '../Model/downloads/', pdf));
-            console.log("Leyendo archivo: ",path.join(__dirname, '../Model/downloads/', pdf),"con el nombre: ",pdf);
-            const pdfData = await pdfparse(pdfFile);
-            const pdfText = pdfData.text;
-            const caso = new Caso(fechaHoy);
-            obtainDataRematesPdf(pdfText,caso);
-            casos.push(caso);
-            // casos = pdfparse(pdfFile).then(data => getTextFromPdf(data,fechaHoy,casos));
-        }
-    }catch (error) {
-        console.error("Error en getPdfData:", error);
+    if(comuna){
+        // const comunaStr = comuna[0].split(":")[1];
+        caso.darComuna(comuna);
     }
-    deleteFiles();
-    return casos;
+    if(monto){
+        const montoMinimo = monto[0].match(/\d+/g);
+        caso.darMontoMinimo(montoMinimo);
+    }
+
 }
+
 
 async function getPdfData(fechaInicio,fechaFin,fechaHoy) {
     let casos = [];
@@ -66,6 +47,7 @@ async function getPdfData(fechaInicio,fechaFin,fechaHoy) {
     // PDFJS.workerSrc = '/static/js/pdf.worker.js';
     try{
         await getDatosBoletin(fechaInicio,fechaFin,casos,fechaHoy);
+        console.log("Casos obtenidos: ",casos);
         const pdfs = fs.readdirSync(path.join(__dirname, '../Model/downloads'));
         for (let pdf of pdfs) {
             const pdfFile = path.join(__dirname, '../Model/downloads/', pdf);
@@ -77,18 +59,20 @@ async function getPdfData(fechaInicio,fechaFin,fechaHoy) {
                 });
                 texto = pdfData ? pdfData : "";
                 console.log(texto.length);
-                const caso = new Caso(fechaHoy);
-                casos.push(caso);
+                console.log(pdf);
+                const caso = getCaso(pdf,casos);
+                obtainDataRematesPdf(texto,caso);
+                
             }
-            
-            // casos = pdfparse(pdfFile).then(data => getTextFromPdf(data,fechaHoy,casos));
+
         }
     }catch (error) {
         console.error("Error en getPdfData:", error);
         // console.log(1);
+    }finally{
+        deleteFiles();
+        return casos;
     }
-    deleteFiles();
-    return casos;
 }
 
 
@@ -112,6 +96,15 @@ function deleteFiles() {
     console.log("Archivos eliminados");
   }
 
+
+function getCaso(pdf,casos){
+    for (let caso of casos){
+        if (caso.link == pdf){
+            return caso;
+        }
+    }
+}
+
 function getfechaRemate(texto) {
     const regex = /(\d{2}\/\d{2}\/\d{4})/g;
     let fecha = texto.match(regex);
@@ -128,7 +121,7 @@ function getCausa(texto) {
 }
 
 function getTribunal(texto){
-    const regex = /tribunal:\s*([a-zA-ZñÑ123456789ºáéíóú]*\s)*/gi;
+    const regex = /tribunal:\s*([a-zA-ZñÑ0123456789ºáéíóú]*\s)*/gi;
     let tribunal = texto.match(regex);
     return tribunal;
 }
@@ -137,6 +130,24 @@ function getTribunal(texto){
 function parseDate(dateString) {
     const [day, month, year] = dateString.split('/');
     return new Date(`${year}/${month}/${day}`);
+}
+
+function montoMinimo(texto){
+    const reMonto = /Valor\s*Mínimo\s*\(pesos\):\s*(\d{7,13})/i;
+    let monto = texto.match(reMonto);
+    return monto;
+}
+
+function getComuna(texto) {
+    //let comuna;
+    for (let comuna of comunas){
+        comunaMinuscula = 'comuna de ' + comuna;
+        comunaMayuscula = 'Comuna de ' + comuna;
+        if (texto.includes(comuna)){
+            return comuna;
+        }
+    }
+    return "N/A";
 }
 
 async function main() {
@@ -156,29 +167,4 @@ async function main() {
 
 module.exports = { getPdfData }
 
-function readPdf(){
-    let path = "./PublicacionBoletin_49610.pdf";
-    let pdfParser = new PDFParser(this,1);
-    pdfParser.on("pdfParser_dataError", errData => console.error(errData.parserError) );
-    pdfParser.on("pdfParser_dataReady", (pdfData) => {
-        texto = pdfParser.getRawTextContent();
-        console.log(texto);
-    });
-    console.log("Leyendo archivo: ",path,typeof path);
-    pdfParser.loadPDF(path);   
-}
-
-function readerPDF(){
-    
-    fs.readFile("PublicacionBoletin_49610.pdf", (err, pdfBuffer) => {
-      // pdfBuffer contains the file content
-      new PdfReader().parseBuffer(pdfBuffer, function(err, item) {
-        if (err) callback(err);
-        else if (!item) callback();
-        else if (item.text) console.log(item.text);
-      });
-    });
-}
-main();
-// readPdf();
-// readerPDF();
+// main();
