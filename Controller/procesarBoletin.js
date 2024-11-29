@@ -10,11 +10,16 @@ const { get } = require('request');
 
 
 function obtainDataRematesPdf(data,caso) {
+    if (!caso) {
+        console.error("No se ha recibido caso");
+        return;
+    }
     const fechaRemate = getfechaRemate(data);
     const causa = getCausa(data);
     const tribunal = getTribunal(data);
     const comuna = getComuna(data);
     const monto = montoMinimo(data);
+    const anno = getAnno(data);
 
     if(fechaRemate){
         console.log(fechaRemate);
@@ -35,6 +40,9 @@ function obtainDataRematesPdf(data,caso) {
         const montoMinimo = monto[0].match(/\d+/g);
         caso.darMontoMinimo(montoMinimo);
     }
+    if(anno){
+        caso.darAnno(anno[0]);
+    }
 
 }
 
@@ -47,7 +55,7 @@ async function getPdfData(fechaInicio,fechaFin,fechaHoy) {
     // PDFJS.workerSrc = '/static/js/pdf.worker.js';
     try{
         await getDatosBoletin(fechaInicio,fechaFin,casos,fechaHoy);
-        console.log("Casos obtenidos: ",casos);
+        // console.log("Casos obtenidos: ",casos);
         const pdfs = fs.readdirSync(path.join(__dirname, '../Model/downloads'));
         for (let pdf of pdfs) {
             const pdfFile = path.join(__dirname, '../Model/downloads/', pdf);
@@ -58,8 +66,7 @@ async function getPdfData(fechaInicio,fechaFin,fechaHoy) {
                     ipcRenderer.send('prefix-convert-pdf', pdfFile);
                 });
                 texto = pdfData ? pdfData : "";
-                console.log(texto.length);
-                console.log(pdf);
+                // console.log(texto.length);
                 const caso = getCaso(pdf,casos);
                 obtainDataRematesPdf(texto,caso);
                 
@@ -77,7 +84,7 @@ async function getPdfData(fechaInicio,fechaFin,fechaHoy) {
 
 
 function deleteFiles() {
-
+    console.log("Eliminando archivos");
     const downloadPath = path.resolve(__dirname, '../Model/downloads');
     fs.readdir(downloadPath, (err, files) => {
         if (err) {
@@ -98,8 +105,9 @@ function deleteFiles() {
 
 
 function getCaso(pdf,casos){
+    // console.log("Nombre del archivo: ",pdf);
     for (let caso of casos){
-        if (caso.link == pdf){
+        if (caso.link.toLowerCase() === pdf.toLowerCase()){
             return caso;
         }
     }
@@ -148,6 +156,11 @@ function getComuna(texto) {
         }
     }
     return "N/A";
+}
+function getAnno(data){
+    const regexAnno = /(año)\s*(\d{4})/i;
+    const anno = data.match(regexAnno);
+    return anno;
 }
 
 async function main() {

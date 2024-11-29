@@ -3,8 +3,15 @@ const path = require("path");
 const fs = require("fs");
 const Caso  = require('./caso');
 
+const EXITO = 1;
+const ERROR = 0;
+const REINTENTAR = 2;
+const DETENER = 3;
+const CONTINUAR = 4;
 
 async function getDatosBoletin (startDate,endDate,casos,fechaHoy){
+    const downloadedFiles = [];
+    const intentosMax = 1;
     let stopFlag = false;
     let tienePaginaSiguiente = true;
     // Configura el directorio para guardar descargas
@@ -32,7 +39,8 @@ async function getDatosBoletin (startDate,endDate,casos,fechaHoy){
         
         while (tienePaginaSiguiente && !stopFlag){
             let firstRowContent = await getPrimeraLinea(page);
-            stopFlag = await getTableData(page,startDate,endDate,stopFlag,downloadPath,casos,fechaHoy);
+            // stopFlag = await getTableData(page,startDate,endDate,stopFlag,downloadPath,casos,fechaHoy,downloadedFiles);
+            stopFlag = await getTableData2(page,startDate,endDate,stopFlag,downloadPath,casos,fechaHoy,downloadedFiles,intentosMax);
             
             tienePaginaSiguiente = await manejarPaginaSiguiente(page,firstRowContent);
         }
@@ -40,7 +48,6 @@ async function getDatosBoletin (startDate,endDate,casos,fechaHoy){
             console.error("Error al obtener los datos:", error);
         }
     await browser.close();
-//   deleteFiles();
 };
 
 
@@ -53,50 +60,147 @@ async function getPrimeraLinea(page){
 }
 
 
-async function getTableData(page,fechaInicio,fechaFin,stopFlag,downloadPath,casos,fechaHoy) {
-    const downloadedFiles = [];
+async function getTableData(page,fechaInicio,fechaFin,stopFlag,downloadPath,casos,fechaHoy,downloadedFiles) {
+    
     // Espera a que la tabla esté presente
     await page.waitForSelector("#tblRematesInmuebles");
 
     // Obtén todas las filas de la tabla
     const rows = await page.$$('#tblRematesInmuebles tbody tr');
     for (let row of rows) {
-        // Obtén la fecha de la celda correspondiente 
-        const nombreCell = await row.$eval('td:nth-child(1)', el => el.textContent.trim());
-        const dateCell = await row.$eval('td:nth-child(2)', el => el.textContent.trim());
-        const martillero = await row.$eval('td:nth-child(3)', el => el.textContent.trim());
-        const fileDate = new Date(parseDate(dateCell));
-        console.log(`Fecha de archivo: ${fileDate}`);
-        // Si la fecha es anterior a la fecha de inicio, detén la búsqueda
-        if (fileDate < fechaInicio) {
-            stopFlag = true;
+        try{
+            // Obtén el nombre, la fecha y el martillero de cada fila
+            const nombreCell = await row.$eval('td:nth-child(1)', el => el.textContent.trim());
+            const dateCell = await row.$eval('td:nth-child(2)', el => el.textContent.trim());
+            const martillero = await row.$eval('td:nth-child(3)', el => el.textContent.trim());
+            const fileDate = new Date(parseDate(dateCell));
+            // console.log(`Fecha de archivo: ${fileDate}`);
+            // Si la fecha es anterior a la fecha de inicio, detén la búsqueda
+            if (fileDate < fechaInicio) {
+                stopFlag = true;
+            }
+            console.log(`Fecha del remate a verificar: ${dateCell} con nombre ${nombreCell}`);
+            // Verifica si la fecha está dentro del rango
+            if (isbetweenDates(fileDate, fechaInicio, fechaFin)) {
+                
+                const button = await row.$('svg');
+                if (button) {
+                    // console.log(`Fecha dentro del rango: ${dateCell} y boton encontrado ${button}`);
+                    await button.click();
+                    console.log(`Descargando archivo con fecha: ${dateCell} y nombre ${nombreCell}`);
+                    const downloadedFile = await waitForNewFile(downloadPath,downloadedFiles);
+                    downloadedFiles.push(downloadedFile);
+                    // console.log(`archivo descargado: ${downloadedFile} con fecha ${fileDate}`);
+                    const caso = new Caso(fechaHoy,fileDate,downloadedFile);
+                    caso.darMartillero(martillero);
+                    casos.push(caso);
+                    await delay(150); // Pausa breve para evitar conflictos
+                }else{
+                    console.log("Botón no encontrado para esta fila.");
+                }
+            }
+        }catch(rowError) {
+            console.error("Error al obtener datos de la fila:", rowError);
+            continue;
         }
-        // Verifica si la fecha está dentro del rango
-        if (isbetweenDates(fileDate, fechaInicio, fechaFin)) {
-            // console.log(`Fecha dentro del rango: ${dateCell}`);
-          const button = await row.$('svg');
-          if (button) {
-            console.log(`Botón encontrado para la fecha: ${dateCell}`);
-            await button.click();
-            // console.log(`Descargando archivo con fecha: ${dateCell}`);
-            const downloadedFile = await waitForNewFile(downloadPath,downloadedFiles);
-            downloadedFiles.push(downloadedFile);
-            console.log(`archivo descargado: ${downloadedFile} con fecha ${fileDate}`);
-            const caso = new Caso(fechaHoy,fileDate,downloadedFile);
-            caso.darMartillero(martillero);
-            casos.push(caso);
-            await delay(100); // Pausa breve para evitar conflictos
-          }
-        }
-      }
+    }
       return stopFlag;
+}
+
+async function getTableData2(page, fechaInicio, fechaFin, stopFlag, downloadPath, casos, fechaHoy, downloadedFiles, maxRetries = 3) {
+    try {
+        // Wait for the table to be present
+        await page.waitForSelector("#tblRematesInmuebles", { timeout: 10000 });
+
+        // Get all rows from the table
+        const rows = await page.$$('#tblRematesInmuebles tbody tr');
+        console.log(`Number of rows found: ${rows.length}`);
+
+        for (const row of rows) {
+            let success = ERROR; // Track if the row is processed successfully
+            let attempts = 0;    // Count attempts
+
+            while (success != EXITO && attempts < maxRetries) {
+                try {
+                    attempts++;
+                    success = await procesarFila(page,row, fechaInicio, fechaFin, downloadPath, downloadedFiles,casos, fechaHoy);
+                    // success = true; // If no error, mark as successful
+                } catch (error) {
+                    console.error(`Error processing row on attempt ${attempts}: ${error.message}`);
+                    if (attempts >= maxRetries) {
+                        console.warn(`Max retries reached for a row. Skipping it.`);
+                    }
+                }
+
+                // Add a small delay between retries
+                if (success === REINTENTAR) { 
+                    await delay(200);
+                }
+                if (success === CONTINUAR) {
+                    break;
+                }
+                
+            }
+            if (success === DETENER) {
+                stopFlag = true;
+            }
+        }
+    } catch (error) {
+        console.error(`General error processing the table: ${error.message}`);
+    }
+
+    return stopFlag;
+}
+
+
+async function procesarFila(page,row,fechaInicio,fechaFin,downloadPath,downloadedFiles,casos,fechaHoy){
+    // Extract cell values
+    const [nombreCell, dateCell, martillero] = await Promise.all([
+        row.$eval('td:nth-child(1)', el => el.textContent.trim()),
+        row.$eval('td:nth-child(2)', el => el.textContent.trim()),
+        row.$eval('td:nth-child(3)', el => el.textContent.trim()),
+    ]);
+
+    const fileDate = new Date(parseDate(dateCell));
+    console.log(`Processing remate: ${dateCell} (${fileDate}) with name: ${nombreCell}`);
+
+    // Check date range
+    if (fileDate < fechaInicio) {
+        return DETENER;
+    }
+
+    if (isbetweenDates(fileDate, fechaInicio, fechaFin)) {
+        const button = await row.$('svg');
+        if (!button) {
+            return REINTENTAR;
+        }
+
+        console.log(`Downloading file for: ${dateCell}`);
+        await button.click();
+
+        // Wait for the file to download
+        const downloadedFile = await waitForNewFile(downloadPath, downloadedFiles);
+        downloadedFiles.push(downloadedFile);
+
+        // Create and save the case
+        const caso = new Caso(fechaHoy, fileDate, downloadedFile);
+        caso.darMartillero(martillero);
+        casos.push(caso);
+        // await delay(1500);
+
+        console.log(`File downloaded: ${downloadedFile} for remate: ${nombreCell}`);
+        return EXITO;
+    } else {
+        // throw new Error("Date is not within the specified range.");
+        return CONTINUAR;
+    }
 }
 
 async function manejarPaginaSiguiente(page,firstRowContent){
     // Busca si existe un botón de 'Siguiente'
+    console.log("Buscando si existe siguiente.");
     const nextButton = await page.$('#tblRematesInmuebles_next');
     if (nextButton) {
-        console.log("Elemento 'Siguiente' encontrado, haciendo clic.");
         await nextButton.click();
 
         // Wait for the table to update after clicking the next button
@@ -124,26 +228,37 @@ async function manejarPaginaSiguiente(page,firstRowContent){
 
 async function waitForNewFile(downloadPath, initialFiles) {
     return new Promise((resolve, reject) => {
+        const initialFileSet = new Set(initialFiles); // Convierte initialFiles a Set para mejor rendimiento
+
         const interval = setInterval(() => {
-            const currentFiles = new Set(fs.readdirSync(downloadPath));
+            let currentFiles;
+            try {
+                // Lee el directorio actual
+                currentFiles = new Set(fs.readdirSync(downloadPath));
+            } catch (error) {
+                clearInterval(interval);
+                reject(new Error(`Error al leer el directorio: ${error.message}`));
+                return;
+            }
 
-            // Encuentra archivos nuevos que no estaban en la lista inicial
-            const newFiles = [...currentFiles].filter(file => !initialFiles.includes(file));
-
+            // Encuentra archivos nuevos
+            const newFiles = [...currentFiles].filter(file => !initialFileSet.has(file));
+            // console.log(`Archivos nuevos encontrados: ${newFiles.join(', ')}`);
             if (newFiles.length > 0) {
                 const completeFile = newFiles.find(file => !file.endsWith('.crdownload'));
+                // console.log(`Archivo completo encontrado: ${completeFile}`);
                 if (completeFile) {
-                    clearInterval(interval);
+                    clearInterval(interval); // Detén el intervalo
                     resolve(completeFile); // Devuelve el nombre del archivo completo
                 }
             }
         }, 100);
 
         // Tiempo límite para evitar bloqueos
-        setTimeout(() => {
-            clearInterval(interval);
+        const timeout = setTimeout(() => {
+            clearInterval(interval); // Asegura detener el intervalo si no se encuentra un archivo
             reject(new Error('Tiempo de espera excedido para un archivo nuevo.'));
-        }, 30000); // 30 segundos
+        }, 8000); // 5 segundos por intento
     });
 }
 
