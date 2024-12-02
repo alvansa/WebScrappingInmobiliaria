@@ -43,9 +43,17 @@ function procesarDatosRemate(caso){
     if (causa != null){
         caso.darCausa(causa[0]);
     }
+
     if (juzgado != null){
         caso.darJuzgado(juzgado);
+    }else{
+        const juezPartidor = getJuezPartidor(texto);
+        if(juezPartidor){
+            caso.darJuzgado("Juez Partidor");
+        }
     }
+
+
     if (porcentaje != null){
         caso.darPorcentaje(porcentaje[0]);
         const minimoPorcentaje =porcentaje[0].match(/\d{1,3}\s*%/);
@@ -89,7 +97,7 @@ function procesarDatosRemate(caso){
         caso.darNumero(numero[1]);
     }
     if (partes != null){
-        caso.darPartes(partes[0]);
+        caso.darPartes(partes);
     }
     if (tipoPropiedad != null){
         caso.darTipoPropiedad(tipoPropiedad[0]);
@@ -146,14 +154,14 @@ function getJuzgado(data) {
         } 
     }
     if (tribunalesAceptados.length == 0){
-        return "N/A";
+        return null;
     }else{
         // console.log(tribunalesAceptados);
         return tribunalesAceptados.at(-1);
     }
 }
 
-
+//Probando para refactorizar la funcion que busca el juzgado
 function getJuzgado2(data) {
     data = data.toLowerCase();
     data = data.replace(",",'');
@@ -201,6 +209,16 @@ function getJuzgado2(data) {
     return "N/A";
 }
 
+function getJuezPartidor(data){
+    const juezRegex = /partidor|particion|partición/i;
+    const juez = data.match(juezRegex);
+    if (juez != null){
+        return true;
+    }else{
+        return false;
+    }
+}
+// Si no se encuentra el juzgado de la lista, se busca si es un juez partidor
 function getPorcentaje(data) {
     const regex = /\d{1,3}\s*%\s*(del\s+)?(mínimo|valor|precio)+|(garantía|Garantía)\s+(suficiente\s+)?(de\s+)?(\$\s*)?(\d{1,3}.)+(\d{1,3})|(caución\s+)+(interesados\s+)+\d{1,3}\s*%|(garantía|Garantía)\s+(suficiente\s+)?(por\s+)?(el\s+)?\d{1,3}%/;
 
@@ -214,13 +232,14 @@ function getPorcentaje(data) {
 
     return porcentaje;
 }
-
+// Buscar el formato de entrega, ya sea vale vista o cupon
 function getFormatoEntrega(data) {
     const regex = /(vale\s+)(vista)|(cupón)|(vale a la vista)/i
     const formatoEntrega = data.match(regex);
     return formatoEntrega;
 }
 
+// Obtiene la fecha del remate.
 function getFechaRemate(data) {
     const regexFechaRemate = new RegExp(/(\d{1,2})\s*(de\s+)?(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)[\s]*((de|del)\s+)?(año\s+)?(\d{4})/i.source +
         /|(lunes|martes|miércoles|jueves|viernes|sábado|domingo)?\s*([a-zA-Záéíóú]*\s+)(de\s+)?(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)(\s+de)\s+(dos mil (veinticuatro|veinticinco|veintiseis|veintisiete|veintiocho|veintinueve|treinta|treinta y uno)?)?/i.source
@@ -229,6 +248,7 @@ function getFechaRemate(data) {
     return fechaRemate;
 }
 
+//Obtiene el monto minimo por el cual iniciara el remate.
 function getMontoMinimo(data) {
     const regex = /(subasta|mínimo)\s*([a-zA-ZáéíóúÑñ:\s]*)\s+((\$)\s*(\d{1,3}.)+(\d{1,3})|(\d{1,3}.)+(\d{1,3})(,\d{1,10})?\s*(Unidades de Fomento|UF|U.F.)|(Unidades de Fomento|U\.?F\.?)\s*(\d{1,3}\.)+(\d{1,3})(,\d{1,10})?)/i;
     // (Mínimo\s+)?(subasta\s+)?((\$)\s*(\d{1,3}.)+(\d{1,3})|(\d{1,3}.)*(\d{1,3}),?(\d{1,10})?\s*(?:Unidades de Fomento|U.F.|UF))
@@ -236,6 +256,7 @@ function getMontoMinimo(data) {
     return montoMinimo;
 }
 
+//Funcion para buscar si hay multiples propiedades en la publicacion del remate
 function getMultiples(data) {
     const regex = /([a-zA-ZáéíóúñÑ])*(propiedades|inmuebles)/;
     const regexFojas = /(fojas|fs)(.)?\s+(N°\s+)?((\d{1,3}.)*)(\d{1,3})/ig ;
@@ -247,8 +268,8 @@ function getMultiples(data) {
     }
 }
 
+// Obtiene la comuna del remate a base de una lista de comunas.
 function getComuna(data) {
-    
     //let comuna;
     for (let comuna of comunas){
         comunaMinuscula = 'comuna de ' + comuna;
@@ -260,12 +281,14 @@ function getComuna(data) {
     return "N/A";
 }
 
+// Obtiene la foja del remate.
 function getFoja(data) {
     const regexFoja = /(fojas|fs)(.)?\s+(N°\s+)?((\d{1,3}.)*)(\d{1,3})/ig ;
     const foja = data.match(regexFoja);
     return foja;
 }
 
+// Obtiene el numero del remate.
 function getNumero(data) {
     const regexNumero = /fojas\s((?:\d{1,3}.)*\d{1,3}),?\s(?:N(?:°|º)|número)\s*((?:\d{1,3}.)*\d{1,3})[\sdel\saño\s\d{4}]?/i;
     const numero = data.match(regexNumero);
@@ -273,13 +296,35 @@ function getNumero(data) {
     //fojas\s((?:\d{1,3},)*\d{1,3}),?\sN[°|º]\s*((?:\d{1,3},)*\d{1,3})[\sdel\saño\s\d{4}]?
 }
 
+// Obtiene las partes del remate.
 function getPartes(data){
     data = data.replaceAll("'", ""); //Elimina comillas simples
     data = data.replaceAll('"', ""); //Elimina comillas dobles
-    const regexPartes = /(?:caratulado?a?s?|expediente)\s*[:]?(?:(?:Rol\s)?\s*C\s*-\s*\d{1,5}\s*-\s*\d{1,5},?)?(\s*[a-zA-ZáéíóúñÑ-]+){1,5}\s*(S\.A\.G\.R\.|S\.A\.G\.R\.|S\.A\.?\/?|con|\/)(\s*[a-zA-ZáéíóúñÑ]+){1,4}/i;
-    const partes = data.match(regexPartes);
-    return partes;
+    data = data.replaceAll("'", ""); //Elimina comillas simples
+    const regexPartes = /(?:caratulado?a?s?|expediente)\s*[:]?(?:(?:Rol\s)?\s*C\s*-\s*\d{1,5}\s*-\s*\d{1,5},?)?(\s*[a-zA-ZáéíóúñÑ-]+){1,6}\s*(S\.A\.G\.R\.|S\.A\.G\.R\.|S\.A\.?\/?|con|\/)(\s*[a-zA-ZáéíóúñÑ]+){1,4}/i;
+    let partes = data.match(regexPartes);
+    if (partes != null){
+        return partes[0];
+    }else{
+        //buscar de otra manera
+        const banco = "Banco";
+        const index = data.indexOf(banco);
+        if (index != -1){
+            const bancoPartes = obtenerFrasesConBanco(data);
+            
+            for(let parte of bancoPartes){
+                let partesModificadas = eliminarHastaDelimitador(parte,".");
+                partesModificadas = eliminarHastaDelimitador(partesModificadas,",");
+                partesModificadas = eliminarHastaDelimitador(partesModificadas,"Rol");
+                if (incluyeParte(partesModificadas)){
+                    return partesModificadas;
+                }
+            }
+        }
+        return 'N/A';
+    }
 }
+
 
 function getTipoPropiedad(data){
     const regexPropiedad = /(?:casa|departamento|terreno|parcela|sitio|local|bodega|oficina|vivienda)/i;
@@ -323,6 +368,31 @@ function convertirANombre(numero) {
     } else {
         return "Número fuera de rango"; // Si el número está fuera del rango de 1 a 40
     }
+}
+
+function eliminarHastaDelimitador(texto,delimitador){
+    const limite = texto.indexOf(delimitador);
+    if (limite == -1){
+        return texto;
+    }
+    return texto.substring(0,limite);
+}
+
+function obtenerFrasesConBanco(texto) {
+    const regex = /banco.*?\./gi; // Busca "banco" seguido de cualquier cosa hasta el primer punto
+    const coincidencias = texto.match(regex);
+    return coincidencias || []; // Devuelve las frases encontradas o un array vacío
+}
+
+function incluyeParte(texto){
+    const incluyecon = texto.includes("con");
+    const incluyeContra = texto.includes("contra");
+    const incluyeCon = texto.includes("Con");
+    const incluyeBarra = texto.includes("/");
+    if (incluyecon || incluyeContra || incluyeCon || incluyeBarra){
+        return true;
+    }
+    return false;
 }
 
 module.exports = {  getDatosRemate , testUnico };

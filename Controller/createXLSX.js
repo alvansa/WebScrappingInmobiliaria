@@ -67,12 +67,12 @@ async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,save
     cambiarAnchoColumnas(ws);
     try{
         let i = 6;
-        // i = await getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i);
+        i = await getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i);
         console.log(`i despues de economicos: ${i}`);
         // i = await getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i);
-        console.log(`i despues de pjud: ${i}`);
+        // console.log(`i despues de pjud: ${i}`);
         // console.log("Fechas a enviar a el boletin ",fechaInicioStr,fechaFinStr);    
-        i = await getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i);
+        // i = await getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i);
         console.log(`i despues de boletin: ${i}`);
         i--;
         ws['!ref'] = 'B5:U'+i;
