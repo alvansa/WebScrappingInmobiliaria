@@ -23,9 +23,9 @@ function crearBase(saveFile) {
     ws['G5'] = { v: 'Juzgado', t: 's' };
     ws['H5'] = { v: 'Comuna del juzgado', t: 's' };
     ws['I5'] = { v: 'Partes', t: 's' };
-    ws['J5'] = { v: 'Que es? 1', t: 's' };
+    ws['J5'] = { v: 'Tipo propiedad', t: 's' };
     ws['K5'] = { v: 'Dirección', t: 's' };
-    ws['L5'] = { v: 'Que es? 2', t: 's' };
+    ws['L5'] = { v: 'Tipo derecho', t: 's' };
     ws['M5'] = { v: 'Comuna', t: 's' };
     ws['N5'] = { v: 'Foja', t: 's' };
     ws['O5'] = { v: 'Numero', t: 's' };
@@ -67,12 +67,12 @@ async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,save
     cambiarAnchoColumnas(ws);
     try{
         let i = 6;
-        i = await getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i);
+        // i = await getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i);
         console.log(`i despues de economicos: ${i}`);
         // i = await getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i);
         // console.log(`i despues de pjud: ${i}`);
         // console.log("Fechas a enviar a el boletin ",fechaInicioStr,fechaFinStr);    
-        // i = await getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i);
+        i = await getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i);
         console.log(`i despues de boletin: ${i}`);
         i--;
         ws['!ref'] = 'B5:U'+i;
@@ -113,7 +113,7 @@ async function getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries
             ws['H' + i] = { v: comunaJuzgado, t: 's' };
             ws['I' + i] = { v: caso.partes, t: 's' };
             ws['J' + i] = { v: caso.tipoPropiedad, t: 's' };
-            // ws['K' + i] = { v: caso.direccion, t: 's' };
+            ws['K' + i] = { v: caso.direccion, t: 's' };
             ws['L' + i] = { v: caso.tipoDerecho, t: 's' };
             ws['M' + i] = { v: caso.comuna, t: 's' };
             ws['N' + i] = { v: caso.foja, t: 's' };
@@ -177,7 +177,7 @@ async function getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i){
             caso.fechaPublicacion.setHours( caso.fechaPublicacion.getHours() + 6);
             // console.log("caso:",i-5,"fecha Obtencion:",dato.fechaPublicacion);
             ws['D' + i] = { v: caso.fechaPublicacion, t: 'd' };
-            ws['E' + i] = { v: caso.fechaRemate, t: 's' };
+            ws['E' + i] = { v: caso.fechaRemate, t: 'd' };
             ws['F' + i] = { v: caso.causa, t: 's' };
             const juzgado = cleanText(caso.juzgado);
             ws['G' + i] = { v: juzgado, t: 's' };

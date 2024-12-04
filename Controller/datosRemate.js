@@ -26,7 +26,7 @@ async function getDatosRemate(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries){
 function procesarDatosRemate(caso){
     texto = caso.texto;
     const causa = getCausa(texto);
-    const juzgado = getJuzgado(texto);
+    const juzgado = getJuezPartidor(texto) ? "Juez Partidor" : getJuzgado(texto);
     const porcentaje = getPorcentaje(texto);
     const formatoEntrega = getFormatoEntrega(texto);
     const fechaRemate = getFechaRemate(texto);
@@ -38,7 +38,8 @@ function procesarDatosRemate(caso){
     const partes = getPartes(texto);
     const tipoPropiedad = getTipoPropiedad(texto);
     const tipoDerecho = getTipoDerecho(texto);
-    const anno = getAnno(texto);
+    
+    const direccion = getDireccion(texto);
 
     if (causa != null){
         caso.darCausa(causa[0]);
@@ -46,13 +47,7 @@ function procesarDatosRemate(caso){
 
     if (juzgado != null){
         caso.darJuzgado(juzgado);
-    }else{
-        const juezPartidor = getJuezPartidor(texto);
-        if(juezPartidor){
-            caso.darJuzgado("Juez Partidor");
-        }
     }
-
 
     if (porcentaje != null){
         caso.darPorcentaje(porcentaje[0]);
@@ -92,6 +87,11 @@ function procesarDatosRemate(caso){
     }
     if (foja != null){
         caso.darFoja(foja[0]);
+        const anno = getAnno(texto);
+        if (anno != null){
+            annoNumero = anno[0].match(/\d{4}/);
+            caso.darAnno(annoNumero[0]);
+        }
     }
     if (numero != null){
         caso.darNumero(numero[1]);
@@ -105,8 +105,9 @@ function procesarDatosRemate(caso){
     if (tipoDerecho != null){
         caso.darTipoDerecho(tipoDerecho[0]);
     }
-    if (anno != null){
-        caso.darAnno(anno[0]);
+    
+    if (direccion != null){
+        caso.darDireccion(direccion);
     }
 }
 
@@ -114,7 +115,7 @@ function procesarDatosRemate(caso){
 //crea una funcion que revise en la descripcion a base de regex el juzgado
 function getCausa(data) {
     //Anadir C- con 3 a 5 digitos, guion, 4 digitos
-    const regex = /C\s*[-]*\s*\d{3,5}\s*-\s*\d{4}|C\s*[-]*\s*\d{1,3}\.\d{3}\s*-\s*\d{4}/i;
+    const regex = /C\s*[-]*\s*\d{1,7}\s*-\s*\d{4}|C\s*[-]*\s*\d{1,3}\.\d{3}\s*-\s*\d{4}/i;
     
     const causa = data.match(regex);
 
@@ -122,7 +123,7 @@ function getCausa(data) {
 }
 
 function getJuzgado(data) {
-    
+    // TODO: Hacer que acepte variaciones cuando se escribe tribunal en vez de juzgado.
     data = data.toLowerCase();
     data = data.replace(",",'');
     const dataSinDe = data.replaceAll("de ",'');
@@ -210,7 +211,7 @@ function getJuzgado2(data) {
 }
 
 function getJuezPartidor(data){
-    const juezRegex = /partidor|particion|partición/i;
+    const juezRegex = /partidor|particion|partición|Árbitro|árbitro/i;
     const juez = data.match(juezRegex);
     if (juez != null){
         return true;
@@ -273,7 +274,6 @@ function getComuna(data) {
     //let comuna;
     for (let comuna of comunas){
         comunaMinuscula = 'comuna de ' + comuna;
-        comunaMayuscula = 'Comuna de ' + comuna;
         if (data.includes(comuna)){
             return comuna;
         }
@@ -341,9 +341,47 @@ function getTipoDerecho(data){
 function getAnno(data){
     const regexAnno = /(año)\s*(\d{4})/i;
     const anno = data.match(regexAnno);
-    return anno;
+    if (anno != null){
+        return anno;
+    }
+    const registroRegex = /registro\s*(?:de)?\s*propiedad\s*(\d{4})/i;
+    const registro = data.match(registroRegex);
+    if (registro != null){
+        return registro;
+    }
+    return null;
 }
 
+function getDireccion(data){
+    const dataMinuscula = data.toLowerCase();
+    const palabrasClave = ['propiedad','inmueble','departamento','casa'];
+    const comuna = 'comuna';
+    const direcciones = [];
+    for(let palabra of palabrasClave){
+        const index = dataMinuscula.indexOf(palabra);
+        let fin = dataMinuscula.indexOf(comuna);
+        // console.log(index,palabra,fin,comuna);
+        if(index == -1){continue;}
+        // revisar si hay una palabra comuna para finalizar la direccion
+        if(fin > index){
+            const direccion = data.substring(index,fin);
+            return direccion;
+        }
+        const direccionTemporal = data.substring(index);
+        fin = direccionTemporal.indexOf('.');
+        if(fin != -1){
+            const direccion = direccionTemporal.substring(0,fin);
+            direcciones.push(direccion);
+        }
+    }
+    if(direcciones.length > 0){
+        return direcciones.at(-1);
+    }
+    return 'N/A';
+
+}
+
+// Funcion para probar un solo remate
 async function testUnico(fecha,link){
     // const link = "https://www.economicos.cl/remates/clasificados-remates-cod7477417.html";
     caso = new Caso(fecha,fecha,link);

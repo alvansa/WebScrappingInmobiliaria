@@ -144,6 +144,14 @@ function writeData(datos){
     });
 }
 
+async function getEspecificDataFromPjud(tablaRemates){
+    try{
+
+    }catch{
+        
+    }
+}
+
 async function main(){
     try {
         const fechaDesde = '11/11/2024';

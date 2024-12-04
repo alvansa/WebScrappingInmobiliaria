@@ -19,6 +19,7 @@ class Caso{
     #tipoPropiedad;
     #tipoDerecho;
     #martillero;
+    #direccion;
 
     constructor(fechaObtencion,fechaPublicacion='N/A',link='N/A'){    
         this.#fechaPublicacion = fechaPublicacion;
@@ -33,14 +34,15 @@ class Caso{
         this.#montoMinimo = 'N/A';
         this.#multiples = false;
         this.#comuna = 'N/A';
-        this.#foja = 'N/A';
+        this.#foja = 'No especifica';
         this.#multiplesFoja = false;
         this.#numero = 'N/A';
         this.#partes = "N/A";
-        this.#tipoPropiedad = 'N/A';
-        this.#tipoDerecho = 'N/A';
-        this.#anno = 'N/A';
+        this.#tipoPropiedad = 'No especifica';
+        this.#tipoDerecho = 'No especifica';
+        this.#anno = 'No especifica';
         this.#martillero = 'N/A';
+        this.#direccion = 'N/A';
     }
     darfechaPublicacion(fechaPublicacion){
         this.#fechaPublicacion = fechaPublicacion;
@@ -96,6 +98,9 @@ class Caso{
     darMartillero(martillero){
         this.#martillero = martillero;
     }
+    darDireccion(direccion){
+        this.#direccion = direccion;
+    }
 
     get link(){ 
         return String(this.#link);
@@ -126,6 +131,7 @@ class Caso{
             tipoDerecho: this.#tipoDerecho,
             año: this.#anno,
             martillero: this.#martillero,
+            direccion: this.#direccion,
         };
     }
 }

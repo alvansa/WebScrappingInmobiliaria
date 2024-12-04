@@ -214,7 +214,7 @@ async function manejarPaginaSiguiente(page,firstRowContent){
                 }
                 return false;
             },
-            { timeout: 5000 },
+            { timeout: 3000 },
             firstRowContent
         );
 

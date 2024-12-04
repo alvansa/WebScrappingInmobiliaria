@@ -869,6 +869,7 @@ const tribunales = ["1° JUZGADO DE LETRAS DE ARICA",
      "TRIBUNAL DE JUICIO ORAL EN LO PENAL SAN BERNARDO", 
      "Juzgado de Cobranza Laboral y Previsional de San Miguel",
       "tribunal arbitral",
+      "Juzgado de Letras del Trabajo de San Bernardo"
     ]
 
   module.exports = {comunas,tribunales};

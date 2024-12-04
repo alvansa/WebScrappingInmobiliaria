@@ -20,9 +20,12 @@ function obtainDataRematesPdf(data,caso) {
     const comuna = getComuna(data);
     const monto = montoMinimo(data);
     const anno = getAnno(data);
+    const direccion = getDireccion(data);
+    const tipoPropiedad = getTipoPropiedad(data);
+    const tipoDerecho = getTipoDerecho(data);
 
     if(fechaRemate){
-        console.log(fechaRemate);
+        // console.log(fechaRemate);
         caso.darFechaRemate(new Date(fechaRemate));
     }
     if(causa){
@@ -41,7 +44,17 @@ function obtainDataRematesPdf(data,caso) {
         caso.darMontoMinimo(montoMinimo);
     }
     if(anno){
-        caso.darAnno(anno[0]);
+        const annoNumero = anno[0].match(/\d+/g);
+        caso.darAnno(annoNumero);
+    }
+    if(direccion){
+        caso.darDireccion(direccion);
+    }
+    if(tipoPropiedad){
+        caso.darTipoPropiedad(tipoPropiedad[0]);
+    }
+    if(tipoDerecho){
+        caso.darTipoDerecho(tipoDerecho[0]);
     }
 
 }
@@ -116,6 +129,7 @@ function getCaso(pdf,casos){
 function getfechaRemate(texto) {
     const regex = /(\d{2}\/\d{2}\/\d{4})/g;
     let fecha = texto.match(regex);
+    
     if (fecha) {
         fecha = parseDate(fecha[0]);
         return fecha;
@@ -123,7 +137,7 @@ function getfechaRemate(texto) {
     return null;
 }
 function getCausa(texto) {
-    const regex = /C-\d{3,5}-\d{4}/g;
+    const regex = /C-\d{1,7}-\d{4}/g;
     let causa = texto.match(regex);
     return causa;
 }
@@ -137,7 +151,7 @@ function getTribunal(texto){
 
 function parseDate(dateString) {
     const [day, month, year] = dateString.split('/');
-    return new Date(`${year}/${month}/${day}`);
+    return`${year}/${month}/${day}`;
 }
 
 function montoMinimo(texto){
@@ -158,9 +172,72 @@ function getComuna(texto) {
     return "N/A";
 }
 function getAnno(data){
+    const detalle = 'Detalle';
+    const detalleIndex = data.indexOf(detalle);
+    console.log("Detalle index: ",detalleIndex);
+    // console.log("Data: ",data);
+    if (detalleIndex === -1) {
+        return null;
+    }
+    let dataAnno = data.slice(detalleIndex);
+    dataAnno = dataAnno.toLowerCase();
     const regexAnno = /(año)\s*(\d{4})/i;
-    const anno = data.match(regexAnno);
-    return anno;
+    const anno = dataAnno.match(regexAnno);
+    if (anno) {
+        return anno;
+    }
+    const indexFecha = dataAnno.indexOf('fecha');
+    // const fin = dataAnno.indexOf('.');
+    const dataFecha = dataAnno.slice(indexFecha);
+    const regexFecha = /(\d{4})/g;
+    const fecha = dataFecha.match(regexFecha);
+    if (fecha) {
+        return fecha;
+    }
+    return null;
+}
+
+function getDireccion(data){
+    let dataMinuscula = data.toLowerCase();
+    const detalle = 'detalle';
+    const detalleIndex = dataMinuscula.indexOf(detalle);
+    const tipoBienes = 'tipo bienes';
+    const tipoBienesIndex = dataMinuscula.indexOf(tipoBienes);
+    if (detalleIndex === -1 || tipoBienesIndex === -1) {
+        return null;
+    }
+    dataMinuscula = dataMinuscula.slice(detalleIndex,tipoBienesIndex);
+    dataMinuscula = dataMinuscula.replace(/[\r\n]+/g, ' ');
+    const palabrasClave = ['propiedad','inmueble','departamento','casa'];
+    const comuna = 'comuna';
+    const direcciones = [];
+    for(let palabra of palabrasClave){
+        const index = dataMinuscula.indexOf(palabra);
+        let fin = dataMinuscula.indexOf(comuna);
+        if(index == -1){continue;}
+        // revisar si hay una palabra comuna para finalizar la direccion
+        if(fin > index){
+            const direccion = dataMinuscula.substring(index,fin);
+            return direccion;
+        }
+    }
+    if(direcciones.length > 0){
+        return direcciones.at(-1);
+    }
+    return dataMinuscula;
+
+}
+
+function getTipoPropiedad(data){
+    const regexPropiedad = /(?:casa|departamento|terreno|parcela|sitio|local|bodega|oficina|vivienda)/i;
+    const tipoPropiedad = data.match(regexPropiedad);
+    return tipoPropiedad;
+}
+
+function getTipoDerecho(data){
+    const regexDerecho = /(?:posesión|usufructo|nuda propiedad|bien familiar)/i;
+    const tipoDerecho = data.match(regexDerecho);
+    return tipoDerecho;
 }
 
 async function main() {
