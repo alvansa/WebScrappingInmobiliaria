@@ -1,3 +1,22 @@
+const ARICA = "10";
+const IQUIQUE = "11";
+const ANTOFAGASTA = "15";
+const COPIAPO = "20";
+const LA_SERENA = "25";
+const VALPARAISO = "30";
+const RANCAGUA = "35";
+const TALCA = "40";
+const CHILLAN = "45";
+const CONCEPCION = "46";
+const TEMUCO = "50";
+const VALDIVIA = "55";
+const PUERTO_MONTT = "56";
+const COYHAIQUE = "60";
+const PUNTA_ARENAS = "61";
+const SANTIAGO = "90";
+const SAN_MIGUEL = "91";
+
+
 class Caso{
     #fechaPublicacion;
     #fechaObtencion;
@@ -133,6 +152,18 @@ class Caso{
             martillero: this.#martillero,
             direccion: this.#direccion,
         };
+    }
+
+    getCorte(){
+        const comuna = this.#juzgado.split('de').at(-1).trim();
+    }
+    getCausa(){
+        const causa = this.#causa.split('-');
+        return causa[1];
+    }
+    getAnno(){
+        const causa = this.#causa.split('-');
+        return causa[2];
     }
 }
 

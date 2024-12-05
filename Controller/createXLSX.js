@@ -67,9 +67,9 @@ async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,save
     cambiarAnchoColumnas(ws);
     try{
         let i = 6;
-        // i = await getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i);
+        i = await getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i);
         console.log(`i despues de economicos: ${i}`);
-        // i = await getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i);
+        i = await getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i);
         // console.log(`i despues de pjud: ${i}`);
         // console.log("Fechas a enviar a el boletin ",fechaInicioStr,fechaFinStr);    
         i = await getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i);
@@ -113,7 +113,7 @@ async function getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries
             ws['H' + i] = { v: comunaJuzgado, t: 's' };
             ws['I' + i] = { v: caso.partes, t: 's' };
             ws['J' + i] = { v: caso.tipoPropiedad, t: 's' };
-            ws['K' + i] = { v: caso.direccion, t: 's' };
+            // ws['K' + i] = { v: caso.direccion, t: 's' };
             ws['L' + i] = { v: caso.tipoDerecho, t: 's' };
             ws['M' + i] = { v: caso.comuna, t: 's' };
             ws['N' + i] = { v: caso.foja, t: 's' };
@@ -185,7 +185,7 @@ async function getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i){
             ws['H' + i] = { v: comunaJuzgado, t: 's' };
             ws['I' + i] = { v: caso.partes, t: 's' };
             ws['J' + i] = { v: caso.tipoPropiedad, t: 's' };
-            ws['K' + i] = { v: caso.direccion, t: 's' };
+            // ws['K' + i] = { v: caso.direccion, t: 's' };
             ws['L' + i] = { v: caso.tipoDerecho, t: 's' };
             ws['M' + i] = { v: caso.comuna, t: 's' };
             ws['N' + i] = { v: caso.foja, t: 's' };

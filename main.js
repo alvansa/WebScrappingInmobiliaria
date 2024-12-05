@@ -29,8 +29,8 @@ class MainApp{
 
     createMainWindow(){
         this.mainWindow = new BrowserWindow({
-            width: 800,
-            height: 600,
+            width: 700,
+            height: 500,
             webPreferences: {
                 preload: path.join(__dirname, './Electron/preload.js'), // Archivo que se ejecutará antes de cargar el renderer process
                 nodeIntegration: true

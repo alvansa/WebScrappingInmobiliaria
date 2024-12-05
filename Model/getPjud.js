@@ -1,6 +1,10 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
-const { get } = require('request');
+const Caso = require('./caso');
+const { del, get } = require('request');
+
+const EXITO = 1;
+const ERROR = 0;
 
 async function getPJUD(fechaDesde,fechaHasta){
     const browser = await puppeteer.launch({headless: false});
@@ -145,13 +149,190 @@ function writeData(datos){
 }
 
 async function getEspecificDataFromPjud(tablaRemates){
+    const casos = crearCasosPrueba();
+    const browser = await puppeteer.launch({headless: false});
+    const page = await browser.newPage();
+    await page.goto('https://oficinajudicialvirtual.pjud.cl/includes/sesion-consultaunificada.php');
     try{
-
-    }catch{
+        await setValoresIncialesBusquedaCausa(page,casos[0]);
+        // await delay(15000);
+        await page.waitForSelector('#btnConConsulta');
+        await page.click('#btnConConsulta');
+        await page.waitForSelector('#dtaTableDetalle a');
         
+        await page.click('#dtaTableDetalle a');
+        
+        await selectCuaderno(page);
+        await page.waitForSelector('#historiaCiv');
+        datos = await getDatosTablaRemate(page);
+        // await delay(5000);   
+
+        await browser.close();
+        return datos;
+    }catch(error){
+        console.error('Error en la función getEspecificDataFromPjud:', error);
+        await browser.close();
+        return false;
+    }
+    
+}
+
+async function setValoresIncialesBusquedaCausa(page, caso) {
+    const valorCompetencia = "3";
+    
+    // Seleccionar competencia
+    await page.waitForSelector('#competencia');
+    await page.select('#competencia', valorCompetencia);
+
+    // Esperar a que el siguiente selector se actualice
+    await page.waitForFunction(() => {
+        const conCorte = document.querySelector('#conCorte');
+        return conCorte && conCorte.options.length > 1; // Verifica que haya más de una opción disponible
+    });
+
+    // Seleccionar corte
+    await page.select('#conCorte', '90');
+
+    // Esperar actualización del selector dependiente
+    await page.waitForFunction(() => {
+        const conTribunal = document.querySelector('#conTribunal');
+        return conTribunal && conTribunal.options.length > 1;
+    });
+
+    // Seleccionar tribunal
+    await page.select('#conTribunal', '286');
+
+    // Esperar actualización del selector dependiente
+    await page.waitForFunction(() => {
+        const conTipoCausa = document.querySelector('#conTipoCausa');
+        return conTipoCausa && conTipoCausa.options.length > 1;
+    });
+
+    // Seleccionar tipo de causa
+    await page.select('#conTipoCausa', 'C');
+
+    // Rol de la causa
+    await page.waitForSelector('#conRolCausa');
+    await page.type('#conRolCausa', caso.getCausa());
+
+    // Año de la causa
+    await page.waitForSelector('#conEraCausa');
+    await page.type('#conEraCausa', caso.getAnno());
+}
+
+async function selectCuaderno(page) {
+    // Esperar a que el <select> esté disponible
+    await page.waitForSelector('#selCuaderno');
+
+    // Obtener todas las opciones del <select>
+    const options = await page.$$eval('#selCuaderno option', (opts) => {
+        return opts.map(option => ({
+            text: option.textContent.trim(),
+            value: option.value
+        }));
+    });
+
+    // Buscar la opción que contiene "2 - Apremio Ejecutivo Obligación de Dar"
+    const optionToSelect = options.find(option => option.text.includes('2 - Apremio Ejecutivo Obligación de Dar'));
+
+    if (optionToSelect) {
+        // Seleccionar la opción encontrada
+        await page.select('#selCuaderno', optionToSelect.value);
+    } else {
+        console.log('La opción deseada no se encuentra en el select.');
     }
 }
 
+
+async function getDatosTablaRemate(page){
+    try{
+        await page.waitForSelector("#historiaCiv", { timeout: 10000 });
+
+        // Get all rows from the table
+        const rows = await page.$$('#historiaCiv .table tbody tr');
+        console.log(rows.length);
+        for (const row of rows) {
+            // Track if the row is processed successfull
+                try {
+                    success = await procesarFila(page,row);
+                } catch (error) {
+                    console.error(`Error processing row on attempt : ${error.message}`);
+                    success = ERROR;
+                }
+        }
+
+    }catch(error){
+        console.error('Error en la función getDatosTablaRemate:', error);
+        return [];
+    }
+
+}
+
+async function procesarFila(page,row){
+    const [etapa, tramite, descripcion, fecha] = await Promise.all([
+        row.$eval('td:nth-child(4)', el => el.textContent.trim()),
+        row.$eval('td:nth-child(5)', el => el.textContent.trim()),
+        row.$eval('td:nth-child(6)', el => el.textContent.trim()),
+        row.$eval('td:nth-child(7)', el => el.textContent.trim()),
+    ]);
+    // console.log(descripcion);
+    if(descripcion === 'Cumple lo ordenado'){
+        button = await row.$('td:nth-child(3) a');
+        if(!button){
+            console.log('No se encontró el botón');
+            return ERROR;
+        }
+        await page.waitForSelector('td:nth-child(3) a',{visible:true});
+        console.log('Botón encontrado');
+        await button.click();
+        await page.waitForSelector('.modal-body table');
+        const rows = await page.$$('.modal-body table tbody tr');
+        for(let tableRow of rows){
+            await obtenerPDF(page,tableRow);
+        }
+        // await delay(5000);
+        return EXITO;
+    }
+    return ERROR;
+}
+
+async function obtenerPDF(page,row){
+    const [fecha,referencia] = await Promise.all([
+        row.$eval('td:nth-child(1)', el => el.textContent.trim()),
+        row.$eval('td:nth-child(2)', el => el.textContent.trim()),
+    ]);
+    button = await row.$('a');
+    if(!button){
+        console.log('No se encontró el botón para descargar el PDF de ', referencia);
+        return ERROR;
+    }
+    await page.waitForSelector('a',{visible:true});
+    await button.click();
+    console.log('Descargando PDF de ',referencia);
+}
+
+function crearCasosPrueba(){
+    let casos = [];
+    let caso1 = new Caso(new Date(),'N/A','N/A');
+    caso1.darCausa('C-18022-2023');
+    caso1.darJuzgado('28º juzgado civil de santiago');
+    casos.push(caso1);
+    // let caso2 = new Caso(new Date(),'N/A','N/A');
+    // caso2.darCausa('C-1585-2024');
+    // caso2.darJuzgado('19º juzgado civil de santiago');
+    // casos.push(caso2);
+    // let caso3 = new Caso(new Date(),'N/A','N/A');
+    // caso3.darCausa('C-1281-2024');
+    // caso3.darJuzgado('4º juzgado de letras de talca');
+    // casos.push(caso3);
+    return casos;
+}
+
+function delay(time) {
+    return new Promise(function(resolve) { 
+        setTimeout(resolve, time)
+    });
+ }
 async function main(){
     try {
         const fechaDesde = '11/11/2024';
@@ -165,5 +346,5 @@ async function main(){
     }
 }
 
-module.exports = {getPJUD};
+module.exports = {getPJUD,getEspecificDataFromPjud};
 // main();

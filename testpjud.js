@@ -1,11 +1,17 @@
-const {getPJUD} = require('./Model/getPjud');
+const {getPJUD,getEspecificDataFromPjud} = require('./Model/getPjud');
 
 async function main(){
     let fechaDesde = '13/11/2024';
     let fechaHasta = '15/11/2024';
-    let data = await getPJUD(fechaDesde,fechaHasta);
+    const tabla = [];
+    let data = await getEspecificDataFromPjud(tabla);
     // console.log(data);
-    console.log("datos conseguidos");
+    if(data){
+        console.log('Datos conseguidos');
+        console.log(data);
+    }else{
+        console.log('Error al conseguir datos');
+    }
 }
 
 main();
