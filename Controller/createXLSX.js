@@ -67,12 +67,12 @@ async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,save
     cambiarAnchoColumnas(ws);
     try{
         let i = 6;
-        i = await getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i);
+        // i = await getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i);
         console.log(`i despues de economicos: ${i}`);
         i = await getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i);
         // console.log(`i despues de pjud: ${i}`);
         // console.log("Fechas a enviar a el boletin ",fechaInicioStr,fechaFinStr);    
-        i = await getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i);
+        // i = await getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i);
         console.log(`i despues de boletin: ${i}`);
         i--;
         ws['!ref'] = 'B5:U'+i;
@@ -145,7 +145,7 @@ async function getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i){
                 let fecha = transformarFechaPjud(caso.fechaHora);
                 fecha.setHours( fecha.getHours() + 6);
                 ws['C' + i] = { v: fechaHoy, t: 'd' };
-                ws['D' + i] = { v: fecha, t: 'd' };
+                ws['E' + i] = { v: fecha, t: 'd' };
                 ws['F' + i] = { v: caso.causa, t: 's' };
                 caso.tribunal = caso.tribunal.toLowerCase();
                 ws['G' + i] = { v: caso.tribunal, t: 's' };
@@ -256,13 +256,14 @@ function formatoFechaBoletin(fecha) {
 
 function transformarFechaPjud(fechaHora) {
     // Separar la fecha y la hora
+    
     const [fecha, hora] = fechaHora.split(" ");
     
     // Separar día, mes y año
-    const [mes, dia, año] = fecha.split("/");
+    const [dia,mes, año] = fecha.split("/");
     
     // Formatear la fecha en "dd-mm-yyyy"
-    const fechaFormateada = new Date(`${dia}-${mes}-${año}`);
+    const fechaFormateada = new Date(`${año}/${mes}/${dia}`);
     
     return fechaFormateada;
   }
