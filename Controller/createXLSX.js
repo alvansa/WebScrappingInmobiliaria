@@ -67,10 +67,10 @@ async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,save
     cambiarAnchoColumnas(ws);
     try{
         let i = 6;
-        // i = await getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i);
+        i = await getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i);
         console.log(`i despues de economicos: ${i}`);
         i = await getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i);
-        // console.log(`i despues de pjud: ${i}`);
+        console.log(`i despues de pjud: ${i}`);
         // console.log("Fechas a enviar a el boletin ",fechaInicioStr,fechaFinStr);    
         // i = await getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i);
         console.log(`i despues de boletin: ${i}`);
@@ -101,12 +101,15 @@ async function getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries
         console.log("Cantidad de casos obtenidos: ",casosObj.length);
         
         for(let caso of casosObj){
+            if(caso.juzgado == 'Juez Partidor'){
+                continue;
+            }
             ws['B' + i] = { v: caso.link, t: 's' };
             ws['C' + i] = { v: caso.fechaObtencion, t: 'd' };
             caso.fechaPublicacion.setHours( caso.fechaPublicacion.getHours() + 6);
             console.log("caso:",i-5,"fecha Obtencion:",caso.fechaPublicacion);
             ws['D' + i] = { v: caso.fechaPublicacion, t: 'd' };
-            ws['E' + i] = { v: caso.fechaRemate, t: 's' };
+            ws['E' + i] = { v: caso.fechaRemate, t: 'd' };
             ws['F' + i] = { v: caso.causa, t: 's' };
             ws['G' + i] = { v: caso.juzgado, t: 's' };
             const comunaJuzgado = getComunaJuzgado(caso.juzgado);

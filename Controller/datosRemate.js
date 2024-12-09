@@ -38,8 +38,8 @@ function procesarDatosRemate(caso){
     const partes = getPartes(texto);
     const tipoPropiedad = getTipoPropiedad(texto);
     const tipoDerecho = getTipoDerecho(texto);
-    
     const direccion = getDireccion(texto);
+    const diaEntrega = getDiaEntrega(texto);
 
     if (causa != null){
         caso.darCausa(causa[0]);
@@ -105,9 +105,11 @@ function procesarDatosRemate(caso){
     if (tipoDerecho != null){
         caso.darTipoDerecho(tipoDerecho[0]);
     }
-    
     if (direccion != null){
         caso.darDireccion(direccion);
+    }
+    if (diaEntrega != null){
+        caso.darDiaEntrega(diaEntrega[0]);
     }
 }
 
@@ -379,6 +381,26 @@ function getDireccion(data){
     }
     return 'N/A';
 
+}
+
+function getDiaEntrega(data){
+    const regexDiaEntregaSingular = /día\s*(hábil)?\s*(anterior)/i;
+    const regexDiaEntregaPlural = /(dos|tres|cuatro|cinco|seis|siete)\sdías\shábiles\s(antes)?/i;
+    const regexDiaEntregaNombreDia = /día\s(lunes|martes|miércoles|jueves|viernes)\s(inmediatamente\s)?(anterior\s)(a\sla\sfecha\s)?(de\sla\ssubasta|del\sremate)/i;
+
+    const diaEntregaSingular = data.match(regexDiaEntregaSingular);
+    if (diaEntregaSingular != null){
+        return diaEntregaSingular;
+    }
+    const diaEntregaPlural = data.match(regexDiaEntregaPlural);
+    if (diaEntregaPlural != null){
+        return diaEntregaPlural;
+    }
+    const diaEntregaNombreDia = data.match(regexDiaEntregaNombreDia);
+    if (diaEntregaNombreDia != null){
+        return diaEntregaNombreDia;
+    }
+    return null;
 }
 
 // Funcion para probar un solo remate

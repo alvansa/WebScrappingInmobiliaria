@@ -7,9 +7,10 @@ let url = 'https://www.economicos.cl/todo_chile/remates_de_propiedades_el_mercur
 let urlBase = "https://www.economicos.cl"
 
 async function getPaginas(fechaHoy,fechaInicioStr,fechaFinStr) {
+    const EMOL = 1;
     fechaInicio = new Date(fechaInicioStr);
     fechaFin = new Date(fechaFinStr);
-    // const maxDiffDate = 7; 
+    
     const maxRetries = 5;  // Número máximo de reintentos
     let attempt = 0;  // Contador de intentos
     let stopFlag = false;
@@ -38,9 +39,8 @@ async function getPaginas(fechaHoy,fechaInicioStr,fechaFinStr) {
                         if (announcement)
                             announcement = urlBase + announcement;
                             const fechaPublicacion = announcementDate;
-                            // const fechaHoyCaso = fechaHoy.toISOString().split("T")[0];
                             const fechaHoyCaso = fechaHoy;
-                            const caso = new Caso(fechaHoyCaso,fechaPublicacion,announcement);
+                            const caso = new Caso(fechaHoyCaso,fechaPublicacion,announcement,EMOL);
                             casosARevisar.push(caso);
                     }
                 }

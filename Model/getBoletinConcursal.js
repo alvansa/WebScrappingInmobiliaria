@@ -9,6 +9,8 @@ const REINTENTAR = 2;
 const DETENER = 3;
 const CONTINUAR = 4;
 
+const LIQUIDACIONES = 3;
+
 async function getDatosBoletin (startDate,endDate,casos,fechaHoy){
     const downloadedFiles = [];
     const intentosMax = 1;
@@ -109,12 +111,11 @@ async function getTableData(page,fechaInicio,fechaFin,stopFlag,downloadPath,caso
 
 async function getTableData2(page, fechaInicio, fechaFin, stopFlag, downloadPath, casos, fechaHoy, downloadedFiles, maxRetries = 3) {
     try {
-        // Wait for the table to be present
+        //Espera a que la tabla esté presente
         await page.waitForSelector("#tblRematesInmuebles", { timeout: 10000 });
 
-        // Get all rows from the table
+        //Obtiene las filas de la tabla
         const rows = await page.$$('#tblRematesInmuebles tbody tr');
-        console.log(`Number of rows found: ${rows.length}`);
 
         for (const row of rows) {
             let success = ERROR; // Track if the row is processed successfully
@@ -124,7 +125,6 @@ async function getTableData2(page, fechaInicio, fechaFin, stopFlag, downloadPath
                 try {
                     attempts++;
                     success = await procesarFila(page,row, fechaInicio, fechaFin, downloadPath, downloadedFiles,casos, fechaHoy);
-                    // success = true; // If no error, mark as successful
                 } catch (error) {
                     console.error(`Error processing row on attempt ${attempts}: ${error.message}`);
                     if (attempts >= maxRetries) {
@@ -154,7 +154,7 @@ async function getTableData2(page, fechaInicio, fechaFin, stopFlag, downloadPath
 
 
 async function procesarFila(page,row,fechaInicio,fechaFin,downloadPath,downloadedFiles,casos,fechaHoy){
-    // Extract cell values
+    // Extrae la informacion de la fila
     const [nombreCell, dateCell, martillero] = await Promise.all([
         row.$eval('td:nth-child(1)', el => el.textContent.trim()),
         row.$eval('td:nth-child(2)', el => el.textContent.trim()),
@@ -164,7 +164,7 @@ async function procesarFila(page,row,fechaInicio,fechaFin,downloadPath,downloade
     const fileDate = new Date(parseDate(dateCell));
     console.log(`Processing remate: ${dateCell} (${fileDate}) with name: ${nombreCell}`);
 
-    // Check date range
+    // Revisa el rango
     if (fileDate < fechaInicio) {
         return DETENER;
     }
@@ -174,24 +174,17 @@ async function procesarFila(page,row,fechaInicio,fechaFin,downloadPath,downloade
         if (!button) {
             return REINTENTAR;
         }
-
-        console.log(`Downloading file for: ${dateCell}`);
         await button.click();
-
-        // Wait for the file to download
+        // Espera hasta descargar el archivo
         const downloadedFile = await waitForNewFile(downloadPath, downloadedFiles);
         downloadedFiles.push(downloadedFile);
 
-        // Create and save the case
-        const caso = new Caso(fechaHoy, fileDate, downloadedFile);
+        // Crea y guarda el caso
+        const caso = new Caso(fechaHoy, fileDate, downloadedFile,LIQUIDACIONES);
         caso.darMartillero(martillero);
         casos.push(caso);
-        // await delay(1500);
-
-        console.log(`File downloaded: ${downloadedFile} for remate: ${nombreCell}`);
         return EXITO;
     } else {
-        // throw new Error("Date is not within the specified range.");
         return CONTINUAR;
     }
 }
@@ -218,7 +211,6 @@ async function manejarPaginaSiguiente(page,firstRowContent){
             firstRowContent
         );
 
-        console.log("Esperando nueva tabla después del clic");
         return true; // Continue to the next page
     } else {
         console.log("No hay más páginas.");

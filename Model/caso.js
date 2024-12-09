@@ -1,3 +1,8 @@
+const EMOL = 1;
+const PJUD = 2;
+const LIQUIDACIONES = 3;
+const otros = 4;
+
 const ARICA = "10";
 const IQUIQUE = "11";
 const ANTOFAGASTA = "15";
@@ -39,10 +44,13 @@ class Caso{
     #tipoDerecho;
     #martillero;
     #direccion;
+    #origen;
+    #diaEntrega;
 
-    constructor(fechaObtencion,fechaPublicacion='N/A',link='N/A'){    
+    constructor(fechaObtencion,fechaPublicacion='N/A',link='N/A',origen='N/A' ){    
         this.#fechaPublicacion = fechaPublicacion;
         this.#fechaObtencion = fechaObtencion;
+        this.#origen = origen;
         this.#texto = '';
         this.#link = link
         this.#causa = 'N/A';
@@ -62,6 +70,7 @@ class Caso{
         this.#anno = 'No especifica';
         this.#martillero = 'N/A';
         this.#direccion = 'N/A';
+        this.#diaEntrega = 'N/A';
     }
     darfechaPublicacion(fechaPublicacion){
         this.#fechaPublicacion = fechaPublicacion;
@@ -120,6 +129,9 @@ class Caso{
     darDireccion(direccion){
         this.#direccion = direccion;
     }
+    darDiaEntrega(diaEntrega){
+        this.#diaEntrega = diaEntrega;
+    }
 
     get link(){ 
         return String(this.#link);
@@ -138,7 +150,7 @@ class Caso{
             juzgado: this.#juzgado,
             porcentaje: this.#porcentaje,
             formatoEntrega: this.#formatoEntrega,
-            fechaRemate: this.#fechaRemate,
+            fechaRemate: this.transformarFecha(),
             montoMinimo: this.#montoMinimo,
             multiples: this.#multiples,
             multiplesFoja : this.#multiplesFoja,
@@ -151,7 +163,22 @@ class Caso{
             año: this.#anno,
             martillero: this.#martillero,
             direccion: this.#direccion,
+            diaEntrega: this.#diaEntrega,
         };
+    } 
+    transformarFecha(){
+        if(typeof(this.#fechaRemate) == Date){
+            return this.#fechaRemate;
+        }
+        const dia = this.getDia();
+        const mes = this.getMes();
+        const anno = this.getAnno();
+        console.log(dia,mes,anno);
+        if (dia && mes && anno) {
+            const fecha = new Date(anno, mes - 1, dia);
+            return new Date(fecha.getTime() + 6 * 60 * 60 * 1000); // Sumar 6 horas
+        }
+        return null;
     }
 
     getCorte(){
@@ -164,6 +191,123 @@ class Caso{
     getAnno(){
         const causa = this.#causa.split('-');
         return causa[2];
+    }
+    getDia(){
+        const dias = ['uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve','diez','once','doce','trece','catorce','quince','dieciseis','diecisiete','dieciocho','diecinueve','veinte','veintiuno','veintidos','veintitres','veinticuatro','veinticinco','veintiseis','veintisiete','veintiocho','veintinueve','treinta','treinta y uno'];
+        const diaRegex = /(\d{1,2})/g;
+        const diaRemate = this.#fechaRemate.match(diaRegex);
+        if(diaRemate){
+            return diaRemate[0];
+        }
+        for(let dia of dias){
+            if(this.#fechaRemate.toLowerCase().includes(dia)){
+                return this.palabraADia(dia);
+            }
+        }
+        return null;
+    }
+
+    getMes(){
+        const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+        for(let mes of meses){
+            if(this.#fechaRemate.toLowerCase().includes(mes)){
+                
+                console.log("En el get mes: ",this.#fechaRemate.toLowerCase(),mes);
+                return this.mesNumero(mes);
+            }
+        }
+        return null;
+    }   
+
+    getAnno(){
+        const annoRegex = /(\d{4})/g;
+        const annoRemate = this.#fechaRemate.match(annoRegex);
+        if(annoRemate){
+            return annoRemate[0];
+        }
+        const annoPalabras = /dos\smil\s(veinticuatro|veinticinco|veintiséis|veintisiete|veintiocho|veintinueve|treinta|treinta y uno|treinta y dos|treinta y tres|treinta y cuatro|treinta y cinco)/i;
+        const annoRematePalabras = this.#fechaRemate.match(annoPalabras);
+        if(annoRematePalabras){
+            const anno = this.palabrasANumero(annoRematePalabras[0]);
+            return anno;
+        }
+        return null;
+    }
+    palabrasANumero(añoEnPalabras) {
+        const mapaNumeros = {
+            "veinticuatro": 24,
+            "veinticinco": 25,
+            "veintiséis": 26,
+            "veintisiete": 27,
+            "veintiocho": 28,
+            "veintinueve": 29,
+            "treinta": 30,
+            "treinta y uno": 31,
+            "treinta y dos": 32,
+            "treinta y tres": 33,
+            "treinta y cuatro": 34,
+            "treinta y cinco": 35
+        };
+    
+        const prefijo = "dos mil ";
+        if (añoEnPalabras.startsWith(prefijo)) {
+            const resto = añoEnPalabras.slice(prefijo.length).trim();
+            return 2000 + (mapaNumeros[resto] || 0);
+        }
+        throw new Error("Formato no reconocido");
+    }
+    palabraADia(diaEnPalabras) {
+        const mapNumeros ={
+            "uno": 1,
+            "dos": 2,
+            "tres": 3,
+            "cuatro": 4,
+            "cinco": 5,
+            "seis": 6,
+            "siete": 7,
+            "ocho": 8,
+            "nueve": 9,
+            "diez": 10,
+            "once": 11,
+            "doce": 12,
+            "trece": 13,
+            "catorce": 14,
+            "quince": 15,
+            "dieciseis": 16,
+            "diecisiete": 17,
+            "dieciocho": 18,
+            "diecinueve": 19,
+            "veinte": 20,
+            "veintiuno": 21,
+            "veintidos": 22,
+            "veintitres": 23,
+            "veinticuatro": 24,
+            "veinticinco": 25,
+            "veintiséis": 26,
+            "veintisiete": 27,
+            "veintiocho": 28,
+            "veintinueve": 29,
+            "treinta": 30,
+            "treinta y uno": 31
+        };
+        return mapNumeros[diaEnPalabras];
+    }
+    mesNumero(mesEnPalabras){
+        const mapaNumeros ={
+            "enero": 1,
+            "febrero": 2,
+            "marzo": 3,
+            "abril": 4,
+            "mayo": 5,
+            "junio": 6,
+            "julio": 7,
+            "agosto": 8,
+            "septiembre": 9,
+            "octubre": 10,
+            "noviembre": 11,
+            "diciembre": 12
+        };
+        return mapaNumeros[mesEnPalabras];
     }
 }
 

@@ -24,8 +24,17 @@ async function getPJUD(fechaDesde,fechaHasta){
         const hastaValue = await page.$eval('#hasta', el => el.value);
         console.log(hastaValue);
 
-        await page.waitForSelector('#btnConsultaRemates.btn.btn-primary');
-        await page.click('#btnConsultaRemates.btn.btn-primary').then(() => console.log("Botón de consulta clickeado"));
+        await page.waitForSelector('#btnConsultaRemates.btn.btn-primary',{visible:true});
+        try{
+            await page.evaluate(() => {
+                document.querySelector('#btnConsultaRemates').click();
+            });
+            console.log("Botón de consulta clickeado")
+        }catch(error){
+            console.error('Error al hacer clic en el botón de consulta:', error);
+            await browser.close();
+            return [];
+        }
         // Esperar a que la tabla aparezca después de hacer clic en el botón de consulta
         console.log("Esperando tabla");
         await page.waitForSelector('#dtaTableDetalleRemate', { visible: true });
