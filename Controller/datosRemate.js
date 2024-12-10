@@ -26,7 +26,7 @@ async function getDatosRemate(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries){
 function procesarDatosRemate(caso){
     texto = caso.texto;
     const causa = getCausa(texto);
-    const juzgado = getJuezPartidor(texto) ? "Juez Partidor" : getJuzgado(texto);
+    const juzgado = getJuezPartidor(texto) ? "Juez Partidor" : getJuzgado2(texto);
     const porcentaje = getPorcentaje(texto);
     const formatoEntrega = getFormatoEntrega(texto);
     const fechaRemate = getFechaRemate(texto);
@@ -67,8 +67,6 @@ function procesarDatosRemate(caso){
         caso.darFechaRemate(fechaRemate[0]);
     }
     if (montoMinimo != null){
-        // monto = montoMinimo[0].match(/(\d{1,3}\.)*\d{1,3}(,\d{1,5})*/);
-        // caso.darMontoMinimo(monto[0]);
         caso.darMontoMinimo(montoMinimo[0]);
         
         montoPesos = montoMinimo[0].match(/(\$)\s*(\d{1,3}\.)*\d{1,3}(,\d{1,5})*/);
@@ -120,15 +118,23 @@ function getCausa(data) {
     const regex = /C\s*[-]*\s*\d{1,7}\s*-\s*\d{4}|C\s*[-]*\s*\d{1,3}\.\d{3}\s*-\s*\d{4}/i;
     
     const causa = data.match(regex);
-
-    return causa;
+    if (causa != null){
+        return causa;
+    }
+    const causaRegexSinC = /Rol\s*\d{1,7}\s*-\s*\d{4}|Rol\s*[-]*\s*\d{1,3}\.\d{3}\s*-\s*\d{4}/i;
+    const causaSinC = data.match(causaRegexSinC);
+    if (causaSinC != null){
+        return causaSinC;
+    }
 }
 
+//Primer intento de obtnener el juzgado
 function getJuzgado(data) {
     // TODO: Hacer que acepte variaciones cuando se escribe tribunal en vez de juzgado.
     data = data.toLowerCase();
     data = data.replace(",",'');
     const dataSinDe = data.replaceAll("de ",'');
+    
     // console.log(dataSinDe);
     let tribunalesAceptados = [];
     for (let tribunal of tribunales){
@@ -166,54 +172,56 @@ function getJuzgado(data) {
 
 //Probando para refactorizar la funcion que busca el juzgado
 function getJuzgado2(data) {
-    data = data.toLowerCase();
-    data = data.replace(",",'');
-    //Eliminar todas las palabras "de"
-    data = data.replaceAll("de ",'');
-    //Eliminamos la el simbolo "°"
-    data = data.replace('°', '');
-    //Eliminamos la el simbolo "º"
-    data = data.replace('º', '');
-    // console.log(data);
+    const normalizedData = data.toLowerCase().replaceAll(",",'').replaceAll("de ",'');
+    let tribunalesAceptados = [];
+    console.log("Data normalizada: ",normalizedData);
     for (let tribunal of tribunales){
-        const tribunalAux = tribunal.toLowerCase();
-        tribunal = tribunal.toLowerCase();
-        //Eliminamos la palabra "de"
-        const tribunalSinDe = tribunalAux.replaceAll("de ",'');
+        const tribunalNormalized = tribunal.toLowerCase();
+        const tribunalSinDe = tribunalNormalized.replaceAll("de ",'');
+        const numero = tribunal.match(/\d{1,2}/);
         
-        const numero = tribunalSinDe.match(/\d{1,2}/);
-        let tribunalOrdinal = tribunalAux;
-    
         if (numero){
+            // console.log("Numero: ",numero);
             const numeroOrdinal = convertirANombre(parseInt(numero));
-            tribunalOrdinal = tribunalSinDe.replace(/\d{1,2}/,numeroOrdinal);
-            if(tribunalOrdinal.includes("°")){
-                tribunalOrdinal = tribunalOrdinal.replace('°', '');
-            }else if(tribunalOrdinal.includes("º")){
-                tribunalOrdinal = tribunalOrdinal.replace('º', '');
-            }
-            
-        }
-        console.log(tribunal);
-        tribunalSinSimbolo = tribunalSinDe.replaceAll("°","");
+            const tribunalVariations = [
+                tribunalNormalized,
+                tribunalNormalized.replace(/\d{1,2}°/,numeroOrdinal),
+                tribunalNormalized.replace('°', 'º'),
+                tribunalNormalized.replace(/\d{1,2}°/, numeroOrdinal).replaceAll("de ", ""),
+                tribunalNormalized.replace("°", "º").replaceAll("de ", ""),
+                tribunalNormalized.replace("°", ""),
+                tribunalNormalized.replace("°", "").replaceAll("de ", ""),
+                tribunalNormalized.replace("juzgado", "tribunal"),
+                tribunalNormalized.replace("juzgado", "tribunal").replace("de ",""),
+                tribunalNormalized.replace(/\d{1,2}°/,numeroOrdinal).replace("juzgado", "tribunal"),
+                tribunalNormalized.replace('°', 'º').replace("juzgado", "tribunal"),
+                tribunalNormalized.replace(/\d{1,2}°/, numeroOrdinal).replaceAll("de ", "").replace("juzgado", "tribunal"),
+                tribunalNormalized.replace("°", "º").replaceAll("de ", "").replace("juzgado", "tribunal"),
+                tribunalNormalized.replace("°", "").replace("juzgado", "tribunal"),
+                tribunalNormalized.replace("°", "").replaceAll("de ", "").replace("juzgado", "tribunal"),
+            ];
 
-        
-        if(tribunal.includes("18")){
-            console.log(tribunalAux);
-            console.log(tribunal);
-            console.log(tribunalOrdinal);
-            console.log(tribunalSinSimbolo);
-            console.log(parseInt(numero));
+            // Verificar si alguna variación coincide
+            if (tribunalVariations.some(variation => normalizedData.includes(variation))) {
+                tribunalesAceptados.push(tribunal);
+                continue;
+            }
         }
-        if (data.includes(tribunal) | data.includes(tribunalOrdinal) | data.includes(tribunalSinSimbolo)){
-            return tribunal;
-        }
+        // Verificar el tribunal original y sin "de "
+        if (normalizedData.includes(tribunalNormalized) || normalizedData.includes(tribunalSinDe)) {
+        tribunalesAceptados.push(tribunal);
     }
-    return "N/A";
+    }
+    
+    // Devolver el último tribunal aceptado o null si no hay coincidencias
+    return tribunalesAceptados.length > 0 ? tribunalesAceptados.at(-1) : null;
+        
 }
 
+
+// Si no se encuentra el juzgado de la lista, se busca si es un juez partidor
 function getJuezPartidor(data){
-    const juezRegex = /partidor|particion|partición|Árbitro|árbitro/i;
+    const juezRegex = /partidor|particion|partición|Árbitro|árbitro|judicial preventivo/i;
     const juez = data.match(juezRegex);
     if (juez != null){
         return true;
@@ -221,19 +229,31 @@ function getJuezPartidor(data){
         return false;
     }
 }
-// Si no se encuentra el juzgado de la lista, se busca si es un juez partidor
 function getPorcentaje(data) {
-    const regex = /\d{1,3}\s*%\s*(del\s+)?(mínimo|valor|precio)+|(garantía|Garantía)\s+(suficiente\s+)?(de\s+)?(\$\s*)?(\d{1,3}.)+(\d{1,3})|(caución\s+)+(interesados\s+)+\d{1,3}\s*%|(garantía|Garantía)\s+(suficiente\s+)?(por\s+)?(el\s+)?\d{1,3}%/;
 
-    const porcetajeRegex = new RegExp(/\d{1,3}\s*%\s*(?:del\s+)?(?:mínimo|valor|precio)+/.source +
-        /|(garantía|Garantía)\s+(suficiente\s+)?(de\s+)?(\$\s*)?(\d{1,3}.)+(\d{1,3})/.source +
-        /|(caución|interesados\s+)([a-zA-ZáéíóúÑñ:\s]*)\d{1,3}\s*%/.source +
-        /|(garantía|Garantía)\s+(suficiente\s+)?(por\s+)?(el\s+)?\d{1,3}%/.source );
+    const porcentajeBasico = /\d{1,3}\s*%\s*(?:del\s+)?(?:mínimo|valor|precio)+/i;
+    const garantiaConMonto = /(garantía|Garantía)\s+(suficiente\s+)?(de\s+)?(\$\s*)?(\d{1,3}(?:\.\d{3})*,?\d*)/i;
+    const caucionInteresados = /(caución|interesados\s+)[a-zA-ZáéíóúÑñ:\s]*\d{1,3}\s*%/i;
+    const garantiaConPorcentaje = /(garantía|Garantía)\s+(suficiente\s+)?(por\s+)?(el\s+)?\d{1,3}%/i;
     
-    // const porcetajeRegex = "/\d{1,3}%/"
-    const porcentaje = data.match(porcetajeRegex);
-
-    return porcentaje;
+    let porcentaje = data.match(porcentajeBasico);
+    if (porcentaje != null){
+        return porcentaje;
+    }
+    porcentaje = data.match(garantiaConMonto);
+    if (porcentaje != null){
+        return porcentaje;
+    }
+    porcentaje = data.match(caucionInteresados);
+    if (porcentaje != null){
+        return porcentaje;
+    }
+    porcentaje = data.match(garantiaConPorcentaje);
+    if (porcentaje != null){
+        return porcentaje;
+    }
+    
+    return null;
 }
 // Buscar el formato de entrega, ya sea vale vista o cupon
 function getFormatoEntrega(data) {
@@ -285,7 +305,7 @@ function getComuna(data) {
 
 // Obtiene la foja del remate.
 function getFoja(data) {
-    const regexFoja = /(fojas|fs)(.)?\s+(N°\s+)?((\d{1,3}.)*)(\d{1,3})/ig ;
+    const regexFoja = /(fojas|fs)(.)?\s*(N°\s+)?((\d{1,3}.)*)(\d{1,3})/ig ;
     const foja = data.match(regexFoja);
     return foja;
 }
@@ -362,7 +382,6 @@ function getDireccion(data){
     for(let palabra of palabrasClave){
         const index = dataMinuscula.indexOf(palabra);
         let fin = dataMinuscula.indexOf(comuna);
-        // console.log(index,palabra,fin,comuna);
         if(index == -1){continue;}
         // revisar si hay una palabra comuna para finalizar la direccion
         if(fin > index){
@@ -384,21 +403,25 @@ function getDireccion(data){
 }
 
 function getDiaEntrega(data){
-    const regexDiaEntregaSingular = /día\s*(hábil)?\s*(anterior)/i;
+    const regexDiaEntregaSingular = /día\s*(hábil\s*)?(inmediatamente\s*)?(anterior)/i;
     const regexDiaEntregaPlural = /(dos|tres|cuatro|cinco|seis|siete)\sdías\shábiles\s(antes)?/i;
     const regexDiaEntregaNombreDia = /día\s(lunes|martes|miércoles|jueves|viernes)\s(inmediatamente\s)?(anterior\s)(a\sla\sfecha\s)?(de\sla\ssubasta|del\sremate)/i;
+    const regexHorasAntes = /(?:(?:veinticuatro|cuarenta y ocho|setenta y dos|noventa y seis)\s*horas(\s*de\s*antelación\s*al\s*día\s*y\s*hora\s*del)?\s*remate)/i;
+    const hastaElDiaX = /hasta\s*el\s*día\s*(\w+)\s*de\s*la\s*semana\s*anterior/i;
+    
+    const regexDiaEntrega = [
+        /día\s*(hábil\s*)?(inmediatamente\s*)?(anterior)/i,
+        /(dos|tres|cuatro|cinco|seis|siete)\sdías\shábiles\s(antes)?/i,
+        /día\s(lunes|martes|miércoles|jueves|viernes)\s(inmediatamente\s)?(anterior\s)(a\sla\sfecha\s)?(de\sla\ssubasta|del\sremate)/i,
+        /(?:(?:veinticuatro|cuarenta y ocho|setenta y dos|noventa y seis)\s*horas(\s*de\s*antelación\s*al\s*día\s*y\s*hora\s*del)?\s*remate)/i,
+        /hasta\s*el\s*día\s*(\w+)\s*de\s*la\s*semana\s*anterior/i,
+    ]
 
-    const diaEntregaSingular = data.match(regexDiaEntregaSingular);
-    if (diaEntregaSingular != null){
-        return diaEntregaSingular;
-    }
-    const diaEntregaPlural = data.match(regexDiaEntregaPlural);
-    if (diaEntregaPlural != null){
-        return diaEntregaPlural;
-    }
-    const diaEntregaNombreDia = data.match(regexDiaEntregaNombreDia);
-    if (diaEntregaNombreDia != null){
-        return diaEntregaNombreDia;
+    for(let regex of regexDiaEntrega){
+        const diaEntrega = data.match(regex);
+        if (diaEntrega != null){
+            return diaEntrega;
+        }
     }
     return null;
 }
@@ -406,7 +429,7 @@ function getDiaEntrega(data){
 // Funcion para probar un solo remate
 async function testUnico(fecha,link){
     // const link = "https://www.economicos.cl/remates/clasificados-remates-cod7477417.html";
-    caso = new Caso(fecha,fecha,link);
+    const caso = new Caso(fecha,fecha,link,0);
     const maxRetries = 2;
     description =  await getRemates(link,maxRetries,caso);
     caso.darTexto(description);
