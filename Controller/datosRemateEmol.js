@@ -67,16 +67,8 @@ function procesarDatosRemate(caso){
         caso.darFechaRemate(fechaRemate[0]);
     }
     if (montoMinimo != null){
+        console.log("Monto Minimo que se da: ",montoMinimo[0]);
         caso.darMontoMinimo(montoMinimo[0]);
-        
-        montoPesos = montoMinimo[0].match(/(\$)\s*(\d{1,3}\.)*\d{1,3}(,\d{1,5})*/);
-        montoUf = montoMinimo[0].match(/(\d{1,3}\.)*\d{1,3}(,\d{1,5})*\s*(Unidades de Fomento|U\.?F\.?)/i);
-        if (montoPesos != null){
-            caso.darMontoMinimo(montoPesos[0]);
-        }else if (montoUf != null){
-            caso.darMontoMinimo(montoUf[0]);
-        }
-
     }
     caso.darMultiples(multiples);
     

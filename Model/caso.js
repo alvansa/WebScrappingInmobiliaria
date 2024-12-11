@@ -1,3 +1,5 @@
+const { get } = require("request");
+
 const EMOL = 1;
 const PJUD = 2;
 const LIQUIDACIONES = 3;
@@ -132,7 +134,7 @@ class Caso{
     darDiaEntrega(diaEntrega){
         this.#diaEntrega = diaEntrega;
     }
-
+    
     get link(){ 
         return String(this.#link);
     }
@@ -142,6 +144,22 @@ class Caso{
   
 
     toObject() {
+        let montominimo;
+        let moneda;
+
+        if(this.#origen == LIQUIDACIONES){
+            montominimo = this.#montoMinimo;
+            moneda = "CLP";
+        }else if(this.#montoMinimo !== 'N/A'){
+            montominimo = this.getMontoMinimo();
+            moneda = this.getTipoMoneda();
+        }else{
+            montominimo = "No especifica";
+            moneda = "No aplica";
+        }
+        
+
+
         return {
             fechaObtencion: this.#fechaObtencion,
             fechaPublicacion: this.#fechaPublicacion,
@@ -151,7 +169,9 @@ class Caso{
             porcentaje: this.#porcentaje,
             formatoEntrega: this.#formatoEntrega,
             fechaRemate: this.transformarFecha(),
-            montoMinimo: this.#montoMinimo,
+            // montoMinimo: this.#montoMinimo,
+            montoMinimo: montominimo,
+            moneda : moneda,
             multiples: this.#multiples,
             multiplesFoja : this.#multiplesFoja,
             comuna: this.#comuna,
@@ -167,13 +187,15 @@ class Caso{
         };
     } 
     transformarFecha(){
+        // console.log
+        if(this.#origen == LIQUIDACIONES){return this.#fechaRemate;}
         if(typeof(this.#fechaRemate) == Date){
             return this.#fechaRemate;
         }
         const dia = this.getDia();
         const mes = this.getMes();
         const anno = this.getAnno();
-        console.log(dia,mes,anno);
+        // console.log(dia,mes,anno);
         if (dia && mes && anno) {
             const fecha = new Date(anno, mes - 1, dia);
             return new Date(fecha.getTime() + 6 * 60 * 60 * 1000); // Sumar 6 horas
@@ -188,10 +210,12 @@ class Caso{
         const causa = this.#causa.split('-');
         return causa[1];
     }
-    getAnno(){
+
+    getAnnoCausa(){
         const causa = this.#causa.split('-');
         return causa[2];
     }
+   
     getDia(){
         const dias = ['uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve','diez','once','doce','trece','catorce','quince','dieciseis','diecisiete','dieciocho','diecinueve','veinte','veintiuno','veintidos','veintitres','veinticuatro','veinticinco','veintiseis','veintisiete','veintiocho','veintinueve','treinta','treinta y uno'];
         const diaRegex = /(\d{1,2})/g;
@@ -212,7 +236,7 @@ class Caso{
         for(let mes of meses){
             if(this.#fechaRemate.toLowerCase().includes(mes)){
                 
-                console.log("En el get mes: ",this.#fechaRemate.toLowerCase(),mes);
+                // console.log("En el get mes: ",this.#fechaRemate.toLowerCase(),mes);
                 return this.mesNumero(mes);
             }
         }
@@ -292,6 +316,7 @@ class Caso{
         };
         return mapNumeros[diaEnPalabras];
     }
+    
     mesNumero(mesEnPalabras){
         const mapaNumeros ={
             "enero": 1,
@@ -309,6 +334,25 @@ class Caso{
         };
         return mapaNumeros[mesEnPalabras];
     }
+    
+    getMontoMinimo(){
+       const montoRegex = /\d{1,3}(?:\.\d{3})*(?:,\d+|\.\d+)?/g;
+        let monto = this.#montoMinimo.match(montoRegex)[0];
+        console.log("Monto en el regex: ",this.#montoMinimo.match(montoRegex));
+        const montoNormalizado = monto.replaceAll('.','').replaceAll(',','.');
+        console.log("Monto Normalizado :" ,montoNormalizado);
+        return montoNormalizado;
+    }
+
+    getTipoMoneda(){
+        const montoMinimo = this.#montoMinimo.toLowerCase();
+        if(this.#montoMinimo.includes("$")){
+            return "CLP";
+        }else if(montoMinimo.includes("uf")|montoMinimo.includes("unidades de fomento")|montoMinimo.includes("u.f.")|montoMinimo.includes("uf.")){
+            return "UF";
+        }    
+    }
+
 }
 
 module.exports = Caso;

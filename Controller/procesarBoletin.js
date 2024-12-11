@@ -40,8 +40,9 @@ function obtainDataRematesPdf(data,caso) {
         caso.darComuna(comuna);
     }
     if(monto){
-        const montoMinimo = monto[0].match(/\d+/g);
-        caso.darMontoMinimo(montoMinimo);
+        // const montoMinimo = monto[0].match(/\d+/g);
+        console.log("Monto minimo: ",monto);
+        caso.darMontoMinimo(monto[1]);
     }
     if(anno){
         const annoNumero = anno[0].match(/\d+/g);

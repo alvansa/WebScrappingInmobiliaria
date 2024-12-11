@@ -164,20 +164,27 @@ async function getEspecificDataFromPjud(tablaRemates){
     await page.goto('https://oficinajudicialvirtual.pjud.cl/includes/sesion-consultaunificada.php');
     try{
         await setValoresIncialesBusquedaCausa(page,casos[0]);
+        console.log('Valores iniciales seteados');
         // await delay(15000);
         await page.waitForSelector('#btnConConsulta');
         await page.click('#btnConConsulta');
-        await page.waitForSelector('#dtaTableDetalle a');
-        
-        await page.click('#dtaTableDetalle a');
-        
-        await selectCuaderno(page);
-        await page.waitForSelector('#historiaCiv');
-        datos = await getDatosTablaRemate(page);
-        // await delay(5000);   
+        await page.waitForSelector('#dtaTableDetalle');
+        console.log('Tabla encontrada');        
+        const datosTabla = await getDatosTablaPjudCaso(page);
+        console.log(datosTabla);
+
+
+
+        // Funciones para adentrarse en el cuaderno.
+        // await page.waitForSelector('#dtaTableDetalle a');
+        // await page.click('#dtaTableDetalle a');
+        // await selectCuaderno(page);
+        // await page.waitForSelector('#historiaCiv');
+        // datos = await getDatosTablaRemate(page);
+        await delay(5000);   
 
         await browser.close();
-        return datos;
+        return datosTabla;
     }catch(error){
         console.error('Error en la función getEspecificDataFromPjud:', error);
         await browser.close();
@@ -185,6 +192,36 @@ async function getEspecificDataFromPjud(tablaRemates){
     }
     
 }
+
+async function getDatosTablaPjudCaso(page) {
+    console.log('Obteniendo datos de la tabla');
+    
+    const tableData = await page.evaluate(() => {
+        // Obtener todas las filas de la tabla
+        const rows = Array.from(document.querySelectorAll('#dtaTableDetalle tbody tr'));
+        if(rows.length === 0){
+           return [];
+        }
+        console.log('Filas encontradas:', rows.length);
+        // Mapear las filas para extraer las columnas
+        return rows.map(row => {
+            const columns = Array.from(row.querySelectorAll('td'));
+            
+            // Verificar que la fila tiene al menos 5 columnas y obtener los valores correspondientes
+            return {
+                rol: columns[1] ? columns[1].innerText.trim() : '',
+                fecha: columns[2] ? columns[2].innerText.trim() : '',
+                caratulado: columns[3] ? columns[3].innerText.trim() : '',
+                juzgado: columns[4] ? columns[4].innerText.trim() : '',
+            };
+        });
+    });
+
+    console.log('Datos obtenidos de la tabla en la funcion:', tableData); // Verifica los datos obtenidos
+    return tableData;
+}
+
+
 
 async function setValoresIncialesBusquedaCausa(page, caso) {
     const valorCompetencia = "3";
@@ -226,7 +263,7 @@ async function setValoresIncialesBusquedaCausa(page, caso) {
 
     // Año de la causa
     await page.waitForSelector('#conEraCausa');
-    await page.type('#conEraCausa', caso.getAnno());
+    await page.type('#conEraCausa', caso.getAnnoCausa());
 }
 
 async function selectCuaderno(page) {
@@ -342,6 +379,13 @@ function delay(time) {
         setTimeout(resolve, time)
     });
  }
+
+function datosFromPjud(fechaInicio,fechaFin){
+    const datos = getPJUD(fechaInicio,fechaFin);
+    const casos = getEspecificDataFromPjud(datos);
+    return casos;
+}
+
 async function main(){
     try {
         const fechaDesde = '11/11/2024';
