@@ -5,24 +5,6 @@ const PJUD = 2;
 const LIQUIDACIONES = 3;
 const otros = 4;
 
-const ARICA = "10";
-const IQUIQUE = "11";
-const ANTOFAGASTA = "15";
-const COPIAPO = "20";
-const LA_SERENA = "25";
-const VALPARAISO = "30";
-const RANCAGUA = "35";
-const TALCA = "40";
-const CHILLAN = "45";
-const CONCEPCION = "46";
-const TEMUCO = "50";
-const VALDIVIA = "55";
-const PUERTO_MONTT = "56";
-const COYHAIQUE = "60";
-const PUNTA_ARENAS = "61";
-const SANTIAGO = "90";
-const SAN_MIGUEL = "91";
-
 
 class Caso{
     #fechaPublicacion;
@@ -141,6 +123,9 @@ class Caso{
     get texto(){
         return String(this.#texto);
     }
+    get juzgado(){
+        return String(this.#juzgado);
+    }
   
 
     toObject() {
@@ -186,8 +171,16 @@ class Caso{
             diaEntrega: this.#diaEntrega,
         };
     } 
+
+    // Transforma la fecha de la publicación de estar escrita en palabras a un objeto Date
     transformarFecha(){
-        // console.log
+        if(this.#origen == PJUD){
+            this.#fechaRemate = this.#fechaRemate.split(' ')[0];
+            const partes = this.#fechaRemate.split('/');
+            return new Date(partes[2],partes[1]-1,partes[0]);
+        }
+
+        console.log("Fecha de remate: ",this.#fechaRemate);
         if(this.#origen == LIQUIDACIONES){return this.#fechaRemate;}
         if(typeof(this.#fechaRemate) == Date){
             return this.#fechaRemate;
@@ -206,16 +199,26 @@ class Caso{
     getCorte(){
         const comuna = this.#juzgado.split('de').at(-1).trim();
     }
-    getCausa(){
+    // Obtiene el número de la causa para buscar el remate en el pjud
+    getCausaPjud(){
+        if(this.#causa.includes('N/A')){
+            return null;
+        }
         const causa = this.#causa.split('-');
         return causa[1];
     }
 
-    getAnnoCausa(){
+    // Obtiene el año de la causa para buscar el remate en el pjud
+    getAnnoPjud(){
+        if(this.#causa.includes('N/A')){
+            return null;
+        }
+            
         const causa = this.#causa.split('-');
         return causa[2];
     }
    
+    // OBtiene el día de la fecha de cuando se realizara el remate.
     getDia(){
         const dias = ['uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve','diez','once','doce','trece','catorce','quince','dieciseis','diecisiete','dieciocho','diecinueve','veinte','veintiuno','veintidos','veintitres','veinticuatro','veinticinco','veintiseis','veintisiete','veintiocho','veintinueve','treinta','treinta y uno'];
         const diaRegex = /(\d{1,2})/g;
@@ -231,6 +234,7 @@ class Caso{
         return null;
     }
 
+    // Obtiene el mes de la fecha de cuando se realizara el remate.
     getMes(){
         const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
         for(let mes of meses){
@@ -243,6 +247,7 @@ class Caso{
         return null;
     }   
 
+    // Obtiene el año de la fecha de cuando se realizara el remate.
     getAnno(){
         const annoRegex = /(\d{4})/g;
         const annoRemate = this.#fechaRemate.match(annoRegex);
@@ -257,6 +262,8 @@ class Caso{
         }
         return null;
     }
+
+    // Devuelve el número del año en base a su nombre en palabras para escribir la fecha en tipo Date
     palabrasANumero(añoEnPalabras) {
         const mapaNumeros = {
             "veinticuatro": 24,
@@ -280,6 +287,8 @@ class Caso{
         }
         throw new Error("Formato no reconocido");
     }
+
+    // Devuele el número del día en base a su nombre en palabras para escribir la fecha en tipo Date
     palabraADia(diaEnPalabras) {
         const mapNumeros ={
             "uno": 1,
@@ -317,6 +326,7 @@ class Caso{
         return mapNumeros[diaEnPalabras];
     }
     
+    // Devuelve el número del mes en base a su nombre en palabras para escribir la fecha en tipo Date
     mesNumero(mesEnPalabras){
         const mapaNumeros ={
             "enero": 1,
@@ -335,6 +345,7 @@ class Caso{
         return mapaNumeros[mesEnPalabras];
     }
     
+    // Devuelve el monto numerico mínimo del remate
     getMontoMinimo(){
        const montoRegex = /\d{1,3}(?:\.\d{3})*(?:,\d+|\.\d+)?/g;
         let monto = this.#montoMinimo.match(montoRegex)[0];
@@ -344,6 +355,7 @@ class Caso{
         return montoNormalizado;
     }
 
+    // Devuelve el tipo de moneda en que se encuentra el monto mínimo
     getTipoMoneda(){
         const montoMinimo = this.#montoMinimo.toLowerCase();
         if(this.#montoMinimo.includes("$")){
@@ -352,6 +364,65 @@ class Caso{
             return "UF";
         }    
     }
+
+     //Devuelve el indentificador de la corte a la cual pertenece el juzgado del caso
+     getCortePjud() {
+        if (this.#juzgado === "N/A" | this.#juzgado === "juez partidor") {
+            return null;
+        }
+        const comuna = this.#juzgado.toLowerCase();
+
+        const regiones = {
+            ARICA: ["arica"],
+            IQUIQUE: ["iquique","almonte"],
+            ANTOFAGASTA: ["antofagasta", "tocopilla", "calama", "taltal", "mejillones", "maria elena", "sierra gorda"],
+            COPIAPO: ["copiapo", "caldera", "chañaral", "almagro", "vallenar", "freirina", "huasco"],
+            LA_SERENA: ["serena", "coquimbo", "andacollo", "vicuña", "ovalle", "combarbala", "illapel", "vilos"],
+            VALPARAISO: ["valparaiso", "viña del mar", "quilpue", "villa alemana", "casablanca","ligua","petorca","los andes","san felipe","quillota","calera","san antonio","isla de pascua","putaendo","quintero","limache","casa blanca"],
+            RANCAGUA: ["rancagua","rengo","tagua","peumo","san fernando","santa cruz","pichilemu","litueche","peralillo"],
+            TALCA: ["talca","constitucion","curepto","curicó","licantén","molina","linares","san javier","cauquenes","parral","chanco"],
+            CHILLAN: ["chillan","san carlos","yungay","bulnes","coelemu","quirihue"],
+            CONCEPCION: ["los angeles","concepcion","nacimiento","laja","yumbel","talcahuano","tomé","florida","santa juana","lota","coronel","lebu","arauco","curanilahue","cañete","santa bárbara","cabrero"],
+            TEMUCO: ["temuco","angol","collipulli","traiguén","victoria","curacautin","loncoche","pitrufquen","villarica","nueva imperial","pucón","lautaro","carahue","temuco","tolten","puren"],
+            VALDIVIA: ["valdivia","mariquina","paillaco","los lagos","panguipulli","unión","río bueno","osorno","rio negro"],
+            PUERTO_MONTT: ["puerto montt","puerto varas","calbuco","maullin","castro","ancud","achao","chaitén","muermos","quellón","hualaihue"],
+            COYHAIQUE: ["coyhaique","aysen","chile chico","cochrane","puerto cisnes"],
+            PUNTA_ARENAS: ["punta arenas","puerto natales","porvenir","cabo de hornos"],
+            SANTIAGO: ["santiago","colina"],
+            SAN_MIGUEL: ["san miguel","puente alto","talagante","melipilla","buin","peñaflor","san bernardo"],
+        };
+
+         // Valores predefinidos para cada región
+        const valoresRegiones = {
+            ARICA: "10",
+            IQUIQUE: "11",
+            ANTOFAGASTA: "15",
+            COPIAPO: "20",
+            LA_SERENA: "25",
+            VALPARAISO: "30",
+            RANCAGUA: "35",
+            TALCA: "40",
+            CHILLAN: "45",
+            CONCEPCION: "46",
+            TEMUCO: "50",
+            VALDIVIA: "55",
+            PUERTO_MONTT: "56",
+            COYHAIQUE: "60",
+            PUNTA_ARENAS: "61",
+            SANTIAGO: "90",
+            SAN_MIGUEL: "91",
+        };
+
+        for (const [region, comunas] of Object.entries(regiones)) {
+            if (comunas.some(c => comuna.includes(c))) {
+                return valoresRegiones[region];
+            }
+        }
+
+    return null; // Retorna `null` si no encuentra ninguna coincidencia
+}
+
+
 
 }
 

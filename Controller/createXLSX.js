@@ -68,12 +68,12 @@ async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,save
     cambiarAnchoColumnas(ws);
     try{
         let i = 6;
-        // i = await getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i);
+        i = await getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i);
         console.log(`i despues de economicos: ${i}`);
         i = await getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i);
         console.log(`i despues de pjud: ${i}`);
         // console.log("Fechas a enviar a el boletin ",fechaInicioStr,fechaFinStr);    
-        // i = await getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i);
+        i = await getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i);
         console.log(`i despues de boletin: ${i}`);
         i--;
         ws['!ref'] = 'B5:V'+i;
@@ -156,21 +156,22 @@ async function getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i){
         // console.log("Fechas final modificada y a enviar ",fechaFinPjud);
         console.log("Fechas: ",fechaInicioPjud,fechaFinPjud);
         const casoPjud = await getPJUD(fechaInicioPjud,fechaFinPjud) || [];
-        for (let caso of casoPjud){
-            if(caso.tribunal != ''){
-                ws['B' + i] = { v:"Letra grande/ Pjud", t: 's' };
-                let fecha = transformarFechaPjud(caso.fechaHora);
-                fecha.setHours( fecha.getHours() + 6);
-                ws['C' + i] = { v: fechaHoy, t: 'd' };
-                ws['E' + i] = { v: fecha, t: 'd' };
-                ws['F' + i] = { v: caso.causa, t: 's' };
-                caso.tribunal = caso.tribunal.toLowerCase();
-                ws['G' + i] = { v: caso.tribunal, t: 's' };
-                const comunaJuzgado = getComunaJuzgado(caso.tribunal);
-                ws['H' + i] = { v: comunaJuzgado, t: 's' };
-                i++;
-            }
-            
+        const casosObj = casoPjud.map(caso => caso.toObject());
+        console.log("Cantidad de casos obtenidos: ",casosObj.length);
+        
+
+        for (let caso of casosObj){
+            ws['B' + i] = { v:"Letra grande/ Pjud", t: 's' };
+            // let fecha = transformarFechaPjud(caso.fechaRemate);
+            // fecha.setHours( fecha.getHours() + 6);
+            ws['C' + i] = { v:caso.fechaObtencion, t: 'd' };
+            ws['E' + i] = { v: caso.fechaRemate, t: 'd' };
+            ws['F' + i] = { v: caso.causa, t: 's' };
+            caso.juzgado = caso.juzgado.toLowerCase();
+            ws['G' + i] = { v: caso.juzgado, t: 's' };
+            const comunaJuzgado = getComunaJuzgado(caso.juzgado);
+            ws['H' + i] = { v: comunaJuzgado, t: 's' };
+            i++;
         }
     }catch(error){
         console.error('Error al obtener resultados en el pjud:', error);
@@ -299,7 +300,7 @@ function cambiarFechaFin(fecha){
 
 function transformarFechaPjud(fechaHora) {
     // Separar la fecha y la hora
-    
+   console.log("Fecha a transformar: ",fechaHora); 
     const [fecha, hora] = fechaHora.split(" ");
     
     // Separar día, mes y año
@@ -318,7 +319,6 @@ function cleanText(text) {
 function getComunaJuzgado(juzgado){
     const juzgadoNormalizado = juzgado.toLowerCase();
     const comunaJuzgado = juzgadoNormalizado.split("de ").at(-1);
-    console.log("Comuna del juzgado: ",comunaJuzgado);
     return comunaJuzgado;
 }
 //crearExcel();

@@ -1,4 +1,4 @@
-const {testUnico} = require('./Controller/datosRemate.js');
+const {testUnico} = require('./Controller/datosRemateEmol.js');
 
 async function main(){
     try {

@@ -1,6 +1,6 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
-const Caso = require('./caso');
+const Caso = require('./caso.js');
 const { del, get } = require('request');
 
 const EXITO = 1;
@@ -20,9 +20,11 @@ async function getPJUD(fechaDesde,fechaHasta){
         await setDates(page,'#desde',fechaDesde);
         const desdeValue = await page.$eval('#desde', el => el.value);
         console.log(desdeValue);
+        await delay(500);
         await setDates(page,'#hasta',fechaHasta);
         const hastaValue = await page.$eval('#hasta', el => el.value);
         console.log(hastaValue);
+        await delay(500);
 
         await page.waitForSelector('#btnConsultaRemates.btn.btn-primary',{visible:true});
         try{
@@ -50,7 +52,6 @@ async function getPJUD(fechaDesde,fechaHasta){
 
             tienePaginaSiguiente = await manejarPaginaSiguiente(page,firstRowContent);
         }
-
         await browser.close();
         return tableData;
 }catch(error){
@@ -90,11 +91,12 @@ async function getPrimeraLinea(page){
 }
 
 //Obtiene los datos de la tabla
-async function getDatosTabla(page){
+async function getDatosTabla2(page){
     tableData = await page.evaluate(() => {
         const rows = Array.from(document.querySelectorAll('#dtaTableDetalleRemate tbody tr')); // Get all rows in tbody
         return rows.map(row => {
           const columns = Array.from(row.querySelectorAll('td')); // Get all columns in the row
+          
           return {
             tribunal: columns[1] ? columns[1].innerText.trim() : '',
             competencia: columns[2] ? columns[2].innerText.trim() : '',
@@ -105,6 +107,44 @@ async function getDatosTabla(page){
         });
       });
       return tableData;
+}
+
+async function getDatosTabla(page) {
+    // Lista donde se guardarán los objetos de la clase Caso
+    let casos = [];
+
+    // Obtener los datos de la tabla
+    const rowsData = await page.evaluate(() => {
+        const hoy = new Date();
+        const rows = Array.from(document.querySelectorAll('#dtaTableDetalleRemate tbody tr')); // Obtener todas las filas en tbody
+        
+        // Extraer los datos de las filas
+        return rows.map(row => {
+            const columns = Array.from(row.querySelectorAll('td')); // Obtener todas las columnas de la fila
+            
+            return {
+                tribunal: columns[1] ? columns[1].innerText.trim() : '',
+                competencia: columns[2] ? columns[2].innerText.trim() : '',
+                causa: columns[3] ? columns[3].innerText.trim() : '',
+                fechaHora: columns[4] ? columns[4].innerText.trim() : '',
+                estadoRemate: columns[5] ? columns[5].innerText.trim() : ''
+            };
+        });
+    });
+
+    // Ahora, fuera del evaluate, creamos objetos Caso a partir de los datos extraídos
+    rowsData.forEach(data => {
+        const caso = new Caso(new Date(), "N/A", "N/A", 2);
+        caso.darJuzgado(data.tribunal);
+        caso.darCausa(data.causa);
+        caso.darFechaRemate(data.fechaHora);
+
+        // Guardamos el objeto en la lista de casos
+        casos.push(caso);
+    });
+    casos.pop();
+    // Retornar la lista de objetos Caso
+    return casos;
 }
 
 // Función para buscar la página siguiente, si existe se dirige a ella, revisa que se haya cargado correctamente 
@@ -162,27 +202,23 @@ async function getEspecificDataFromPjud(tablaRemates){
     const browser = await puppeteer.launch({headless: false});
     const page = await browser.newPage();
     await page.goto('https://oficinajudicialvirtual.pjud.cl/includes/sesion-consultaunificada.php');
+    let datosTabla = [];
     try{
-        await setValoresIncialesBusquedaCausa(page,casos[0]);
+        for(let caso of tablaRemates){
+        console.log('Intentado caso :' , caso.length);
+        await setValoresIncialesBusquedaCausa(page,caso);
         console.log('Valores iniciales seteados');
         // await delay(15000);
         await page.waitForSelector('#btnConConsulta');
         await page.click('#btnConConsulta');
-        await page.waitForSelector('#dtaTableDetalle');
+        await page.waitForSelector('#dtaTableDetalle tbody tr:first-child');
         console.log('Tabla encontrada');        
-        const datosTabla = await getDatosTablaPjudCaso(page);
-        console.log(datosTabla);
+        const datos = await getPrimeraLineaCaso(page);
+        datosTabla.push(datos);
 
+        // await delay(5000);   
 
-
-        // Funciones para adentrarse en el cuaderno.
-        // await page.waitForSelector('#dtaTableDetalle a');
-        // await page.click('#dtaTableDetalle a');
-        // await selectCuaderno(page);
-        // await page.waitForSelector('#historiaCiv');
-        // datos = await getDatosTablaRemate(page);
-        await delay(5000);   
-
+        }
         await browser.close();
         return datosTabla;
     }catch(error){
@@ -192,38 +228,42 @@ async function getEspecificDataFromPjud(tablaRemates){
     }
     
 }
-
-async function getDatosTablaPjudCaso(page) {
-    console.log('Obteniendo datos de la tabla');
-    
-    const tableData = await page.evaluate(() => {
-        // Obtener todas las filas de la tabla
-        const rows = Array.from(document.querySelectorAll('#dtaTableDetalle tbody tr'));
-        if(rows.length === 0){
-           return [];
-        }
-        console.log('Filas encontradas:', rows.length);
-        // Mapear las filas para extraer las columnas
-        return rows.map(row => {
-            const columns = Array.from(row.querySelectorAll('td'));
-            
-            // Verificar que la fila tiene al menos 5 columnas y obtener los valores correspondientes
-            return {
-                rol: columns[1] ? columns[1].innerText.trim() : '',
-                fecha: columns[2] ? columns[2].innerText.trim() : '',
-                caratulado: columns[3] ? columns[3].innerText.trim() : '',
-                juzgado: columns[4] ? columns[4].innerText.trim() : '',
+// Obtiene la primera linea de la tabla
+async function getPrimeraLineaCaso(page){
+    const primeraLinea = await page.$eval('#dtaTableDetalle tbody tr:first-child', (row) => {
+        const cells = row.querySelectorAll('td');
+        return {
+                rol: cells[1] ? cells[1].innerText.trim() : '',
+                fecha: cells[2] ? cells[2].innerText.trim() : '',
+                caratulado: cells[3] ? cells[3].innerText.trim() : '',
+                juzgado: cells[4] ? cells[4].innerText.trim() : '',
             };
-        });
-    });
-
-    console.log('Datos obtenidos de la tabla en la funcion:', tableData); // Verifica los datos obtenidos
-    return tableData;
+      });
+      return primeraLinea;
 }
 
 
 
 async function setValoresIncialesBusquedaCausa(page, caso) {
+    // Primero se revisa que tenga juzgado y causa
+    const corte = caso.getCortePjud();
+    if(corte === null){
+        return;
+    }
+    const juzgado = caso.juzgado;
+    if(juzgado === null){
+        return;
+    }
+    const causa = caso.getCausaPjud();
+    if(causa === null){
+        return;
+    }
+    const anno = caso.getAnnoPjud();
+    if(anno === null){
+        return;
+    }
+
+
     const valorCompetencia = "3";
     
     // Seleccionar competencia
@@ -237,7 +277,8 @@ async function setValoresIncialesBusquedaCausa(page, caso) {
     });
 
     // Seleccionar corte
-    await page.select('#conCorte', '90');
+    
+    await page.select('#conCorte', corte);
 
     // Esperar actualización del selector dependiente
     await page.waitForFunction(() => {
@@ -246,7 +287,10 @@ async function setValoresIncialesBusquedaCausa(page, caso) {
     });
 
     // Seleccionar tribunal
-    await page.select('#conTribunal', '286');
+
+    const valorTribunal = await seleccionarTribunal(page,juzgado);
+
+    await page.select('#conTribunal', valorTribunal);
 
     // Esperar actualización del selector dependiente
     await page.waitForFunction(() => {
@@ -259,11 +303,29 @@ async function setValoresIncialesBusquedaCausa(page, caso) {
 
     // Rol de la causa
     await page.waitForSelector('#conRolCausa');
-    await page.type('#conRolCausa', caso.getCausa());
+    await page.type('#conRolCausa', causa);
 
     // Año de la causa
     await page.waitForSelector('#conEraCausa');
-    await page.type('#conEraCausa', caso.getAnnoCausa());
+    await page.type('#conEraCausa', anno); 
+}
+
+
+async function seleccionarTribunal(page, nombreTribunal) {
+    // Obtenemos el valor del tribunal correspondiente por su nombre
+    const value = await page.evaluate((nombreTribunal) => {
+        // Obtenemos todas las opciones del select
+        const options = Array.from(document.querySelectorAll('#conTribunal option'));
+        
+        // Encontramos la opción que contiene el nombre del tribunal
+        const option = options.find(opt => opt.textContent.toLowerCase().includes(nombreTribunal.toLowerCase()));
+        
+        // Si la opción se encuentra, retornamos su value, si no, retornamos null
+        return option ? option.value : null;
+    }, nombreTribunal);
+
+    // Si se encuentra un valor, lo retornamos; si no, retornamos null
+    return value;
 }
 
 async function selectCuaderno(page) {
@@ -380,9 +442,10 @@ function delay(time) {
     });
  }
 
-function datosFromPjud(fechaInicio,fechaFin){
-    const datos = getPJUD(fechaInicio,fechaFin);
-    const casos = getEspecificDataFromPjud(datos);
+async function datosFromPjud(fechaInicio,fechaFin){
+    const datos = await getPJUD(fechaInicio,fechaFin);
+    console.log('Datos conseguidos del pjud', datos.length);
+    const casos = await getEspecificDataFromPjud(datos);
     return casos;
 }
 
@@ -398,6 +461,5 @@ async function main(){
         console.error('Error en la funcion main:', error);
     }
 }
-
-module.exports = {getPJUD,getEspecificDataFromPjud};
 // main();
+module.exports = {getPJUD,getEspecificDataFromPjud,datosFromPjud};
