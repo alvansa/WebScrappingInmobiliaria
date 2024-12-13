@@ -1,7 +1,7 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 const Caso = require('./caso.js');
-const { del, get } = require('request');
+const {getConsultaCausaPjud} = require('./consultaCausaPjud.js');
 
 const EXITO = 1;
 const ERROR = 0;
@@ -90,24 +90,6 @@ async function getPrimeraLinea(page){
       return primeraLinea;
 }
 
-//Obtiene los datos de la tabla
-async function getDatosTabla2(page){
-    tableData = await page.evaluate(() => {
-        const rows = Array.from(document.querySelectorAll('#dtaTableDetalleRemate tbody tr')); // Get all rows in tbody
-        return rows.map(row => {
-          const columns = Array.from(row.querySelectorAll('td')); // Get all columns in the row
-          
-          return {
-            tribunal: columns[1] ? columns[1].innerText.trim() : '',
-            competencia: columns[2] ? columns[2].innerText.trim() : '',
-            causa: columns[3] ? columns[3].innerText.trim() : '',
-            fechaHora: columns[4] ? columns[4].innerText.trim() : '',
-            estadoRemate: columns[5] ? columns[5].innerText.trim() : '',
-          };
-        });
-      });
-      return tableData;
-}
 
 async function getDatosTabla(page) {
     // Lista donde se guardarán los objetos de la clase Caso
@@ -197,140 +179,10 @@ function writeData(datos){
     });
 }
 
-async function getEspecificDataFromPjud(tablaRemates){
-    const casos = crearCasosPrueba();
-    const browser = await puppeteer.launch({headless: false});
-    const page = await browser.newPage();
-    await page.goto('https://oficinajudicialvirtual.pjud.cl/includes/sesion-consultaunificada.php');
-    let datosTabla = [];
-    try{
-        for(let caso of tablaRemates){
-        console.log('Intentado caso :' , caso.length);
-        await setValoresIncialesBusquedaCausa(page,caso);
-        console.log('Valores iniciales seteados');
-        // await delay(15000);
-        await page.waitForSelector('#btnConConsulta');
-        await page.click('#btnConConsulta');
-        await page.waitForSelector('#dtaTableDetalle tbody tr:first-child');
-        console.log('Tabla encontrada');        
-        const datos = await getPrimeraLineaCaso(page);
-        datosTabla.push(datos);
-
-        // await delay(5000);   
-
-        }
-        await browser.close();
-        return datosTabla;
-    }catch(error){
-        console.error('Error en la función getEspecificDataFromPjud:', error);
-        await browser.close();
-        return false;
-    }
-    
-}
-// Obtiene la primera linea de la tabla
-async function getPrimeraLineaCaso(page){
-    const primeraLinea = await page.$eval('#dtaTableDetalle tbody tr:first-child', (row) => {
-        const cells = row.querySelectorAll('td');
-        return {
-                rol: cells[1] ? cells[1].innerText.trim() : '',
-                fecha: cells[2] ? cells[2].innerText.trim() : '',
-                caratulado: cells[3] ? cells[3].innerText.trim() : '',
-                juzgado: cells[4] ? cells[4].innerText.trim() : '',
-            };
-      });
-      return primeraLinea;
-}
-
-
-
-async function setValoresIncialesBusquedaCausa(page, caso) {
-    // Primero se revisa que tenga juzgado y causa
-    const corte = caso.getCortePjud();
-    if(corte === null){
-        return;
-    }
-    const juzgado = caso.juzgado;
-    if(juzgado === null){
-        return;
-    }
-    const causa = caso.getCausaPjud();
-    if(causa === null){
-        return;
-    }
-    const anno = caso.getAnnoPjud();
-    if(anno === null){
-        return;
-    }
-
-
-    const valorCompetencia = "3";
-    
-    // Seleccionar competencia
-    await page.waitForSelector('#competencia');
-    await page.select('#competencia', valorCompetencia);
-
-    // Esperar a que el siguiente selector se actualice
-    await page.waitForFunction(() => {
-        const conCorte = document.querySelector('#conCorte');
-        return conCorte && conCorte.options.length > 1; // Verifica que haya más de una opción disponible
-    });
-
-    // Seleccionar corte
-    
-    await page.select('#conCorte', corte);
-
-    // Esperar actualización del selector dependiente
-    await page.waitForFunction(() => {
-        const conTribunal = document.querySelector('#conTribunal');
-        return conTribunal && conTribunal.options.length > 1;
-    });
-
-    // Seleccionar tribunal
-
-    const valorTribunal = await seleccionarTribunal(page,juzgado);
-
-    await page.select('#conTribunal', valorTribunal);
-
-    // Esperar actualización del selector dependiente
-    await page.waitForFunction(() => {
-        const conTipoCausa = document.querySelector('#conTipoCausa');
-        return conTipoCausa && conTipoCausa.options.length > 1;
-    });
-
-    // Seleccionar tipo de causa
-    await page.select('#conTipoCausa', 'C');
-
-    // Rol de la causa
-    await page.waitForSelector('#conRolCausa');
-    await page.type('#conRolCausa', causa);
-
-    // Año de la causa
-    await page.waitForSelector('#conEraCausa');
-    await page.type('#conEraCausa', anno); 
-}
-
-
-async function seleccionarTribunal(page, nombreTribunal) {
-    // Obtenemos el valor del tribunal correspondiente por su nombre
-    const value = await page.evaluate((nombreTribunal) => {
-        // Obtenemos todas las opciones del select
-        const options = Array.from(document.querySelectorAll('#conTribunal option'));
-        
-        // Encontramos la opción que contiene el nombre del tribunal
-        const option = options.find(opt => opt.textContent.toLowerCase().includes(nombreTribunal.toLowerCase()));
-        
-        // Si la opción se encuentra, retornamos su value, si no, retornamos null
-        return option ? option.value : null;
-    }, nombreTribunal);
-
-    // Si se encuentra un valor, lo retornamos; si no, retornamos null
-    return value;
-}
 
 async function selectCuaderno(page) {
     // Esperar a que el <select> esté disponible
-    await page.waitForSelector('#selCuaderno');
+   // Esperar a que el <select> esté disponible    await page.waitForSelector('#selCuaderno');
 
     // Obtener todas las opciones del <select>
     const options = await page.$$eval('#selCuaderno option', (opts) => {
@@ -419,22 +271,6 @@ async function obtenerPDF(page,row){
     console.log('Descargando PDF de ',referencia);
 }
 
-function crearCasosPrueba(){
-    let casos = [];
-    let caso1 = new Caso(new Date(),'N/A','N/A');
-    caso1.darCausa('C-18022-2023');
-    caso1.darJuzgado('28º juzgado civil de santiago');
-    casos.push(caso1);
-    // let caso2 = new Caso(new Date(),'N/A','N/A');
-    // caso2.darCausa('C-1585-2024');
-    // caso2.darJuzgado('19º juzgado civil de santiago');
-    // casos.push(caso2);
-    // let caso3 = new Caso(new Date(),'N/A','N/A');
-    // caso3.darCausa('C-1281-2024');
-    // caso3.darJuzgado('4º juzgado de letras de talca');
-    // casos.push(caso3);
-    return casos;
-}
 
 function delay(time) {
     return new Promise(function(resolve) { 
@@ -445,9 +281,10 @@ function delay(time) {
 async function datosFromPjud(fechaInicio,fechaFin){
     const datos = await getPJUD(fechaInicio,fechaFin);
     console.log('Datos conseguidos del pjud', datos.length);
-    const casos = await getEspecificDataFromPjud(datos);
+    const casos = await getConsultaCausaPjud(datos);
     return casos;
 }
+
 
 async function main(){
     try {
@@ -462,4 +299,4 @@ async function main(){
     }
 }
 // main();
-module.exports = {getPJUD,getEspecificDataFromPjud,datosFromPjud};
+module.exports = {getPJUD,datosFromPjud};

@@ -1107,5 +1107,5 @@ const tribunales2 = ["1° JUZGADO DE LETRAS DE ARICA",
       "Juzgado de Letras del Trabajo de San Bernardo"
     ]
 
-module.exports = {comunas,tribunales};
+module.exports = {comunas,tribunales,tribunales2};
   

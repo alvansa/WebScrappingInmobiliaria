@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 
 const {getDatosRemate} = require('./datosRemateEmol'); 
-const {getPJUD} = require('../Model/getPjud');
+const {getPJUD,datosFromPjud} = require('../Model/getPjud');
 const {getPdfData} = require('./procesarBoletin');
 
 
@@ -68,12 +68,12 @@ async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,save
     cambiarAnchoColumnas(ws);
     try{
         let i = 6;
-        i = await getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i);
+        // i = await getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i);
         console.log(`i despues de economicos: ${i}`);
         i = await getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i);
         console.log(`i despues de pjud: ${i}`);
         // console.log("Fechas a enviar a el boletin ",fechaInicioStr,fechaFinStr);    
-        i = await getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i);
+        // i = await getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i);
         console.log(`i despues de boletin: ${i}`);
         i--;
         ws['!ref'] = 'B5:V'+i;
@@ -91,139 +91,142 @@ async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,save
 }
 
 async function getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i){
+    let casos = [];
     i_aux = i;
     try{
-        const casos = await getDatosRemate(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries) || [];
-        if (!Array.isArray(casos) || casos.length === 0) {
-            console.log("No se encontraron datos para insertar.");
-            return;
-        }
-        const casosObj = casos.map(caso => caso.toObject());
-        console.log("Cantidad de casos obtenidos: ",casosObj.length);
-        
-        for(let caso of casosObj){
-            if(caso.juzgado == 'Juez Partidor'){
-                continue;
-            }
-            ws['B' + i] = { v: caso.link, t: 's' };
-            ws['C' + i] = { v: caso.fechaObtencion, t: 'd' };
-            caso.fechaPublicacion.setHours( caso.fechaPublicacion.getHours() + 6);
-            console.log("caso:",i-5,"fecha Obtencion:",caso.fechaPublicacion);
-            ws['D' + i] = { v: caso.fechaPublicacion, t: 'd' };
-            ws['E' + i] = { v: caso.fechaRemate, t: 'd' };
-            ws['F' + i] = { v: caso.causa, t: 's' };
-            ws['G' + i] = { v: caso.juzgado, t: 's' };
-            const comunaJuzgado = getComunaJuzgado(caso.juzgado);
-            ws['H' + i] = { v: comunaJuzgado, t: 's' };
-            ws['I' + i] = { v: caso.partes, t: 's' };
-            ws['J' + i] = { v: caso.tipoPropiedad, t: 's' };
-            ws['K' + i] = { v: caso.direccion, t: 's' };
-            ws['L' + i] = { v: caso.tipoDerecho, t: 's' };
-            ws['M' + i] = { v: caso.comuna, t: 's' };
-            ws['N' + i] = { v: caso.foja, t: 's' };
-            // ws['O' + i] = { v: caso.numero, t: 's' };
-            ws['P' + i] = { v: caso.año, t: 's' };
-            ws['Q' + i] = { v: caso.formatoEntrega, t: 's' };
-            ws['R' + i] = { v: caso.porcentaje, t: 's' };
-            ws['S' + i] = { v: caso.diaEntrega, t: 's' };
-            // Formato de monto minimo segun el tipo de moneda
-            if(caso.moneda == 'UF'){
-                ws['T' + i] = { v:parseFloat(caso.montoMinimo), t: 'n', z: '0.0000' };
-            }else{
-                ws['T' + i] = { v:parseFloat(caso.montoMinimo), t: 'n', z: '#,##0' };
-            }
-            ws['U' + i] = { v: caso.moneda, t: 's' };                
-            i++;
-        }
+        casos = await getDatosRemate(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries) || [];
     }catch(error){
-        console.error('Error al obtener resultados en el economico:', error);
+        console.error('Error al obtener resultados en emol:', error);
         i = i_aux;
+    }
+
+    if (!Array.isArray(casos) || casos.length === 0) {
+        console.log("No se encontraron datos para insertar.");
+        return;
+    }
+    const casosObj = casos.map(caso => caso.toObject());
+    console.log("Cantidad de casos obtenidos en emol: ",casosObj.length);
+    
+    for(let caso of casosObj){
+        if(caso.juzgado == 'Juez Partidor'){
+            continue;
+        }
+        ws['B' + i] = { v: caso.link, t: 's' };
+        ws['C' + i] = { v: caso.fechaObtencion, t: 'd' };
+        caso.fechaPublicacion.setHours( caso.fechaPublicacion.getHours() + 6);
+        console.log("caso:",i-5,"fecha Obtencion:",caso.fechaPublicacion);
+        ws['D' + i] = { v: caso.fechaPublicacion, t: 'd' };
+        ws['E' + i] = { v: caso.fechaRemate, t: 'd' };
+        ws['F' + i] = { v: caso.causa, t: 's' };
+        ws['G' + i] = { v: caso.juzgado, t: 's' };
+        const comunaJuzgado = getComunaJuzgado(caso.juzgado);
+        ws['H' + i] = { v: comunaJuzgado, t: 's' };
+        ws['I' + i] = { v: caso.partes, t: 's' };
+        ws['J' + i] = { v: caso.tipoPropiedad, t: 's' };
+        ws['K' + i] = { v: caso.direccion, t: 's' };
+        ws['L' + i] = { v: caso.tipoDerecho, t: 's' };
+        ws['M' + i] = { v: caso.comuna, t: 's' };
+        ws['N' + i] = { v: caso.foja, t: 's' };
+        // ws['O' + i] = { v: caso.numero, t: 's' };
+        ws['P' + i] = { v: caso.año, t: 's' };
+        ws['Q' + i] = { v: caso.formatoEntrega, t: 's' };
+        ws['R' + i] = { v: caso.porcentaje, t: 's' };
+        ws['S' + i] = { v: caso.diaEntrega, t: 's' };
+        // Formato de monto minimo segun el tipo de moneda
+        if(caso.moneda == 'UF'){
+            ws['T' + i] = { v:parseFloat(caso.montoMinimo), t: 'n', z: '0.0000' };
+        }else{
+            ws['T' + i] = { v:parseFloat(caso.montoMinimo), t: 'n', z: '#,##0' };
+        }
+        ws['U' + i] = { v: caso.moneda, t: 's' };                
+        i++;
     }
     return i;
 }
 
 async function getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i){
+    let casoPjud = [];
     i_aux = i;
-    try{
-        // cambiar la fecha del pjud final a 14 dias mas.
-        let fechaInicioPjud = formatoFechaPjud(fechaInicioStr);
-        let fechaFinPjud = cambiarFechaFin(fechaFinStr);
-        // console.log("Fechas aj enviar a el pjud ",fechaFinPjud);
-        // fechaFinPjud = new Date(fechaFinPjud);
-        // fechaFinPjud = new Date(fechaFinPjud.setDate(fechaFinPjud.getDate() + 14));
-        // console.log("Fechas final modificada ",fechaFinPjud);
-        // fechaFinPjud = dateToPjud(fechaFinPjud); 
-        // console.log("Fechas final modificada y a enviar ",fechaFinPjud);
-        console.log("Fechas: ",fechaInicioPjud,fechaFinPjud);
-        const casoPjud = await getPJUD(fechaInicioPjud,fechaFinPjud) || [];
-        const casosObj = casoPjud.map(caso => caso.toObject());
-        console.log("Cantidad de casos obtenidos: ",casosObj.length);
-        
+    let fechaInicioPjud = formatoFechaPjud(fechaInicioStr);
+    // cambiar la fecha del pjud final a 14 dias mas.
+    let fechaFinPjud = cambiarFechaFin(fechaFinStr);
+    console.log("Fechas: ",fechaInicioPjud,fechaFinPjud);
 
-        for (let caso of casosObj){
-            ws['B' + i] = { v:"Letra grande/ Pjud", t: 's' };
-            // let fecha = transformarFechaPjud(caso.fechaRemate);
-            // fecha.setHours( fecha.getHours() + 6);
-            ws['C' + i] = { v:caso.fechaObtencion, t: 'd' };
-            ws['E' + i] = { v: caso.fechaRemate, t: 'd' };
-            ws['F' + i] = { v: caso.causa, t: 's' };
-            caso.juzgado = caso.juzgado.toLowerCase();
-            ws['G' + i] = { v: caso.juzgado, t: 's' };
-            const comunaJuzgado = getComunaJuzgado(caso.juzgado);
-            ws['H' + i] = { v: comunaJuzgado, t: 's' };
-            i++;
-        }
+    try{
+        casoPjud = await datosFromPjud(fechaInicioPjud,fechaFinPjud) || [];
     }catch(error){
         console.error('Error al obtener resultados en el pjud:', error);
         i = i_aux;
+        return i;
     }
-    
+
+    const casosObj = casoPjud.map(caso => caso.toObject());
+    console.log("Cantidad de casos obtenidos: ",casosObj.length);
+    for (let caso of casosObj){
+        if(caso.partes.includes('TESORERIA') | caso.partes.includes('TGR') ){
+            continue;
+        }
+        ws['B' + i] = { v:"Letra grande/ Pjud", t: 's' };
+        ws['C' + i] = { v:caso.fechaObtencion, t: 'd' };
+        ws['E' + i] = { v: caso.fechaRemate, t: 'd' };
+        ws['F' + i] = { v: caso.causa, t: 's' };
+        caso.juzgado = caso.juzgado.toLowerCase();
+        ws['G' + i] = { v: caso.juzgado, t: 's' };
+        const comunaJuzgado = getComunaJuzgado(caso.juzgado);
+        ws['H' + i] = { v: comunaJuzgado, t: 's' };
+        ws['I' + i] = { v: caso.partes, t: 's' };
+        i++;
+    }
     return i;
 } 
 
 
 async function getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i){
+    let casos = [];
     i_aux = i;
+    const startDate = formatoFechaBoletin(fechaInicioStr);
+    const endDate = formatoFechaBoletin(fechaFinStr);
+
     try{
-        const startDate = formatoFechaBoletin(fechaInicioStr);
-        const endDate = formatoFechaBoletin(fechaFinStr);
-        const casos = await getPdfData(startDate,endDate,fechaHoy) || [];
-        const casosObj = casos.map(caso => caso.toObject());
-        for (let caso of casosObj){
-            ws['B' + i] = { v: caso.link, t: 's' };
-            ws['C' + i] = { v: caso.fechaObtencion, t: 'd' };
-            caso.fechaPublicacion.setHours( caso.fechaPublicacion.getHours() + 6);
-            // console.log("caso:",i-5,"fecha Obtencion:",dato.fechaPublicacion);
-            ws['D' + i] = { v: caso.fechaPublicacion, t: 'd' };
-            ws['E' + i] = { v: caso.fechaRemate, t: 'd' };
-            ws['F' + i] = { v: caso.causa, t: 's' };
-            const juzgado = cleanText(caso.juzgado);
-            ws['G' + i] = { v: juzgado, t: 's' };
-            const comunaJuzgado = getComunaJuzgado(juzgado);
-            ws['H' + i] = { v: comunaJuzgado, t: 's' };
-            ws['I' + i] = { v: caso.partes, t: 's' };
-            ws['J' + i] = { v: caso.tipoPropiedad, t: 's' };
-            // ws['K' + i] = { v: caso.direccion, t: 's' };
-            ws['L' + i] = { v: caso.tipoDerecho, t: 's' };
-            ws['M' + i] = { v: caso.comuna, t: 's' };
-            ws['N' + i] = { v: caso.foja, t: 's' };
-            ws['O' + i] = { v: caso.numero, t: 's' };
-            ws['P' + i] = { v: caso.año, t: 's' };
-            ws['Q' + i] = { v: caso.formatoEntrega, t: 's' };
-            ws['R' + i] = { v: caso.porcentaje, t: 's' };
-            ws['S' + i] = { v: caso.diaEntrega, t: 's' };
-            if(caso.moneda == 'UF'){
-                ws['T' + i] = { v:parseFloat(caso.montoMinimo), t: 'n', z: '0.0000' };
-            }else{
-                ws['T' + i] = { v:parseFloat(caso.montoMinimo), t: 'n', z: '#,##0' };
-            }
-            ws['U' + i] = { v: caso.moneda, t: 's' };
-            ws['V' + i] = { v: caso.martillero, t: 's' };
-            i++;
-        }
+        casos = await getPdfData(startDate,endDate,fechaHoy) || [];
     }catch(error){
         console.error('Error al obtener resultados en el boletin:', error);
         i = i_aux;
+        return i;
+    }
+
+    const casosObj = casos.map(caso => caso.toObject());
+    for (let caso of casosObj){
+        ws['B' + i] = { v: caso.link, t: 's' };
+        ws['C' + i] = { v: caso.fechaObtencion, t: 'd' };
+        caso.fechaPublicacion.setHours( caso.fechaPublicacion.getHours() + 6);
+        // console.log("caso:",i-5,"fecha Obtencion:",dato.fechaPublicacion);
+        ws['D' + i] = { v: caso.fechaPublicacion, t: 'd' };
+        ws['E' + i] = { v: caso.fechaRemate, t: 'd' };
+        ws['F' + i] = { v: caso.causa, t: 's' };
+        const juzgado = cleanText(caso.juzgado);
+        ws['G' + i] = { v: juzgado, t: 's' };
+        const comunaJuzgado = getComunaJuzgado(juzgado);
+        ws['H' + i] = { v: comunaJuzgado, t: 's' };
+        ws['I' + i] = { v: caso.partes, t: 's' };
+        ws['J' + i] = { v: caso.tipoPropiedad, t: 's' };
+        // ws['K' + i] = { v: caso.direccion, t: 's' };
+        ws['L' + i] = { v: caso.tipoDerecho, t: 's' };
+        ws['M' + i] = { v: caso.comuna, t: 's' };
+        ws['N' + i] = { v: caso.foja, t: 's' };
+        ws['O' + i] = { v: caso.numero, t: 's' };
+        ws['P' + i] = { v: caso.año, t: 's' };
+        ws['Q' + i] = { v: caso.formatoEntrega, t: 's' };
+        ws['R' + i] = { v: caso.porcentaje, t: 's' };
+        ws['S' + i] = { v: caso.diaEntrega, t: 's' };
+        if(caso.moneda == 'UF'){
+            ws['T' + i] = { v:parseFloat(caso.montoMinimo), t: 'n', z: '0.0000' };
+        }else{
+            ws['T' + i] = { v:parseFloat(caso.montoMinimo), t: 'n', z: '#,##0' };
+        }
+        ws['U' + i] = { v: caso.moneda, t: 's' };
+        ws['V' + i] = { v: caso.martillero, t: 's' };
+        i++;
     }
     return i;
 }
@@ -286,15 +289,12 @@ function dateToPjud(date) {
 }
 
 function cambiarFechaFin(fecha){
-    console.log("Fecha a modificar: ",fecha);
     const partes = fecha.split("-"); // Dividimos la fecha en partes [año, mes, día]
     const [año, mes, día] = partes; // Desestructuramos las partes
     let fechaFinal =  new Date(`${año}/${mes}/${día}`);
-    console.log("Fecha final como fecha: ",fechaFinal);
-    fechaFinal.setDate(fechaFinal.getDate() + 15);
-    console.log("Fecha final modificada: ",fechaFinal);
+    // fechaFinal.setDate(fechaFinal.getDate() + 15);
+    fechaFinal.setDate(fechaFinal.getDate() );
     const fechaFinalPjud = dateToPjud(fechaFinal);
-    console.log("Fecha final modificada y a enviar: ",fechaFinalPjud);
     return fechaFinalPjud;
 }
 

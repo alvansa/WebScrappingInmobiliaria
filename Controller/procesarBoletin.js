@@ -1,7 +1,7 @@
 const Caso  = require('../Model/caso.js');
 const {getDatosBoletin} = require('../Model/getBoletinConcursal.js');
 const fs = require('fs');
-const { comunas, tribunales } = require('../Model/datosLocales.js');
+const { comunas, tribunales2 } = require('../Model/datosLocales.js');
 const path = require('path');
 const { ipcRenderer } = require( 'electron' );
 const { get } = require('request');
@@ -60,36 +60,27 @@ function obtainDataRematesPdf(data,caso) {
 
 }
 
-
 async function getPdfData(fechaInicio,fechaFin,fechaHoy) {
     let casos = [];
-    
-    // Configuracion del worker de pdfjs, necesario hacerlo manualmente para que funcione en node
-    // pdfjsLib.GlobalWorkerOptions.workerSrc = './node_modules/pdfjs-dist/build/pdf.worker.mjs'
-    // PDFJS.workerSrc = '/static/js/pdf.worker.js';
     try{
         await getDatosBoletin(fechaInicio,fechaFin,casos,fechaHoy);
-        // console.log("Casos obtenidos: ",casos);
         const pdfs = fs.readdirSync(path.join(__dirname, '../Model/downloads'));
         for (let pdf of pdfs) {
             const pdfFile = path.join(__dirname, '../Model/downloads/', pdf);
             if(fs.existsSync(pdfFile)){
+                // Aqui se envian los pdf a el proceso principal para ser convertidos a texto y poder trabajar con ellos.
                 const pdfData = await new Promise((resolve, reject) => {
                     ipcRenderer.once('prefix-pdf-converted', (event, data) => resolve(data));
                     ipcRenderer.once('prefix-pdf-converted-error', (event, error) => reject(error));
                     ipcRenderer.send('prefix-convert-pdf', pdfFile);
                 });
                 texto = pdfData ? pdfData : "";
-                // console.log(texto.length);
                 const caso = getCaso(pdf,casos);
                 obtainDataRematesPdf(texto,caso);
-                
             }
-
         }
     }catch (error) {
         console.error("Error en getPdfData:", error);
-        // console.log(1);
     }finally{
         deleteFiles();
         return casos;

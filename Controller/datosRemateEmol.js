@@ -1,5 +1,5 @@
 const { getPaginas, getRemates } = require('../Model/getNextPage.js');
-const { comunas, tribunales } = require('../Model/datosLocales.js');
+const { comunas, tribunales2 } = require('../Model/datosLocales.js');
 const Caso  = require('../Model/caso.js');
 
 async function getDatosRemate(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries){
@@ -167,7 +167,7 @@ function getJuzgado2(data) {
     const normalizedData = data.toLowerCase().replaceAll(",",'').replaceAll("de ",'');
     let tribunalesAceptados = [];
     console.log("Data normalizada: ",normalizedData);
-    for (let tribunal of tribunales){
+    for (let tribunal of tribunales2){
         const tribunalNormalized = tribunal.toLowerCase();
         const tribunalSinDe = tribunalNormalized.replaceAll("de ",'');
         const numero = tribunal.match(/\d{1,2}/);

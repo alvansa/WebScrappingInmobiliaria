@@ -1,5 +1,3 @@
-const { get } = require("request");
-
 const EMOL = 1;
 const PJUD = 2;
 const LIQUIDACIONES = 3;
@@ -174,23 +172,26 @@ class Caso{
 
     // Transforma la fecha de la publicación de estar escrita en palabras a un objeto Date
     transformarFecha(){
+        // Si el origen es Pjud, viene con formato tipo dd/mm/yyyy HH:mm:ss
         if(this.#origen == PJUD){
             this.#fechaRemate = this.#fechaRemate.split(' ')[0];
             const partes = this.#fechaRemate.split('/');
             return new Date(partes[2],partes[1]-1,partes[0]);
         }
 
-        console.log("Fecha de remate: ",this.#fechaRemate);
+        // Si el origen es Liquidaciones, viene con el formato Date listo
         if(this.#origen == LIQUIDACIONES){return this.#fechaRemate;}
         if(typeof(this.#fechaRemate) == Date){
             return this.#fechaRemate;
         }
+        // Si el origen es Emol, puede venir con formato de palabras
         const dia = this.getDia();
         const mes = this.getMes();
         const anno = this.getAnno();
-        // console.log(dia,mes,anno);
         if (dia && mes && anno) {
             const fecha = new Date(anno, mes - 1, dia);
+            // Se suma 6 horas ya que la fecha a veces queda si es del 25 de diciembre queda como 
+            // 24 de diciembre a las 23:59:59.999, por lo que se suma 6 horas para que quede como 25 de diciembre
             return new Date(fecha.getTime() + 6 * 60 * 60 * 1000); // Sumar 6 horas
         }
         return null;
@@ -218,7 +219,7 @@ class Caso{
         return causa[2];
     }
    
-    // OBtiene el día de la fecha de cuando se realizara el remate.
+    // Obtiene el día de la fecha de cuando se realizara el remate.
     getDia(){
         const dias = ['uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve','diez','once','doce','trece','catorce','quince','dieciseis','diecisiete','dieciocho','diecinueve','veinte','veintiuno','veintidos','veintitres','veinticuatro','veinticinco','veintiseis','veintisiete','veintiocho','veintinueve','treinta','treinta y uno'];
         const diaRegex = /(\d{1,2})/g;
@@ -347,11 +348,12 @@ class Caso{
     
     // Devuelve el monto numerico mínimo del remate
     getMontoMinimo(){
-       const montoRegex = /\d{1,3}(?:\.\d{3})*(?:,\d+|\.\d+)?/g;
+        // Busca un patron numerico en el texto de la forma 1.000.000,00 o 1,000,000.00
+        const montoRegex = /\d{1,3}(?:\.\d{3})*(?:,\d+|\.\d+)?/g;
         let monto = this.#montoMinimo.match(montoRegex)[0];
-        console.log("Monto en el regex: ",this.#montoMinimo.match(montoRegex));
+        //Para normalizar el monto se eliminan los puntos y se cambian las comas por puntos
+        // asi quedan en formato numero en Excel.
         const montoNormalizado = monto.replaceAll('.','').replaceAll(',','.');
-        console.log("Monto Normalizado :" ,montoNormalizado);
         return montoNormalizado;
     }
 
