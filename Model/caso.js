@@ -124,6 +124,9 @@ class Caso{
     get juzgado(){
         return String(this.#juzgado);
     }
+    get causa(){
+        return String(this.#causa);
+    }
   
 
     toObject() {
@@ -176,7 +179,10 @@ class Caso{
         if(this.#origen == PJUD){
             this.#fechaRemate = this.#fechaRemate.split(' ')[0];
             const partes = this.#fechaRemate.split('/');
-            return new Date(partes[2],partes[1]-1,partes[0]);
+            let fechaRemate = new Date(partes[2],partes[1]-1,partes[0]);
+            fechaRemate.setHours(fechaRemate.getHours() + 6);
+            console.log(fechaRemate);
+            return fechaRemate;
         }
 
         // Si el origen es Liquidaciones, viene con el formato Date listo

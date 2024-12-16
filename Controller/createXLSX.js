@@ -1,4 +1,5 @@
 //Necesario si o si
+const config =  require("../config.js");
 const XLSX = require('xlsx');
 
 const fs = require('fs');
@@ -66,14 +67,15 @@ async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,save
     const wb = XLSX.readFile(path.join(saveFile, 'Remates.xlsx'));
     const ws = wb.Sheets['Remates'];
     cambiarAnchoColumnas(ws);
+    let remates = new Set();
     try{
         let i = 6;
-        // i = await getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i);
+        // i = await getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i,remates);
         console.log(`i despues de economicos: ${i}`);
-        i = await getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i);
+        i = await getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates);
         console.log(`i despues de pjud: ${i}`);
         // console.log("Fechas a enviar a el boletin ",fechaInicioStr,fechaFinStr);    
-        // i = await getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i);
+        // i = await getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates);
         console.log(`i despues de boletin: ${i}`);
         i--;
         ws['!ref'] = 'B5:V'+i;
@@ -90,7 +92,7 @@ async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,save
     
 }
 
-async function getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i){
+async function getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i,remates){
     let casos = [];
     i_aux = i;
     try{
@@ -111,6 +113,10 @@ async function getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries
         if(caso.juzgado == 'Juez Partidor'){
             continue;
         }
+        if(remates.has(caso.causa)){
+            continue;
+        }
+        remates.add(caso.causa);
         ws['B' + i] = { v: caso.link, t: 's' };
         ws['C' + i] = { v: caso.fechaObtencion, t: 'd' };
         caso.fechaPublicacion.setHours( caso.fechaPublicacion.getHours() + 6);
@@ -144,12 +150,19 @@ async function getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries
     return i;
 }
 
-async function getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i){
+async function getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates){
     let casoPjud = [];
     i_aux = i;
-    let fechaInicioPjud = formatoFechaPjud(fechaInicioStr);
-    // cambiar la fecha del pjud final a 14 dias mas.
-    let fechaFinPjud = cambiarFechaFin(fechaFinStr);
+    let fechaInicioPjud = '';
+    let fechaFinPjud = '';
+    if(config.DESARROLLO == true){
+        fechaInicioPjud = cambiarFechaFin(fechaInicioStr,0);
+        fechaFinPjud = cambiarFechaFin(fechaFinStr,0);
+    }else{
+        fechaInicioPjud = cambiarFechaFin(fechaFinStr,1);
+        // cambiar la fecha del pjud final a 14 dias mas.
+        fechaFinPjud = cambiarFechaFin(fechaFinStr,15);
+    }
     console.log("Fechas: ",fechaInicioPjud,fechaFinPjud);
 
     try{
@@ -163,9 +176,13 @@ async function getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i){
     const casosObj = casoPjud.map(caso => caso.toObject());
     console.log("Cantidad de casos obtenidos: ",casosObj.length);
     for (let caso of casosObj){
-        if(caso.partes.includes('TESORERIA') | caso.partes.includes('TGR') ){
+        // if(caso.partes.includes('TESORERIA') | caso.partes.includes('TGR') ){
+            // continue;
+        // }
+        if(remates.has(caso.causa)){
             continue;
         }
+        remates.add(caso.causa);
         ws['B' + i] = { v:"Letra grande/ Pjud", t: 's' };
         ws['C' + i] = { v:caso.fechaObtencion, t: 'd' };
         ws['E' + i] = { v: caso.fechaRemate, t: 'd' };
@@ -181,7 +198,7 @@ async function getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i){
 } 
 
 
-async function getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i){
+async function getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates){
     let casos = [];
     i_aux = i;
     const startDate = formatoFechaBoletin(fechaInicioStr);
@@ -197,6 +214,10 @@ async function getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i){
 
     const casosObj = casos.map(caso => caso.toObject());
     for (let caso of casosObj){
+        if(remates.has(caso.causa)){
+            continue;
+        }
+        remates.add(caso.causa);
         ws['B' + i] = { v: caso.link, t: 's' };
         ws['C' + i] = { v: caso.fechaObtencion, t: 'd' };
         caso.fechaPublicacion.setHours( caso.fechaPublicacion.getHours() + 6);
@@ -242,7 +263,7 @@ function cambiarAnchoColumnas(ws){
         { wch: 15 },  // F
         { wch: 50 },  // G
         { wch: 20 },  // H
-        { wch: 15 },  // I
+        { wch: 30 },  // I
         { wch: 15 },  // J
         { wch: 15 },  // K
         { wch: 15 },  // L
@@ -288,12 +309,12 @@ function dateToPjud(date) {
     return `${dia}/${mes}/${año}`;
 }
 
-function cambiarFechaFin(fecha){
+function cambiarFechaFin(fecha,dias){
     const partes = fecha.split("-"); // Dividimos la fecha en partes [año, mes, día]
     const [año, mes, día] = partes; // Desestructuramos las partes
     let fechaFinal =  new Date(`${año}/${mes}/${día}`);
-    // fechaFinal.setDate(fechaFinal.getDate() + 15);
-    fechaFinal.setDate(fechaFinal.getDate() );
+    fechaFinal.setDate(fechaFinal.getDate() + dias);
+    // fechaFinal.setDate(fechaFinal.getDate() );
     const fechaFinalPjud = dateToPjud(fechaFinal);
     return fechaFinalPjud;
 }

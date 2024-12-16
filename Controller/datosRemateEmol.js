@@ -43,6 +43,12 @@ function procesarDatosRemate(caso){
 
     if (causa != null){
         caso.darCausa(causa[0]);
+    }else{
+        console.log("Causa no encontrada");
+        const causaVoluntaria = getCausaVoluntaria(texto);
+        if (causaVoluntaria != null){
+            caso.darCausa(causaVoluntaria[0]);
+        }
     }
 
     if (juzgado != null){
@@ -107,19 +113,24 @@ function procesarDatosRemate(caso){
 //crea una funcion que revise en la descripcion a base de regex el juzgado
 function getCausa(data) {
     //Anadir C- con 3 a 5 digitos, guion, 4 digitos
-    const regex = /C\s*[-]*\s*\d{1,7}\s*-\s*\d{4}|C\s*[-]*\s*\d{1,3}\.\d{3}\s*-\s*\d{4}/i;
+    const regex = /C\s*[-]*\s*\d{1,7}(?:\.\d{3})*\s*-\s*\d{1,4}(?:\.\d{3})*/i;
     
     const causa = data.match(regex);
     if (causa != null){
         return causa;
     }
-    const causaRegexSinC = /Rol\s*\d{1,7}\s*-\s*\d{4}|Rol\s*[-]*\s*\d{1,3}\.\d{3}\s*-\s*\d{4}/i;
+    const causaRegexSinC = /Rol\s*[-]*\s*\d{1,7}(?:\.\d{3})*\s*-\s*\d{1,4}(?:\.\d{3})*/i;
     const causaSinC = data.match(causaRegexSinC);
     if (causaSinC != null){
         return causaSinC;
     }
 }
 
+function getCausaVoluntaria(data){
+    const regex = /V\s*[-]*\s*\d{1,7}(?:\.\d{3})*\s*-\s*\d{1,4}(?:\.\d{3})*/i;
+    const causa = data.match(regex);
+    return causa;
+}
 //Primer intento de obtnener el juzgado
 function getJuzgado(data) {
     // TODO: Hacer que acepte variaciones cuando se escribe tribunal en vez de juzgado.
@@ -164,34 +175,40 @@ function getJuzgado(data) {
 
 //Probando para refactorizar la funcion que busca el juzgado
 function getJuzgado2(data) {
-    const normalizedData = data.toLowerCase().replaceAll(",",'').replaceAll("de ",'');
+    const normalizedData = data.toLowerCase().replaceAll(",",'').replaceAll("de ",'').normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     let tribunalesAceptados = [];
     console.log("Data normalizada: ",normalizedData);
     for (let tribunal of tribunales2){
-        const tribunalNormalized = tribunal.toLowerCase();
+        const tribunalNormalized = tribunal.toLowerCase().replaceAll("de ","");
         const tribunalSinDe = tribunalNormalized.replaceAll("de ",'');
         const numero = tribunal.match(/\d{1,2}/);
         
         if (numero){
-            // console.log("Numero: ",numero);
+            // console.log("Numero: ",numero);jjjj
             const numeroOrdinal = convertirANombre(parseInt(numero));
             const tribunalVariations = [
                 tribunalNormalized,
                 tribunalNormalized.replace(/\d{1,2}°/,numeroOrdinal),
                 tribunalNormalized.replace('°', 'º'),
-                tribunalNormalized.replace(/\d{1,2}°/, numeroOrdinal).replaceAll("de ", ""),
-                tribunalNormalized.replace("°", "º").replaceAll("de ", ""),
                 tribunalNormalized.replace("°", ""),
-                tribunalNormalized.replace("°", "").replaceAll("de ", ""),
                 tribunalNormalized.replace("juzgado", "tribunal"),
-                tribunalNormalized.replace("juzgado", "tribunal").replace("de ",""),
                 tribunalNormalized.replace(/\d{1,2}°/,numeroOrdinal).replace("juzgado", "tribunal"),
                 tribunalNormalized.replace('°', 'º').replace("juzgado", "tribunal"),
-                tribunalNormalized.replace(/\d{1,2}°/, numeroOrdinal).replaceAll("de ", "").replace("juzgado", "tribunal"),
-                tribunalNormalized.replace("°", "º").replaceAll("de ", "").replace("juzgado", "tribunal"),
                 tribunalNormalized.replace("°", "").replace("juzgado", "tribunal"),
-                tribunalNormalized.replace("°", "").replaceAll("de ", "").replace("juzgado", "tribunal"),
+                // Variaciones donde el numero del tribunal/juzgado esta pegado a la palabra
+                tribunalNormalized.replace(" ",""),
+                tribunalNormalized.replace(/\d{1,2}°/,numeroOrdinal).replace(" ",""),
+                tribunalNormalized.replace('°', 'º').replace(" ",""),
+                tribunalNormalized.replace("°", "").replace(" ",""),
+                tribunalNormalized.replace("juzgado", "tribunal").replace(" ",""),
+                tribunalNormalized.replace(/\d{1,2}°/,numeroOrdinal).replace("juzgado", "tribunal").replace(" ",""),
+                tribunalNormalized.replace('°', 'º').replace("juzgado", "tribunal").replace(" ",""),
+                tribunalNormalized.replace("°", "").replace("juzgado", "tribunal").replace(" ",""),
             ];
+            if(tribunal.includes("9° JUZGADO CIVIL DE SANTIAGO")){
+
+                console.log("Variaciones: ",tribunalVariations);
+            }
 
             // Verificar si alguna variación coincide
             if (tribunalVariations.some(variation => normalizedData.includes(variation))) {
@@ -204,7 +221,7 @@ function getJuzgado2(data) {
         tribunalesAceptados.push(tribunal);
     }
     }
-    
+   console.log("tribubales aceptados : ",tribunalesAceptados); 
     // Devolver el último tribunal aceptado o null si no hay coincidencias
     return tribunalesAceptados.length > 0 ? tribunalesAceptados.at(-1) : null;
         
@@ -285,10 +302,19 @@ function getMultiples(data) {
 
 // Obtiene la comuna del remate a base de una lista de comunas.
 function getComuna(data) {
-    //let comuna;
+    let comunaMinuscula;
+    const dataNormalizada = data.toLowerCase();
+    // console.log("Data: ",dataNormalizada);
     for (let comuna of comunas){
+        comuna = comuna.toLowerCase();
         comunaMinuscula = 'comuna de ' + comuna;
-        if (data.includes(comuna)){
+        if (dataNormalizada.includes(comunaMinuscula)){
+            // console.log("Comuna encontrada: ",comuna);
+            return comuna;
+        }
+        const comunaNombre = 'comuna ' + comuna;
+        if (dataNormalizada.includes(comunaNombre)){
+            // console.log("Comuna encontrada: ",comuna);
             return comuna;
         }
     }
@@ -341,7 +367,7 @@ function getPartes(data){
 
 
 function getTipoPropiedad(data){
-    const regexPropiedad = /(?:casa|departamento|terreno|parcela|sitio|local|bodega|oficina|vivienda)/i;
+    const regexPropiedad = /(?:casa|departamento|terreno|parcela|sitio|local|bodega|oficina(?!\s+judicial)|vivienda)/i;
     const tipoPropiedad = data.match(regexPropiedad);
     return tipoPropiedad;
 }
