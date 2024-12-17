@@ -1,7 +1,10 @@
+const { timeout } = require('puppeteer');
 const puppeteer = require('puppeteer');
+const { get } = require('request');
 
 
 async function getConsultaCausaPjud(tablaRemates){
+    let lineaAnterior = '';
     let numeroCaso = 0;
     let valorInicial = false;
     // const casos = crearCasosPrueba();
@@ -10,7 +13,9 @@ async function getConsultaCausaPjud(tablaRemates){
     await page.goto('https://oficinajudicialvirtual.pjud.cl/includes/sesion-consultaunificada.php');
     try{
         for (let [index, caso] of tablaRemates.entries()) {
-            await procesarCaso(page,caso, index + 1); // Procesa cada caso individualmente
+            lineaAnterior = await procesarCaso(page,caso, index + 1,lineaAnterior); // Procesa cada caso individualmente
+            // await delay(15000); // Espera 1 segundo entre cada caso
+            console.log('Intentando caso:', index + 1, caso.causa);
         }
         await browser.close();
         return tablaRemates;
@@ -23,62 +28,95 @@ async function getConsultaCausaPjud(tablaRemates){
 }
 
 
-async function procesarCaso(page,caso, numeroCaso) {
-    console.log('Intentando caso:', numeroCaso);
-
+async function procesarCaso(page,caso, numeroCaso,lineaAnterior) {
     try {
         const valorInicial = await setValoresIncialesBusquedaCausa(page, caso);
         if (!valorInicial) {
             console.log('No se encontraron los valores iniciales. Saltando caso.');
-            return; // Salta al siguiente caso
+            return lineaAnterior; // Salta al siguiente caso
         }
         console.log('Valores iniciales seteados');
     } catch (error) {
         console.error('Error al setear los valores iniciales:', error);
-        return; // Salta al siguiente caso
+        return lineaAnterior; // Salta al siguiente caso
     }
 
     try {
-        await page.waitForSelector('#btnConConsulta');
-        await page.click('#btnConConsulta');
+        cambioPagina = await revisarPrimeraLinea(page, lineaAnterior);
     } catch (error) {
-        console.error('Error al hacer clic en el botón de consulta:', error);
-        return; // Salta al siguiente caso
+        console.error('Error al verificar o procesar la primera línea del caso:', error);
     }
 
     try {
-        await page.waitForSelector('#dtaTableDetalle tbody tr:first-child', { timeout: 1000 });
-        console.log('Tabla encontrada');
-    } catch (error) {
-        console.log('No se encontró la tabla. Saltando caso.');
-        return; // Salta al siguiente caso
-    }
-
-    try {
-        await getPrimeraLineaCaso(page, caso);
-        await delay(100);
+        if(!cambioPagina){
+            console.log('No se encontró la tabla. Saltando caso.');
+            return lineaAnterior; // Salta al siguiente caso
+        }
+        await getPartesCaso(page, caso);
     } catch (error) {
         console.error('Error al obtener la primera línea del caso:', error);
-        return; // Salta al siguiente caso
+        return lineaAnterior; // Salta al siguiente caso
     }
+    console.log('Caso procesado:',numeroCaso," con causa :", caso.causa);
+    const lineaActual = getPrimeraLinea(page);
+    return lineaActual;
 }
 
-// Obtiene la primera linea de la tabla
-async function getPrimeraLineaCaso(page,caso){
-    let primeraLinea = 'N/A';
+// Obtiene las partes del remate.
+async function getPartesCaso(page,caso){
+    let partes = 'N/A';
     try{
-        primeraLinea = await page.$eval('#dtaTableDetalle tbody tr:first-child', (row) => {
+        partes = await page.$eval('#dtaTableDetalle tbody tr:first-child', (row) => {
             const cells = row.querySelectorAll('td');
             const caratulado= cells[3] ? cells[3].innerText.trim() : '';
             return caratulado; 
         });
     }catch(error){
-        console.error('Error al obtener la primera linea:', error);
+        console.error('Error al obtener las partes :', error);
         return false;
     }
-      caso.darPartes(primeraLinea);
-      console.log('Primera linea:',primeraLinea,caso.causa);
+      caso.darPartes(partes);
+      console.log('Partes:',partes," del caso con causa: ",caso.causa);
       return true;
+}
+
+async function revisarPrimeraLinea(page, lineaAnterior){
+    try {
+        await page.waitForSelector('#btnConConsulta');
+        await page.click('#btnConConsulta');
+        await page.waitForSelector('#dtaTableDetalle tbody tr:first-child', { timeout: 1000 });
+        console.log('Tabla encontrada');
+        // el waitForFunction espera a que la tabla se actualice
+        // sus parametros son una función que se ejecuta en el contexto de la página
+        // un objeto con las opciones de timeout
+        // variables adicionales que se quieran utilizar en la funcion de pagina.
+        await page.waitForFunction(
+            async (lineaAnterior) => {
+                const lineaActual = document.querySelector('#dtaTableDetalle tbody tr:first-child'); 
+                if(lineaActual){
+                    const cells = lineaActual.querySelectorAll('td');
+                    const newContent = Array.from(cells).map(cell => cell.innerText.trim()).join(' ');
+                    return newContent && newContent !== lineaAnterior;
+                }
+                return false;
+            },
+            {timeout: 10000}, // Opciones para waitForFunction
+            lineaAnterior // Pasar la línea anterior como argumento
+        );
+        return true;
+    } catch (error) {
+        console.log('No se encontró la tabla. Saltando caso.');
+        return false; // Salta al siguiente caso
+    }
+
+}
+
+async function getPrimeraLinea(page){
+    const primeraLinea = await page.$eval('#dtaTableDetalle tbody tr:first-child', (row) => {
+        const cells = row.querySelectorAll('td');
+        return Array.from(cells).map(cell => cell.innerText.trim()).join(' ');
+      });
+      return primeraLinea;
 }
 // Función para decretar los valores iniciales de la búsqueda de la causa.
 async function setValoresIncialesBusquedaCausa(page, caso) {
@@ -113,6 +151,9 @@ async function setValoresIncialesBusquedaCausa(page, caso) {
     // Opcional: Verifica que el valor fue seleccionado correctamente
     const selectedValue = await page.$eval('#conCorte', el => el.value);
     console.log(`Valor seleccionado: ${selectedValue}`); // Debería imprimir "10"
+    if(selectedValue !== valores.corte){
+        return false;
+    }
     // Esperar actualización del selector dependiente
     await page.waitForFunction(() => {
         const conTribunal = document.querySelector('#conTribunal');
@@ -127,6 +168,11 @@ async function setValoresIncialesBusquedaCausa(page, caso) {
     }
 
     await page.select('#conTribunal', valorTribunal);
+    const tribunalValue = await page.$eval('#conTribunal', el => el.value);
+    if(tribunalValue !== valorTribunal){
+        return false;
+    }
+
     // Esperar a que se actualize el selector de tipo de causa
     await page.waitForFunction(() => {
         const conTipoCausa = document.querySelector('#conTipoCausa');
@@ -138,11 +184,17 @@ async function setValoresIncialesBusquedaCausa(page, caso) {
     // Rol de la causa
     await page.waitForSelector('#conRolCausa');
     await page.type('#conRolCausa', valores.causa);
-
+    const rolValue = await page.$eval('#conRolCausa', el => el.value);
+    if(rolValue !== valores.causa){
+        return false;
+    }
     // Año de la causa
     await page.waitForSelector('#conEraCausa');
     await page.type('#conEraCausa', valores.anno); 
-
+    const annoValue = await page.$eval('#conEraCausa', el => el.value);
+    if(annoValue !== valores.anno){
+        return false;
+    }
     return true;
 }
 

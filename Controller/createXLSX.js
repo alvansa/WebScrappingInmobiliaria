@@ -70,12 +70,12 @@ async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,save
     let remates = new Set();
     try{
         let i = 6;
-        // i = await getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i,remates);
+        i = await getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i,remates);
         console.log(`i despues de economicos: ${i}`);
         i = await getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates);
         console.log(`i despues de pjud: ${i}`);
         // console.log("Fechas a enviar a el boletin ",fechaInicioStr,fechaFinStr);    
-        // i = await getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates);
+        i = await getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates);
         console.log(`i despues de boletin: ${i}`);
         i--;
         ws['!ref'] = 'B5:V'+i;
@@ -176,9 +176,9 @@ async function getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates){
     const casosObj = casoPjud.map(caso => caso.toObject());
     console.log("Cantidad de casos obtenidos: ",casosObj.length);
     for (let caso of casosObj){
-        // if(caso.partes.includes('TESORERIA') | caso.partes.includes('TGR') ){
-            // continue;
-        // }
+        if(caso.partes.includes('TESORERÍA') | caso.partes.includes('TGR')| caso.partes.includes("TESORERIA")){
+            continue;
+        }
         if(remates.has(caso.causa)){
             continue;
         }
@@ -223,6 +223,7 @@ async function getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates)
         caso.fechaPublicacion.setHours( caso.fechaPublicacion.getHours() + 6);
         // console.log("caso:",i-5,"fecha Obtencion:",dato.fechaPublicacion);
         ws['D' + i] = { v: caso.fechaPublicacion, t: 'd' };
+        caso.fechaRemate.setHours( caso.fechaRemate.getHours() + 6);
         ws['E' + i] = { v: caso.fechaRemate, t: 'd' };
         ws['F' + i] = { v: caso.causa, t: 's' };
         const juzgado = cleanText(caso.juzgado);

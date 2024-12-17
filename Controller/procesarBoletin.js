@@ -147,7 +147,7 @@ function parseDate(dateString) {
 }
 
 function montoMinimo(texto){
-    const reMonto = /Valor\s*Mínimo\s*\(pesos\):\s*(\d{7,13})/i;
+    const reMonto = /Valor\s*Mínimo\s*\(pesos\):\s*(\d{7,13}|\d{1,3}(.\d{1,3})*)/i;
     let monto = texto.match(reMonto);
     return monto;
 }

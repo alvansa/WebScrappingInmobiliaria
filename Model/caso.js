@@ -134,7 +134,7 @@ class Caso{
         let moneda;
 
         if(this.#origen == LIQUIDACIONES){
-            montominimo = this.#montoMinimo;
+            montominimo = this.#montoMinimo.replaceAll('.','').replaceAll(',','.');
             moneda = "CLP";
         }else if(this.#montoMinimo !== 'N/A'){
             montominimo = this.getMontoMinimo();
