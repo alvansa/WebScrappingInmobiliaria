@@ -1,21 +1,28 @@
 const { timeout } = require('puppeteer');
 const puppeteer = require('puppeteer');
 const { get } = require('request');
+const { ipcRenderer } = require('electron');
+const { load } = require('cheerio');
 
 
 async function getConsultaCausaPjud(tablaRemates){
     let lineaAnterior = '';
     let numeroCaso = 0;
     let valorInicial = false;
+    let remates = new Set();
     // const casos = crearCasosPrueba();
-    const browser = await puppeteer.launch({headless: false});
-    const page = await browser.newPage();
-    await page.goto('https://oficinajudicialvirtual.pjud.cl/includes/sesion-consultaunificada.php');
+    const browser = await puppeteer.launch({ headless: false });
+    let page = await browser.newPage();
+    const link = 'https://oficinajudicialvirtual.pjud.cl/includes/sesion-consultaunificada.php'
+    await loadPageWithRetries(page, link);
     try{
         for (let [index, caso] of tablaRemates.entries()) {
-            lineaAnterior = await procesarCaso(page,caso, index + 1,lineaAnterior); // Procesa cada caso individualmente
-            // await delay(15000); // Espera 1 segundo entre cada caso
+            if(index % 25 === 0){
+                await loadPageWithRetries(page, link);
+            }
+            lineaAnterior = await procesarCaso(page,caso, index + 1,lineaAnterior,remates); // Procesa cada caso individualmente
             console.log('Intentando caso:', index + 1, caso.causa);
+            ipcRenderer.invoke('update-progress', { progreso: index + 1, caso: caso.causa });
         }
         await browser.close();
         return tablaRemates;
@@ -27,8 +34,28 @@ async function getConsultaCausaPjud(tablaRemates){
     
 }
 
+async function loadPageWithRetries(page, url, maxRetries = 3) {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            await page.goto(url, { waitUntil: 'networkidle2' });
+            await page.waitForSelector('#competencia');
+            console.log(`Página cargada exitosamente en el intento ${attempt}`);
+            return; // Salir de la función si se carga correctamente
+        } catch (error) {
+            console.warn(`Error al cargar la página (intento ${attempt}):`, error);
+            if (attempt === maxRetries) {
+                throw new Error(`No se pudo cargar la página después de ${maxRetries} intentos`);
+            }
+        }
+    }
+}
 
-async function procesarCaso(page,caso, numeroCaso,lineaAnterior) {
+async function procesarCaso(page,caso, numeroCaso,lineaAnterior,remates) {
+    if(remates.has(caso.causa)){
+        console.log('Caso repetido:',caso.causa);
+        return lineaAnterior;
+    }
+    remates.add(caso.causa);
     try {
         const valorInicial = await setValoresIncialesBusquedaCausa(page, caso);
         if (!valorInicial) {
@@ -100,7 +127,7 @@ async function revisarPrimeraLinea(page, lineaAnterior){
                 }
                 return false;
             },
-            {timeout: 10000}, // Opciones para waitForFunction
+            {timeout:5000}, // Opciones para waitForFunction
             lineaAnterior // Pasar la línea anterior como argumento
         );
         return true;

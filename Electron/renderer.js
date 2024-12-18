@@ -1,7 +1,6 @@
 
 
 
-
 document.getElementById('logButton').addEventListener('click', async () => {
   const startDate = document.getElementById('startDate').value;
   const endDate = document.getElementById('endDate').value;
@@ -29,6 +28,13 @@ document.getElementById('logButton').addEventListener('click', async () => {
         alert('No se ha seleccionado una carpeta para guardar los datos');
         return;
       }
+      window.api.updateProgress(({ progreso, caso }) => {
+        console.log(progreso, caso);
+        if (progreso && caso) {
+            workingDialog.textContent = `Procesando: Caso ${caso} / ${progreso}%`;
+        }
+    });
+
       const inicio = new Date();
       const filePath = await window.api.logDates(startDate, endDate,saveFile); // Operación que toma tiempo
       const fin = new Date();

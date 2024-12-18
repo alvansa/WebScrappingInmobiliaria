@@ -33,7 +33,9 @@ contextBridge.exposeInMainWorld('api', {
     // test();
     console.log(nodePath.join(__dirname, './Controller/datosRemate.js'));
   },
-  selectFolder: () => ipcRenderer.invoke('select-folder-btn')
+  selectFolder: () => ipcRenderer.invoke('select-folder-btn'),
+  updateProgress: (message) => ipcRenderer.on('update-progress', message),
+
 });
 
 contextBridge.exposeInMainWorld('electronAPI', {

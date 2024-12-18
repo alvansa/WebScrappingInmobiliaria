@@ -70,12 +70,12 @@ async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,save
     let remates = new Set();
     try{
         let i = 6;
-        i = await getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i,remates);
+        // i = await getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i,remates);
         console.log(`i despues de economicos: ${i}`);
         i = await getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates);
         console.log(`i despues de pjud: ${i}`);
         // console.log("Fechas a enviar a el boletin ",fechaInicioStr,fechaFinStr);    
-        i = await getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates);
+        // i = await getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates);
         console.log(`i despues de boletin: ${i}`);
         i--;
         ws['!ref'] = 'B5:V'+i;
@@ -156,12 +156,12 @@ async function getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates){
     let fechaInicioPjud = '';
     let fechaFinPjud = '';
     if(config.DESARROLLO == true){
-        fechaInicioPjud = cambiarFechaFin(fechaInicioStr,0);
-        fechaFinPjud = cambiarFechaFin(fechaFinStr,0);
+        fechaInicioPjud = cambiarFechaInicio(fechaInicioStr,0);
+        fechaFinPjud = cambiarFechaInicio(fechaFinStr,0);
     }else{
-        fechaInicioPjud = cambiarFechaFin(fechaFinStr,1);
+        fechaInicioPjud = cambiarFechaInicio(fechaFinStr,8);
         // cambiar la fecha del pjud final a 14 dias mas.
-        fechaFinPjud = cambiarFechaFin(fechaFinStr,15);
+        fechaFinPjud = cambiarFechaFin(fechaFinStr);
     }
     console.log("Fechas: ",fechaInicioPjud,fechaFinPjud);
 
@@ -310,7 +310,7 @@ function dateToPjud(date) {
     return `${dia}/${mes}/${año}`;
 }
 
-function cambiarFechaFin(fecha,dias){
+function cambiarFechaInicio(fecha,dias){
     const partes = fecha.split("-"); // Dividimos la fecha en partes [año, mes, día]
     const [año, mes, día] = partes; // Desestructuramos las partes
     let fechaFinal =  new Date(`${año}/${mes}/${día}`);
@@ -320,6 +320,15 @@ function cambiarFechaFin(fecha,dias){
     return fechaFinalPjud;
 }
 
+function cambiarFechaFin(fecha){
+    const partes = fecha.split("-"); // Dividimos la fecha en partes [año, mes, día]
+    const [año, mes, día] = partes; // Desestructuramos las partes
+    let fechaFinal =  new Date(`${año}/${mes}/${día}`);
+    fechaFinal.setMonth(fechaFinal.getMonth() + 1);
+    // fechaFinal.setDate(fechaFinal.getDate() );
+    const fechaFinalPjud = dateToPjud(fechaFinal);
+    return fechaFinalPjud;
+}
 function transformarFechaPjud(fechaHora) {
     // Separar la fecha y la hora
    console.log("Fecha a transformar: ",fechaHora); 

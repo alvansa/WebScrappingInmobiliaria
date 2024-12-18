@@ -24,6 +24,7 @@ class MainApp{
                 app.quit()
             }
         })
+
     }
 
 
@@ -39,6 +40,11 @@ class MainApp{
     
         this.mainWindow.loadFile('index.html')
         this.registerIpcHandlers();
+
+        ipcMain.handle('update-progress', (event, message) => {
+            // Envía el progreso al renderizador
+            event.sender.send('progress-update', message);
+        });
     }
 
     // Manejar solicitud para abrir el selector de carpetas
@@ -74,5 +80,6 @@ ipcMain.on('prefix-convert-pdf', (event, filePath) => {
         event.sender.send('prefix-pdf-converted-error', error);
     }
 });
+
 
 new MainApp();
