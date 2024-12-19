@@ -659,10 +659,10 @@ const tribunales2 = ["1° JUZGADO DE LETRAS DE ARICA",
      "1° JUZGADO CIVIL DE VALPARAISO", 
      "2° JUZGADO CIVIL DE VALPARAISO", 
      "3° JUZGADO CIVIL DE VALPARAISO", 
+     "5° JUZGADO CIVIL DE VALPARAISO", 
+     "4° JUZGADO CIVIL DE VALPARAISO", 
      "1° JUZGADO CIVIL DE VIÑA DEL MAR", 
      "2° JUZGADO CIVIL DE VIÑA DEL MAR", 
-     "4° JUZGADO CIVIL DE VALPARAISO", 
-     "5° JUZGADO CIVIL DE VALPARAISO", 
      "3° JUZGADO CIVIL DE VIÑA DEL MAR", 
      "2° JUZGADO DEL CRIMEN DE VALPARAISO", 
      "2° JUZGADO DEL CRIMEN DE VIÑA DEL MAR", 
@@ -1107,5 +1107,6 @@ const tribunales2 = ["1° JUZGADO DE LETRAS DE ARICA",
       "Juzgado de Letras del Trabajo de San Bernardo"
     ]
 
-module.exports = {comunas,tribunales,tribunales2};
+    const BANCOS = ["scotiabank","dresdner","bci","corpbanca","bice","edwards","republic","citibank","santander","itau","sudameris","american express","abn","security","falabella","ripley","bbva","tanner","consorcio","metlife","avla"]
+module.exports = {comunas,tribunales,tribunales2,BANCOS};
   

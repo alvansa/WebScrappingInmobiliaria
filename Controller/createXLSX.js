@@ -70,12 +70,12 @@ async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,save
     let remates = new Set();
     try{
         let i = 6;
-        // i = await getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i,remates);
+        i = await getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i,remates);
         console.log(`i despues de economicos: ${i}`);
         i = await getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates);
         console.log(`i despues de pjud: ${i}`);
         // console.log("Fechas a enviar a el boletin ",fechaInicioStr,fechaFinStr);    
-        // i = await getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates);
+        i = await getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates);
         console.log(`i despues de boletin: ${i}`);
         i--;
         ws['!ref'] = 'B5:V'+i;

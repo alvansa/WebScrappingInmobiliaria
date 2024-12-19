@@ -272,6 +272,8 @@ class Caso{
 
     // Devuelve el número del año en base a su nombre en palabras para escribir la fecha en tipo Date
     palabrasANumero(añoEnPalabras) {
+        console.log("Año en palabras: ",añoEnPalabras);
+        añoEnPalabras = añoEnPalabras.toLowerCase();
         const mapaNumeros = {
             "veinticuatro": 24,
             "veinticinco": 25,

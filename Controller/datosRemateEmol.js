@@ -1,5 +1,5 @@
 const { getPaginas, getRemates } = require('../Model/getNextPage.js');
-const { comunas, tribunales2 } = require('../Model/datosLocales.js');
+const { comunas, tribunales2,BANCOS } = require('../Model/datosLocales.js');
 const Caso  = require('../Model/caso.js');
 
 async function getDatosRemate(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries){
@@ -179,7 +179,7 @@ function getJuzgado2(data) {
     let tribunalesAceptados = [];
     console.log("Data normalizada: ",normalizedData);
     for (let tribunal of tribunales2){
-        const tribunalNormalized = tribunal.toLowerCase().replaceAll("de ","");
+        const tribunalNormalized = tribunal.toLowerCase().replaceAll("de ","").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
         const tribunalSinDe = tribunalNormalized.replaceAll("de ",'');
         const numero = tribunal.match(/\d{1,2}/);
         
@@ -205,10 +205,10 @@ function getJuzgado2(data) {
                 tribunalNormalized.replace('°', 'º').replace("juzgado", "tribunal").replace(" ",""),
                 tribunalNormalized.replace("°", "").replace("juzgado", "tribunal").replace(" ",""),
             ];
-            if(tribunal.includes("9° JUZGADO CIVIL DE SANTIAGO")){
+            // if(tribunal.includes("3° JUZGADO CIVIL DE VIÑA DEL MAR")){
 
-                console.log("Variaciones: ",tribunalVariations);
-            }
+            //     console.log("Variaciones: ",tribunalVariations);
+            // }
 
             // Verificar si alguna variación coincide
             if (tribunalVariations.some(variation => normalizedData.includes(variation))) {
@@ -340,8 +340,8 @@ function getNumero(data) {
 function getPartes(data){
     data = data.replaceAll("'", ""); //Elimina comillas simples
     data = data.replaceAll('"', ""); //Elimina comillas dobles
-    data = data.replaceAll("'", ""); //Elimina comillas simples
-    const regexPartes = /(?:caratulado?a?s?|expediente)\s*[:]?(?:(?:Rol\s)?\s*C\s*-\s*\d{1,5}\s*-\s*\d{1,5},?)?(\s*[a-zA-ZáéíóúñÑ-]+){1,6}\s*(S\.A\.G\.R\.|S\.A\.G\.R\.|S\.A\.?\/?|con|\/)(\s*[a-zA-ZáéíóúñÑ]+){1,4}/i;
+    data = data.replaceAll('´', ""); //Elimina comillas dobles
+    const regexPartes = /(?:caratulado?a?s?|expediente)\s*[:]?(?:(?:Rol\s)?\s*C\s*-\s*\d{1,5}\s*-\s*\d{1,5},?)?(\s*[,a-zA-ZáéíóúñÑ-]+){1,6}\s*(S\.A\.G\.R\.|S\.A\.G\.R\.|S\.A\.?\/?|con|\/)(\s*[a-zA-ZáéíóúñÑ]+){1,4}/i;
     let partes = data.match(regexPartes);
     if (partes != null){
         return partes[0];
@@ -361,10 +361,39 @@ function getPartes(data){
                 }
             }
         }
+        const partesNombreBanco = buscarPartesNombreBanco(data);
+        if (partesNombreBanco != null){
+            return partesNombreBanco;
+        }
         return 'N/A';
     }
 }
 
+function buscarPartesNombreBanco(data){
+    const dataNormalized = data.toLowerCase();
+    for(let banco of BANCOS){
+        const index = dataNormalized.indexOf(banco);
+        if (index != -1){
+            const dataBanco = dataNormalized.substring(index);
+            if (dataBanco.includes("rol")){
+                const finRol = dataBanco.indexOf('rol');
+                if (finRol != -1){
+                    const partes = dataBanco.substring(0,finRol);
+                    if (incluyeParte(partes)){
+                        return partes;
+                    }
+                }
+            }
+            const fin = dataBanco.indexOf('.');
+            if (fin != -1){
+                const partes = dataBanco.substring(0,fin);
+                if (incluyeParte(partes)){
+                    return partes;
+                }
+            }
+        }
+    }
+}
 
 function getTipoPropiedad(data){
     const regexPropiedad = /(?:casa|departamento|terreno|parcela|sitio|local|bodega|oficina(?!\s+judicial)|vivienda)/i;
@@ -388,6 +417,17 @@ function getAnno(data){
     const registro = data.match(registroRegex);
     if (registro != null){
         return registro;
+    }
+    const dataNormalized = data.toLowerCase();
+    const registroFecha = dataNormalized.indexOf('registro de');
+    if (registroFecha != -1){
+        const dataRegistro = dataNormalized.substring(registroFecha);
+        const registroFin = dataRegistro.indexOf(',');
+        if (registroFin != -1){
+            const registro = dataRegistro.substring(0,registroFin);
+            const anno = registro.match(/\d{4}/);
+            return anno;       
+        }
     }
     return null;
 }
@@ -421,18 +461,13 @@ function getDireccion(data){
 }
 
 function getDiaEntrega(data){
-    const regexDiaEntregaSingular = /día\s*(hábil\s*)?(inmediatamente\s*)?(anterior)/i;
-    const regexDiaEntregaPlural = /(dos|tres|cuatro|cinco|seis|siete)\sdías\shábiles\s(antes)?/i;
-    const regexDiaEntregaNombreDia = /día\s(lunes|martes|miércoles|jueves|viernes)\s(inmediatamente\s)?(anterior\s)(a\sla\sfecha\s)?(de\sla\ssubasta|del\sremate)/i;
-    const regexHorasAntes = /(?:(?:veinticuatro|cuarenta y ocho|setenta y dos|noventa y seis)\s*horas(\s*de\s*antelación\s*al\s*día\s*y\s*hora\s*del)?\s*remate)/i;
-    const hastaElDiaX = /hasta\s*el\s*día\s*(\w+)\s*de\s*la\s*semana\s*anterior/i;
-    
     const regexDiaEntrega = [
         /día\s*(hábil\s*)?(inmediatamente\s*)?(anterior)/i,
         /(dos|tres|cuatro|cinco|seis|siete)\sdías\shábiles\s(antes)?/i,
         /día\s(lunes|martes|miércoles|jueves|viernes)\s(inmediatamente\s)?(anterior\s)(a\sla\sfecha\s)?(de\sla\ssubasta|del\sremate)/i,
-        /(?:(?:veinticuatro|cuarenta y ocho|setenta y dos|noventa y seis)\s*horas(\s*de\s*antelación\s*al\s*día\s*y\s*hora\s*del)?\s*remate)/i,
+        /(?:(?:veinticuatro|cuarenta y ocho|setenta y dos|noventa y seis)\s*horas(\s*[,a-zA-ZáéíóúñÑ-]+){1,8}\s*remate)/i,
         /hasta\s*el\s*día\s*(\w+)\s*de\s*la\s*semana\s*anterior/i,
+        /\d{1,2}\s*horas(\s*[,a-zA-ZáéíóúñÑ-]+){1,8}\s*(subasta|remate)/i,
     ]
 
     for(let regex of regexDiaEntrega){

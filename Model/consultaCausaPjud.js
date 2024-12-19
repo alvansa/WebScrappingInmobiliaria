@@ -62,7 +62,7 @@ async function procesarCaso(page,caso, numeroCaso,lineaAnterior,remates) {
             console.log('No se encontraron los valores iniciales. Saltando caso.');
             return lineaAnterior; // Salta al siguiente caso
         }
-        console.log('Valores iniciales seteados');
+        // console.log('Valores iniciales seteados');
     } catch (error) {
         console.error('Error al setear los valores iniciales:', error);
         return lineaAnterior; // Salta al siguiente caso
@@ -72,11 +72,12 @@ async function procesarCaso(page,caso, numeroCaso,lineaAnterior,remates) {
         cambioPagina = await revisarPrimeraLinea(page, lineaAnterior);
     } catch (error) {
         console.error('Error al verificar o procesar la primera línea del caso:', error);
+        return lineaAnterior; // Salta al siguiente caso
     }
 
     try {
         if(!cambioPagina){
-            console.log('No se encontró la tabla. Saltando caso.');
+            console.log('No se cambio el resultado. Saltando caso.');
             return lineaAnterior; // Salta al siguiente caso
         }
         await getPartesCaso(page, caso);
@@ -84,7 +85,7 @@ async function procesarCaso(page,caso, numeroCaso,lineaAnterior,remates) {
         console.error('Error al obtener la primera línea del caso:', error);
         return lineaAnterior; // Salta al siguiente caso
     }
-    console.log('Caso procesado:',numeroCaso," con causa :", caso.causa);
+    // console.log('Caso procesado:',numeroCaso," con causa :", caso.causa);
     const lineaActual = getPrimeraLinea(page);
     return lineaActual;
 }
@@ -103,7 +104,7 @@ async function getPartesCaso(page,caso){
         return false;
     }
       caso.darPartes(partes);
-      console.log('Partes:',partes," del caso con causa: ",caso.causa);
+    //   console.log('Partes:',partes," del caso con causa: ",caso.causa);
       return true;
 }
 
@@ -123,6 +124,10 @@ async function revisarPrimeraLinea(page, lineaAnterior){
                 if(lineaActual){
                     const cells = lineaActual.querySelectorAll('td');
                     const newContent = Array.from(cells).map(cell => cell.innerText.trim()).join(' ');
+                    if(newContent.includes('No se han encontrado')){
+                        console.log('La tabla presenta que no se encontro el caso.',cells[0].innerText);
+                        return false;
+                    }
                     return newContent && newContent !== lineaAnterior;
                 }
                 return false;
@@ -130,9 +135,10 @@ async function revisarPrimeraLinea(page, lineaAnterior){
             {timeout:5000}, // Opciones para waitForFunction
             lineaAnterior // Pasar la línea anterior como argumento
         );
+
         return true;
     } catch (error) {
-        console.log('No se encontró la tabla. Saltando caso.');
+        // console.log('No se encontró la tabla. Saltando caso.');
         return false; // Salta al siguiente caso
     }
 
@@ -174,11 +180,13 @@ async function setValoresIncialesBusquedaCausa(page, caso) {
 
     // Seleccionar corte
     await page.select('#conCorte', valores.corte);
-    console.log('Corte seleccionada:',valores.corte);
+    // console.log('Corte seleccionada:',valores.corte);
+
     // Opcional: Verifica que el valor fue seleccionado correctamente
-    const selectedValue = await page.$eval('#conCorte', el => el.value);
-    console.log(`Valor seleccionado: ${selectedValue}`); // Debería imprimir "10"
-    if(selectedValue !== valores.corte){
+    const valorCorte = await page.$eval('#conCorte', el => el.value);
+    // console.log(`Valor seleccionado: ${selectedValue}`); // Debería imprimir "10"
+    if(valorCorte !== valores.corte){
+        console.log('No se seleccionó el corte:',valores.corte);
         return false;
     }
     // Esperar actualización del selector dependiente
@@ -197,6 +205,7 @@ async function setValoresIncialesBusquedaCausa(page, caso) {
     await page.select('#conTribunal', valorTribunal);
     const tribunalValue = await page.$eval('#conTribunal', el => el.value);
     if(tribunalValue !== valorTribunal){
+        console.log('No se seleccionó el tribunal:',valores.juzgado);
         return false;
     }
 
@@ -213,6 +222,7 @@ async function setValoresIncialesBusquedaCausa(page, caso) {
     await page.type('#conRolCausa', valores.causa);
     const rolValue = await page.$eval('#conRolCausa', el => el.value);
     if(rolValue !== valores.causa){
+        console.log('No se seleccionó el rol:',valores.causa);
         return false;
     }
     // Año de la causa
@@ -220,6 +230,7 @@ async function setValoresIncialesBusquedaCausa(page, caso) {
     await page.type('#conEraCausa', valores.anno); 
     const annoValue = await page.$eval('#conEraCausa', el => el.value);
     if(annoValue !== valores.anno){
+        console.log('No se seleccionó el año:',valores.anno);
         return false;
     }
     return true;
