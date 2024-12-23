@@ -21,6 +21,7 @@ const comunas = [
     "Calbuco",
     "Caldera",
     "Calera",
+    "La calera",
     "Calera de Tango",
     "Calle Larga",
     "Camarones",

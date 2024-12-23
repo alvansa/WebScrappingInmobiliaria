@@ -1,5 +1,5 @@
 //Necesario si o si
-const config =  require("../config.js");
+const config  =  require("../config.js");
 const XLSX = require('xlsx');
 
 const fs = require('fs');
@@ -59,6 +59,7 @@ function crearBase(saveFile) {
 }
 
 async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,saveFile) {
+    const fechaFinDate = formatoFechaBoletin(fechaFinStr);
     var filePath = path.join(saveFile, 'Remates.xlsx');
     if(!fs.existsSync(path.join(saveFile, 'Remates.xlsx'))){
         crearBase(saveFile);
@@ -70,12 +71,12 @@ async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,save
     let remates = new Set();
     try{
         let i = 6;
-        i = await getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i,remates);
+        i = await getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i,remates,fechaFinDate);
         console.log(`i despues de economicos: ${i}`);
-        i = await getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates);
+        i = await getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates,fechaFinDate);
         console.log(`i despues de pjud: ${i}`);
         // console.log("Fechas a enviar a el boletin ",fechaInicioStr,fechaFinStr);    
-        i = await getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates);
+        i = await getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates,fechaFinDate);
         console.log(`i despues de boletin: ${i}`);
         i--;
         ws['!ref'] = 'B5:V'+i;
@@ -92,7 +93,7 @@ async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,save
     
 }
 
-async function getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i,remates){
+async function getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i,remates,fechaFinDate){
     let casos = [];
     i_aux = i;
     try{
@@ -122,6 +123,9 @@ async function getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries
         caso.fechaPublicacion.setHours( caso.fechaPublicacion.getHours() + 6);
         console.log("caso:",i-5,"fecha Obtencion:",caso.fechaPublicacion);
         ws['D' + i] = { v: caso.fechaPublicacion, t: 'd' };
+        if(caso.fechaRemate < fechaFinDate){
+            continue;
+        }
         ws['E' + i] = { v: caso.fechaRemate, t: 'd' };
         ws['F' + i] = { v: caso.causa, t: 's' };
         ws['G' + i] = { v: caso.juzgado, t: 's' };
@@ -150,12 +154,12 @@ async function getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries
     return i;
 }
 
-async function getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates){
+async function getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates,fechaFinDate){
     let casoPjud = [];
     i_aux = i;
     let fechaInicioPjud = '';
     let fechaFinPjud = '';
-    if(config.DESARROLLO == true){
+    if(config.cambiarDias == false){
         fechaInicioPjud = cambiarFechaInicio(fechaInicioStr,0);
         fechaFinPjud = cambiarFechaInicio(fechaFinStr,0);
     }else{
@@ -182,6 +186,9 @@ async function getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates){
         if(remates.has(caso.causa)){
             continue;
         }
+        if(caso.fechaRemate < fechaFinDate){
+            continue;
+        }
         remates.add(caso.causa);
         ws['B' + i] = { v:"Letra grande/ Pjud", t: 's' };
         ws['C' + i] = { v:caso.fechaObtencion, t: 'd' };
@@ -198,7 +205,7 @@ async function getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates){
 } 
 
 
-async function getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates){
+async function getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates,fechaFinDate){
     let casos = [];
     i_aux = i;
     const startDate = formatoFechaBoletin(fechaInicioStr);
@@ -218,6 +225,9 @@ async function getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates)
             continue;
         }
         remates.add(caso.causa);
+        if(caso.fechaRemate < fechaFinDate){
+            continue;
+        }
         ws['B' + i] = { v: caso.link, t: 's' };
         ws['C' + i] = { v: caso.fechaObtencion, t: 'd' };
         caso.fechaPublicacion.setHours( caso.fechaPublicacion.getHours() + 6);

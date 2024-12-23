@@ -163,7 +163,7 @@ class Caso{
             comuna: this.#comuna,
             foja: this.#foja,
             numero: this.#numero,
-            partes: this.#partes,
+            partes: this.normalizarPartes(),
             tipoPropiedad: this.#tipoPropiedad,
             tipoDerecho: this.#tipoDerecho,
             año: this.#anno,
@@ -376,7 +376,7 @@ class Caso{
     }
 
      //Devuelve el indentificador de la corte a la cual pertenece el juzgado del caso
-     getCortePjud() {
+    getCortePjud() {
         if (this.#juzgado === "N/A" | this.#juzgado === "juez partidor") {
             return null;
         }
@@ -432,7 +432,30 @@ class Caso{
     return null; // Retorna `null` si no encuentra ninguna coincidencia
 }
 
+    normalizarPartes(){
+        console.log("Partes: ",this.#partes);
+        if(this.#partes == "N/A"){
+            return "No especifica";
+        }
+        const partesNormalizadas = this.#partes.toLowerCase();
+        const palabrasClave = ["caratulados:","caratulados","caratulado:","caratulado","caratuladas:","caratuladas","caratulada:","caratulada"];
+        for(let palabra of palabrasClave){
+            if(partesNormalizadas.includes(palabra)){
+                const index = partesNormalizadas.indexOf(palabra);
+                const inicio = index + palabra.length + 1 ;
+                const partes = partesNormalizadas.slice(inicio);
+                console.log("Partes: ",partes);
+                return partes;
+            }
+        }
+        const regexExpediente = /^expediente C-\d{1,7}-\d{4} (.+)$/i;
+        const expediente = partesNormalizadas.match(regexExpediente);
+        if(expediente){
+            return expediente[1];
+        }
 
+        return this.#partes;
+    }
 
 }
 

@@ -1,4 +1,4 @@
-const {getPJUD,getEspecificDataFromPjud,datosFromPjud} = require('./Model/getPjud');
+const {getPJUD,getEspecificDataFromPjud,datosFromPjud} = require('../Model/getPjud');
 
 async function main(){
     

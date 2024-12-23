@@ -177,7 +177,7 @@ function getJuzgado(data) {
 function getJuzgado2(data) {
     const normalizedData = data.toLowerCase().replaceAll(",",'').replaceAll("de ",'').normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     let tribunalesAceptados = [];
-    console.log("Data normalizada: ",normalizedData);
+    // console.log("Data normalizada: ",normalizedData);
     for (let tribunal of tribunales2){
         const tribunalNormalized = tribunal.toLowerCase().replaceAll("de ","").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
         const tribunalSinDe = tribunalNormalized.replaceAll("de ",'');
@@ -221,7 +221,7 @@ function getJuzgado2(data) {
         tribunalesAceptados.push(tribunal);
     }
     }
-   console.log("tribubales aceptados : ",tribunalesAceptados); 
+//    console.log("tribubales aceptados : ",tribunalesAceptados); 
     // Devolver el último tribunal aceptado o null si no hay coincidencias
     return tribunalesAceptados.length > 0 ? tribunalesAceptados.at(-1) : null;
         
@@ -304,18 +304,15 @@ function getMultiples(data) {
 function getComuna(data) {
     let comunaMinuscula;
     const dataNormalizada = data.toLowerCase();
-    // console.log("Data: ",dataNormalizada);
+    console.log("Data: ",dataNormalizada);
     for (let comuna of comunas){
         comuna = comuna.toLowerCase();
-        comunaMinuscula = 'comuna de ' + comuna;
-        if (dataNormalizada.includes(comunaMinuscula)){
-            // console.log("Comuna encontrada: ",comuna);
-            return comuna;
-        }
-        const comunaNombre = 'comuna ' + comuna;
-        if (dataNormalizada.includes(comunaNombre)){
-            // console.log("Comuna encontrada: ",comuna);
-            return comuna;
+        const listaPreFrases = ["comuna de ","comuna ","comuna y provincia de ","conservador de bienes raíces de ","conservador bienes raíces "];
+        for(let preFrase of listaPreFrases){
+            const comunaPreFrase = preFrase + comuna;
+            if (dataNormalizada.includes(comunaPreFrase)){
+                return comuna;
+            }
         }
     }
     return "N/A";
@@ -341,12 +338,14 @@ function getPartes(data){
     data = data.replaceAll("'", ""); //Elimina comillas simples
     data = data.replaceAll('"', ""); //Elimina comillas dobles
     data = data.replaceAll('´', ""); //Elimina comillas dobles
-    const regexPartes = /(?:caratulado?a?s?|expediente)\s*[:]?(?:(?:Rol\s)?\s*C\s*-\s*\d{1,5}\s*-\s*\d{1,5},?)?(\s*[,a-zA-ZáéíóúñÑ-]+){1,6}\s*(S\.A\.G\.R\.|S\.A\.G\.R\.|S\.A\.?\/?|con|\/)(\s*[a-zA-ZáéíóúñÑ]+){1,4}/i;
+    // regex para partes: busca la palabra caratulado o expediente seguido de un rol, y 
+    //luego busca 1 a 6 palabras seguidas de S.A., S.A.G.R., S.A.G.R., S.A. o con y otra seguida de 1 a cuatro palabras.
+    const regexPartes = /(?:caratulado?a?s?|expediente)\s*[:]?(?:(?:Rol\s)?\s*C\s*-\s*\d{1,5}\s*-\s*\d{1,5},?)?(\s*[,a-zA-ZáéíóúñÑ-]+){1,6}\s*(S\.A\.G\.R\.|S\.A\.G\.R\.|S\.A\.?\/?|con|\/|-)(\s*[a-zA-ZáéíóúñÑ]+){1,4}/i;
     let partes = data.match(regexPartes);
     if (partes != null){
         return partes[0];
     }else{
-        //buscar de otra manera
+        // Si no lo encuentra con la palabra caratulado/expediente, busca con la palabra banco
         const banco = "Banco";
         const index = data.indexOf(banco);
         if (index != -1){
@@ -361,6 +360,7 @@ function getPartes(data){
                 }
             }
         }
+        // Si no lo encuentra con la palabra banco, busca con una lista de nombres propios de bancos y cooperativas. 
         const partesNombreBanco = buscarPartesNombreBanco(data);
         if (partesNombreBanco != null){
             return partesNombreBanco;
