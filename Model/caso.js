@@ -356,8 +356,9 @@ class Caso{
     
     // Devuelve el monto numerico mínimo del remate
     getMontoMinimo(){
+        this.#montoMinimo = this.#montoMinimo.replaceAll(" ","");
         // Busca un patron numerico en el texto de la forma 1.000.000,00 o 1,000,000.00
-        const montoRegex = /\d{1,3}(?:\.\d{3})*(?:,\d+|\.\d+)?/g;
+        const montoRegex = /\d{1,12}(?:\.\d{3})*(?:,\d+|\.\d+)?/g;
         let monto = this.#montoMinimo.match(montoRegex)[0];
         //Para normalizar el monto se eliminan los puntos y se cambian las comas por puntos
         // asi quedan en formato numero en Excel.

@@ -40,6 +40,7 @@ function procesarDatosRemate(caso){
     const tipoDerecho = getTipoDerecho(texto);
     const direccion = getDireccion(texto);
     const diaEntrega = getDiaEntrega(texto);
+    const anno = getAnno(texto);
 
     if (causa != null){
         caso.darCausa(causa[0]);
@@ -83,11 +84,10 @@ function procesarDatosRemate(caso){
     }
     if (foja != null){
         caso.darFoja(foja[0]);
-        const anno = getAnno(texto);
-        if (anno != null){
-            annoNumero = anno[0].match(/\d{4}/);
-            caso.darAnno(annoNumero[0]);
-        }
+    }
+    if (anno != null){
+        // annoNumero = anno[0].match(/\d{4}/);
+        caso.darAnno(anno);
     }
     if (numero != null){
         caso.darNumero(numero[1]);
@@ -176,6 +176,7 @@ function getJuzgado(data) {
 //Probando para refactorizar la funcion que busca el juzgado
 function getJuzgado2(data) {
     const normalizedData = data.toLowerCase().replaceAll(",",'').replaceAll("de ",'').normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    // console.log("Data normalizada: ",normalizedData);
     let tribunalesAceptados = [];
     // console.log("Data normalizada: ",normalizedData);
     for (let tribunal of tribunales2){
@@ -184,7 +185,6 @@ function getJuzgado2(data) {
         const numero = tribunal.match(/\d{1,2}/);
         
         if (numero){
-            // console.log("Numero: ",numero);jjjj
             const numeroOrdinal = convertirANombre(parseInt(numero));
             const tribunalVariations = [
                 tribunalNormalized,
@@ -205,7 +205,7 @@ function getJuzgado2(data) {
                 tribunalNormalized.replace('°', 'º').replace("juzgado", "tribunal").replace(" ",""),
                 tribunalNormalized.replace("°", "").replace("juzgado", "tribunal").replace(" ",""),
             ];
-            // if(tribunal.includes("3° JUZGADO CIVIL DE VIÑA DEL MAR")){
+            // if(tribunal.includes("20° JUZGADO CIVIL DE SANTIAGO")){
 
             //     console.log("Variaciones: ",tribunalVariations);
             // }
@@ -282,7 +282,7 @@ function getFechaRemate(data) {
 
 //Obtiene el monto minimo por el cual iniciara el remate.
 function getMontoMinimo(data) {
-    const regex = /(subasta|mínimo)\s*([a-zA-ZáéíóúÑñ:\s]*)\s+((\$)\s*(\d{1,3}.)+(\d{1,3})|(\d{1,3}.)+(\d{1,3})(,\d{1,10})?\s*(Unidades de Fomento|UF|U.F.)|(Unidades de Fomento|U\.?F\.?)\s*(\d{1,3}\.)+(\d{1,3})(,\d{1,10})?)/i;
+    const regex = /(subasta|mínimo)\s*([a-zA-ZáéíóúÑñ:\s]*)\s+((\$)\s*(\d{1,3}.)+(\d{1,3})|(\d{1,3}.)+(\d{1,3})(,\d{1,10})?\s*(Unidades de Fomento|UF|U.F.)|(Unidades de Fomento|U\.?F\.?)\s*(\d{1,3}\.)*\s*(\d{1,12})\s*(,\d{1,10})?)/i;
     // (Mínimo\s+)?(subasta\s+)?((\$)\s*(\d{1,3}.)+(\d{1,3})|(\d{1,3}.)*(\d{1,3}),?(\d{1,10})?\s*(?:Unidades de Fomento|U.F.|UF))
     const montoMinimo = data.match(regex);
     return montoMinimo;
@@ -304,7 +304,7 @@ function getMultiples(data) {
 function getComuna(data) {
     let comunaMinuscula;
     const dataNormalizada = data.toLowerCase();
-    console.log("Data: ",dataNormalizada);
+    // console.log("Data: ",dataNormalizada);
     for (let comuna of comunas){
         comuna = comuna.toLowerCase();
         const listaPreFrases = ["comuna de ","comuna ","comuna y provincia de ","conservador de bienes raíces de ","conservador bienes raíces "];
@@ -411,12 +411,18 @@ function getAnno(data){
     const regexAnno = /(año)\s*(\d{4})/i;
     const anno = data.match(regexAnno);
     if (anno != null){
-        return anno;
+        return anno[2];
+    }
+    const regexFojasDependiente =/fojas(\s*[º0-9a-zA-ZáéíóúñÑ]+){1,8}\s*del\s*(\d{1,4})/i;
+    const fojasDependiente = data.match(regexFojasDependiente);
+    // console.log("Fojas Dependiente: ",fojasDependiente);
+    if (fojasDependiente != null){
+        return fojasDependiente[2];
     }
     const registroRegex = /registro\s*(?:de)?\s*propiedad\s*(\d{4})/i;
     const registro = data.match(registroRegex);
     if (registro != null){
-        return registro;
+        return registro[1];
     }
     const dataNormalized = data.toLowerCase();
     const registroFecha = dataNormalized.indexOf('registro de');
@@ -425,10 +431,16 @@ function getAnno(data){
         const registroFin = dataRegistro.indexOf(',');
         if (registroFin != -1){
             const registro = dataRegistro.substring(0,registroFin);
-            const anno = registro.match(/\d{4}/);
-            return anno;       
+            const regexAnno = /\d{1,6}(?:\.\d{3})*/gi;
+            const annoRegistro = registro.match(regexAnno);
+            console.log("anno: ",annoRegistro, "Registro: ",registro);
+            if (annoRegistro!= null){
+                console.log("anno: ",annoRegistro);
+                return annoRegistro[0];       
+            }
         }
     }
+
     return null;
 }
 
@@ -492,10 +504,10 @@ async function testUnico(fecha,link){
 
 function convertirANombre(numero) {
     const nombres = [
-        "primer", "segundo", "tercer", "cuarto", "quinto", "sexto", "séptimo", "octavo", "noveno", "décimo",
-        "undécimo", "duodécimo", "decimotercero", "decimocuarto", "decimoquinto", "decimosexto", "decimoséptimo", "decimoctavo", "decimonoveno", "vigésimo",
-        "vigésimo primero", "vigésimo segundo", "vigésimo tercero", "vigésimo cuarto", "vigésimo quinto", "vigésimo sexto", "vigésimo séptimo", "vigésimo octavo", "vigésimo noveno", "trigésimo",
-        "trigésimo primero", "trigésimo segundo", "trigésimo tercero", "trigésimo cuarto", "trigésimo quinto", "trigésimo sexto", "trigésimo séptimo", "trigésimo octavo", "trigésimo noveno", "cuadragésimo"
+        "primer", "segundo", "tercer", "cuarto", "quinto", "sexto", "septimo", "octavo", "noveno", "decimo",
+        "undecimo", "duodecimo", "decimotercero", "decimocuarto", "decimoquinto", "decimosexto", "decimoseptimo", "decimoctavo", "decimonoveno", "vigesimo",
+        "vigesimo primero", "vigesimo segundo", "vigesimo tercero", "vigesimo cuarto", "vigesimo quinto", "vigesimo sexto", "vigesimo septimo", "vigesimo octavo", "vigesimo noveno", "trigesimo",
+        "trigesimo primero", "trigesimo segundo", "trigesimo tercero", "trigesimo cuarto", "trigesimo quinto", "trigesimo sexto", "trigesimo septimo", "trigesimo octavo", "trigesimo noveno", "cuadragesimo"
     ];
 
     // Verificar que el número está dentro del rango válido
