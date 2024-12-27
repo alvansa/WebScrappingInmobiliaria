@@ -1,5 +1,5 @@
-const {getConsultaCausaPjud} = require('../Model/consultaCausaPjud');
-const Caso  = require('../Model/caso');
+const {getConsultaCausaPjud} = require('./consultaCausaPjud');
+const Caso  = require('../caso/caso');
 
 
 function crearCasosPrueba(){

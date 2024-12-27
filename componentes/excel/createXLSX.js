@@ -1,14 +1,14 @@
 //Necesario si o si
-const config  =  require("../config.js");
+const config  =  require("../../config.js");
 const XLSX = require('xlsx');
 
 const fs = require('fs');
 
 const path = require('path');
 
-const {getDatosRemate} = require('./datosRemateEmol'); 
-const {getPJUD,datosFromPjud} = require('../Model/getPjud');
-const {getPdfData} = require('./procesarBoletin');
+const {getDatosRemate} = require('../economico/datosRemateEmol.js'); 
+const {getPJUD,datosFromPjud} = require('../pjud/getPjud.js');
+const {getPdfData} = require('../liquidaciones/procesarBoletin.js');
 
 
 function crearBase(saveFile) {
@@ -73,10 +73,10 @@ async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,save
         let i = 6;
         i = await getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i,remates,fechaFinDate);
         console.log(`i despues de economicos: ${i}`);
-        // i = await getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates,fechaFinDate);
+        i = await getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates,fechaFinDate);
         console.log(`i despues de pjud: ${i}`);
         // console.log("Fechas a enviar a el boletin ",fechaInicioStr,fechaFinStr);    
-        // i = await getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates,fechaFinDate);
+        i = await getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates,fechaFinDate);
         console.log(`i despues de boletin: ${i}`);
         i--;
         ws['!ref'] = 'B5:V'+i;

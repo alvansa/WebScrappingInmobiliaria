@@ -1,6 +1,5 @@
 const { contextBridge,ipcRenderer } = require('electron');
-const {getDatosRemate} = require('../Controller/datosRemateEmol.js');
-const {crearBase,insertarDatos} = require('../Controller/createXLSX');
+const {crearBase,insertarDatos} = require('../excel/createXLSX.js');
 const nodePath = require('path');
 
 

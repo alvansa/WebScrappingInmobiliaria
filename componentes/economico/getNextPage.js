@@ -1,7 +1,7 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 
-const Caso = require('./caso');
+const Caso = require('../caso/caso');
 
 let url = 'https://www.economicos.cl/todo_chile/remates_de_propiedades_el_mercurio'
 let urlBase = "https://www.economicos.cl"

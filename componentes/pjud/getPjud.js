@@ -1,6 +1,6 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
-const Caso = require('./caso.js');
+const Caso = require('../caso/caso.js');
 const {getConsultaCausaPjud} = require('./consultaCausaPjud.js');
 
 const EXITO = 1;

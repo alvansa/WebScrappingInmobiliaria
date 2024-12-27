@@ -16,7 +16,7 @@ async function descargarPdf(pdfUrl, outputFileName){
 
 
 
-const link = "https://oficinajudicialvirtual.pjud.cl/ADIR_871/civil/documentos/anexoDocCivil.php?dtaDoc=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvb2ZpY2luYWp1ZGljaWFsdmlydHVhbC5wanVkLmNsIiwiYXVkIjoiaHR0cHM6XC9cL29maWNpbmFqdWRpY2lhbHZpcnR1YWwucGp1ZC5jbCIsImlhdCI6MTczNTIxODg0MCwiZXhwIjoxNzM1MjIyNDQwLCJkYXRhIjoidVU3UFo3czM0S2VhRG5IZk9nUFFQRTdRaWxkYjNtRm5RanNtbGQyTDNqVDFINEE3SnB5Q3Bock5ReHU1M0VLTEhjV0tuZ243dU9oVnNKRStXNUF3eVE9PSJ9.XggYFt8ViT0h3eqprx3ec1PJjdnzVXiZ0klQXicEsLc";
+const link = "https://oficinajudicialvirtual.pjud.cl/ADIR_871/civil/documentos/anexoDocCivil.php?dtaDoc=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvb2ZpY2luYWp1ZGljaWFsdmlydHVhbC5wanVkLmNsIiwiYXVkIjoiaHR0cHM6XC9cL29maWNpbmFqdWRpY2lhbHZpcnR1YWwucGp1ZC5jbCIsImlhdCI6MTczNTMwODA4MiwiZXhwIjoxNzM1MzExNjgyLCJkYXRhIjoidVU3UFo3czM0S2VhRG5IZk9nUFFQSVhvb01wZ2tmanRSa1JUM3Vydm5qWlp6ZGZONEU2WDVkV0ZXblVGTjhKTTFyalFxcUduNzVnZVk1S3l4ZHQwUUE9PSJ9.IPI6FaN3Es1hIVFeF4P73FCZ2GnsgkbPht0tvJplS3g";
 const linkPrueba = "https://www.turnerlibros.com/wp-content/uploads/2021/02/ejemplo.pdf";
 const outputFileName = "./test.pdf";
 // try{
@@ -41,8 +41,9 @@ async function testLink(link,outputFileName) {
     await delay(2000);
     await browser.close();
 }
-testLink(linkPrueba,outputFileName);
+testLink(link,outputFileName);
 
+// descargarPdf(link,outputFileName);
 
 function delay(time) {
     return new Promise(function(resolve) { 

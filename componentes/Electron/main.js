@@ -33,12 +33,12 @@ class MainApp{
             width: 700,
             height: 500,
             webPreferences: {
-                preload: path.join(__dirname, './Electron/preload.js'), // Archivo que se ejecutará antes de cargar el renderer process
+                preload: path.join(__dirname, './preload.js'), // Archivo que se ejecutará antes de cargar el renderer process
                 nodeIntegration: true
             },
         })
     
-        this.mainWindow.loadFile('index.html')
+        this.mainWindow.loadFile('componentes/Electron/index.html')
         this.registerIpcHandlers();
 
         ipcMain.handle('update-progress', (event, message) => {

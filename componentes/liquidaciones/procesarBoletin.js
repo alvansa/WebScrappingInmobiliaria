@@ -1,10 +1,10 @@
-const Caso  = require('../Model/caso.js');
-const {getDatosBoletin} = require('../Model/getBoletinConcursal.js');
 const fs = require('fs');
-const { comunas, tribunales2 } = require('../Model/datosLocales.js');
 const path = require('path');
 const { ipcRenderer } = require( 'electron' );
 const { get } = require('request');
+const Caso  = require('../caso/caso.js');
+const { comunas, tribunales2 } = require('../caso/datosLocales.js');
+const {getDatosBoletin} = require('./getBoletinConcursal.js');
 
 
 
@@ -64,9 +64,9 @@ async function getPdfData(fechaInicio,fechaFin,fechaHoy) {
     let casos = [];
     try{
         await getDatosBoletin(fechaInicio,fechaFin,casos,fechaHoy);
-        const pdfs = fs.readdirSync(path.join(__dirname, '../Model/downloads'));
+        const pdfs = fs.readdirSync(path.join(__dirname, './downloads'));
         for (let pdf of pdfs) {
-            const pdfFile = path.join(__dirname, '../Model/downloads/', pdf);
+            const pdfFile = path.join(__dirname, './downloads/', pdf);
             if(fs.existsSync(pdfFile)){
                 // Aqui se envian los pdf a el proceso principal para ser convertidos a texto y poder trabajar con ellos.
                 const pdfData = await new Promise((resolve, reject) => {

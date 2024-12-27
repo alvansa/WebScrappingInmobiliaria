@@ -1,7 +1,7 @@
 const puppeteer = require("puppeteer");
 const path = require("path");
 const fs = require("fs");
-const Caso  = require('./caso');
+const Caso  = require('../caso/caso');
 
 const EXITO = 1;
 const ERROR = 0;

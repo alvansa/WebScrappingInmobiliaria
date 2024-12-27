@@ -1,4 +1,4 @@
-const {getDatosBoletin} = require('../Model/getBoletinConcursal');
+const {getDatosBoletin} = require('./getBoletinConcursal');
 
 async function main(){
     try{

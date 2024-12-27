@@ -1,4 +1,4 @@
-const {crearBase,insertarDatos} = require('../Controller/createXLSX');
+const {crearBase,insertarDatos} = require('../../Controller/createXLSX');
 
 async function main(){
     try{

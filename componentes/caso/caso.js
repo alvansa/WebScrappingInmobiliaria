@@ -371,7 +371,8 @@ class Caso{
         const montoMinimo = this.#montoMinimo.toLowerCase();
         if(this.#montoMinimo.includes("$")){
             return "CLP";
-        }else if(montoMinimo.includes("uf")|montoMinimo.includes("unidades de fomento")|montoMinimo.includes("u.f.")|montoMinimo.includes("uf.")){
+        }else if(montoMinimo.includes("uf")|montoMinimo.includes("unidadesdefomento")|montoMinimo.includes("u.f.")|montoMinimo.includes("uf.")){
+            console.log("UF");
             return "UF";
         }    
     }

@@ -2,8 +2,10 @@ const { timeout } = require('puppeteer');
 const puppeteer = require('puppeteer');
 const { ipcRenderer } = require('electron');
 const { load } = require('cheerio');
-const config =  require("../config.js");
+const config =  require("../../config.js");
 
+const ERROR = 0;
+const EXITO = 1;
 async function getConsultaCausaPjud(tablaRemates){
     let lineaAnterior = '';
     let numeroCaso = 0;
@@ -25,6 +27,7 @@ async function getConsultaCausaPjud(tablaRemates){
             // ipcRenderer.invoke('update-progress', { progreso: index + 1, caso: caso.causa });
         }
         console.log('Checkpoint 5');
+        await delay(5000);
         await browser.close();
         return tablaRemates;
     }catch(error){
@@ -68,7 +71,6 @@ async function procesarCaso(page,caso, numeroCaso,lineaAnterior,remates) {
         console.error('Error al setear los valores iniciales:', error);
         return lineaAnterior; // Salta al siguiente caso
     }
-    console.log('Checkpoint 1');
     try {
         cambioPagina = await revisarPrimeraLinea(page, lineaAnterior);
     } catch (error) {
@@ -76,7 +78,6 @@ async function procesarCaso(page,caso, numeroCaso,lineaAnterior,remates) {
         return lineaAnterior; // Salta al siguiente caso
     }
 
-    console.log('Checkpoint 2');
     try {
         if(!cambioPagina){
             console.log('No se cambio el resultado. Saltando caso.');
@@ -271,7 +272,6 @@ async function seleccionarTribunal(page, nombreTribunal) {
 }
 
 async function buscarGP(page){
-
     try{
         // Espera a que la tabla esté presente en la página
         await page.waitForSelector('#verDetalle a');
@@ -361,8 +361,8 @@ async function procesarFila(page,row){
         await page.waitForSelector('td:nth-child(3) a',{visible:true});
         console.log('Botón encontrado');
         await button.click();
-        await page.waitForSelector('.modal-body table');
-        const rows = await page.$$('.modal-body table tbody tr');
+        await page.waitForSelector('div.table-responsive table.table-hover.table-striped',{visible:true});
+        const rows = await page.$$('div.table-responsive table.table-hover.table-striped tbody tr');
         for(let tableRow of rows){
             await obtenerPDF(page,tableRow);
         }
@@ -373,18 +373,19 @@ async function procesarFila(page,row){
 }
 
 async function obtenerPDF(page,row){
+    const linkPjud = "https://oficinajudicialvirtual.pjud.cl/ADIR_871/civil/documentos/anexoDocCivil.php?dtaDoc=";
     const [fecha,referencia] = await Promise.all([
-        row.$eval('td:nth-child(1)', el => el.textContent.trim()),
         row.$eval('td:nth-child(2)', el => el.textContent.trim()),
+        row.$eval('td:nth-child(3)', el => el.textContent.trim()),
     ]);
-    button = await row.$('a');
-    if(!button){
-        console.log('No se encontró el botón para descargar el PDF de ', referencia);
-        return ERROR;
-    }
-    await page.waitForSelector('a',{visible:true});
-    await button.click();
-    console.log('Descargando PDF de ',referencia);
+    console.log('Fecha :',fecha);
+    console.log('Referencia :',referencia);
+    console.log('Row :',row);
+    const idValue = await row.$eval('form input[name="dtaDoc"]', input => input.value);
+    const linkPDF = linkPjud + idValue;
+    console.log('Link PDF:',idValue," referencia :",referencia);
+    
+    await delay(2000);
 }
 function delay(time) {
     return new Promise(function(resolve) { 

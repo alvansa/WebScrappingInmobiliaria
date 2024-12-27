@@ -1,6 +1,6 @@
-const { getPaginas, getRemates } = require('../Model/getNextPage.js');
-const { comunas, tribunales2,BANCOS } = require('../Model/datosLocales.js');
-const Caso  = require('../Model/caso.js');
+const { getPaginas, getRemates } = require('./getNextPage.js');
+const { comunas, tribunales2,BANCOS } = require('../caso/datosLocales.js');
+const Caso  = require('../caso/caso.js');
 
 async function getDatosRemate(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries){
     try {
@@ -175,7 +175,7 @@ function getJuzgado(data) {
 
 //Probando para refactorizar la funcion que busca el juzgado
 function getJuzgado2(data) {
-    const normalizedData = data.toLowerCase().replaceAll(",",'').replaceAll("de ",'').normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const normalizedData = data.toLowerCase().replaceAll(",",'').replaceAll("de ",'').normalize("NFD").replace(/[\u0300-\u036f]/g, "").replaceAll("stgo","santiago");
     // console.log("Data normalizada: ",normalizedData);
     let tribunalesAceptados = [];
     // console.log("Data normalizada: ",normalizedData);
@@ -282,8 +282,8 @@ function getFechaRemate(data) {
 
 //Obtiene el monto minimo por el cual iniciara el remate.
 function getMontoMinimo(data) {
-    const regex = /(subasta|mínimo)\s*([a-zA-ZáéíóúÑñ:\s]*)\s+((\$)\s*(\d{1,3}.)+(\d{1,3})|(\d{1,3}.)+(\d{1,3})(,\d{1,10})?\s*(Unidades de Fomento|UF|U.F.)|(Unidades de Fomento|U\.?F\.?)\s*(\d{1,3}\.)*\s*(\d{1,12})\s*(,\d{1,10})?)/i;
-    // (Mínimo\s+)?(subasta\s+)?((\$)\s*(\d{1,3}.)+(\d{1,3})|(\d{1,3}.)*(\d{1,3}),?(\d{1,10})?\s*(?:Unidades de Fomento|U.F.|UF))
+    const regex = /(subasta|mínimo)\s*([a-zA-ZáéíóúÑñ:\s]*)\s+((\$)\s*(\d{1,3}.)+\s*(\d{1,3})|(\d{1,3}.)+(\d{1,3})\s*(,\d{1,10})?\s*(Unidades de Fomento|UF|U.F.)|(Unidades de Fomento|U\.?F\.?)\s*(\d{1,3}\.)*\s*(\d{1,12})\s*(,\d{1,10})?)/i;
+     // (Mínimo\s+)?(subasta\s+)?((\$)\s*(\d{1,3}.)+(\d{1,3})|(\d{1,3}.)*(\d{1,3}),?(\d{1,10})?\s*(?:Unidades de Fomento|U.F.|UF))
     const montoMinimo = data.match(regex);
     return montoMinimo;
 }
@@ -433,7 +433,6 @@ function getAnno(data){
             const registro = dataRegistro.substring(0,registroFin);
             const regexAnno = /\d{1,6}(?:\.\d{3})*/gi;
             const annoRegistro = registro.match(regexAnno);
-            console.log("anno: ",annoRegistro, "Registro: ",registro);
             if (annoRegistro!= null){
                 console.log("anno: ",annoRegistro);
                 return annoRegistro[0];       
@@ -473,8 +472,9 @@ function getDireccion(data){
 }
 
 function getDiaEntrega(data){
+    console.log("Data: ",data);
     const regexDiaEntrega = [
-        /día\s*(hábil\s*)?(inmediatamente\s*)?(anterior)/i,
+        /día\s*(hábil\s*)?(?:\w*\s*){1,5}(inmediatamente\s*)?(anterior)/i,
         /(dos|tres|cuatro|cinco|seis|siete)\sdías\shábiles\s(antes)?/i,
         /día\s(lunes|martes|miércoles|jueves|viernes)\s(inmediatamente\s)?(anterior\s)(a\sla\sfecha\s)?(de\sla\ssubasta|del\sremate)/i,
         /(?:(?:veinticuatro|cuarenta y ocho|setenta y dos|noventa y seis)\s*horas(\s*[,a-zA-ZáéíóúñÑ-]+){1,8}\s*remate)/i,
