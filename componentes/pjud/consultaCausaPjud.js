@@ -6,6 +6,7 @@ const config =  require("../../config.js");
 
 const ERROR = 0;
 const EXITO = 1;
+
 async function getConsultaCausaPjud(tablaRemates){
     let lineaAnterior = '';
     let numeroCaso = 0;
