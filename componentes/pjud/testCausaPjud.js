@@ -1,4 +1,4 @@
-const {getConsultaCausaPjud} = require('./consultaCausaPjud');
+const {ConsultaCausaPjud} = require('./consultaCausaPjud');
 const Caso  = require('../caso/caso');
 
 
@@ -19,7 +19,8 @@ async function main(){
     let fechaHasta = '03/12/2024';
     const casos = crearCasosPrueba();
     try{
-        const data = await getConsultaCausaPjud(casos);
+        const causaPjud = new ConsultaCausaPjud(casos); 
+        const data = await causaPjud.getConsultaCausaPjud();
         if(data){
             console.log('Datos conseguidos exitosamente: ',data.length);
             const datos = data.map(caso => caso.toObject());
