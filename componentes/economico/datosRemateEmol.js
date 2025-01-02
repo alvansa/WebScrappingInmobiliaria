@@ -230,7 +230,7 @@ function getJuzgado2(data) {
 
 // Si no se encuentra el juzgado de la lista, se busca si es un juez partidor
 function getJuezPartidor(data){
-    const juezRegex = /partidor|particion|partición|Árbitro|árbitro|judicial preventivo/i;
+    const juezRegex = /partidor|particion|partición|Árbitro|árbitro|judicial preventivo|arbitro/i;
     const juez = data.match(juezRegex);
     if (juez != null){
         return true;
@@ -239,27 +239,18 @@ function getJuezPartidor(data){
     }
 }
 function getPorcentaje(data) {
-
-    const porcentajeBasico = /\d{1,3}\s*%\s*(?:del\s+)?(?:mínimo|valor|precio)+/i;
-    const garantiaConMonto = /(garantía|Garantía)\s+(suficiente\s+)?(de\s+)?(\$\s*)?(\d{1,3}(?:\.\d{3})*,?\d*)/i;
-    const caucionInteresados = /(caución|interesados\s+)[a-zA-ZáéíóúÑñ:\s]*\d{1,3}\s*%/i;
-    const garantiaConPorcentaje = /(garantía|Garantía)\s+(suficiente\s+)?(por\s+)?(el\s+)?\d{1,3}%/i;
-    
-    let porcentaje = data.match(porcentajeBasico);
-    if (porcentaje != null){
-        return porcentaje;
-    }
-    porcentaje = data.match(garantiaConMonto);
-    if (porcentaje != null){
-        return porcentaje;
-    }
-    porcentaje = data.match(caucionInteresados);
-    if (porcentaje != null){
-        return porcentaje;
-    }
-    porcentaje = data.match(garantiaConPorcentaje);
-    if (porcentaje != null){
-        return porcentaje;
+    const regexMinimos = [
+        /\d{1,3}\s*%\s*(?:del\s+)?(?:mínimo|valor|precio)+/i,
+        /(garantía|Garantía)\s+(suficiente\s+)?(de\s+)?(\$\s*)?(\d{1,3}(?:\.\d{3})*,?\d*)/i,
+        /(caución|interesados\s+)[a-zA-ZáéíóúÑñ:\s]*\d{1,3}\s*%/i,
+        /(garantía|Garantía)\s+(suficiente\s+)?(por\s+)?(el\s+)?\d{1,3}%/i,
+        /(para\s*participar)[\wáéíóúÑñ:\s]{1,200}(mínimo\s*fijado)/i,
+    ];
+    for(let regex of regexMinimos){
+        const porcentaje = data.match(regex);
+        if (porcentaje != null){
+            return porcentaje;
+        }
     }
     
     return null;
@@ -474,12 +465,13 @@ function getDireccion(data){
 function getDiaEntrega(data){
     console.log("Data: ",data);
     const regexDiaEntrega = [
-        /día\s*(hábil\s*)?(?:\w*\s*){1,5}(inmediatamente\s*)?(anterior)/i,
+        /día\s*(hábil\s*)?(?:[,a-zA-ZáéíóúñÑ-]+\s*){1,6}(inmediatamente\s*)?(anterior)/i,
         /(dos|tres|cuatro|cinco|seis|siete)\sdías\shábiles\s(antes)?/i,
         /día\s(lunes|martes|miércoles|jueves|viernes)\s(inmediatamente\s)?(anterior\s)(a\sla\sfecha\s)?(de\sla\ssubasta|del\sremate)/i,
         /(?:(?:veinticuatro|cuarenta y ocho|setenta y dos|noventa y seis)\s*horas(\s*[,a-zA-ZáéíóúñÑ-]+){1,8}\s*remate)/i,
         /hasta\s*el\s*día\s*(\w+)\s*de\s*la\s*semana\s*anterior/i,
-        /\d{1,2}\s*horas(\s*[,a-zA-ZáéíóúñÑ-]+){1,8}\s*(subasta|remate)/i,
+        /(?<!:)\d{2}\s*horas(\s*[,a-zA-ZáéíóúñÑ-]+){1,12}\s*(subasta|remate)/i,
+        /(el\s*día\s*(precedente|anterior))\s*(\s*[,a-zA-ZáéíóúñÑ-]+){1,12}\s*(subasta|remate)/i,
     ]
 
     for(let regex of regexDiaEntrega){

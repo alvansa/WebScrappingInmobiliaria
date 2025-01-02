@@ -32,7 +32,9 @@
     "pdfjs": "^2.5.3",
     "pdfjs-dist": "^4.8.69",
     "pdfreader": "^3.0.5",
-    "puppeteer": "^23.7.1",
+    "puppeteer": "^23.11.1",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-user-preferences": "^2.4.1",
     "request": "^2.88.2",
     "webpack": "^5.96.1",
     "xlsx": "^0.18.5"

@@ -1,7 +1,7 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 const Caso = require('../caso/caso.js');
-const {getConsultaCausaPjud} = require('./consultaCausaPjud.js');
+const {ConsultaCausaPjud} = require('./consultaCausaPjud.js');
 
 const EXITO = 1;
 const ERROR = 0;
@@ -281,7 +281,8 @@ function delay(time) {
 async function datosFromPjud(fechaInicio,fechaFin){
     const datos = await getPJUD(fechaInicio,fechaFin);
     console.log('Datos conseguidos del pjud', datos.length);
-    const casos = await getConsultaCausaPjud(datos);
+    const causa = new ConsultaCausaPjud(datos);
+    const casos = await causa.getConsultaCausaPjud();
     return casos;
 }
 

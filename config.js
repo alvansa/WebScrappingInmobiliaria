@@ -29,6 +29,6 @@ const config = {
 
 
 
-module.exports = config['TESTPJUD'];
+module.exports = config['DESARROLLO'];
 // exports.DESARROLLO = DESARROLLO;
 // exports.TESTPJUD = TESTPJUD;

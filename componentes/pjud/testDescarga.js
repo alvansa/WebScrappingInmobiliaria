@@ -2,10 +2,7 @@ const fs = require('fs');
 const axios = require('axios');
 const puppeteer = require('puppeteer');
 const path = require('path');
-
-
-
-
+const request = require('request');
 
 async function descargarPdf(pdfUrl, outputFileName){
 
@@ -41,6 +38,7 @@ async function testLink(link,outputFileName) {
     await delay(2000);
     await browser.close();
 }
+
 testLink(link,outputFileName);
 
 // descargarPdf(link,outputFileName);

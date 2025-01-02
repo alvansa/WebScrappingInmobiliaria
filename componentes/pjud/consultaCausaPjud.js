@@ -1,10 +1,7 @@
-const { timeout } = require('puppeteer');
-const puppeteer = require('puppeteer');
+// const puppeteer = require('puppeteer');
 const { ipcRenderer } = require('electron');
-const { load } = require('cheerio');
 const config =  require("../../config.js");
-const fs = require('fs');
-const { del } = require('request');
+const puppeteer = require('puppeteer-extra');
 
 const ERROR = 0;
 const EXITO = 1;
@@ -20,8 +17,33 @@ class ConsultaCausaPjud{
         let numeroCaso = 0;
         let valorInicial = false;
         let remates = new Set();
-        this.browser = await puppeteer.launch({ headless: false });
+        // ------------
+        puppeteer.use(require('puppeteer-extra-plugin-user-preferences')({
+        // headless: false, 
+        timeout: 30000, 
+        ignoreHTTPSErrors: true, 
+        userPrefs: { download: {
+                prompt_for_download: false, 
+                open_pdf_in_system_reader: true
+            }, 
+            plugins: {
+                always_open_pdf_externally: true
+            }
+        } 
+        }));
+        this.browser = await puppeteer.launch({headless: false});
         this.page = await this.browser.newPage();
+
+        const client = await this.page.createCDPSession();
+        const downloadPath = './';
+        await client.send('Page.setDownloadBehavior', {
+            behavior: 'allow',
+            downloadPath: downloadPath,
+        });
+        //---------------------
+        console.log('Configuraciones iniciales creadas');
+        // this.browser = await puppeteer.launch({ headless: false });
+        // this.page = await this.browser.newPage();
         await this.loadPageWithRetries();
         console.log('Página cargada: ',this.tablaRemates,this.tablaRemates.entries());
         try{
@@ -49,6 +71,7 @@ class ConsultaCausaPjud{
     async loadPageWithRetries(maxRetries = 3) {
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
             try {
+                console.log(`Intento ${attempt} de carga de página...`);
                 await this.page.goto(this.link, { waitUntil: 'networkidle2' });
                 await this.page.waitForSelector('#competencia');
                 console.log(`Página cargada exitosamente en el intento ${attempt}`);
@@ -376,7 +399,8 @@ class ConsultaCausaPjud{
             row.$eval('td:nth-child(7)', el => el.textContent.trim()),
         ]);
         // console.log(descripcion);
-        if(descripcion === 'Cumple lo ordenado' || descripcion.includes('Propone bases de remate')){
+        // || descripcion.includes('Propone bases de remate')
+        if(descripcion === 'Cumple lo ordenado' ){
             const button = await row.$('td:nth-child(3) a');
             if(!button){
                 console.log('No se encontró el botón');
@@ -421,35 +445,80 @@ class ConsultaCausaPjud{
         const response = await newPage.goto(link,{waitUntil: 'networkidle2'});
         if(response.ok()){
             // Acceder a los 4 shadow roots y hacer clic en el botón
-        await this.page.evaluate(() => {
-            // Acceder al primer shadow root
-            const viewer = document.querySelector("#viewer");
-            const shadowRoot1 = viewer.shadowRoot;
+        // await this.page.evaluate(() => {
 
-            // Acceder al segundo shadow root (toolbar)
-            const toolbar = shadowRoot1.querySelector("#toolbar");
-            const shadowRoot2 = toolbar.shadowRoot;
+        //     // Acceder al primer shadow root
+        //     const viewer = document.querySelector("#viewer");
+        //     // const shadowRoot1 = viewer.shadowRoot;
 
-            // Acceder al tercer shadow root (downloads)
-            const downloads = shadowRoot2.querySelector("#downloads");
-            const shadowRoot3 = downloads.shadowRoot;
+        //     // Acceder al segundo shadow root (toolbar)
+        //     const toolbar = viewer.querySelector("#toolbar");
+        //     const shadowRoot2 = toolbar.shadowRoot;
 
-            // Acceder al cuarto shadow root (download)
-            const downloadButton = shadowRoot3.querySelector("#download");
+        //     // Acceder al tercer shadow root (downloads)
+        //     const downloads = shadowRoot2.querySelector("#downloads");
+        //     const shadowRoot3 = downloads.shadowRoot;
 
-            // Hacer clic en el botón si se encuentra
-            if (downloadButton) {
-            downloadButton.click();
-            } else {
-            console.error('Botón de descarga no encontrado');
+        //     // Acceder al cuarto shadow root (download)
+        //     const downloadButton = shadowRoot3.querySelector("#download");
+
+        //     // Hacer clic en el botón si se encuentra
+        //     if (downloadButton) {
+        //     downloadButton.click();
+        //     } else {
+        //     console.error('Botón de descarga no encontrado');
+        //     }
+        // });
+            await newPage.waitForSelector('#viewer');
+            const buttonHandle = await newPage.evaluateHandle(() => {
+                // Selección con verificaciones
+                const viewer = document.querySelector('#viewer');
+                if (!viewer || !viewer.shadowRoot) throw new Error('#viewer o su shadowRoot no está disponible');
+
+                const toolbar = viewer.shadowRoot.querySelector('#toolbar');
+                if (!toolbar || !toolbar.shadowRoot) throw new Error('#toolbar o su shadowRoot no está disponible');
+
+                const downloads = toolbar.shadowRoot.querySelector('#downloads');
+                if (!downloads || !downloads.shadowRoot) throw new Error('#downloads o su shadowRoot no está disponible');
+
+                const button = downloads.shadowRoot.querySelector('#download');
+                if (!button) throw new Error('#download no está disponible');
+
+                return button;
+            });
+            const button = await newPage.$('#download');
+            if(button){
+                await button.click();
+                console.log('Botón encontrado');
+            }else{
+                console.log('No se encontró el botón');
             }
-        });
             await delay(2000);
 
         }
     }
 }
 
+async function DescargarPDF(){
+    puppeteer.use(require('puppeteer-extra-plugin-user-preferences')({
+    headless: false, 
+    timeout: 30000, 
+    ignoreHTTPSErrors: true, 
+    userPrefs: {
+        download: {
+            prompt_for_download: false, 
+            open_pdf_in_system_reader: true
+        }, 
+        plugins: {
+            always_open_pdf_externally: true
+        }
+    } 
+    }));
+    let browser = await puppeteer.launch();
+    let page = await browser.newPage();
+
+    await page._client.send('Page.setDownloadBehavior', {behavior: 'allow', downloadPath: './'});
+}
 
 function delay(time) {
     return new Promise(function(resolve) { 
