@@ -90,7 +90,7 @@ async function getPdfData(fechaInicio,fechaFin,fechaHoy) {
 
 function deleteFiles() {
     console.log("Eliminando archivos");
-    const downloadPath = path.resolve(__dirname, '../Model/downloads');
+    const downloadPath = path.resolve(__dirname, './downloads');
     fs.readdir(downloadPath, (err, files) => {
         if (err) {
             console.error("Error al leer el directorio:", err);
