@@ -20,14 +20,14 @@ class ConsultaCausaPjud{
         // ------------
         puppeteer.use(require('puppeteer-extra-plugin-user-preferences')({
         // headless: false, 
-        timeout: 30000, 
-        ignoreHTTPSErrors: true, 
+        // timeout: 30000, 
+        // ignoreHTTPSErrors: true, 
         userPrefs: { download: {
                 prompt_for_download: false, 
                 open_pdf_in_system_reader: true
             }, 
             plugins: {
-                always_open_pdf_externally: true
+                always_open_pdf_externally: false
             }
         } 
         }));
@@ -35,7 +35,7 @@ class ConsultaCausaPjud{
         this.page = await this.browser.newPage();
 
         const client = await this.page.createCDPSession();
-        const downloadPath = './';
+        const downloadPath = './PDF/';
         await client.send('Page.setDownloadBehavior', {
             behavior: 'allow',
             downloadPath: downloadPath,
@@ -469,26 +469,20 @@ class ConsultaCausaPjud{
         //     console.error('Botón de descarga no encontrado');
         //     }
         // });
-            await newPage.waitForSelector('#viewer');
-            const buttonHandle = await newPage.evaluateHandle(() => {
+            // await newPage.waitForSelector('#viewer');
+            const buttonHandle = await newPage.evaluate(() => {
                 // Selección con verificaciones
-                const viewer = document.querySelector('#viewer');
-                if (!viewer || !viewer.shadowRoot) throw new Error('#viewer o su shadowRoot no está disponible');
-
-                const toolbar = viewer.shadowRoot.querySelector('#toolbar');
-                if (!toolbar || !toolbar.shadowRoot) throw new Error('#toolbar o su shadowRoot no está disponible');
-
-                const downloads = toolbar.shadowRoot.querySelector('#downloads');
-                if (!downloads || !downloads.shadowRoot) throw new Error('#downloads o su shadowRoot no está disponible');
-
-                const button = downloads.shadowRoot.querySelector('#download');
-                if (!button) throw new Error('#download no está disponible');
-
-                return button;
+                return document
+                    .querySelector("#viewer")
+                    .shadowRoot
+                    .querySelector("#toolbar")
+                    .shadowRoot
+                    .querySelector("#downloads")
+                    .shadowRoot
+                    .querySelector("#download");
             });
-            const button = await newPage.$('#download');
-            if(button){
-                await button.click();
+            if(buttonHandle){
+                await buttonHandle.click();
                 console.log('Botón encontrado');
             }else{
                 console.log('No se encontró el botón');
@@ -499,26 +493,6 @@ class ConsultaCausaPjud{
     }
 }
 
-async function DescargarPDF(){
-    puppeteer.use(require('puppeteer-extra-plugin-user-preferences')({
-    headless: false, 
-    timeout: 30000, 
-    ignoreHTTPSErrors: true, 
-    userPrefs: {
-        download: {
-            prompt_for_download: false, 
-            open_pdf_in_system_reader: true
-        }, 
-        plugins: {
-            always_open_pdf_externally: true
-        }
-    } 
-    }));
-    let browser = await puppeteer.launch();
-    let page = await browser.newPage();
-
-    await page._client.send('Page.setDownloadBehavior', {behavior: 'allow', downloadPath: './'});
-}
 
 function delay(time) {
     return new Promise(function(resolve) { 
