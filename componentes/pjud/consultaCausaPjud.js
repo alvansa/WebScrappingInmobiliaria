@@ -2,6 +2,8 @@
 const { ipcRenderer } = require('electron');
 const config =  require("../../config.js");
 const puppeteer = require('puppeteer-extra');
+const fs = require('fs');
+const path = require('path');
 
 const ERROR = 0;
 const EXITO = 1;
@@ -444,6 +446,11 @@ class ConsultaCausaPjud{
         let newPage = await this.browser.newPage();
         const response = await newPage.goto(link,{waitUntil: 'networkidle2'});
         if(response.ok()){
+		await newPage.pdf({path: 'componentes/pjud/page.pdf', format: 'A4'});
+		const pdfBuffer = await response.buffer();
+		console.log(pdfBuffer);
+		const pdfPath = path.join(__dirname, 'archivo_descargado.pdf');
+ 		fs.writeFileSync(pdfPath, pdfBuffer);
             // Acceder a los 4 shadow roots y hacer clic en el botón
         // await this.page.evaluate(() => {
 
@@ -469,25 +476,19 @@ class ConsultaCausaPjud{
         //     console.error('Botón de descarga no encontrado');
         //     }
         // });
-            // await newPage.waitForSelector('#viewer');
-            const buttonHandle = await newPage.evaluate(() => {
-                // Selección con verificaciones
-                return document
-                    .querySelector("#viewer")
-                    .shadowRoot
-                    .querySelector("#toolbar")
-                    .shadowRoot
-                    .querySelector("#downloads")
-                    .shadowRoot
-                    .querySelector("#download");
-            });
-            if(buttonHandle){
-                await buttonHandle.click();
-                console.log('Botón encontrado');
-            }else{
-                console.log('No se encontró el botón');
-            }
-            await delay(2000);
+//        await newPage.waitForSelector('body');
+//	console.log(await newPage.content());
+//	console.log('buscando el #download con >>>>');
+//	const buttonHandle = newPage.locator('>>>>#download');
+//	const accept = await newPage.waitForSelector('>>>>download',{hidden:true});
+//	console.log(buttonHandle);
+//	if(buttonHandle){
+//		await buttonHandle.click();
+//		console.log('Botón encontrado');
+//    	}else{
+//		console.log('No se encontró el botón');
+//	}
+//	await delay(2000);
 
         }
     }
