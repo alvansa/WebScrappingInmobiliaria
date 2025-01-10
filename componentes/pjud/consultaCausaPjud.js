@@ -1,7 +1,6 @@
 // const puppeteer = require('puppeteer');
 const { ipcRenderer } = require('electron');
 const config =  require("../../config.js");
-const puppeteer = require('puppeteer-extra');
 const fs = require('fs');
 const path = require('path');
 
@@ -19,30 +18,6 @@ class ConsultaCausaPjud{
         let numeroCaso = 0;
         let valorInicial = false;
         let remates = new Set();
-        // ------------
-        puppeteer.use(require('puppeteer-extra-plugin-user-preferences')({
-        // headless: false, 
-        // timeout: 30000, 
-        // ignoreHTTPSErrors: true, 
-        userPrefs: { download: {
-                prompt_for_download: false, 
-                open_pdf_in_system_reader: true
-            }, 
-            plugins: {
-                always_open_pdf_externally: false
-            }
-        } 
-        }));
-        this.browser = await puppeteer.launch({headless: false});
-        this.page = await this.browser.newPage();
-
-        const client = await this.page.createCDPSession();
-        const downloadPath = './PDF/';
-        await client.send('Page.setDownloadBehavior', {
-            behavior: 'allow',
-            downloadPath: downloadPath,
-        });
-        //---------------------
         console.log('Configuraciones iniciales creadas');
         // this.browser = await puppeteer.launch({ headless: false });
         // this.page = await this.browser.newPage();

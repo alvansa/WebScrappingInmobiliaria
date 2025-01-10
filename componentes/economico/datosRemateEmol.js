@@ -176,7 +176,6 @@ function getJuzgado(data) {
 //Probando para refactorizar la funcion que busca el juzgado
 function getJuzgado2(data) {
     const normalizedData = data.toLowerCase().replaceAll(",",'').replaceAll("de ",'').normalize("NFD").replace(/[\u0300-\u036f]/g, "").replaceAll("stgo","santiago");
-    // console.log("Data normalizada: ",normalizedData);
     let tribunalesAceptados = [];
     // console.log("Data normalizada: ",normalizedData);
     for (let tribunal of tribunales2){
@@ -204,8 +203,9 @@ function getJuzgado2(data) {
                 tribunalNormalized.replace(/\d{1,2}°/,numeroOrdinal).replace("juzgado", "tribunal").replace(" ",""),
                 tribunalNormalized.replace('°', 'º').replace("juzgado", "tribunal").replace(" ",""),
                 tribunalNormalized.replace("°", "").replace("juzgado", "tribunal").replace(" ",""),
+                tribunalNormalized.replace(/\d{1,2}°/,numero+" °"),
             ];
-            // if(tribunal.includes("20° JUZGADO CIVIL DE SANTIAGO")){
+            // if(tribunal.includes("26° JUZGADO CIVIL DE SANTIAGO")){
 
             //     console.log("Variaciones: ",tribunalVariations);
             // }
@@ -245,6 +245,7 @@ function getPorcentaje(data) {
         /(caución|interesados\s+)[a-zA-ZáéíóúÑñ:\s]*\d{1,3}\s*%/i,
         /(garantía|Garantía)\s+(suficiente\s+)?(por\s+)?(el\s+)?\d{1,3}%/i,
         /(para\s*participar)[\wáéíóúÑñ:\s]{1,200}(mínimo\s*fijado)/i,
+        /garantía\s*[\w,áéíóúÑñ0-9%:\s]{1,200}mínimo/i,
     ];
     for(let regex of regexMinimos){
         const porcentaje = data.match(regex);
@@ -273,10 +274,23 @@ function getFechaRemate(data) {
 
 //Obtiene el monto minimo por el cual iniciara el remate.
 function getMontoMinimo(data) {
-    const regex = /(subasta|mínimo)\s*([a-zA-ZáéíóúÑñ:\s]*)\s+((\$)\s*(\d{1,3}.)+\s*(\d{1,3})|(\d{1,3}.)+(\d{1,3})\s*(,\d{1,10})?\s*(Unidades de Fomento|UF|U.F.)|(Unidades de Fomento|U\.?F\.?)\s*(\d{1,3}\.)*\s*(\d{1,12})\s*(,\d{1,10})?)/i;
-     // (Mínimo\s+)?(subasta\s+)?((\$)\s*(\d{1,3}.)+(\d{1,3})|(\d{1,3}.)*(\d{1,3}),?(\d{1,10})?\s*(?:Unidades de Fomento|U.F.|UF))
-    const montoMinimo = data.match(regex);
-    return montoMinimo;
+    // const regex = /(subasta|mínimo)\s*([a-zA-ZáéíóúÑñ:\s]*)\s+((\$)\s*(\d{1,3}.)+\s*(\d{1,3})|(\d{1,3}.)+(\d{1,3})\s*(,\d{1,10})?\s*(Unidades de Fomento|UF|U.F.)|(Unidades de Fomento|U\.?F\.?)\s*(\d{1,3}\.)*\s*(\d{1,12})\s*(,\d{1,10})?)/i;
+    //  // (Mínimo\s+)?(subasta\s+)?((\$)\s*(\d{1,3}.)+(\d{1,3})|(\d{1,3}.)*(\d{1,3}),?(\d{1,10})?\s*(?:Unidades de Fomento|U.F.|UF))
+
+    // const montoMinimo = data.match(regex);
+    // return montoMinimo;
+    const regexs = [
+        /(subasta|mínimo|mínima)\s*([a-zA-ZáéíóúÑñ:\s]*)\s+(\$)\s*(\d{1,3}(?:\.\d{3})+)\s*(\d{1,3})?/i,
+        /(subasta|mínimo|minimo)\s*([a-zA-ZáéíóúÑñ:\s]*)\s+(\d{1,3}.)+(\d{1,3})\s*(,\d{1,10})?\s*(Unidades de Fomento|UF|U.F.)/i,
+        /(subasta|mínimo|minimo)\s*([a-zA-ZáéíóúÑñ:\s]*)\s+(Unidades de Fomento|U\.?F\.?)\s*(\d{1,3}\.)*\s*(\d{1,12})\s*(,\d{1,10})?/i,
+        /(subasta|mínimo)\s*([.,a-zA-ZáéíóúÑñ:\s]*)\s+(\$)\s*\d{1,3}(?:\.\d{3})+/i,
+    ];
+    for(let regex of regexs){
+        const montoMinimo = data.match(regex);
+        if (montoMinimo != null){
+            return montoMinimo;
+        }
+    }
 }
 
 //Funcion para buscar si hay multiples propiedades en la publicacion del remate
@@ -463,7 +477,7 @@ function getDireccion(data){
 }
 
 function getDiaEntrega(data){
-    console.log("Data: ",data);
+    // console.log("Data: ",data);
     const regexDiaEntrega = [
         /día\s*(hábil\s*)?(?:[,a-zA-ZáéíóúñÑ-]+\s*){1,6}(inmediatamente\s*)?(anterior)/i,
         /(dos|tres|cuatro|cinco|seis|siete)\sdías\shábiles\s(antes)?/i,

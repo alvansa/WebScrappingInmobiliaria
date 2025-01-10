@@ -1,7 +1,9 @@
 const puppeteer = require("puppeteer");
 const path = require("path");
 const fs = require("fs");
+const os = require("os");
 const Caso  = require('../caso/caso');
+
 
 const EXITO = 1;
 const ERROR = 0;
@@ -17,11 +19,16 @@ async function getDatosBoletin (startDate,endDate,casos,fechaHoy){
     let stopFlag = false;
     let tienePaginaSiguiente = true;
     // Configura el directorio para guardar descargas
-    const downloadPath = path.resolve(__dirname, "downloads");
+    // Configurar la ruta de descarga
+    const downloadPath = path.join(os.homedir(),"Documents","pdfDownload");
 
+    // Asegurarte de que la carpeta exista
+    if (!fs.existsSync(downloadPath)) {
+        fs.mkdirSync(downloadPath, { recursive: true });
+    }
     // Lanza el navegador
     const browser = await puppeteer.launch({
-      headless: false, // Cambia a true para ocultar el navegador
+      headless: true, // Cambia a true para ocultar el navegador
       defaultViewport: null,
     });
 
@@ -89,7 +96,7 @@ async function getTableData(page,fechaInicio,fechaFin,stopFlag,downloadPath,caso
                 if (button) {
                     // console.log(`Fecha dentro del rango: ${dateCell} y boton encontrado ${button}`);
                     await button.click();
-                    console.log(`Descargando archivo con fecha: ${dateCell} y nombre ${nombreCell}`);
+                    // console.log(`Descargando archivo con fecha: ${dateCell} y nombre ${nombreCell}`);
                     const downloadedFile = await waitForNewFile(downloadPath,downloadedFiles);
                     downloadedFiles.push(downloadedFile);
                     // console.log(`archivo descargado: ${downloadedFile} con fecha ${fileDate}`);
@@ -162,7 +169,7 @@ async function procesarFila(page,row,fechaInicio,fechaFin,downloadPath,downloade
     ]);
 
     const fileDate = new Date(parseDate(dateCell));
-    console.log(`Processing remate: ${dateCell} (${fileDate}) with name: ${nombreCell}`);
+    // console.log(`Processing remate: ${dateCell} (${fileDate}) with name: ${nombreCell}`);
 
     // Revisa el rango
     if (fileDate < fechaInicio) {

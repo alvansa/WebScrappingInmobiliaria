@@ -1,43 +1,41 @@
 {
-  "name": "firstapp",
+  "name": "app-remates",
   "version": "1.0.0",
-  "description": "Test1",
+  "description": "Apliacacion para la busqueda y entrega de resumen de remates",
   "main": "componentes/Electron/main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron-forge start",
-    "package": "electron-forge package",
-    "make": "electron-forge make"
+    "start": "electron .",
+    "make": "electron-builder"
   },
   "author": "Alvaro",
   "license": "ISC",
   "devDependencies": {
-    "@electron-forge/cli": "^7.5.0",
-    "@electron-forge/maker-deb": "^7.5.0",
-    "@electron-forge/maker-rpm": "^7.5.0",
-    "@electron-forge/maker-squirrel": "^7.5.0",
-    "@electron-forge/maker-zip": "^7.5.0",
-    "@electron-forge/plugin-auto-unpack-natives": "^7.5.0",
-    "@electron-forge/plugin-fuses": "^7.5.0",
     "@electron/fuses": "^1.8.0",
     "@types/electron": "^1.4.38",
-    "electron": "^33.2.1"
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8"
   },
   "dependencies": {
     "axios": "^1.7.7",
     "cheerio": "^1.0.0",
-    "electron-squirrel-startup": "^1.0.1",
-    "node-fetch": "^3.3.2",
-    "pdf-parse": "^1.1.1",
+    "dotenv": "^16.4.7",
     "pdf2json": "^3.1.4",
-    "pdfjs": "^2.5.3",
-    "pdfjs-dist": "^4.8.69",
-    "pdfreader": "^3.0.5",
     "puppeteer": "^23.11.1",
-    "puppeteer-extra": "^3.3.6",
-    "puppeteer-extra-plugin-user-preferences": "^2.4.1",
-    "request": "^2.88.2",
     "webpack": "^5.96.1",
     "xlsx": "^0.18.5"
+  },
+  "build": {
+    "appId": "com.AFInmobiliaria.InfoRemates",
+    "productName": "InfoRemates",
+    "directories": {
+      "output": "out"
+    },
+    "target": "NSIS",
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true
+    }
   }
 }

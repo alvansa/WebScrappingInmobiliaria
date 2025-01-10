@@ -1,5 +1,5 @@
-const { debug } = require("request");
 
+require('dotenv').config();
 const DESARROLLO = true;
 const TESTPJUD = true;
 
@@ -9,6 +9,8 @@ const config = {
         cambiarDias: false,
         probarFuncionalidades: false,
         debug: true,
+        EMAIL : process.env.EMAIL ? process.env.EMAIL : null,
+        PASSWORD : process.env.PASSWORD ? process.env.PASSWORD : null,
     },
     TESTPJUD:{
         env: 'testPjud',
@@ -29,6 +31,6 @@ const config = {
 
 
 
-module.exports = config['TESTPJUD'];
-// exports.DESARROLLO = DESARROLLO;
+module.exports = config['DESARROLLO'];
+
 // exports.TESTPJUD = TESTPJUD;

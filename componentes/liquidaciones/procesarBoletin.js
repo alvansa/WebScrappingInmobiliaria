@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { ipcRenderer } = require( 'electron' );
-const { get } = require('request');
+const os = require('os');
 const Caso  = require('../caso/caso.js');
 const { comunas, tribunales2 } = require('../caso/datosLocales.js');
 const {getDatosBoletin} = require('./getBoletinConcursal.js');
@@ -57,17 +57,20 @@ function obtainDataRematesPdf(data,caso) {
     if(tipoDerecho){
         caso.darTipoDerecho(tipoDerecho[0]);
     }
+    console.log("Caso: ",caso.causa);
 
 }
 
 async function getPdfData(fechaInicio,fechaFin,fechaHoy) {
     let casos = [];
     try{
+        const downloadPath = path.join(os.homedir(),"Documents","pdfDownload");
         await getDatosBoletin(fechaInicio,fechaFin,casos,fechaHoy);
-        const pdfs = fs.readdirSync(path.join(__dirname, './downloads'));
+        const pdfs = fs.readdirSync(downloadPath);
         for (let pdf of pdfs) {
-            const pdfFile = path.join(__dirname, './downloads/', pdf);
+            const pdfFile = path.join(downloadPath, pdf);
             if(fs.existsSync(pdfFile)){
+                console.log("Procesando pdf: ",pdf);
                 // Aqui se envian los pdf a el proceso principal para ser convertidos a texto y poder trabajar con ellos.
                 const pdfData = await new Promise((resolve, reject) => {
                     ipcRenderer.once('prefix-pdf-converted', (event, data) => resolve(data));
@@ -90,7 +93,7 @@ async function getPdfData(fechaInicio,fechaFin,fechaHoy) {
 
 function deleteFiles() {
     console.log("Eliminando archivos");
-    const downloadPath = path.resolve(__dirname, './downloads');
+    const downloadPath = path.join(os.homedir(),"Documents","pdfDownload");
     fs.readdir(downloadPath, (err, files) => {
         if (err) {
             console.error("Error al leer el directorio:", err);
