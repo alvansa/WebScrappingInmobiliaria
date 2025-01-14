@@ -34,16 +34,19 @@ class PreRemates{
                 return [];
             }
             await delay(2000);
-            let tieneSiguiente = this.revisarPaginaSiguiente();
             let i = 2;
-            while(tieneSiguiente){
-                await this.page.evaluate((pageIndex) => {
-                    ListView_ChangePage(pageIndex);
-                },i);
-                await delay(2000);
-                tieneSiguiente = await this.revisarPaginaSiguiente();
-                i++;
-            }
+            // let tieneSiguiente = this.revisarPaginaSiguiente(i);
+            await this.obtenerPublicacionesIndividuales();
+            // let tieneSiguiente = true;
+            // while(tieneSiguiente){
+            //     await this.page.evaluate((pageIndex) => {
+            //         ListView_ChangePage(pageIndex);
+            //     },i);
+            //     await delay(2000);
+            //     i++;
+            //     tieneSiguiente = await this.revisarPaginaSiguiente(i);
+            //     // tieneSiguiente = false;
+            // }
         }catch(error){
             console.error('Error al obtener resultados:', error);
         }finally{
@@ -80,19 +83,39 @@ class PreRemates{
         return false;
     }
 
-    async revisarPaginaSiguiente(){
-        console.log("Revisando si hay siguiente pagina");
-        const nextPageButton = "#Buttons > table > tbody > tr > td:nth-child(2) > div > span > button:nth-child(8)";
-        const button = await this.page.$(nextPageButton);
-        console.log("Se encontro el boton de siguiente pagina: ",button);
-        if(button){
-                console.log("Se encontro el boton de siguiente pagina");
+    async revisarPaginaSiguiente(index){
+        console.log("Revisando si hay siguiente pagina",index.toString());
+        const listPages = ".ktkPageLinks > a";
+        const list = await this.page.$$eval(listPages, elements => elements.map(element => element.innerText).join(' '));
+        if(list.includes(index.toString())){
             return true;
         }else{
             return false;
         }
     }
+
+    async obtenerPublicacionesIndividuales(){
+        const cssSelector = ".row.aviso-row";
+        const avisoFecha = ".aviso-fecha";
+        const avisoTexto = ".aviso-texto";
+
+        // const fecha = await this.page.$(avisoFecha);
+        const listFecha = await this.page.$$eval(avisoFecha, elements =>
+            elements.map((element) => element.textContent.trim())
+        );
+        console.log(listFecha);
+        await this.page.waitForSelector(cssSelector);
+        const avisos = await this.page.$$eval(cssSelector,(rows)=>
+            rows.map((row) => {
+                const fecha = row.querySelector(".aviso-fecha")?.textContent.trim() || '';
+                const texto = row.querySelector(".aviso-texto")?.textContent.trim() || '';
+                return {fecha,texto};
+            })
+        );
+        console.log("avisos: ",avisos);
+    }
 }
+
 
 async function main(){
     const EMAIL = config.EMAIL;
