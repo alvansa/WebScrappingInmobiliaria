@@ -1,7 +1,8 @@
 const EMOL = 1;
 const PJUD = 2;
 const LIQUIDACIONES = 3;
-const otros = 4;
+const PREREMATES = 4;
+const otros = 0;
 
 
 class Caso{
@@ -170,6 +171,7 @@ class Caso{
             martillero: this.#martillero,
             direccion: this.#direccion,
             diaEntrega: this.#diaEntrega,
+            aviso : this.#texto,
         };
     } 
 

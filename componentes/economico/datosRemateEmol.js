@@ -549,4 +549,4 @@ function incluyeParte(texto){
     return false;
 }
 
-module.exports = {  getDatosRemate , testUnico };
+module.exports = {  getDatosRemate , testUnico, procesarDatosRemate };
