@@ -151,7 +151,7 @@ class Caso{
             fechaObtencion: this.#fechaObtencion,
             fechaPublicacion: this.#fechaPublicacion,
             link: this.#link,
-            causa: this.#causa,
+            causa: this.#causa.replace("\n",""),
             juzgado: this.#juzgado,
             porcentaje: this.#porcentaje,
             formatoEntrega: this.#formatoEntrega,

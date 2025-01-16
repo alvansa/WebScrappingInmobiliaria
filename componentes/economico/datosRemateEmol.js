@@ -8,7 +8,6 @@ async function getDatosRemate(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries){
         const casos = await getPaginas(fechaHoy,fechaInicioStr,fechaFinStr);
         for (caso of casos){
             pagina = caso.link;
-            console.log(pagina);
             const description = await getRemates(pagina,maxRetries);
             caso.darTexto(description);
         }
@@ -86,7 +85,6 @@ function procesarDatosRemate(caso){
         caso.darFoja(foja[0]);
     }
     if (anno != null){
-        // annoNumero = anno[0].match(/\d{4}/);
         caso.darAnno(anno);
     }
     if (numero != null){
@@ -131,53 +129,11 @@ function getCausaVoluntaria(data){
     const causa = data.match(regex);
     return causa;
 }
-//Primer intento de obtnener el juzgado
-function getJuzgado(data) {
-    // TODO: Hacer que acepte variaciones cuando se escribe tribunal en vez de juzgado.
-    data = data.toLowerCase();
-    data = data.replace(",",'');
-    const dataSinDe = data.replaceAll("de ",'');
-    
-    // console.log(dataSinDe);
-    let tribunalesAceptados = [];
-    for (let tribunal of tribunales){
-        tribunal = tribunal.toLowerCase();
-        const numero = tribunal.match(/\d{1,2}/);    
-        let tribunalOrdinal = tribunal;
-        let tribunalBolita1 = tribunal;
-        if (numero){
-            const numeroOrdinal = convertirANombre(parseInt(numero));
-            tribunalOrdinal = tribunal.replace(/\d{1,2}°/,numeroOrdinal);
-            tribunalOrdinalSinDe = tribunalOrdinal.replace(/de\s+/,'');
-            //º
-            tribunalBolita1 = tribunal.replace('°', 'º');
-            tribunalBolita1SinDe = tribunalBolita1.replace(/de\s+/,'');
-            if(dataSinDe.includes(tribunalBolita1) | data.includes(tribunalOrdinal) | dataSinDe.includes(tribunalOrdinalSinDe) | dataSinDe.includes(tribunalBolita1SinDe)){
-                
-                tribunalesAceptados.push(tribunal);
-            }
-        }
-        
-        const tribunalSinDe = tribunal.replaceAll("de ",'');
-        // const tribunalSinDe = tribunal.replaceAll(/de\s+/,'');
-        if (data.includes(tribunal) | data.includes(tribunalSinDe)|  dataSinDe.includes(tribunalSinDe)){
-            
-            tribunalesAceptados.push(tribunal);
-        } 
-    }
-    if (tribunalesAceptados.length == 0){
-        return null;
-    }else{
-        // console.log(tribunalesAceptados);
-        return tribunalesAceptados.at(-1);
-    }
-}
-
 //Probando para refactorizar la funcion que busca el juzgado
 function getJuzgado2(data) {
-    const normalizedData = data.toLowerCase().replaceAll(",",'').replaceAll("de ",'').normalize("NFD").replace(/[\u0300-\u036f]/g, "").replaceAll("stgo","santiago");
+    const normalizedData = data.toLowerCase().replaceAll(",",'').replaceAll("de ",'').normalize("NFD").replace(/[\u0300-\u036f]/g, "").replaceAll("stgo","santiago").replaceAll("  "," ");
     let tribunalesAceptados = [];
-    // console.log("Data normalizada: ",normalizedData);
+    console.log("Data normalizada: ",normalizedData);
     for (let tribunal of tribunales2){
         const tribunalNormalized = tribunal.toLowerCase().replaceAll("de ","").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
         const tribunalSinDe = tribunalNormalized.replaceAll("de ",'');
@@ -204,11 +160,12 @@ function getJuzgado2(data) {
                 tribunalNormalized.replace('°', 'º').replace("juzgado", "tribunal").replace(" ",""),
                 tribunalNormalized.replace("°", "").replace("juzgado", "tribunal").replace(" ",""),
                 tribunalNormalized.replace(/\d{1,2}°/,numero+" °"),
+                tribunalNormalized.replace(/\d{1,2}°/,numero+" °").replace("°","º"),
             ];
-            // if(tribunal.includes("26° JUZGADO CIVIL DE SANTIAGO")){
+            if(tribunal.includes("26° JUZGADO CIVIL DE SANTIAGO")){
 
-            //     console.log("Variaciones: ",tribunalVariations);
-            // }
+                console.log("Variaciones: ",tribunalVariations);
+            }
 
             // Verificar si alguna variación coincide
             if (tribunalVariations.some(variation => normalizedData.includes(variation))) {
@@ -221,7 +178,6 @@ function getJuzgado2(data) {
         tribunalesAceptados.push(tribunal);
     }
     }
-//    console.log("tribubales aceptados : ",tribunalesAceptados); 
     // Devolver el último tribunal aceptado o null si no hay coincidencias
     return tribunalesAceptados.length > 0 ? tribunalesAceptados.at(-1) : null;
         
@@ -265,20 +221,20 @@ function getFormatoEntrega(data) {
 
 // Obtiene la fecha del remate.
 function getFechaRemate(data) {
-    const regexFechaRemate = new RegExp(/(\d{1,2})\s*(de\s+)?(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)[\s]*((de|del)\s+)?(año\s+)?(\d{4})/i.source +
-        /|(lunes|martes|miércoles|jueves|viernes|sábado|domingo)?\s*([a-zA-Záéíóú]*\s+)(de\s+)?(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)(\s+de)\s+(dos mil (veinticuatro|veinticinco|veintiseis|veintisiete|veintiocho|veintinueve|treinta|treinta y uno)?)?/i.source
-    , 'i');
-    const fechaRemate = data.match(regexFechaRemate);
-    return fechaRemate;
+    const regexs = [
+        /(\d{1,2})\s*(de\s+)?(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)[\s]*((de|del)\s+)?(año\s+)?(\d{4})/i,
+        /(lunes|martes|miércoles|jueves|viernes|sábado|domingo)?\s*([a-zA-Záéíóú]*\s+)(de\s+)?(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)(\s+de)\s+(dos mil (veinticuatro|veinticinco|veintiseis|veintisiete|veintiocho|veintinueve|treinta|treinta y uno)?)?/i,
+    ];
+    for(let regex of regexs){
+        const fechaRemate = data.match(regex);
+        if (fechaRemate != null){
+            return fechaRemate;
+        }
+    }
 }
 
 //Obtiene el monto minimo por el cual iniciara el remate.
 function getMontoMinimo(data) {
-    // const regex = /(subasta|mínimo)\s*([a-zA-ZáéíóúÑñ:\s]*)\s+((\$)\s*(\d{1,3}.)+\s*(\d{1,3})|(\d{1,3}.)+(\d{1,3})\s*(,\d{1,10})?\s*(Unidades de Fomento|UF|U.F.)|(Unidades de Fomento|U\.?F\.?)\s*(\d{1,3}\.)*\s*(\d{1,12})\s*(,\d{1,10})?)/i;
-    //  // (Mínimo\s+)?(subasta\s+)?((\$)\s*(\d{1,3}.)+(\d{1,3})|(\d{1,3}.)*(\d{1,3}),?(\d{1,10})?\s*(?:Unidades de Fomento|U.F.|UF))
-
-    // const montoMinimo = data.match(regex);
-    // return montoMinimo;
     const regexs = [
         /(subasta|mínimo|mínima)\s*([a-zA-ZáéíóúÑñ:\s]*)\s+(\$)\s*(\d{1,3}(?:\.\d{3})+)\s*(\d{1,3})?/i,
         /(subasta|mínimo|minimo)\s*([a-zA-ZáéíóúÑñ:\s]*)\s+(\d{1,3}.)+(\d{1,3})\s*(,\d{1,10})?\s*(Unidades de Fomento|UF|U.F.)/i,
@@ -309,7 +265,6 @@ function getMultiples(data) {
 function getComuna(data) {
     let comunaMinuscula;
     const dataNormalizada = data.toLowerCase();
-    // console.log("Data: ",dataNormalizada);
     for (let comuna of comunas){
         comuna = comuna.toLowerCase();
         const listaPreFrases = ["comuna de ","comuna ","comuna y provincia de ","conservador de bienes raíces de ","conservador bienes raíces "];
@@ -320,7 +275,7 @@ function getComuna(data) {
             }
         }
     }
-    return "N/A";
+    return null;
 }
 
 // Obtiene la foja del remate.
@@ -335,7 +290,6 @@ function getNumero(data) {
     const regexNumero = /fojas\s((?:\d{1,3}.)*\d{1,3}),?\s(?:N(?:°|º)|número)\s*((?:\d{1,3}.)*\d{1,3})[\sdel\saño\s\d{4}]?/i;
     const numero = data.match(regexNumero);
     return numero;
-    //fojas\s((?:\d{1,3},)*\d{1,3}),?\sN[°|º]\s*((?:\d{1,3},)*\d{1,3})[\sdel\saño\s\d{4}]?
 }
 
 // Obtiene las partes del remate.
@@ -355,7 +309,6 @@ function getPartes(data){
         const index = data.indexOf(banco);
         if (index != -1){
             const bancoPartes = obtenerFrasesConBanco(data);
-            
             for(let parte of bancoPartes){
                 let partesModificadas = eliminarHastaDelimitador(parte,".");
                 partesModificadas = eliminarHastaDelimitador(partesModificadas,",");
@@ -377,26 +330,34 @@ function getPartes(data){
 function buscarPartesNombreBanco(data){
     const dataNormalized = data.toLowerCase();
     for(let banco of BANCOS){
-        const index = dataNormalized.indexOf(banco);
-        if (index != -1){
-            const dataBanco = dataNormalized.substring(index);
-            if (dataBanco.includes("rol")){
-                const finRol = dataBanco.indexOf('rol');
-                if (finRol != -1){
-                    const partes = dataBanco.substring(0,finRol);
-                    if (incluyeParte(partes)){
-                        return partes;
-                    }
-                }
-            }
-            const fin = dataBanco.indexOf('.');
-            if (fin != -1){
-                const partes = dataBanco.substring(0,fin);
-                if (incluyeParte(partes)){
-                    return partes;
-                }
-            }
+        // Revisa si el banco de la lista esta en el texto
+        const indexBanco = dataNormalized.indexOf(banco);
+        if (indexBanco == -1){
+            continue;
         }
+        // Si esta, busca la palabra rol
+        const dataBanco = dataNormalized.substring(indexBanco);
+        if (!dataBanco.includes("rol")){
+            continue;
+        }
+        const finPartesConRol = dataBanco.indexOf('rol');
+        if (finPartesConRol == -1){
+            continue;
+        }
+        let partes = dataBanco.substring(0,finPartesConRol);
+        if (incluyeParte(partes)){
+            return partes;
+        }
+        //Busca un punto que finalize las partes 
+        const finPartesConPunto = dataBanco.indexOf('.');
+        if (finPartesConPunto == -1){
+            continue;
+        }
+        partes = dataBanco.substring(0,finPartesConPunto);
+        if (incluyeParte(partes)){
+            return partes;
+        }
+        
     }
 }
 
@@ -413,38 +374,41 @@ function getTipoDerecho(data){
 }
 
 function getAnno(data){
-    const regexAnno = /(año)\s*(\d{4})/i;
+    // Busca el año de la manera mas simple con "año xxxx"
+    let regexAnno = /(año)\s*(\d{4})/i;
     const anno = data.match(regexAnno);
     if (anno != null){
         return anno[2];
     }
+    // Busca el año con dependencia de las fojas, "fojas xxxx del año xxxx"
     const regexFojasDependiente =/fojas(\s*[º0-9a-zA-ZáéíóúñÑ]+){1,8}\s*del\s*(\d{1,4})/i;
     const fojasDependiente = data.match(regexFojasDependiente);
-    // console.log("Fojas Dependiente: ",fojasDependiente);
     if (fojasDependiente != null){
         return fojasDependiente[2];
     }
+    // Busca el año con dependencia del registro de propiedad con regex "registro de propiedad xxxx"
     const registroRegex = /registro\s*(?:de)?\s*propiedad\s*(\d{4})/i;
-    const registro = data.match(registroRegex);
+    let registro = data.match(registroRegex);
     if (registro != null){
         return registro[1];
     }
+    // Busca el año con dependencia de registro de propiedad hasta encontrar una coma, "registro de propiedad xxxx,", luego devuelve solo el año.
     const dataNormalized = data.toLowerCase();
     const registroFecha = dataNormalized.indexOf('registro de');
-    if (registroFecha != -1){
-        const dataRegistro = dataNormalized.substring(registroFecha);
-        const registroFin = dataRegistro.indexOf(',');
-        if (registroFin != -1){
-            const registro = dataRegistro.substring(0,registroFin);
-            const regexAnno = /\d{1,6}(?:\.\d{3})*/gi;
-            const annoRegistro = registro.match(regexAnno);
-            if (annoRegistro!= null){
-                console.log("anno: ",annoRegistro);
-                return annoRegistro[0];       
-            }
-        }
+    if (registroFecha == -1){
+        return null
     }
-
+    const dataRegistro = dataNormalized.substring(registroFecha);
+    const registroFin = dataRegistro.indexOf(',');
+    if (registroFin != -1){
+        return null
+    }
+    registro = dataRegistro.substring(0,registroFin);
+    const regexAnnoConDecimal = /\d{1,6}(?:\.\d{3})*/gi;
+    const annoRegistro = registro.match(regexAnnoConDecimal);
+    if (annoRegistro!= null){
+        return annoRegistro[0];       
+    }
     return null;
 }
 
@@ -472,7 +436,7 @@ function getDireccion(data){
     if(direcciones.length > 0){
         return direcciones.at(-1);
     }
-    return 'N/A';
+    return null;
 
 }
 
@@ -484,8 +448,10 @@ function getDiaEntrega(data){
         /día\s(lunes|martes|miércoles|jueves|viernes)\s(inmediatamente\s)?(anterior\s)(a\sla\sfecha\s)?(de\sla\ssubasta|del\sremate)/i,
         /(?:(?:veinticuatro|cuarenta y ocho|setenta y dos|noventa y seis)\s*horas(\s*[,a-zA-ZáéíóúñÑ-]+){1,8}\s*remate)/i,
         /hasta\s*el\s*día\s*(\w+)\s*de\s*la\s*semana\s*anterior/i,
-        /(?<!:)\d{2}\s*horas(\s*[,a-zA-ZáéíóúñÑ-]+){1,12}\s*(subasta|remate)/i,
+        /(?<!:|.)\d{2}\s*horas(\s*[,a-zA-ZáéíóúñÑ-]+){1,12}\s*(subasta|remate)/i,
         /(el\s*día\s*(precedente|anterior))\s*(\s*[,a-zA-ZáéíóúñÑ-]+){1,12}\s*(subasta|remate)/i,
+        /((día|dia)\s*(precedente|anterior))\s*(\s*[,a-zA-ZáéíóúñÑ-]+){1,12}\s*(subasta|remate)/i,
+        /\d\s*días\s*hábiles(\s*[,a-zA-ZáéíóúñÑ-]+){1,12}\s*(subasta|remate)/i
     ]
 
     for(let regex of regexDiaEntrega){
@@ -499,7 +465,6 @@ function getDiaEntrega(data){
 
 // Funcion para probar un solo remate
 async function testUnico(fecha,link){
-    // const link = "https://www.economicos.cl/remates/clasificados-remates-cod7477417.html";
     const caso = new Caso(fecha,fecha,link,0);
     const maxRetries = 2;
     description =  await getRemates(link,maxRetries,caso);

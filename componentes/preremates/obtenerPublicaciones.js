@@ -50,7 +50,7 @@ class PreRemates{
                 await delay(2000);
                 i++;
                 tieneSiguiente = await this.revisarPaginaSiguiente(i);
-                tieneSiguiente = false;
+                // tieneSiguiente = false;
             }
             for(let caso of this.casos){
                 procesarDatosRemate(caso);

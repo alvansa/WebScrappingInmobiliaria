@@ -102,11 +102,11 @@ async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,save
     const wb = XLSX.readFile(path.join(saveFile, 'Remates.xlsx'));
     const ws = wb.Sheets['Remates'];
     cambiarAnchoColumnas(ws);
-    let remates = new Set();
     const casosEconomico = await getCasosEconomico(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries);
     // const casosLiquidaciones = await getCasosLiquidaciones(fechaHoy,fechaInicioStr,fechaFinStr);
     const casosLiquidaciones = [];
     const casosPreremates = await getCasosPreremates();
+    // const casosPreremates = [];
     const casos = [...casosEconomico,...casosLiquidaciones,...casosPreremates];
     try{
         let i = insertarCasosExcel(casos,ws,fechaFinDate);
@@ -207,7 +207,7 @@ function insertarCasosExcel(casos,ws,fechaFinDate){
         ws['S' + i] = { v: caso.diaEntrega, t: 's' };
         // Formato de monto minimo segun el tipo de moneda
         if(caso.moneda == 'UF'){
-            ws['T' + i] = { v:parseFloat(caso.montoMinimo), t: 'n', z: '0.0000' };
+            ws['T' + i] = { v:parseFloat(caso.montoMinimo), t: 'n', z: '#,##0.0000' };
         }else{
             ws['T' + i] = { v:parseFloat(caso.montoMinimo), t: 'n', z: '#,##0' };
         }
