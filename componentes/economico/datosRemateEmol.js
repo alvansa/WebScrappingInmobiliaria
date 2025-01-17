@@ -4,6 +4,7 @@ const Caso  = require('../caso/caso.js');
 
 async function getDatosRemate(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries){
     try {
+        // Obtiene los casos de la pagina de "economico.cl"
         let caso;
         const casos = await getPaginas(fechaHoy,fechaInicioStr,fechaFinStr);
         for (caso of casos){
@@ -11,6 +12,7 @@ async function getDatosRemate(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries){
             const description = await getRemates(pagina,maxRetries);
             caso.darTexto(description);
         }
+        // Procesa los remates a partir del texto obtenido.
         for(let caso of casos){
             procesarDatosRemate(caso);
         }
@@ -303,28 +305,27 @@ function getPartes(data){
     let partes = data.match(regexPartes);
     if (partes != null){
         return partes[0];
-    }else{
-        // Si no lo encuentra con la palabra caratulado/expediente, busca con la palabra banco
-        const banco = "Banco";
-        const index = data.indexOf(banco);
-        if (index != -1){
-            const bancoPartes = obtenerFrasesConBanco(data);
-            for(let parte of bancoPartes){
-                let partesModificadas = eliminarHastaDelimitador(parte,".");
-                partesModificadas = eliminarHastaDelimitador(partesModificadas,",");
-                partesModificadas = eliminarHastaDelimitador(partesModificadas,"Rol");
-                if (incluyeParte(partesModificadas)){
-                    return partesModificadas;
-                }
+    }
+    // Si no lo encuentra con la palabra caratulado/expediente, busca con la palabra banco
+    const banco = "Banco";
+    const indexBanco = data.indexOf(banco);
+    if (indexBanco != -1){
+        const bancoPartes = obtenerFrasesConBanco(data);
+        for(let parte of bancoPartes){
+            let partesModificadas = eliminarHastaDelimitador(parte,".");
+            partesModificadas = eliminarHastaDelimitador(partesModificadas,",");
+            partesModificadas = eliminarHastaDelimitador(partesModificadas,"Rol");
+            if (incluyeParte(partesModificadas)){
+                return partesModificadas;
             }
         }
-        // Si no lo encuentra con la palabra banco, busca con una lista de nombres propios de bancos y cooperativas. 
-        const partesNombreBanco = buscarPartesNombreBanco(data);
-        if (partesNombreBanco != null){
-            return partesNombreBanco;
-        }
-        return 'N/A';
     }
+    // Si no lo encuentra con la palabra banco, busca con una lista de nombres propios de bancos y cooperativas. 
+    const partesNombreBanco = buscarPartesNombreBanco(data);
+    if (partesNombreBanco != null){
+        return partesNombreBanco;
+    }
+    return null;
 }
 
 function buscarPartesNombreBanco(data){
@@ -420,7 +421,9 @@ function getDireccion(data){
     for(let palabra of palabrasClave){
         const index = dataMinuscula.indexOf(palabra);
         let fin = dataMinuscula.indexOf(comuna);
-        if(index == -1){continue;}
+        if(index == -1){
+            continue;
+        }
         // revisar si hay una palabra comuna para finalizar la direccion
         if(fin > index){
             const direccion = data.substring(index,fin);

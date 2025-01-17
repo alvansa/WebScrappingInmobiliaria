@@ -103,8 +103,8 @@ async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,save
     const ws = wb.Sheets['Remates'];
     cambiarAnchoColumnas(ws);
     const casosEconomico = await getCasosEconomico(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries);
-    // const casosLiquidaciones = await getCasosLiquidaciones(fechaHoy,fechaInicioStr,fechaFinStr);
-    const casosLiquidaciones = [];
+    const casosLiquidaciones = await getCasosLiquidaciones(fechaHoy,fechaInicioStr,fechaFinStr);
+    // const casosLiquidaciones = [];
     const casosPreremates = await getCasosPreremates();
     // const casosPreremates = [];
     const casos = [...casosEconomico,...casosLiquidaciones,...casosPreremates];
@@ -191,8 +191,9 @@ function insertarCasosExcel(casos,ws,fechaFinDate){
         }
         ws['E' + i] = { v: caso.fechaRemate, t: 'd' };
         ws['F' + i] = { v: caso.causa, t: 's' };
-        ws['G' + i] = { v: caso.juzgado, t: 's' };
-        const comunaJuzgado = getComunaJuzgado(caso.juzgado);
+        const cleanJuzgado = cleanText(caso.juzgado);  
+        ws['G' + i] = { v: cleanJuzgado, t: 's' };
+        const comunaJuzgado = getComunaJuzgado(cleanJuzgado);
         ws['H' + i] = { v: comunaJuzgado, t: 's' };
         ws['I' + i] = { v: caso.partes, t: 's' };
         ws['J' + i] = { v: caso.tipoPropiedad, t: 's' };

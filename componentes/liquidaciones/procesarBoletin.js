@@ -113,7 +113,6 @@ function deleteFiles() {
 
 
 function getCaso(pdf,casos){
-    // console.log("Nombre del archivo: ",pdf);
     for (let caso of casos){
         if (caso.link.toLowerCase() === pdf.toLowerCase()){
             return caso;
@@ -169,8 +168,6 @@ function getComuna(texto) {
 function getAnno(data){
     const detalle = 'Detalle';
     const detalleIndex = data.indexOf(detalle);
-    console.log("Detalle index: ",detalleIndex);
-    // console.log("Data: ",data);
     if (detalleIndex === -1) {
         return null;
     }
@@ -182,7 +179,6 @@ function getAnno(data){
         return anno;
     }
     const indexFecha = dataAnno.indexOf('fecha');
-    // const fin = dataAnno.indexOf('.');
     const dataFecha = dataAnno.slice(indexFecha);
     const regexFecha = /(\d{4})/g;
     const fecha = dataFecha.match(regexFecha);
@@ -235,21 +231,6 @@ function getTipoDerecho(data){
     return tipoDerecho;
 }
 
-async function main() {
-    try {
-        const startDate = new Date('2024/11/21'); // Fecha de inicio
-        const endDate = new Date('2024/11/22'); 
-        const fechaHoy = new Date();
-        const casos = await getPdfData(startDate,endDate,fechaHoy);
-        console.log("Casos obtenidos: ",casos.length);
-        casoObj = casos.map(caso => caso.toObject());
-        console.log(casoObj);
-        
-    } catch (error) {
-        console.error('Error al obtener resultados en el index.js:', error);
-    }
-}
 
 module.exports = { getPdfData }
 
-// main();
