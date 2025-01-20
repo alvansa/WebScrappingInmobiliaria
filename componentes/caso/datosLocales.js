@@ -1104,8 +1104,8 @@ const tribunales2 = ["1° JUZGADO DE LETRAS DE ARICA",
      "TRIBUNAL DE JUICIO ORAL EN LO PENAL PUENTE ALTO", 
      "TRIBUNAL DE JUICIO ORAL EN LO PENAL SAN BERNARDO", 
      "Juzgado de Cobranza Laboral y Previsional de San Miguel",
-      "tribunal arbitral",
-      "Juzgado de Letras del Trabajo de San Bernardo"
+      "Juzgado de Letras del Trabajo de San Bernardo",
+      "Juzgado de Letras de Puente Alto",
     ]
 
     const BANCOS = ["scotiabank","dresdner","bci","corpbanca","bice","edwards","republic","citibank","santander","itau","sudameris","american express","abn","security","falabella","ripley","bbva","tanner","consorcio","metlife","avla"]

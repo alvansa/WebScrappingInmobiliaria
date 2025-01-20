@@ -144,6 +144,7 @@ class Caso{
             montominimo = "No especifica";
             moneda = "No aplica";
         }
+        const annoNormalizado = this.transformarAnno();
         
 
 
@@ -167,7 +168,7 @@ class Caso{
             partes: this.normalizarPartes(),
             tipoPropiedad: this.#tipoPropiedad,
             tipoDerecho: this.#tipoDerecho,
-            año: this.#anno,
+            año: annoNormalizado,
             martillero: this.#martillero,
             direccion: this.#direccion,
             diaEntrega: this.#diaEntrega,
@@ -459,6 +460,11 @@ class Caso{
         }
 
         return this.#partes;
+    }
+
+    transformarAnno(){
+        const anno = this.#anno.replaceAll(".","");
+        return anno;
     }
 
 }

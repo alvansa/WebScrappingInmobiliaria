@@ -75,7 +75,6 @@ function procesarDatosRemate(caso){
         caso.darFechaRemate(fechaRemate[0]);
     }
     if (montoMinimo != null){
-        console.log("Monto Minimo que se da: ",montoMinimo[0]);
         caso.darMontoMinimo(montoMinimo[0]);
     }
     caso.darMultiples(multiples);
@@ -135,7 +134,7 @@ function getCausaVoluntaria(data){
 function getJuzgado2(data) {
     const normalizedData = data.toLowerCase().replaceAll(",",'').replaceAll("de ",'').normalize("NFD").replace(/[\u0300-\u036f]/g, "").replaceAll("stgo","santiago").replaceAll("  "," ");
     let tribunalesAceptados = [];
-    console.log("Data normalizada: ",normalizedData);
+    // console.log("Data normalizada en getJuzgado2: ",normalizedData);
     for (let tribunal of tribunales2){
         const tribunalNormalized = tribunal.toLowerCase().replaceAll("de ","").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
         const tribunalSinDe = tribunalNormalized.replaceAll("de ",'');
@@ -162,12 +161,14 @@ function getJuzgado2(data) {
                 tribunalNormalized.replace('°', 'º').replace("juzgado", "tribunal").replace(" ",""),
                 tribunalNormalized.replace("°", "").replace("juzgado", "tribunal").replace(" ",""),
                 tribunalNormalized.replace(/\d{1,2}°/,numero+" °"),
-                tribunalNormalized.replace(/\d{1,2}°/,numero+" °").replace("°","º"),
+                tribunalNormalized.replace(/\d{1,2}°/,numero+" º"),
+                tribunalNormalized.replace(/\d{1,2}°\s*/,numero+" °"),
+                tribunalNormalized.replace(/\d{1,2}°\s*/,numero+" º"),
             ];
-            if(tribunal.includes("26° JUZGADO CIVIL DE SANTIAGO")){
+            // if(tribunal.includes("16° JUZGADO CIVIL DE SANTIAGO")){
 
-                console.log("Variaciones: ",tribunalVariations);
-            }
+            //     console.log("Variaciones: ",tribunalVariations);
+            // }
 
             // Verificar si alguna variación coincide
             if (tribunalVariations.some(variation => normalizedData.includes(variation))) {
@@ -181,6 +182,7 @@ function getJuzgado2(data) {
     }
     }
     // Devolver el último tribunal aceptado o null si no hay coincidencias
+    console.log("Tribunales aceptados: ",tribunalesAceptados);
     return tribunalesAceptados.length > 0 ? tribunalesAceptados.at(-1) : null;
         
 }
@@ -188,7 +190,7 @@ function getJuzgado2(data) {
 
 // Si no se encuentra el juzgado de la lista, se busca si es un juez partidor
 function getJuezPartidor(data){
-    const juezRegex = /partidor|particion|partición|Árbitro|árbitro|judicial preventivo|arbitro/i;
+    const juezRegex = /partidor|particion|partición|Árbitro|árbitro|judicial preventivo|arbitro|arbitral/i;
     const juez = data.match(juezRegex);
     if (juez != null){
         return true;
@@ -382,30 +384,39 @@ function getAnno(data){
         return anno[2];
     }
     // Busca el año con dependencia de las fojas, "fojas xxxx del año xxxx"
-    const regexFojasDependiente =/fojas(\s*[º0-9a-zA-ZáéíóúñÑ]+){1,8}\s*del\s*(\d{1,4})/i;
+    const regexFojasDependiente =/(?:fojas|fs\.?)(\s*[°º0-9a-zA-ZáéíóúñÑ]+){1,12}\s*del?\s*(\d{1,4})/i;
     const fojasDependiente = data.match(regexFojasDependiente);
     if (fojasDependiente != null){
         return fojasDependiente[2];
     }
     // Busca el año con dependencia del registro de propiedad con regex "registro de propiedad xxxx"
-    const registroRegex = /registro\s*(?:de)?\s*propiedad\s*(\d{4})/i;
+    const registroRegex = /registro\s*(?:de)?\s*propiedad\s*(?:de\s*)?(\d{4})/i;
     let registro = data.match(registroRegex);
     if (registro != null){
         return registro[1];
     }
     // Busca el año con dependencia de registro de propiedad hasta encontrar una coma, "registro de propiedad xxxx,", luego devuelve solo el año.
     const dataNormalized = data.toLowerCase();
-    const registroFecha = dataNormalized.indexOf('registro de');
+    let registroFecha = dataNormalized.indexOf('registro de');
+    console.log("Registro fecha: ",registroFecha);
     if (registroFecha == -1){
-        return null
+        registroFecha = dataNormalized.indexOf('reg de propiedad');
+    }
+    if (registroFecha == -1){
+        return null;
     }
     const dataRegistro = dataNormalized.substring(registroFecha);
-    const registroFin = dataRegistro.indexOf(',');
-    if (registroFin != -1){
-        return null
+    let registroFin = dataRegistro.indexOf(',');
+    console.log("Registro fin: ",registroFin);
+    if (registroFin == -1){
+        registroFin = dataRegistro.indexOf('.');
+    }
+    if (registroFin == -1){
+        return null;
     }
     registro = dataRegistro.substring(0,registroFin);
-    const regexAnnoConDecimal = /\d{1,6}(?:\.\d{3})*/gi;
+    console.log("Registro: ",registro);
+    const regexAnnoConDecimal = /(\b\d{1}(?:\.\d{3})?\b|\b\d{4}\b)/gi;
     const annoRegistro = registro.match(regexAnnoConDecimal);
     if (annoRegistro!= null){
         return annoRegistro[0];       

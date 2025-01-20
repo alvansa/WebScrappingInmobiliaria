@@ -4,7 +4,16 @@ const process = require('process');
 
 async function testLink(){
     try {
-        const link ="https://www.economicos.cl/remates/clasificados-remates-cod47669876.html";
+        const link ="https://www.economicos.cl/remates/clasificados-remates-cod7468887.html";
+        const fechaHoy = new Date();
+        const caso = await testUnico(fechaHoy,link);
+
+    }catch (error) {
+        console.error('Error al obtener resultados:', error);
+    }
+}
+async function testLinkArgs(link){
+    try {
         const fechaHoy = new Date();
         const caso = await testUnico(fechaHoy,link);
 
@@ -33,6 +42,7 @@ function use(){
 
 async function main(){
     const args = process.argv.slice(2);
+    console.log(args);
     if(args.length === 0){
         console.log("No se ingresaron argumentos");
         return;
@@ -41,6 +51,8 @@ async function main(){
         await testLink();
     }else if(args[0] === "-t"){
         testTexto();
+    }else if(args[0] === "-L"){
+        testLinkArgs(args[1]);
     }else{
         use();
     }
