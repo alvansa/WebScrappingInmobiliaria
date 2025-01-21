@@ -144,8 +144,9 @@ class Caso{
             montominimo = "No especifica";
             moneda = "No aplica";
         }
-        const annoNormalizado = this.transformarAnno();
-        
+        const annoNormalizado = this.normalizarAnno();
+        const porcentajeNormalizado = this.normalizarPorcentaje(); 
+        const formatoEntregaNormalizado = this.normalizarFormatoEntrega();
 
 
         return {
@@ -154,8 +155,8 @@ class Caso{
             link: this.#link,
             causa: this.#causa.replace("\n",""),
             juzgado: this.#juzgado,
-            porcentaje: this.#porcentaje,
-            formatoEntrega: this.#formatoEntrega,
+            porcentaje: porcentajeNormalizado,
+            formatoEntrega: formatoEntregaNormalizado,
             fechaRemate: this.transformarFecha(),
             // montoMinimo: this.#montoMinimo,
             montoMinimo: montominimo,
@@ -462,9 +463,30 @@ class Caso{
         return this.#partes;
     }
 
-    transformarAnno(){
+    normalizarAnno(){
+        if(this.#anno == 0){
+            return "No especifica";
+        }
         const anno = this.#anno.replaceAll(".","");
         return anno;
+    }
+
+    normalizarPorcentaje(){
+        if(this.#porcentaje == "N/A"){
+            return "No especifica";
+        }
+        const porcentaje = this.#porcentaje.replaceAll(" ","");
+        return porcentaje;
+    }
+
+    normalizarFormatoEntrega(){
+        if(this.#formatoEntrega == "N/A"){
+            return "No especifica";
+        }
+        if(this.#formatoEntrega == "vale a la vista"){
+            return "vale vista";
+        }
+        return this.#formatoEntrega;
     }
 
 }

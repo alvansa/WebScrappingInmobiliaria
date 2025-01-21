@@ -284,7 +284,7 @@ function getComuna(data) {
 
 // Obtiene la foja del remate.
 function getFoja(data) {
-    const regexFoja = /(fojas|fs)(.)?\s*(N°\s+)?((\d{1,3}.)*)(\d{1,3})/ig ;
+    const regexFoja = /(fojas|fs|fjs)(.)?\s*(N°\s+)?((\d{1,3}.)*)(\d{1,3})/ig ;
     const foja = data.match(regexFoja);
     return foja;
 }
@@ -378,13 +378,13 @@ function getTipoDerecho(data){
 
 function getAnno(data){
     // Busca el año de la manera mas simple con "año xxxx"
-    let regexAnno = /(año)\s*(\d{4})/i;
-    const anno = data.match(regexAnno);
-    if (anno != null){
-        return anno[2];
-    }
+    // let regexAnno = /(año)\s*(\d{4})/i;
+    // const anno = data.match(regexAnno);
+    // if (anno != null){
+    //     return anno[2];
+    // }
     // Busca el año con dependencia de las fojas, "fojas xxxx del año xxxx"
-    const regexFojasDependiente =/(?:fojas|fs\.?)(\s*[°º0-9a-zA-ZáéíóúñÑ]+){1,12}\s*del?\s*(\d{1,4})/i;
+    const regexFojasDependiente =/(?:fojas|fs\.?|fjs)(\s*[°º0-9a-zA-ZáéíóúñÑ,.]+){1,12}\s*(?:del?|año)\s*(\b\d{1}(?:\.\d{3})?\b|\d{1,4})/i;
     const fojasDependiente = data.match(regexFojasDependiente);
     if (fojasDependiente != null){
         return fojasDependiente[2];
@@ -398,18 +398,20 @@ function getAnno(data){
     // Busca el año con dependencia de registro de propiedad hasta encontrar una coma, "registro de propiedad xxxx,", luego devuelve solo el año.
     const dataNormalized = data.toLowerCase();
     let registroFecha = dataNormalized.indexOf('registro de');
-    console.log("Registro fecha: ",registroFecha);
     if (registroFecha == -1){
         registroFecha = dataNormalized.indexOf('reg de propiedad');
+    }
+    if (registroFecha == -1){
+        registroFecha = dataNormalized.indexOf('registro propiedad');
     }
     if (registroFecha == -1){
         return null;
     }
     const dataRegistro = dataNormalized.substring(registroFecha);
-    let registroFin = dataRegistro.indexOf(',');
+    let registroFin = dataRegistro.indexOf('.');
     console.log("Registro fin: ",registroFin);
     if (registroFin == -1){
-        registroFin = dataRegistro.indexOf('.');
+        registroFin = dataRegistro.indexOf(',');
     }
     if (registroFin == -1){
         return null;
@@ -457,7 +459,7 @@ function getDireccion(data){
 function getDiaEntrega(data){
     // console.log("Data: ",data);
     const regexDiaEntrega = [
-        /día\s*(hábil\s*)?(?:[,a-zA-ZáéíóúñÑ-]+\s*){1,6}(inmediatamente\s*)?(anterior)/i,
+        /día\s*(hábil\s*)?(?:[,a-zA-ZáéíóúñÑ-]+\s*){1,6}(inmediatamente\s*)?(anterior\b)/i,
         /(dos|tres|cuatro|cinco|seis|siete)\sdías\shábiles\s(antes)?/i,
         /día\s(lunes|martes|miércoles|jueves|viernes)\s(inmediatamente\s)?(anterior\s)(a\sla\sfecha\s)?(de\sla\ssubasta|del\sremate)/i,
         /(?:(?:veinticuatro|cuarenta y ocho|setenta y dos|noventa y seis)\s*horas(\s*[,a-zA-ZáéíóúñÑ-]+){1,8}\s*remate)/i,
@@ -465,7 +467,8 @@ function getDiaEntrega(data){
         /(?<!:|.)\d{2}\s*horas(\s*[,a-zA-ZáéíóúñÑ-]+){1,12}\s*(subasta|remate)/i,
         /(el\s*día\s*(precedente|anterior))\s*(\s*[,a-zA-ZáéíóúñÑ-]+){1,12}\s*(subasta|remate)/i,
         /((día|dia)\s*(precedente|anterior))\s*(\s*[,a-zA-ZáéíóúñÑ-]+){1,12}\s*(subasta|remate)/i,
-        /\d\s*días\s*hábiles(\s*[,a-zA-ZáéíóúñÑ-]+){1,12}\s*(subasta|remate)/i
+        /\d\s*días\s*hábiles(\s*[,a-zA-ZáéíóúñÑ-]+){1,12}\s*(subasta|remate)/i,
+        /(?:un|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez)\s*día\s*(hábil(?:es)?\s*)?(?:[,a-zA-ZáéíóúñÑ-]+\s*){1,6}(inmediatamente\s*)?(anteriore?s?)/i,
     ]
 
     for(let regex of regexDiaEntrega){

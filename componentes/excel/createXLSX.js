@@ -202,7 +202,11 @@ function insertarCasosExcel(casos,ws,fechaFinDate){
         ws['M' + i] = { v: caso.comuna, t: 's' };
         ws['N' + i] = { v: caso.foja, t: 's' };
         // ws['O' + i] = { v: caso.numero, t: 's' };
-        ws['P' + i] = { v: caso.año, t: 'n' };
+        if(caso.anno == 'No especifica'){
+            ws['p' + i] = { v: caso.año, t: 's' };
+        }else{
+            ws['p' + i] = { v: caso.año, t: 'n' };
+        }
         ws['Q' + i] = { v: caso.formatoEntrega, t: 's' };
         ws['R' + i] = { v: caso.porcentaje, t: 's' };
         ws['S' + i] = { v: caso.diaEntrega, t: 's' };
