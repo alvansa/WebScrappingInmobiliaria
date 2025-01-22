@@ -203,15 +203,20 @@ function insertarCasosExcel(casos,ws,fechaFinDate){
         ws['N' + i] = { v: caso.foja, t: 's' };
         // ws['O' + i] = { v: caso.numero, t: 's' };
         if(caso.anno == 'No especifica'){
-            ws['p' + i] = { v: caso.año, t: 's' };
+            ws['P' + i] = { v: caso.anno, t: 's' };
         }else{
-            ws['p' + i] = { v: caso.año, t: 'n' };
+            ws['P' + i] = { v: caso.anno, t: 'n' };
         }
+        // ws['P' + i] = { v: caso.anno, t: 'n' };
         ws['Q' + i] = { v: caso.formatoEntrega, t: 's' };
         ws['R' + i] = { v: caso.porcentaje, t: 's' };
         ws['S' + i] = { v: caso.diaEntrega, t: 's' };
         // Formato de monto minimo segun el tipo de moneda
-        if(caso.moneda == 'UF'){
+        if(caso.moneda === 'No aplica'){
+            ws['T' + i] = { v: caso.montoMinimo, t: 's' };
+            ws["U" + i] = { v: caso.moneda, t: 's' };
+        }
+        else if(caso.moneda == 'UF'){
             ws['T' + i] = { v:parseFloat(caso.montoMinimo), t: 'n', z: '#,##0.0000' };
         }else{
             ws['T' + i] = { v:parseFloat(caso.montoMinimo), t: 'n', z: '#,##0' };

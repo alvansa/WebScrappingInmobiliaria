@@ -169,7 +169,7 @@ class Caso{
             partes: this.normalizarPartes(),
             tipoPropiedad: this.#tipoPropiedad,
             tipoDerecho: this.#tipoDerecho,
-            año: annoNormalizado,
+            anno: annoNormalizado,
             martillero: this.#martillero,
             direccion: this.#direccion,
             diaEntrega: this.#diaEntrega,
