@@ -103,11 +103,14 @@ async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,save
     const ws = wb.Sheets['Remates'];
     cambiarAnchoColumnas(ws);
     const casosEconomico = await getCasosEconomico(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries);
+    // const casosEconomico = [];
     // const casosLiquidaciones = await getCasosLiquidaciones(fechaHoy,fechaInicioStr,fechaFinStr);
     const casosLiquidaciones = [];
-    const casosPreremates = await getCasosPreremates();
-    // const casosPreremates = [];
-    const casos = [...casosEconomico,...casosLiquidaciones,...casosPreremates];
+    // const casosPreremates = await getCasosPreremates();
+    const casosPreremates = [];
+    // const casosPjud = await getDatosPjud(fechaInicioStr,fechaFinStr);
+    const casosPjud = [];
+    const casos = [...casosEconomico,...casosLiquidaciones,...casosPreremates,...casosPjud];
     try{
         let i = insertarCasosExcel(casos,ws,fechaFinDate);
         i--;
@@ -161,6 +164,29 @@ async function getCasosPreremates(){
     }
     return casos;
 }
+async function getDatosPjud(fechaInicioStr,fechaFinStr){
+    console.log("Fechas: ",fechaInicioStr,fechaFinStr);
+    let casosPjud = [];
+    let fechaInicioPjud = '';
+    let fechaFinPjud = '';
+    if(config.cambiarDias == false){
+        fechaInicioPjud = cambiarFechaInicio(fechaInicioStr,0);
+        fechaFinPjud = cambiarFechaInicio(fechaFinStr,0);
+    }else{
+        fechaInicioPjud = cambiarFechaInicio(fechaFinStr,8);
+        // cambiar la fecha del pjud final a 14 dias mas.
+        fechaFinPjud = cambiarFechaFin(fechaFinStr);
+    }
+    console.log("Fechas: ",fechaInicioPjud,fechaFinPjud);
+
+    try{
+        casosPjud = await datosFromPjud(fechaInicioPjud,fechaFinPjud) || [];
+    }catch(error){
+        console.log('Error al obtener resultados en el pjud:', error);
+        return casosPjud;
+    }
+    return casosPjud;;
+}
 
 function insertarCasosExcel(casos,ws,fechaFinDate){
     let remates = new Set();
@@ -191,9 +217,9 @@ function insertarCasosExcel(casos,ws,fechaFinDate){
         // }
         ws['E' + i] = { v: caso.fechaRemate, t: 'd' };
         ws['F' + i] = { v: caso.causa, t: 's' };
-        const cleanJuzgado = cleanText(caso.juzgado);  
-        ws['G' + i] = { v: cleanJuzgado, t: 's' };
-        const comunaJuzgado = getComunaJuzgado(cleanJuzgado);
+        // const cleanJuzgado = cleanText(caso.juzgado);  
+        ws['G' + i] = { v: caso.juzgado, t: 's' };
+        const comunaJuzgado = getComunaJuzgado(caso.juzgado);
         ws['H' + i] = { v: comunaJuzgado, t: 's' };
         ws['I' + i] = { v: caso.partes, t: 's' };
         ws['J' + i] = { v: caso.tipoPropiedad, t: 's' };
@@ -228,7 +254,7 @@ function insertarCasosExcel(casos,ws,fechaFinDate){
 }
 
 
-async function getDatosPjud(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates,fechaFinDate){
+async function getDatosPjud2(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates,fechaFinDate){
     let casoPjud = [];
     i_aux = i;
     let fechaInicioPjud = '';

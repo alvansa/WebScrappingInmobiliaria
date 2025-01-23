@@ -45,7 +45,7 @@ function obtainDataRematesPdf(data,caso) {
         caso.darMontoMinimo(monto[1]);
     }
     if(anno){
-        const annoNumero = anno[0].match(/\d+/g);
+        const annoNumero = anno[0].match(/\d+/g)[0];
         caso.darAnno(annoNumero);
     }
     if(direccion){
@@ -173,7 +173,7 @@ function getAnno(data){
     }
     let dataAnno = data.slice(detalleIndex);
     dataAnno = dataAnno.toLowerCase();
-    const regexAnno = /(año)\s*(\d{4})/i;
+    const regexAnno = /(?:año)\s*(\d{4})/i;
     const anno = dataAnno.match(regexAnno);
     if (anno) {
         return anno;

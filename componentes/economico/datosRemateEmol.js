@@ -112,7 +112,7 @@ function procesarDatosRemate(caso){
 //crea una funcion que revise en la descripcion a base de regex el juzgado
 function getCausa(data) {
     //Anadir C- con 3 a 5 digitos, guion, 4 digitos
-    const regex = /C\s*[-]*\s*\d{1,7}(?:\.\d{3})*\s*-\s*\d{1,4}(?:\.\d{3})*/i;
+    const regex = /\bC\s*[-]*\s*\d{1,7}(?:\.\d{3})*\s*-\s*\d{1,4}(?:\.\d{3})*/i;
     
     const causa = data.match(regex);
     if (causa != null){
@@ -426,34 +426,40 @@ function getAnno(data){
     return null;
 }
 
-function getDireccion(data){
-    const dataMinuscula = data.toLowerCase();
-    const palabrasClave = ['propiedad','inmueble','departamento','casa'];
+function getDireccion(data) {
+    const dataNormalizada = data.replace(/(\d+)\.(\d+)/g, '$1$2');
+    const dataMinuscula = dataNormalizada.toLowerCase();
+    console.log("Data minuscula: ", dataMinuscula);
+
+    const palabrasClave = ['propiedad', 'inmueble', 'departamento', 'casa'];
     const comuna = 'comuna';
     const direcciones = [];
-    for(let palabra of palabrasClave){
-        const index = dataMinuscula.indexOf(palabra);
-        let fin = dataMinuscula.indexOf(comuna);
-        if(index == -1){
+
+    for (let palabra of palabrasClave) {
+        const regex = new RegExp(`(?<!registro de )${palabra}`, 'g');
+        const match = regex.exec(dataMinuscula);
+
+        if (!match) {
             continue;
         }
-        // revisar si hay una palabra comuna para finalizar la direccion
-        if(fin > index){
-            const direccion = data.substring(index,fin);
-            return direccion;
-        }
-        const direccionTemporal = data.substring(index);
+
+        const index = match.index;
+        let fin = dataMinuscula.indexOf(comuna);
+        const direccionTemporal = dataMinuscula.substring(index);
         fin = direccionTemporal.indexOf('.');
-        if(fin != -1){
-            const direccion = direccionTemporal.substring(0,fin);
+
+        if (fin !== -1) {
+            const direccion = direccionTemporal.substring(0, fin);
             direcciones.push(direccion);
+            return direccion; // Devuelve la primera dirección encontrada
         }
     }
-    if(direcciones.length > 0){
+
+    if (direcciones.length > 0) {
         return direcciones.at(-1);
     }
-    return null;
 
+    return null;
 }
 
 function getDiaEntrega(data){

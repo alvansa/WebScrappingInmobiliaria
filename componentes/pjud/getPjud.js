@@ -116,7 +116,7 @@ async function getDatosTabla(page) {
 
     // Ahora, fuera del evaluate, creamos objetos Caso a partir de los datos extraídos
     rowsData.forEach(data => {
-        const caso = new Caso(new Date(), "N/A", "N/A", 2);
+        const caso = new Caso(new Date(), "N/A","Letra grande/ Pjud" , 2);
         caso.darJuzgado(data.tribunal);
         caso.darCausa(data.causa);
         caso.darFechaRemate(data.fechaHora);
@@ -281,9 +281,9 @@ function delay(time) {
 async function datosFromPjud(fechaInicio,fechaFin){
     const datos = await getPJUD(fechaInicio,fechaFin);
     console.log('Datos conseguidos del pjud', datos.length);
-    const causa = new ConsultaCausaPjud(datos);
-    const casos = await causa.getConsultaCausaPjud();
-    return casos;
+    // const causa = new ConsultaCausaPjud(datos);
+    // const casos = await causa.getConsultaCausaPjud();
+    return datos;
 }
 
 

@@ -50,7 +50,7 @@ class Caso{
         this.#partes = "N/A";
         this.#tipoPropiedad = 'No especifica';
         this.#tipoDerecho = 'No especifica';
-        this.#anno = 'No especifica';
+        this.#anno = 0;
         this.#martillero = 'N/A';
         this.#direccion = 'N/A';
         this.#diaEntrega = 'N/A';
@@ -144,17 +144,18 @@ class Caso{
             montominimo = "No especifica";
             moneda = "No aplica";
         }
+        const causaNormalizada = this.normalizarCausa();
         const annoNormalizado = this.normalizarAnno();
         const porcentajeNormalizado = this.normalizarPorcentaje(); 
         const formatoEntregaNormalizado = this.normalizarFormatoEntrega();
-
+        const juzgadoNormalizado = this.normalizarJuzgado();
 
         return {
             fechaObtencion: this.#fechaObtencion,
             fechaPublicacion: this.#fechaPublicacion,
             link: this.#link,
-            causa: this.#causa.replace("\n",""),
-            juzgado: this.#juzgado,
+            causa: causaNormalizada,
+            juzgado: juzgadoNormalizado,
             porcentaje: porcentajeNormalizado,
             formatoEntrega: formatoEntregaNormalizado,
             fechaRemate: this.transformarFecha(),
@@ -464,9 +465,10 @@ class Caso{
     }
 
     normalizarAnno(){
-        if(this.#anno == 0){
+        if(this.#anno == 0 || this.#anno == "N/A" || this.#anno == null || this.#anno == "No especifica"){
             return "No especifica";
         }
+        console.log("Anno: ",this.#anno);
         const anno = this.#anno.replaceAll(".","");
         return anno;
     }
@@ -488,6 +490,21 @@ class Caso{
         }
         return this.#formatoEntrega;
     }
+    normalizarCausa(){
+        if(this.#causa == "N/A"){
+            return "No especifica";
+        }
+        const causaNormalizada = this.#causa.replaceAll(".","").replace("\n","");
+        return causaNormalizada;
+
+    }
+    normalizarJuzgado(){
+        if(this.#juzgado == "N/A"){
+            return "No especifica";
+        }
+        return this.#juzgado.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
+    }
+
 
 }
 
