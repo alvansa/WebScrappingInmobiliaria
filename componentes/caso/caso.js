@@ -54,6 +54,7 @@ class Caso{
         this.#martillero = 'N/A';
         this.#direccion = 'N/A';
         this.#diaEntrega = 'N/A';
+        this.#numero = 'No aplica';
     }
     darfechaPublicacion(fechaPublicacion){
         this.#fechaPublicacion = fechaPublicacion;
@@ -175,6 +176,7 @@ class Caso{
             direccion: this.#direccion,
             diaEntrega: this.#diaEntrega,
             aviso : this.#texto,
+            numero : this.#numero,
         };
     } 
 
@@ -494,7 +496,7 @@ class Caso{
         if(this.#causa == "N/A"){
             return "No especifica";
         }
-        const causaNormalizada = this.#causa.replaceAll(".","").replace("\n","");
+        const causaNormalizada = this.#causa.replaceAll(".","").replace("\n","").replaceAll(" ","").toUpperCase();
         return causaNormalizada;
 
     }

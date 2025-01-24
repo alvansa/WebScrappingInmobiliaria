@@ -10,6 +10,7 @@ const {getDatosRemate} = require('../economico/datosRemateEmol.js');
 const {getPJUD,datosFromPjud} = require('../pjud/getPjud.js');
 const {getPdfData} = require('../liquidaciones/procesarBoletin.js');
 const {PreRemates} = require('../preremates/obtenerPublicaciones.js');
+const { get } = require("http");
 
 
 function crearBase(saveFile) {
@@ -59,41 +60,9 @@ function crearBase(saveFile) {
     XLSX.writeFile(wb, path.join(saveFile, 'Remates.xlsx'));
 }
 
-async function insertarDatos2(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,saveFile) {
-    let casos = [];
-    const fechaFinDate = formatoFechaBoletin(fechaFinStr);
-    var filePath = path.join(saveFile, 'Remates.xlsx');
-    if(!fs.existsSync(path.join(saveFile, 'Remates.xlsx'))){
-        crearBase(saveFile);
-        console.log('Archivo creado');
-    }
-    const wb = XLSX.readFile(path.join(saveFile, 'Remates.xlsx'));
-    const ws = wb.Sheets['Remates'];
-    cambiarAnchoColumnas(ws);
-    let remates = new Set();
-    try{
-        let i = 6;
-        i = await getDatosEconomicos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,ws,i,remates,fechaFinDate);
-        console.log(`i despues de economicos: ${i}`);
-        i = await getDatosBoletin(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates,fechaFinDate);
-        console.log(`i despues de boletin: ${i}`);
-        i--;
-        ws['!ref'] = 'B5:V'+i;
-        fechaInicioDMA = cambiarFormatoFecha(fechaInicioStr);
-        fechaFinDMA = cambiarFormatoFecha(fechaFinStr);
-        filePath = path.join(saveFile, 'Remates_'+fechaInicioDMA+'_a_'+fechaFinDMA+'.xlsx');
-        XLSX.writeFile(wb, filePath);
-        console.log(filePath);
-        return filePath;
-    }catch(error){
-        console.error('Error al obtener resultados:', error);
-        return null;
-    }
-    
-}
 
 async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,saveFile) {
-    const fechaFinDate = formatoFechaBoletin(fechaFinStr);
+    const fechaLimite = stringToDate(fechaFinStr);
     var filePath = path.join(saveFile, 'Remates.xlsx');
     if(!fs.existsSync(path.join(saveFile, 'Remates.xlsx'))){
         crearBase(saveFile);
@@ -102,21 +71,20 @@ async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,save
     const wb = XLSX.readFile(path.join(saveFile, 'Remates.xlsx'));
     const ws = wb.Sheets['Remates'];
     cambiarAnchoColumnas(ws);
-    const casosEconomico = await getCasosEconomico(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries);
-    // const casosEconomico = [];
-    // const casosLiquidaciones = await getCasosLiquidaciones(fechaHoy,fechaInicioStr,fechaFinStr);
-    const casosLiquidaciones = [];
-    // const casosPreremates = await getCasosPreremates();
-    const casosPreremates = [];
-    // const casosPjud = await getDatosPjud(fechaInicioStr,fechaFinStr);
-    const casosPjud = [];
+    const [casosEconomico,casosLiquidaciones,casosPreremates,casosPjud] = await Promise.all([
+        getCasosEconomico(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries),
+        getCasosLiquidaciones(fechaHoy,fechaInicioStr,fechaFinStr),
+        getCasosPreremates(),
+        // getDatosPjud(fechaInicioStr,fechaFinStr)
+        Promise.resolve([])
+    ]);
     const casos = [...casosEconomico,...casosLiquidaciones,...casosPreremates,...casosPjud];
     try{
-        let i = insertarCasosExcel(casos,ws,fechaFinDate);
-        i--;
-        ws['!ref'] = 'B5:V'+i;
-        fechaInicioDMA = cambiarFormatoFecha(fechaInicioStr);
-        fechaFinDMA = cambiarFormatoFecha(fechaFinStr);
+        let lastRow = insertarCasosExcel(casos,ws,fechaLimite) - 1;
+        // lastRow--;
+        ws['!ref'] = 'B5:V'+lastRow;
+        const fechaInicioDMA = cambiarFormatoFecha(fechaInicioStr);
+        const fechaFinDMA = cambiarFormatoFecha(fechaFinStr);
         filePath = path.join(saveFile, 'Remates_'+fechaInicioDMA+'_a_'+fechaFinDMA+'.xlsx');
         XLSX.writeFile(wb, filePath);
         console.log(filePath);
@@ -141,8 +109,8 @@ async function getCasosEconomico(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries)
 
 async function getCasosLiquidaciones(fechaHoy,fechaInicioStr,fechaFinStr){
     let casos = [];
-    const startDate = formatoFechaBoletin(fechaInicioStr);
-    const endDate = formatoFechaBoletin(fechaFinStr);
+    const startDate = stringToDate(fechaInicioStr);
+    const endDate = stringToDate(fechaFinStr);
 
     try{
         casos = await getPdfData(startDate,endDate,fechaHoy) || [];
@@ -188,124 +156,81 @@ async function getDatosPjud(fechaInicioStr,fechaFinStr){
     return casosPjud;;
 }
 
-function insertarCasosExcel(casos,ws,fechaFinDate){
+function insertarCasosExcel(casos,ws,fechaLimite){
     let remates = new Set();
-    let i = 6;
+    let currentRow = 6;
     if (!Array.isArray(casos) || casos.length === 0) {
         console.log("No se encontraron datos para insertar.");
         return;
     }
     const casosObj = casos.map(caso => caso.toObject());
-    console.log("Cantidad de casos obtenidos en total: ",casosObj.length);
     
     for(let caso of casosObj){
-        if(caso.juzgado == 'Juez Partidor'){
-            continue;
-        }
-        if(remates.has(caso.causa)){
+        if(shouldSkip(caso,remates,fechaLimite)){
             continue;
         }
         remates.add(caso.causa);
-        ws['B' + i] = { v: caso.link, t: 's' };
-        ws['C' + i] = { v: caso.fechaObtencion, t: 'd' };
-        if(caso.fechaPublicacion !== "N/A"){
-            caso.fechaPublicacion.setHours( caso.fechaPublicacion.getHours() + 6);
-            ws['D' + i] = { v: caso.fechaPublicacion, t: 'd' };
-        }        
-        // if(caso.fechaRemate < fechaFinDate){
-        //     continue;
-        // }
-        ws['E' + i] = { v: caso.fechaRemate, t: 'd' };
-        ws['F' + i] = { v: caso.causa, t: 's' };
-        // const cleanJuzgado = cleanText(caso.juzgado);  
-        ws['G' + i] = { v: caso.juzgado, t: 's' };
-        const comunaJuzgado = getComunaJuzgado(caso.juzgado);
-        ws['H' + i] = { v: comunaJuzgado, t: 's' };
-        ws['I' + i] = { v: caso.partes, t: 's' };
-        ws['J' + i] = { v: caso.tipoPropiedad, t: 's' };
-        ws['K' + i] = { v: caso.direccion, t: 's' };
-        ws['L' + i] = { v: caso.tipoDerecho, t: 's' };
-        ws['M' + i] = { v: caso.comuna, t: 's' };
-        ws['N' + i] = { v: caso.foja, t: 's' };
-        // ws['O' + i] = { v: caso.numero, t: 's' };
-        if(caso.anno == 'No especifica'){
-            ws['P' + i] = { v: caso.anno, t: 's' };
-        }else{
-            ws['P' + i] = { v: caso.anno, t: 'n' };
-        }
-        // ws['P' + i] = { v: caso.anno, t: 'n' };
-        ws['Q' + i] = { v: caso.formatoEntrega, t: 's' };
-        ws['R' + i] = { v: caso.porcentaje, t: 's' };
-        ws['S' + i] = { v: caso.diaEntrega, t: 's' };
-        // Formato de monto minimo segun el tipo de moneda
-        if(caso.moneda === 'No aplica'){
-            ws['T' + i] = { v: caso.montoMinimo, t: 's' };
-            ws["U" + i] = { v: caso.moneda, t: 's' };
-        }
-        else if(caso.moneda == 'UF'){
-            ws['T' + i] = { v:parseFloat(caso.montoMinimo), t: 'n', z: '#,##0.0000' };
-        }else{
-            ws['T' + i] = { v:parseFloat(caso.montoMinimo), t: 'n', z: '#,##0' };
-        }
-        ws['U' + i] = { v: caso.moneda, t: 's' };                
-        i++;
+        insertarCasoIntoWorksheet(caso,ws,currentRow);
+        currentRow++;
     }
-    return i;
+    return currentRow;
 }
 
+function shouldSkip(caso,remates,fechaLimite){
+    if(remates.has(caso.causa)){
+        return true;
+    }
+    if(caso.fechaRemate < fechaLimite){
+        return true;
+    }
+    return false;
+}
 
-async function getDatosPjud2(fechaHoy,fechaInicioStr,fechaFinStr,ws,i,remates,fechaFinDate){
-    let casoPjud = [];
-    i_aux = i;
-    let fechaInicioPjud = '';
-    let fechaFinPjud = '';
-    if(config.cambiarDias == false){
-        fechaInicioPjud = cambiarFechaInicio(fechaInicioStr,0);
-        fechaFinPjud = cambiarFechaInicio(fechaFinStr,0);
+function insertarCasoIntoWorksheet(caso,ws,currentRow){
+    ws['B' + currentRow] = { v: caso.link, t: 's' };
+    ws['C' + currentRow] = { v: caso.fechaObtencion, t: 'd' };
+    
+    if(caso.fechaPublicacion !== "N/A"){
+        const adjustedDate = new Date(caso.fechaPublicacion);
+        adjustedDate.setHours(adjustedDate.getHours() + 6);
+        ws['D' + currentRow] = { v: adjustedDate, t: 'd' };
+    }
+
+    ws['E' + currentRow] = { v: caso.fechaRemate, t: 'd' };
+    ws['F' + currentRow] = { v: caso.causa, t: 's' };
+    ws['G' + currentRow] = { v: caso.juzgado, t: 's' };
+    ws['H' + currentRow] = { v: getComunaJuzgado(caso.juzgado), t: 's' };
+    ws['I' + currentRow] = { v: caso.partes, t: 's' };
+    ws['J' + currentRow] = { v: caso.tipoPropiedad, t: 's' };
+    ws['K' + currentRow] = { v: caso.direccion, t: 's' };
+    ws['L' + currentRow] = { v: caso.tipoDerecho, t: 's' };
+    ws['M' + currentRow] = { v: caso.comuna, t: 's' };
+    ws['N' + currentRow] = { v: caso.foja, t: 's' };
+    ws['O' + currentRow] = { v: caso.numero, t: 's' };
+
+    if(caso.anno == 'No especifica'){
+        ws['P' + currentRow] = { v: caso.anno, t: 's' };
     }else{
-        fechaInicioPjud = cambiarFechaInicio(fechaFinStr,8);
-        // cambiar la fecha del pjud final a 14 dias mas.
-        fechaFinPjud = cambiarFechaFin(fechaFinStr);
-    }
-    console.log("Fechas: ",fechaInicioPjud,fechaFinPjud);
-
-    try{
-        casoPjud = await datosFromPjud(fechaInicioPjud,fechaFinPjud) || [];
-    }catch(error){
-        console.error('Error al obtener resultados en el pjud:', error);
-        i = i_aux;
-        return i;
+        ws['P' + currentRow] = { v: caso.anno, t: 'n' };
     }
 
-    const casosObj = casoPjud.map(caso => caso.toObject());
-    console.log("Cantidad de casos obtenidos: ",casosObj.length);
-    for (let caso of casosObj){
-        if(caso.partes.includes('TESORERÍA') | caso.partes.includes('TGR')| caso.partes.includes("TESORERIA")){
-            continue;
-        }
-        if(remates.has(caso.causa)){
-            continue;
-        }
-        if(caso.fechaRemate < fechaFinDate){
-            continue;
-        }
-        remates.add(caso.causa);
-        ws['B' + i] = { v:"Letra grande/ Pjud", t: 's' };
-        ws['C' + i] = { v:caso.fechaObtencion, t: 'd' };
-        ws['E' + i] = { v: caso.fechaRemate, t: 'd' };
-        ws['F' + i] = { v: caso.causa, t: 's' };
-        caso.juzgado = caso.juzgado.toLowerCase();
-        ws['G' + i] = { v: caso.juzgado, t: 's' };
-        const comunaJuzgado = getComunaJuzgado(caso.juzgado);
-        ws['H' + i] = { v: comunaJuzgado, t: 's' };
-        ws['I' + i] = { v: caso.partes, t: 's' };
-        i++;
+    ws['Q' + currentRow] = { v: caso.formatoEntrega, t: 's' };
+    ws['R' + currentRow] = { v: caso.porcentaje, t: 's' };
+    ws['S' + currentRow] = { v: caso.diaEntrega, t: 's' };
+
+    // Formato de monto minimo segun el tipo de moneda
+    if(caso.moneda === 'No aplica'){
+        ws['T' + currentRow] = { v: caso.montoMinimo, t: 's' };
+        ws["U" + currentRow] = { v: caso.moneda, t: 's' };
     }
-    return i;
-} 
-
-
-
+    else if(caso.moneda == 'UF'){
+        ws['T' + currentRow] = { v:parseFloat(caso.montoMinimo), t: 'n', z: '#,##0.0000' };
+    }else{
+        ws['T' + currentRow] = { v:parseFloat(caso.montoMinimo), t: 'n', z: '#,##0' };
+    }
+    ws['U' + currentRow] = { v: caso.moneda, t: 's' };                
+    ws['V' + currentRow] = { v: caso.martillero, t: 's' }; 
+}
 
 function cambiarAnchoColumnas(ws){
     ws['!cols'] = [
@@ -338,23 +263,21 @@ function cambiarAnchoColumnas(ws){
     ];
 }
 
+// Dado un string con el formato yyyy-mm-dd, devuelve un string con el formato dd-mm-yyyy
 function cambiarFormatoFecha(fecha) {
     const partes = fecha.split("-"); // Dividimos la fecha en partes [año, mes, día]
     const [año, mes, día] = partes; // Desestructuramos las partes
     return `${día}-${mes}-${año}`;  // Construimos el nuevo formato
 }
 
-function formatoFechaPjud(fecha,desfaseHoras = 4) {
-    const partes = fecha.split("-"); // Dividimos la fecha en partes [año, mes, día]
-    const [año, mes, día] = partes; // Desestructuramos las partes
-    return `${día}/${mes}/${año}`;
-}
-function formatoFechaBoletin(fecha) {
+// Dado un string con el formato yyyy-mm-dd, devuelve un objeto Date
+function stringToDate(fecha) {
     const partes = fecha.split("-"); // Dividimos la fecha en partes [año, mes, día]
     const [año, mes, día] = partes; // Desestructuramos las partes
     return new Date(`${año}/${mes}/${día}`);
 }
 
+// Dado un objeto Date, devuelve un string con el formato dd/mm/yyyy
 function dateToPjud(date) {
     const dia = String(date.getDate()).padStart(2, '0');  // Asegura que el día tenga dos dígitos
     const mes = String(date.getMonth() + 1).padStart(2, '0');  // Meses son 0-indexados, por lo que sumamos 1
@@ -363,49 +286,31 @@ function dateToPjud(date) {
     return `${dia}/${mes}/${año}`;
 }
 
+// Dado la fecha y la cantidad de dias a sumar, cambia la fecha de inicio para el pjud
 function cambiarFechaInicio(fecha,dias){
     const partes = fecha.split("-"); // Dividimos la fecha en partes [año, mes, día]
     const [año, mes, día] = partes; // Desestructuramos las partes
     let fechaFinal =  new Date(`${año}/${mes}/${día}`);
     fechaFinal.setDate(fechaFinal.getDate() + dias);
-    // fechaFinal.setDate(fechaFinal.getDate() );
     const fechaFinalPjud = dateToPjud(fechaFinal);
     return fechaFinalPjud;
 }
 
+// Cambia la fecha final de obtencion de datos para el pjud
 function cambiarFechaFin(fecha){
     const partes = fecha.split("-"); // Dividimos la fecha en partes [año, mes, día]
     const [año, mes, día] = partes; // Desestructuramos las partes
     let fechaFinal =  new Date(`${año}/${mes}/${día}`);
     fechaFinal.setMonth(fechaFinal.getMonth() + 1);
-    // fechaFinal.setDate(fechaFinal.getDate() );
     const fechaFinalPjud = dateToPjud(fechaFinal);
     return fechaFinalPjud;
 }
-function transformarFechaPjud(fechaHora) {
-    // Separar la fecha y la hora
-   console.log("Fecha a transformar: ",fechaHora); 
-    const [fecha, hora] = fechaHora.split(" ");
-    
-    // Separar día, mes y año
-    const [dia,mes, año] = fecha.split("/");
-    
-    // Formatear la fecha en "dd-mm-yyyy"
-    const fechaFormateada = new Date(`${año}/${mes}/${dia}`);
-    
-    return fechaFormateada;
-  }
 
-// Función para limpiar caracteres no deseados del texto
-function cleanText(text) {
-    return text.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
-}
+// Dado un juzgado, obtiene la comuna del juzgado
 function getComunaJuzgado(juzgado){
     const juzgadoNormalizado = juzgado.toLowerCase();
     const comunaJuzgado = juzgadoNormalizado.split("de ").at(-1);
     return comunaJuzgado;
 }
-//crearExcel();
-// modificarExcel('personasModificado');
 
 module.exports = { crearBase,insertarDatos};

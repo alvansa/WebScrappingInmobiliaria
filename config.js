@@ -17,12 +17,18 @@ const config = {
         cambiarDias: false,
         probarFuncionalidades: true,
         debug: true,
+        EMAIL : process.env.EMAIL ? process.env.EMAIL : null,
+        PASSWORD : process.env.PASSWORD ? process.env.PASSWORD : null,
+
     },
     PRODUCCION: {
         env: 'produccion',
         cambiarDias: true,
         probarFuncionalidades: false,
         debug: false,
+        EMAIL : process.env.EMAIL ? process.env.EMAIL : null,
+        PASSWORD : process.env.PASSWORD ? process.env.PASSWORD : null,
+        
     }
 
 }
@@ -31,6 +37,6 @@ const config = {
 
 
 
-module.exports = config['DESARROLLO'];
+module.exports = config['PRODUCCION'];
 
 // exports.TESTPJUD = TESTPJUD;
