@@ -195,8 +195,11 @@ function insertarCasoIntoWorksheet(caso,ws,currentRow){
         adjustedDate.setHours(adjustedDate.getHours() + 6);
         ws['D' + currentRow] = { v: adjustedDate, t: 'd' };
     }
-
-    ws['E' + currentRow] = { v: caso.fechaRemate, t: 'd' };
+    if(caso.fechaRemate !== "N/A"){
+        const adjustedAuctionDate = new Date(caso.fechaRemate);
+        adjustedAuctionDate.setHours(adjustedAuctionDate.getHours() + 6);
+        ws['E' + currentRow] = { v: adjustedAuctionDate , t: 'd' };
+    }
     ws['F' + currentRow] = { v: caso.causa, t: 's' };
     ws['G' + currentRow] = { v: caso.juzgado, t: 's' };
     ws['H' + currentRow] = { v: getComunaJuzgado(caso.juzgado), t: 's' };
