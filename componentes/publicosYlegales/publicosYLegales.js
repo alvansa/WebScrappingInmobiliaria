@@ -1,94 +1,117 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 const fs = require('fs');
+const Caso = require("../caso/caso");
 
 
 class PublicosYLegales{
-    constructor(){
+    constructor(startDate,endDate,queryDate){
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.queryDate = queryDate;
         this.link = "https://publicosylegales.cl/lorem-ipsum-dolor-sit-amet/";
         this.date = "2024.12.9";
-        this.searchLink = `https://publicosylegales.cl/busqueda/?jsf=jet-engine:lista_encontrada&tax=category:41&date=${this.date}`;
-        this.publicos = [];
-
-        this.legales = [];
+        this.casos = [];
     }
 
-    async getDataAuction(url){
-        const { data } = await axios.get(url);
+    async scrapePage(){
+        await this.searchAuctions();
+
+        for(let caso of this.casos){
+            await this.getDataAuction(caso);
+        } 
+        return this.casos;
+    }
+
+    async getDataAuction(caso){
+        const { data } = await axios.get(caso.link);
         const $ = cheerio.load(data);
-        let normalizedTargetDiv = "";
-        //console.log(data);
-        //write the data in a file
-        //fs.writeFileSync('publicosYLegalestest2.html', data);        
-        //console.log($);
-        //const description = $("div.jet-listing-grid__item jet-listing-dynamic-post-1916 p").text();
-        const description = $("p").text();
-        const normalizedDescription = description.replace(/(<br\s*\/>|\n)/g, ' ').trim();
+        const description = this.obtainDescription($);
+        caso.darTexto(description);
+
+    }
+
+    obtainDescription($){
+        let description = $("p").text();
+        let normalizedDescription = description.replace(/(<br\s*\/>|\n)/g, ' ').trim();
         console.log("---------------------------------------");
         if(normalizedDescription !== ""){
+            console.log("Descripcion econtrada con: p");
             console.log(normalizedDescription);
-            console.log(typeof(normalizedDescription));
+            return normalizedDescription;
         }
         console.log("No se encontró la descripción");
-        let targetDiv = $('div[data-olk-copy-source="MessageBody"]').text();  
-        if(targetDiv !== ""){
-            normalizedTargetDiv = targetDiv.replace(/(<br\s*\/>|\n)/g, ' ').trim();
-            console.log(normalizedTargetDiv);
+        description = $('div[data-olk-copy-source="MessageBody"]').text();  
+        if(description !== ""){
+            normalizedDescription = description.replace(/(<br\s*\/>|\n)/g, ' ').trim();
+            console.log(`Descripcion econtrada con: div[data-olk-copy-source="MessageBody"]`);
+            console.log(normalizedDescription);
+            return normalizedDescription;
         }
-        targetDiv = $('div.x_elementToProof').text();
-        normalizedTargetDiv = targetDiv.replace(/(<br\s*\/>|\n)/g, ' ').trim();
-        console.log(normalizedTargetDiv);
-
+        description = $('div.x_elementToProof').text();
+        if(description !== ""){
+            normalizedDescription = description.replace(/(<br\s*\/>|\n)/g, ' ').trim();
+            console.log(`Descripcion econtrada con: div.x_elementToProof`);
+            console.log(normalizedDescription);
+            return normalizedDescription;
+        }
+        
+        return null;
     }
 
     async searchAuctions(){
-        const startDate = new Date(2024, 11, 9);
-        const endDate = new Date(2024, 11, 12);
-        let currentDate = startDate;
-        while(currentDate <= endDate){
-            this.date = this.formatDateToString(currentDate);
-            const { data } = await axios.get(this.searchLink);
-            const $ = cheerio.load(data);
-            fs.writeFileSync('searchPage2.html', data);
-            const links = $("h3.elementor-icon-box-title > a").map((i, el) => $(el).attr("href")).get();
-            console.log(links);
-            const FunctionalLinks = this.obtainValidLinks(links);
-            console.log(FunctionalLinks);
-            const linksToVisit = [...new Set(FunctionalLinks)];
-            console.log(linksToVisit);
-            console.log("Fecha: "+this.date+"--------------------");
+        let currentDate = this.startDate;
+        while(currentDate <= this.endDate){
+            await this.obtainLinks(currentDate);
+            console.log("--------------------------");
             currentDate.setDate(currentDate.getDate() + 1);
         }
-        // for(let link of linksToVisit){
-        //     await this.getDataAuction(link);
-        // }
     }
 
-    obtainValidLinks(links){
-        const excluyedWord = ["diario","wa.me","contacto"];
-        const FunctionalLinks = links.filter(link => {
-            return !excluyedWord.some(keyword => link.includes(keyword));
-        }
-        );
-        return FunctionalLinks;
-
+    async obtainLinks(date){
+        const currentDate = this.formatDateToString(date);
+        const searchLink = `https://publicosylegales.cl/busqueda/?jsf=jet-engine:lista_encontrada&tax=category:41&date=${currentDate}`;
+        const { data } = await axios.get(searchLink);
+        const $ = cheerio.load(data);
+        const divs = $(".elementor-element-b8562e3");
+        divs.each((index,element)=>{
+            const div = $(element);
+            const fecha = div.find(".elementor-heading-title.elementor-size-default").first().text().trim();
+            const link = div.find("a").attr("href");
+            const caso = new Caso(this.queryDate,this.formatStringToDate(fecha),link);
+            this.casos.push(caso);
+            console.log(link);
+            console.log("Fecha: "+this.date+"--------------------"+fecha);
+        })
     }
 
     formatDateToString(date) {
-    const year = date.getFullYear(); // Obtiene el año completo
-    const month = date.getMonth() + 1; // Obtiene el mes (de 0 a 11) y suma 1
-    const day = date.getDate(); // Obtiene el día del mes
+        const year = date.getFullYear(); // Obtiene el año completo
+        const month = date.getMonth() + 1; // Obtiene el mes (de 0 a 11) y suma 1
+        const day = date.getDate(); // Obtiene el día del mes
 
-    // Construye el string con el formato "YYYY.M.D"
-    return `${year}.${month}.${day}`;
+        // Construye el string con el formato "YYYY.M.D"
+        return `${year}.${month}.${day}`;
+    }
+
+    formatStringToDate(date){
+        const [year,month,day] = date.split(".");
+        return new Date(year,month-1,day);
+    }
+
+    async obtainHTML(link,number){
+        const { data } = await axios.get(link);
+        const $ = cheerio.load(data);
+        fs.writeFileSync(`./componentes/publicosYlegales/html/HTMLPagina${number}.html`,data);
+    }
 }
-}
 
 
-async function main(){
-    const publicosYLegales = new PublicosYLegales();
-    await publicosYLegales.searchAuctions();
-    //await publicosYLegales.getDataAuction("https://publicosylegales.cl/remate-25civil-de-santiago-rol-c-17525-2020-suaval-s-a-g-r-con-cuentas/");
-}
 
-main();
+
+module.exports = {PublicosYLegales};
+
+//id del div que contiene los articulos
+// class="elementor-element elementor-element-c7dc947 e-con-full e-flex e-con e-child"
+// Tal vez este sea la clase del div padre
+//class="elementor-element elementor-element-b8562e3 e-flex e-con-boxed e-con e-parent"
