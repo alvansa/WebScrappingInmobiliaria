@@ -183,6 +183,9 @@ function shouldSkip(caso,remates,fechaLimite){
     if(caso.fechaRemate < fechaLimite){
         return true;
     }
+    if(caso.juzgado === "Juez Partidor"){
+        return true;
+    }
     return false;
 }
 

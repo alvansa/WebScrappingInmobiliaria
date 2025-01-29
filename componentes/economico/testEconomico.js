@@ -37,14 +37,14 @@ function testTexto(){
 }
 
 function use(){
-    console.log("Uso: node testEconomico.js -l para probar un link o node testEconomico.js -t para probar un texto");
+    console.log("Uso: node testEconomico.js -l para probar un link fijo en el codigo o node testEconomico.js -t para probar un texto o node testEconomico.js -L link para probar el link");
 }
 
 async function main(){
     const args = process.argv.slice(2);
     console.log(args);
     if(args.length === 0){
-        console.log("No se ingresaron argumentos");
+        use();
         return;
     }
     if(args[0] === "-l"){

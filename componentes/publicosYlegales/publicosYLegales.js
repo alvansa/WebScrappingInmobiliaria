@@ -32,7 +32,7 @@ class PublicosYLegales{
     }
 
     obtainDescription($){
-        let description = $("p").text();
+        let description = $("div.elementor-widget-container p:not(:has(> a))").text();
         let normalizedDescription = description.replace(/(<br\s*\/>|\n)/g, ' ').trim();
         console.log("---------------------------------------");
         if(normalizedDescription !== ""){
@@ -109,7 +109,7 @@ class PublicosYLegales{
 
 
 
-module.exports = {PublicosYLegales};
+module.exports = PublicosYLegales;
 
 //id del div que contiene los articulos
 // class="elementor-element elementor-element-c7dc947 e-con-full e-flex e-con e-child"

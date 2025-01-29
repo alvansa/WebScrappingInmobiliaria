@@ -492,14 +492,26 @@ class Caso{
         }
         return this.#formatoEntrega;
     }
-    normalizarCausa(){
-        if(this.#causa == "N/A"){
+    normalizarCausa() {
+        const valorOriginal = this.#causa;
+        console.log(valorOriginal);
+        
+        if (valorOriginal === "N/A") {
             return "No especifica";
         }
-        const causaNormalizada = this.#causa.replaceAll(".","").replace("\n","").replaceAll(" ","").toUpperCase();
-        return causaNormalizada;
 
-    }
+        let causa = valorOriginal
+            .toLowerCase()
+            .replace("nº", "")  // Eliminar primera ocurrencia de nº
+            .replace("n°", "")  // Eliminar primera ocurrencia de n°
+            .replace(/c-?/i,"c-")
+            .replace("rol", "c-");  // Reemplazar primera ocurrencia de rol
+
+        // Limpieza final y formato
+        return causa
+            .replace(/[.\n ]/g, '') // Eliminar puntos, newlines y espacios
+            .toUpperCase();
+    } 
     normalizarJuzgado(){
         if(this.#juzgado == "N/A"){
             return "No especifica";

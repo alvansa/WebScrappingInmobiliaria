@@ -1,4 +1,5 @@
-const {PublicosYLegales} = require("./publicosYLegales");
+const PublicosYLegales = require("./publicosYLegales");
+const DataPublicosYLegales = require("./DataPublicosYLegales");
 
 
 async function test(){
@@ -7,6 +8,10 @@ async function test(){
     const queryDate = new Date();
     const publicosYLegales = new PublicosYLegales(startDate,endDate,queryDate);
     const casos = await publicosYLegales.scrapePage();
+    for(let caso of casos){
+        const data = new DataPublicosYLegales(caso);
+        data.proccessAuction();
+    }
     const casosObj = casos.map(caso => caso.toObject());
     console.log(casosObj);
 }
@@ -26,7 +31,7 @@ function use(){
 
 async function main(){
     const args = process.argv.slice(2);
-    if(args === 0){
+    if(args.length === 0){
         use();
     }
     if(args[0] === "-t"){
