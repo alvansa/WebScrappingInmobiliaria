@@ -150,6 +150,8 @@ class Caso{
         const porcentajeNormalizado = this.normalizarPorcentaje(); 
         const formatoEntregaNormalizado = this.normalizarFormatoEntrega();
         const juzgadoNormalizado = this.normalizarJuzgado();
+        const direccionNormalizada = this.normalizarDireccion();
+        
 
         return {
             fechaObtencion: this.#fechaObtencion,
@@ -173,7 +175,7 @@ class Caso{
             tipoDerecho: this.#tipoDerecho,
             anno: annoNormalizado,
             martillero: this.#martillero,
-            direccion: this.#direccion,
+            direccion: direccionNormalizada,
             diaEntrega: this.#diaEntrega,
             aviso : this.#texto,
             numero : this.#numero,
@@ -188,7 +190,7 @@ class Caso{
             const partes = this.#fechaRemate.split('/');
             let fechaRemate = new Date(partes[2],partes[1]-1,partes[0]);
             fechaRemate.setHours(fechaRemate.getHours() + 6);
-            console.log(fechaRemate);
+            // console.log(fechaRemate);
             return fechaRemate;
         }
 
@@ -279,7 +281,7 @@ class Caso{
 
     // Devuelve el número del año en base a su nombre en palabras para escribir la fecha en tipo Date
     palabrasANumero(añoEnPalabras) {
-        console.log("Año en palabras: ",añoEnPalabras);
+        // console.log("Año en palabras: ",añoEnPalabras);
         añoEnPalabras = añoEnPalabras.toLowerCase();
         const mapaNumeros = {
             "veinticuatro": 24,
@@ -379,7 +381,7 @@ class Caso{
         if(this.#montoMinimo.includes("$")){
             return "CLP";
         }else if(montoMinimo.includes("uf")|montoMinimo.includes("unidadesdefomento")|montoMinimo.includes("u.f.")|montoMinimo.includes("uf.")){
-            console.log("UF");
+            // console.log("UF");
             return "UF";
         }    
     }
@@ -442,7 +444,7 @@ class Caso{
 }
 
     normalizarPartes(){
-        console.log("Partes: ",this.#partes);
+        // console.log("Partes: ",this.#partes);
         if(this.#partes == "N/A"){
             return "No especifica";
         }
@@ -453,7 +455,7 @@ class Caso{
                 const index = partesNormalizadas.indexOf(palabra);
                 const inicio = index + palabra.length + 1 ;
                 const partes = partesNormalizadas.slice(inicio);
-                console.log("Partes: ",partes);
+                // console.log("Partes: ",partes);
                 return partes;
             }
         }
@@ -470,7 +472,7 @@ class Caso{
         if(this.#anno == 0 || this.#anno == "N/A" || this.#anno == null || this.#anno == "No especifica"){
             return "No especifica";
         }
-        console.log("Anno: ",this.#anno);
+        // console.log("Anno: ",this.#anno);
         const anno = this.#anno.replaceAll(".","");
         return anno;
     }
@@ -494,7 +496,7 @@ class Caso{
     }
     normalizarCausa() {
         const valorOriginal = this.#causa;
-        console.log(valorOriginal);
+        // console.log(valorOriginal);
         
         if (valorOriginal === "N/A") {
             return "No especifica";
@@ -519,7 +521,12 @@ class Caso{
         return this.#juzgado.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
     }
 
-
+    normalizarDireccion(){
+        if(this.#direccion == "N/A"){
+            return "No especifica";
+        }
+        return this.#direccion.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
+    }
 }
 
 module.exports = Caso;

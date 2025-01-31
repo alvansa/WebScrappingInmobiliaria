@@ -3,8 +3,11 @@ const DataPublicosYLegales = require("./DataPublicosYLegales");
 
 
 async function test(){
-    const startDate = new Date(2024, 11, 9);
-    const endDate = new Date(2024, 11, 13);
+    // const startDate = new Date(2024, 11, 9);
+    // const endDate = new Date(2024, 11, 13);
+    const startDate = new Date(2025, 0, 24);
+    const endDate = new Date(2025, 0, 31);
+
     const queryDate = new Date();
     const publicosYLegales = new PublicosYLegales(startDate,endDate,queryDate);
     const casos = await publicosYLegales.scrapePage();

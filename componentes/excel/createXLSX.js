@@ -10,7 +10,7 @@ const {getDatosRemate} = require('../economico/datosRemateEmol.js');
 const {getPJUD,datosFromPjud} = require('../pjud/getPjud.js');
 const {getPdfData} = require('../liquidaciones/procesarBoletin.js');
 const {PreRemates} = require('../preremates/obtenerPublicaciones.js');
-const { get } = require("http");
+const PublicosYLegales = require('../publicosYlegales/publicosYLegales.js');
 
 
 function crearBase(saveFile) {
@@ -64,21 +64,32 @@ function crearBase(saveFile) {
 async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,saveFile) {
     const fechaLimite = stringToDate(fechaFinStr);
     var filePath = path.join(saveFile, 'Remates.xlsx');
+    // Revisa si el archivo base ya existe
     if(!fs.existsSync(path.join(saveFile, 'Remates.xlsx'))){
         crearBase(saveFile);
         console.log('Archivo creado');
     }
+    // Lee el archivo base para poder insertar los datos
     const wb = XLSX.readFile(path.join(saveFile, 'Remates.xlsx'));
     const ws = wb.Sheets['Remates'];
     cambiarAnchoColumnas(ws);
-    const [casosEconomico,casosLiquidaciones,casosPreremates,casosPjud] = await Promise.all([
-        getCasosEconomico(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries),
-        getCasosLiquidaciones(fechaHoy,fechaInicioStr,fechaFinStr),
-        getCasosPreremates(),
-        // getDatosPjud(fechaInicioStr,fechaFinStr)
-        Promise.resolve([])
+    // Obtiene los datos de los remates de las distintas fuentes.
+    const [casosEconomico,casosLiquidaciones,casosPreremates,casosPjud,casosPYL] = await Promise.all([
+        // getCasosEconomico(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries),
+        Promise.resolve([]),
+        // getCasosLiquidaciones(fechaHoy,fechaInicioStr,fechaFinStr),
+        Promise.resolve([]),
+        // getCasosPreremates(),
+        Promise.resolve([]),
+        // getDatosPjud(fechaInicioStr,fechaFinStr),
+        Promise.resolve([]),
+        getCasosPublicosYLegales(fechaInicioStr,fechaFinStr)
     ]);
-    const casos = [...casosEconomico,...casosLiquidaciones,...casosPreremates,...casosPjud];
+    const casos = [...casosEconomico,...casosLiquidaciones,...casosPreremates,...casosPYL,...casosPjud];
+    if(casos.length === 0){
+        console.log('No se encontraron datos para insertar.');
+        return null;
+    }
     try{
         let lastRow = insertarCasosExcel(casos,ws,fechaLimite) - 1;
         // lastRow--;
@@ -154,6 +165,21 @@ async function getDatosPjud(fechaInicioStr,fechaFinStr){
         return casosPjud;
     }
     return casosPjud;;
+}
+
+async function getCasosPublicosYLegales(fechaInicioStr,fechaFinStr){
+    let casos = [];
+    const startDate = stringToDate(fechaInicioStr);
+    const endDate = stringToDate(fechaFinStr);
+    const queryDate = new Date();
+    console.log("Fechas: ",startDate,endDate,queryDate);
+    try{
+        const publicosYLegales = new PublicosYLegales(startDate,endDate,queryDate);
+        casos = await publicosYLegales.scrapePage();
+    }catch(error){
+        console.error('Error al obtener resultados en publicos y legales:', error);
+    }
+    return casos;
 }
 
 function insertarCasosExcel(casos,ws,fechaLimite){

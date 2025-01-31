@@ -46,7 +46,7 @@ function procesarDatosRemate(caso){
     if (causa != null){
         caso.darCausa(causa[0]);
     }else{
-        console.log("Causa no encontrada");
+        // console.log("Causa no encontrada");
         const causaVoluntaria = getCausaVoluntaria(texto);
         if (causaVoluntaria != null){
             caso.darCausa(causaVoluntaria[0]);
@@ -414,7 +414,7 @@ function getAnno(data){
     }
     const dataRegistro = dataNormalized.substring(registroFecha);
     let registroFin = dataRegistro.indexOf('.');
-    console.log("Registro fin: ",registroFin);
+    // console.log("Registro fin: ",registroFin);
     if (registroFin == -1){
         registroFin = dataRegistro.indexOf(',');
     }
@@ -422,7 +422,7 @@ function getAnno(data){
         return null;
     }
     registro = dataRegistro.substring(0,registroFin);
-    console.log("Registro: ",registro);
+    // console.log("Registro: ",registro);
     const regexAnnoConDecimal = /(\b\d{1}(?:\.\d{3})?\b|\b\d{4}\b)/gi;
     const annoRegistro = registro.match(regexAnnoConDecimal);
     if (annoRegistro!= null){
@@ -434,7 +434,7 @@ function getAnno(data){
 function getDireccion(data) {
     const dataNormalizada = data.replace(/(\d+)\.(\d+)/g, '$1$2');
     const dataMinuscula = dataNormalizada.toLowerCase();
-    console.log("Data minuscula: ", dataMinuscula);
+    // console.log("Data minuscula: ", dataMinuscula);
 
     const palabrasClave = ['propiedad', 'inmueble', 'departamento', 'casa'];
     const comuna = 'comuna';

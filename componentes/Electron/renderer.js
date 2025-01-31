@@ -38,7 +38,10 @@ document.getElementById('logButton').addEventListener('click', async () => {
       // const inicio = new Date();
       const filePath = await window.api.logDates(startDate, endDate,saveFile); // Operación que toma tiempo
       // const fin = new Date();
-      if (typeof(filePath) != 'number') {
+      if(filePath == null){
+        alert('Ocurrio un error al obtener los datos, por favor intente nuevamente');
+      }
+      else if (typeof(filePath) != 'number') {
         alert('¡Éxito! Los datos se han registrado correctamente en el archivo: ' + filePath);
         // const tiempo = (fin - inicio)/1000;
         // alert("Se demoro " + tiempo + " segundos");

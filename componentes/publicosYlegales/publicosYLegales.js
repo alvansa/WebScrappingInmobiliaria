@@ -2,6 +2,7 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const fs = require('fs');
 const Caso = require("../caso/caso");
+const puppeteer = require('puppeteer');
 
 
 class PublicosYLegales{
@@ -15,18 +16,28 @@ class PublicosYLegales{
     }
 
     async scrapePage(){
-        await this.searchAuctions();
+        await this.testSearchAuction();
+        return [];
+        // await this.searchAuctions();
 
-        for(let caso of this.casos){
-            await this.getDataAuction(caso);
-        } 
-        return this.casos;
+        // for(let caso of this.casos){
+        //     await this.getDataAuction(caso);
+        // } 
+        // return this.casos;
+    }
+
+    async testSearchAuction(){
+        const browser = await puppeteer.launch();
+        const page = await browser.newPage();
+        await page.goto("https://publicosylegales.cl/busqueda/?jsf=jet-engine:lista_encontrada&tax=category:41&date=2024.12.9");
+        await page.screenshot({path: 'example.png'});
+        await browser.close();
     }
 
     async getDataAuction(caso){
         const { data } = await axios.get(caso.link);
         const $ = cheerio.load(data);
-        const description = this.obtainDescription($);
+        const description = this.obtainDescription2($);
         caso.darTexto(description);
 
     }
@@ -57,6 +68,20 @@ class PublicosYLegales{
         }
         
         return null;
+    }
+
+    obtainDescription2 ($){
+        let description = $("div.elementor-element-82500aa").text();
+        if(description.length > 0){
+            console.log("Descripcion econtrada con: div.elementor-element-82500aa");
+            return this.normalizeDescriptionFromWeb(description);
+        }
+
+    }
+    normalizeDescriptionFromWeb(description){
+        const normalizedDescription = description
+            .replace(/[\n\t+]/gi,"");
+        return normalizedDescription;
     }
 
     async searchAuctions(){
