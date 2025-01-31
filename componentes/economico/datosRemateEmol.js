@@ -123,6 +123,11 @@ function getCausa(data) {
     if (causaSinC != null){
         return causaSinC;
     }
+    const regexCausaRolN = /rol\s*n(?:º|°)\s*\d{1,7}(?:\.\d{3})*\s*-\s*\d{1,4}(?:\.\d{3})*/i;
+    const causaRolN = data.match(regexCausaRolN);
+    if(causaRolN != null){
+        return causaRolN; 
+    } 
 }
 
 function getCausaVoluntaria(data){
