@@ -13,17 +13,23 @@ class PublicosYLegales{
         this.link = "https://publicosylegales.cl/lorem-ipsum-dolor-sit-amet/";
         this.date = "2024.12.9";
         this.casos = [];
+        this.browser = null;
+        this.page = null;
     }
 
     async scrapePage(){
-        await this.testSearchAuction();
-        return [];
-        // await this.searchAuctions();
-
-        // for(let caso of this.casos){
-        //     await this.getDataAuction(caso);
-        // } 
-        // return this.casos;
+        this.browser = await puppeteer.launch({headless: false});
+        this.page = await this.browser.newPage();
+        // await this.testSearchAuction();
+        // return [];
+        await this.searchAuctions();
+        console.log(this.casos);
+        console.log(this.casos.length);
+        for(let caso of this.casos){
+            await this.getDataAuction(caso);
+        } 
+        this.browser.close();
+        return this.casos;
     }
 
     async testSearchAuction(){
@@ -35,49 +41,23 @@ class PublicosYLegales{
     }
 
     async getDataAuction(caso){
-        const { data } = await axios.get(caso.link);
-        const $ = cheerio.load(data);
-        const description = this.obtainDescription2($);
-        caso.darTexto(description);
-
+        await this.page.goto(caso.link,{waitUntil: 'networkidle2'});
+        const description = await this.page.evaluate(()=>{
+            const description = document.querySelector(".elementor-element-82500aa").textContent.trim();
+            return description;
+        });
+        const normalizedDescription = this.normalizeDescriptionFromWeb(description);
+        caso.darTexto(normalizedDescription);
+        console.log(normalizedDescription);
     }
 
-    obtainDescription($){
-        let description = $("div.elementor-widget-container p:not(:has(> a))").text();
-        let normalizedDescription = description.replace(/(<br\s*\/>|\n)/g, ' ').trim();
-        console.log("---------------------------------------");
-        if(normalizedDescription !== ""){
-            console.log("Descripcion econtrada con: p");
-            console.log(normalizedDescription);
-            return normalizedDescription;
-        }
-        console.log("No se encontró la descripción");
-        description = $('div[data-olk-copy-source="MessageBody"]').text();  
-        if(description !== ""){
-            normalizedDescription = description.replace(/(<br\s*\/>|\n)/g, ' ').trim();
-            console.log(`Descripcion econtrada con: div[data-olk-copy-source="MessageBody"]`);
-            console.log(normalizedDescription);
-            return normalizedDescription;
-        }
-        description = $('div.x_elementToProof').text();
-        if(description !== ""){
-            normalizedDescription = description.replace(/(<br\s*\/>|\n)/g, ' ').trim();
-            console.log(`Descripcion econtrada con: div.x_elementToProof`);
-            console.log(normalizedDescription);
-            return normalizedDescription;
-        }
-        
-        return null;
+    obtainDescription(){
+        const div = document.querySelector(".elementor-element-82500aa");
+        const description = div.textContent.trim();
+        const normalizedDescription = this.normalizeDescriptionFromWeb(description);
+        return description;
     }
 
-    obtainDescription2 ($){
-        let description = $("div.elementor-element-82500aa").text();
-        if(description.length > 0){
-            console.log("Descripcion econtrada con: div.elementor-element-82500aa");
-            return this.normalizeDescriptionFromWeb(description);
-        }
-
-    }
     normalizeDescriptionFromWeb(description){
         const normalizedDescription = description
             .replace(/[\n\t+]/gi,"");
@@ -94,6 +74,30 @@ class PublicosYLegales{
     }
 
     async obtainLinks(date){
+        const currentDate = this.formatDateToString(date);
+        const searchLink = `https://publicosylegales.cl/busqueda/?jsf=jet-engine:lista_encontrada&tax=category:41&date=${currentDate}`;
+        await this.page.goto(searchLink,{waitUntil: 'networkidle2'});
+        const casos = await this.page.evaluate(()=>{
+            const divs = document.querySelectorAll(".elementor-element-b8562e3");
+            const casos = [];
+            divs.forEach((div)=>{
+                const fecha = div.querySelector(".elementor-heading-title.elementor-size-default").textContent.trim();
+                const link = div.querySelector("a").href;
+                if(fecha && link){
+                    casos.push({fecha,link});
+                }
+            });
+            return casos;
+        });
+        for(let publicacion of casos){
+            const fecha = publicacion.fecha;
+            const link = publicacion.link; 
+            const caso = new Caso(this.queryDate,this.formatStringToDate(fecha),link);
+            this.casos.push(caso);
+        }
+    }
+
+    async obtainLinksAxios(date){
         const currentDate = this.formatDateToString(date);
         const searchLink = `https://publicosylegales.cl/busqueda/?jsf=jet-engine:lista_encontrada&tax=category:41&date=${currentDate}`;
         const { data } = await axios.get(searchLink);

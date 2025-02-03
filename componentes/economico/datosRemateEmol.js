@@ -246,9 +246,9 @@ function getFechaRemate(data) {
 function getMontoMinimo(data) {
     const regexs = [
         /(subasta|mínimo|mínima)\s*([a-zA-ZáéíóúÑñ:\s]*)\s+(\$)\s*(\d{1,3}(?:\.\d{3})+)\s*(\d{1,3})?/i,
-        /(subasta|mínimo|minimo)\s*([a-zA-ZáéíóúÑñ:\s]*)\s+(\d{1,3}.)+(\d{1,3})\s*(,\d{1,10})?\s*(Unidades de Fomento|UF|U.F.)/i,
-        /(subasta|mínimo|minimo)\s*([a-zA-ZáéíóúÑñ:\s]*)\s+(Unidades de Fomento|U\.?F\.?)\s*(\d{1,3}\.)*\s*(\d{1,12})\s*(,\d{1,10})?/i,
-        /(subasta|mínimo)\s*([.,a-zA-ZáéíóúÑñ:\s]*)\s+(\$)\s*\d{1,3}(?:\.\d{3})+/i,
+        /(subasta|mínimo|minimo|mínima)\s*([a-zA-ZáéíóúÑñ:\s]*)\s+(\d{1,3}.)+(\d{1,3})\s*(,\d{1,10})?\s*\.?-?\s*(Unidades de Fomento|UF|U.F.)/i,
+        /(subasta|mínimo|minimo|mínima)\s*([a-zA-ZáéíóúÑñ:\s]*)\s+(Unidades de Fomento|U\.?F\.?)\s*(\d{1,3}\.)*\s*(\d{1,12})\s*(,\d{1,10})?/i,
+        /(subasta|mínimo|mínima)\s*([.,a-zA-ZáéíóúÑñ:\s]*)\s+(\$)\s*\d{1,3}(?:\.\d{3})+/i,
     ];
     for(let regex of regexs){
         const montoMinimo = data.match(regex);

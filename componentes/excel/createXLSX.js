@@ -11,7 +11,7 @@ const {getPJUD,datosFromPjud} = require('../pjud/getPjud.js');
 const {getPdfData} = require('../liquidaciones/procesarBoletin.js');
 const {PreRemates} = require('../preremates/obtenerPublicaciones.js');
 const PublicosYLegales = require('../publicosYlegales/publicosYLegales.js');
-
+const DataPublicosYLegales = require("../publicosYlegales/DataPublicosYLegales.js");
 
 function crearBase(saveFile) {
     // Crea una hoja de cálculo vacía
@@ -75,14 +75,14 @@ async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,save
     cambiarAnchoColumnas(ws);
     // Obtiene los datos de los remates de las distintas fuentes.
     const [casosEconomico,casosLiquidaciones,casosPreremates,casosPjud,casosPYL] = await Promise.all([
-        // getCasosEconomico(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries),
-        Promise.resolve([]),
-        // getCasosLiquidaciones(fechaHoy,fechaInicioStr,fechaFinStr),
-        Promise.resolve([]),
-        // getCasosPreremates(),
-        Promise.resolve([]),
-        // getDatosPjud(fechaInicioStr,fechaFinStr),
-        Promise.resolve([]),
+        getCasosEconomico(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries),
+        // Promise.resolve([]),
+        getCasosLiquidaciones(fechaHoy,fechaInicioStr,fechaFinStr),
+        // Promise.resolve([]),
+        getCasosPreremates(),
+        // Promise.resolve([]),
+        getDatosPjud(fechaInicioStr,fechaFinStr),
+        // Promise.resolve([]),
         getCasosPublicosYLegales(fechaInicioStr,fechaFinStr)
     ]);
     const casos = [...casosEconomico,...casosLiquidaciones,...casosPreremates,...casosPYL,...casosPjud];
@@ -176,6 +176,10 @@ async function getCasosPublicosYLegales(fechaInicioStr,fechaFinStr){
     try{
         const publicosYLegales = new PublicosYLegales(startDate,endDate,queryDate);
         casos = await publicosYLegales.scrapePage();
+        for(let caso of casos){
+            const data = new DataPublicosYLegales(caso);
+            data.proccessAuction();
+        }
     }catch(error){
         console.error('Error al obtener resultados en publicos y legales:', error);
     }

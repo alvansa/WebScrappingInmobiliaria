@@ -527,6 +527,12 @@ class Caso{
         }
         return this.#direccion.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
     }
+    normalizarDiaEntrega(){
+        if(this.#diaEntrega == "N/A"){
+            return "No especifica";
+        }
+        return this.#diaEntrega.toLowerCase();
+    }
 }
 
 module.exports = Caso;
