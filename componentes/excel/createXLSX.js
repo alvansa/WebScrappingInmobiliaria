@@ -18,33 +18,66 @@ function crearBase(saveFile) {
     const ws = {};
 
     // Define cada celda con el valor y el tipo
-    ws['B5'] = { v: 'Link', t: 's' };
-    ws['C5'] = { v: 'Fecha Obtención', t: 's' };
-    ws['D5'] = { v: 'Fecha Publicación', t: 's' };
-    ws['E5'] = { v: 'Fecha Remate', t: 's' };
-    ws['F5'] = { v: 'Causa', t: 's' };
-    ws['G5'] = { v: 'Juzgado', t: 's' };
-    ws['H5'] = { v: 'Comuna del juzgado', t: 's' };
-    ws['I5'] = { v: 'Partes', t: 's' };
-    ws['J5'] = { v: 'Tipo propiedad', t: 's' };
-    ws['K5'] = { v: 'Dirección', t: 's' };
-    ws['L5'] = { v: 'Tipo derecho', t: 's' };
-    ws['M5'] = { v: 'Comuna', t: 's' };
-    ws['N5'] = { v: 'Foja', t: 's' };
-    ws['O5'] = { v: 'Numero', t: 's' };
-    ws['P5'] = { v: 'Año', t: 's' };
-    ws['Q5'] = { v: 'VV o Cupón', t: 's' };
-    ws['R5'] = { v: 'Porcentaje', t: 's' };
-    ws['S5'] = { v: 'Día entrega', t: 's' };
-    ws['T5'] = { v: 'Monto Mínimo', t: 's' };
-    ws['U5'] = { v: 'Moneda', t: 's' };
-    ws['V5'] = { v: 'Martillero', t: 's' };
+    // ws['B5'] = { v: 'Link', t: 's' };
+    // ws['C5'] = { v: 'Fecha Obtención', t: 's' };
+    // ws['D5'] = { v: 'Fecha Publicación', t: 's' };
+    // ws['E5'] = { v: 'Fecha Remate', t: 's' };
+    // ws['F5'] = { v: 'Causa', t: 's' };
+    // ws['G5'] = { v: 'Juzgado', t: 's' };
+    // ws['H5'] = { v: 'Comuna del juzgado', t: 's' };
+    // ws['I5'] = { v: 'Partes', t: 's' };
+    // ws['J5'] = { v: 'Tipo propiedad', t: 's' };
+    // ws['K5'] = { v: 'Dirección', t: 's' };
+    // ws['L5'] = { v: 'Tipo derecho', t: 's' };
+    // ws['M5'] = { v: 'Comuna', t: 's' };
+    // ws['N5'] = { v: 'Foja', t: 's' };
+    // ws['O5'] = { v: 'Numero', t: 's' };
+    // ws['P5'] = { v: 'Año', t: 's' };
+    // ws['Q5'] = { v: 'VV o Cupón', t: 's' };
+    // ws['R5'] = { v: 'Porcentaje', t: 's' };
+    // ws['S5'] = { v: 'Día entrega', t: 's' };
+    // ws['T5'] = { v: 'Monto Mínimo', t: 's' };
+    // ws['U5'] = { v: 'Moneda', t: 's' };
+    // ws['V5'] = { v: 'Martillero', t: 's' };
+
+    ws['A5'] = {v: 'vacia ', t: 's'};
+    ws['B5'] = {v: 'status ', t: 's'};
+    ws['C5'] = {v: 'F.Desc ', t: 's'};
+    ws['D5'] = {v: 'origen ', t: 's'};
+    ws['E5'] = {v: 'notas ', t: 's'};
+    ws['F5'] = {v: 'F. remate ', t: 's'};
+    ws['G5'] = {v: 'macal ', t: 's'};
+    ws['H5'] = {v: 'direccion ', t: 's'};
+    ws['I5'] = {v: 'causa ', t: 's'};
+    ws['J5'] = {v: 'tribunal ', t: 's'};
+    ws['K5'] = {v: 'comuna tribunal ', t: 's'};
+    ws['L5'] = {v: 'comuna propiedad ', t: 's'};
+    ws['M5'] = {v: 'año inscripcion ', t: 's'};
+    ws['N5'] = {v: 'partes ', t: 's'};
+    ws['O5'] = {v: 'dato ', t: 's'};
+    ws['P5'] = {v: 'vale vista o cupon ', t: 's'};
+    ws['Q5'] = {v: '% ', t: 's'};
+    ws['R5'] = {v: 'plazo vv ', t: 's'};
+    ws['S5'] = {v: 'tipo derecho ', t: 's'};
+    ws['T5'] = {v: 'deuda 1 ', t: 's'};
+    ws['U5'] = {v: 'deuda 2 ', t: 's'};
+    ws['V5'] = {v: 'deuda 3 ', t: 's'};
+    ws['W5'] = {v: 'rol ', t: 's'};
+    ws['X5'] = {v: 'notif ', t: 's'};
+    ws['Y5'] = {v: 'preciominimo ', t: 's'};
+    ws['Z5'] = {v: 'UF o $ ', t: 's'};
+    ws['AC5'] = {v: 'avaluo fiscal ', t: 's'};
+    ws['AE5'] = {v: 'estado civil ', t: 's'};
+    ws['AF5'] = {v: 'Px $ compra ant ', t: 's'};
+    ws['AG5'] = {v: 'año compr ant ', t: 's'};
+    ws['AH5'] = {v: 'precio venta nos ', t: 's'};
+
 
     // Ajusta el ancho de las columnas
     cambiarAnchoColumnas(ws);
 
     // Define el rango de la hoja para asegurar que incluya todas las celdas especificadas
-    ws['!ref'] = 'B5:V5';
+    ws['!ref'] = 'A5:AH5';
 
     // Crea un nuevo libro y agrega la hoja
     const wb = XLSX.utils.book_new();
@@ -61,7 +94,7 @@ function crearBase(saveFile) {
 }
 
 
-async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,saveFile) {
+async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,saveFile,checkedBoxes) {
     const fechaLimite = stringToDate(fechaFinStr);
     var filePath = path.join(saveFile, 'Remates.xlsx');
     // Revisa si el archivo base ya existe
@@ -75,15 +108,15 @@ async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,save
     cambiarAnchoColumnas(ws);
     // Obtiene los datos de los remates de las distintas fuentes.
     const [casosEconomico,casosLiquidaciones,casosPreremates,casosPjud,casosPYL] = await Promise.all([
-        getCasosEconomico(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries),
+        getCasosEconomico(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,checkedBoxes.economico),
         // Promise.resolve([]),
-        getCasosLiquidaciones(fechaHoy,fechaInicioStr,fechaFinStr),
+        getCasosLiquidaciones(fechaHoy,fechaInicioStr,fechaFinStr,checkedBoxes.liquidaciones),
         // Promise.resolve([]),
-        getCasosPreremates(),
+        getCasosPreremates(checkedBoxes.preremates),
         // Promise.resolve([]),
-        getDatosPjud(fechaInicioStr,fechaFinStr),
-        // Promise.resolve([]),
-        getCasosPublicosYLegales(fechaInicioStr,fechaFinStr)
+        // getDatosPjud(fechaInicioStr,fechaFinStr,checkedBoxes.pjud),
+        Promise.resolve([]),
+        getCasosPublicosYLegales(fechaInicioStr,fechaFinStr,checkedBoxes.PYL)
     ]);
     const casos = [...casosEconomico,...casosLiquidaciones,...casosPreremates,...casosPYL,...casosPjud];
     if(casos.length === 0){
@@ -93,7 +126,7 @@ async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,save
     try{
         let lastRow = insertarCasosExcel(casos,ws,fechaLimite) - 1;
         // lastRow--;
-        ws['!ref'] = 'B5:V'+lastRow;
+        ws['!ref'] = 'A5:AH'+lastRow;
         const fechaInicioDMA = cambiarFormatoFecha(fechaInicioStr);
         const fechaFinDMA = cambiarFormatoFecha(fechaFinStr);
         filePath = path.join(saveFile, 'Remates_'+fechaInicioDMA+'_a_'+fechaFinDMA+'.xlsx');
@@ -108,7 +141,10 @@ async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,save
 }
 
 
-async function getCasosEconomico(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries){
+async function getCasosEconomico(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,economicoChecked){
+    if(!economicoChecked){
+        return [];
+    }
     let casos = [];
     try{
         casos = await getDatosRemate(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries) || [];
@@ -118,7 +154,10 @@ async function getCasosEconomico(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries)
     return casos
 }
 
-async function getCasosLiquidaciones(fechaHoy,fechaInicioStr,fechaFinStr){
+async function getCasosLiquidaciones(fechaHoy,fechaInicioStr,fechaFinStr,liquidacionesChecked){
+    if(!liquidacionesChecked){
+        return [];
+    }
     let casos = [];
     const startDate = stringToDate(fechaInicioStr);
     const endDate = stringToDate(fechaFinStr);
@@ -131,7 +170,10 @@ async function getCasosLiquidaciones(fechaHoy,fechaInicioStr,fechaFinStr){
     return casos;
 }
 
-async function getCasosPreremates(){
+async function getCasosPreremates(prerematesChecked){
+    if(!prerematesChecked){
+        return [];
+    }
     let casos = [];
     const EMAIL = config.EMAIL;
     const PASSWORD = config.PASSWORD;
@@ -143,7 +185,10 @@ async function getCasosPreremates(){
     }
     return casos;
 }
-async function getDatosPjud(fechaInicioStr,fechaFinStr){
+async function getDatosPjud(fechaInicioStr,fechaFinStr,pjudChecked){
+    if(!pjudChecked){
+        return [];
+    }
     console.log("Fechas: ",fechaInicioStr,fechaFinStr);
     let casosPjud = [];
     let fechaInicioPjud = '';
@@ -167,7 +212,11 @@ async function getDatosPjud(fechaInicioStr,fechaFinStr){
     return casosPjud;;
 }
 
-async function getCasosPublicosYLegales(fechaInicioStr,fechaFinStr){
+async function getCasosPublicosYLegales(fechaInicioStr,fechaFinStr,PYLChecked){
+    if(!PYLChecked){
+        return [];
+    }
+
     let casos = [];
     const startDate = stringToDate(fechaInicioStr);
     const endDate = stringToDate(fechaFinStr);
@@ -220,74 +269,83 @@ function shouldSkip(caso,remates,fechaLimite){
 }
 
 function insertarCasoIntoWorksheet(caso,ws,currentRow){
-    ws['B' + currentRow] = { v: caso.link, t: 's' };
-    ws['C' + currentRow] = { v: caso.fechaObtencion, t: 'd' };
-    
-    if(caso.fechaPublicacion !== "N/A"){
-        const adjustedDate = new Date(caso.fechaPublicacion);
-        adjustedDate.setHours(adjustedDate.getHours() + 6);
-        ws['D' + currentRow] = { v: adjustedDate, t: 'd' };
-    }
+    // if(caso.fechaPublicacion !== "N/A"){
+    //     const adjustedDate = new Date(caso.fechaPublicacion);
+    //     adjustedDate.setHours(adjustedDate.getHours() + 6);
+    //     ws['D' + currentRow] = { v: adjustedDate, t: 'd' };
+    // }
+    // ws['J' + currentRow] = { v: caso.tipoPropiedad, t: 's' };
+
+    // ws['A'+ currentRow ] = {v: 'vacia ', t: 's'};
+    // ws['B'+ currentRow ] = {v: 'status ', t: 's'};
+    ws['C'+ currentRow ] = {v: caso.fechaObtencion, t: 'd'};
+    ws['D'+ currentRow ] = {v: caso.link , t: 's'};
+    // ws['E'+ currentRow ] = {v: 'notas ', t: 's'};
     if(caso.fechaRemate !== "N/A"){
         const adjustedAuctionDate = new Date(caso.fechaRemate);
         adjustedAuctionDate.setHours(adjustedAuctionDate.getHours() + 6);
-        ws['E' + currentRow] = { v: adjustedAuctionDate , t: 'd' };
+        ws['F' + currentRow] = { v: adjustedAuctionDate , t: 'd' };
     }
-    ws['F' + currentRow] = { v: caso.causa, t: 's' };
-    ws['G' + currentRow] = { v: caso.juzgado, t: 's' };
-    ws['H' + currentRow] = { v: getComunaJuzgado(caso.juzgado), t: 's' };
-    ws['I' + currentRow] = { v: caso.partes, t: 's' };
-    ws['J' + currentRow] = { v: caso.tipoPropiedad, t: 's' };
-    ws['K' + currentRow] = { v: caso.direccion, t: 's' };
-    ws['L' + currentRow] = { v: caso.tipoDerecho, t: 's' };
-    ws['M' + currentRow] = { v: caso.comuna, t: 's' };
-    ws['N' + currentRow] = { v: caso.foja, t: 's' };
-    ws['O' + currentRow] = { v: caso.numero, t: 's' };
-
+    ws['G'+ currentRow ] = {v: caso.martillero, t: 's'};
+    ws['H'+ currentRow ] = {v: caso.direccion, t: 's'};
+    ws['I'+ currentRow ] = {v: caso.causa , t: 's'};
+    ws['J'+ currentRow ] = {v: caso.juzgado, t: 's'};
+    ws['K'+ currentRow ] = {v: getComunaJuzgado(caso.juzgado), t: 's'};
+    ws['L'+ currentRow ] = {v: caso.comuna , t: 's'};
     if(caso.anno == 'No especifica'){
-        ws['P' + currentRow] = { v: caso.anno, t: 's' };
+        ws['M' + currentRow] = { v: caso.anno, t: 's' };
     }else{
-        ws['P' + currentRow] = { v: caso.anno, t: 'n' };
+        ws['M' + currentRow] = { v: caso.anno, t: 'n' };
     }
-
-    ws['Q' + currentRow] = { v: caso.formatoEntrega, t: 's' };
-    ws['R' + currentRow] = { v: caso.porcentaje, t: 's' };
-    ws['S' + currentRow] = { v: caso.diaEntrega, t: 's' };
-
+    ws['N'+ currentRow ] = {v: caso.partes , t: 's'};
+    // ws['O'+ currentRow ] = {v: 'dato ', t: 's'};
+    ws['P'+ currentRow ] = {v: caso.formatoEntrega, t: 's'};
+    ws['Q'+ currentRow ] = {v: caso.porcentaje, t: 's'};
+    ws['R'+ currentRow ] = {v: caso.diaEntrega, t: 's'};
+    ws['S'+ currentRow ] = {v: caso.tipoDerecho, t: 's'};
+    // ws['T'+ currentRow ] = {v: 'deuda 1 ', t: 's'};
+    // ws['U'+ currentRow ] = {v: 'deuda 2 ', t: 's'};
+    // ws['V'+ currentRow ] = {v: 'deuda 3 ', t: 's'};
+    // ws['W'+ currentRow ] = {v: 'rol ', t: 's'};
+    // ws['X'+ currentRow ] = {v: 'notif ', t: 's'};
     // Formato de monto minimo segun el tipo de moneda
     if(caso.moneda === 'No aplica'){
-        ws['T' + currentRow] = { v: caso.montoMinimo, t: 's' };
-        ws["U" + currentRow] = { v: caso.moneda, t: 's' };
+        ws['Y' + currentRow] = { v: caso.montoMinimo, t: 's' };
+        ws["Z" + currentRow] = { v: caso.moneda, t: 's' };
     }
     else if(caso.moneda == 'UF'){
-        ws['T' + currentRow] = { v:parseFloat(caso.montoMinimo), t: 'n', z: '#,##0.0000' };
+        ws['Y' + currentRow] = { v:parseFloat(caso.montoMinimo), t: 'n', z: '#,##0.0000' };
     }else{
-        ws['T' + currentRow] = { v:parseFloat(caso.montoMinimo), t: 'n', z: '#,##0' };
+        ws['Y' + currentRow] = { v:parseFloat(caso.montoMinimo), t: 'n', z: '#,##0' };
     }
-    ws['U' + currentRow] = { v: caso.moneda, t: 's' };                
-    ws['V' + currentRow] = { v: caso.martillero, t: 's' }; 
+    ws['Z' + currentRow] = { v: caso.moneda, t: 's' };                
+    // ws['AC'+ currentRow ] = {v: 'avaluo fiscal ', t: 's'};
+    // ws['AE' + currentRow ] = {v: 'estado civil ', t: 's'};
+    // ws['AF' + currentRow ] = {v: 'Px $ compra ant ', t: 's'};
+    // ws['AG' + currentRow ] = {v: 'año compr ant ', t: 's'};
+    // ws['AH' + currentRow ] = {v: 'precio venta nos ', t: 's'};
 }
 
 function cambiarAnchoColumnas(ws){
     ws['!cols'] = [
         { wch: 15 },  // A
-        { wch: 60 },  // B
+        { wch: 15 },  // B
         { wch: 20 },  // C
-        { wch: 20 },  // D
+        { wch: 70 },  // D
         { wch: 25 },  // E
         { wch: 15 },  // F
-        { wch: 50 },  // G
+        { wch: 30 },  // G
         { wch: 20 },  // H
-        { wch: 30 },  // I
-        { wch: 15 },  // J
+        { wch: 15 },  // I
+        { wch: 30 },  // J
         { wch: 15 },  // K
-        { wch: 15 },  // L
+        { wch: 20 },  // L
         { wch: 15 },  // M
-        { wch: 15 },  // N
+        { wch: 60 },  // N
         { wch: 15 },  // O
-        { wch: 15 },  // P
+        { wch: 20 },  // P
         { wch: 15 },  // Q
-        { wch: 15 },  // R
+        { wch: 30 },  // R
         { wch: 15 },  // S
         { wch: 30 },  // T
         { wch: 10 }, // U

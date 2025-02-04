@@ -4,7 +4,7 @@ const nodePath = require('path');
 
 
 contextBridge.exposeInMainWorld('api', {
-  logDates:async (startDate, endDate,saveFile) => {
+  logDates:async (startDate, endDate,saveFile,checkedBoxes) => {
     try {
         const fechaHoy = new Date();
         const maxRetries = 10;
@@ -20,7 +20,7 @@ contextBridge.exposeInMainWorld('api', {
             console.log("No se ingreso la fecha de fin");
             return 2;
         }
-        filePath = await insertarDatos(fechaHoy,startDate,endDate,maxRetries,saveFile);
+        filePath = await insertarDatos(fechaHoy,startDate,endDate,maxRetries,saveFile,checkedBoxes);
         return filePath;
     }catch (error) {
         console.error('Error al obtener resultados en el index.js:', error.message);

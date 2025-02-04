@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://www.economicos.cl; img-src 'self' data: https://www.economicos.cl; script-src 'self' 'unsafe-eval'">
+    <title>Info Remates</title>
+    <link rel="stylesheet" href="../../css/styles.css">
+    
+  </head>
+  <body>
+    <div class="container">
+      <div class="folder-selector-container">
+        <label for="folder-input" class="folder-label">Seleccionar carpeta</label>
+        <div class="folder-selector">
+            <input type="text" id="folder-input" class="folder-input" readonly placeholder="No se ha seleccionado ninguna carpeta">
+            <button id="select-folder-btn" class="folder-btn">Seleccionar</button>
+        </div>
+    </div>
+      <input type="date" id="startDate" />
+      <input type="date" id="endDate" />
+      <button id="logButton">Obtener remates</button>
+      <!-- <button id="showButton">Mostrar mensaje</button> -->
+    </div>
+    <div class="chechbox-container">
+
+      <input type="checkbox" id="pjud" />
+      <label for="checkAll">Letra Grande</label>
+      
+      <input type="checkbox" id="economicos" />
+      <label for="checkAll">Emol</label>
+
+      <input type="checkbox" id="liquidaciones" />
+      <label for="checkAll">Liquidaciones</label>
+
+      <input type="checkbox" id="preremates" />
+      <label for="checkAll">Preremates</label>
+
+      <input type="checkbox" id="PYL" />
+      <label for="checkAll">Publicos y legales</label>
+
+    </div>
+    <script src="./renderer.js"></script>
+
+  </body>
+</html>

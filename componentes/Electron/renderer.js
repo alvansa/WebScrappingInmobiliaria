@@ -2,8 +2,7 @@
 
 
 document.getElementById('logButton').addEventListener('click', async () => {
-  const startDate = document.getElementById('startDate').value;
-  const endDate = document.getElementById('endDate').value;
+
 
   // Crear y mostrar el diálogo de "Trabajando..."
   const workingDialog = document.createElement('div');
@@ -21,9 +20,11 @@ document.getElementById('logButton').addEventListener('click', async () => {
   document.body.appendChild(workingDialog);
 
   try {
+    const {startDate,endDate,saveFile} = getFormValues();
+    const checkedBoxes = getCheckedBoxes();
+    console.log(checkedBoxes);
     // Verifica que window.api exista antes de usarla
     if (window.api && window.api.logDates) {
-      const saveFile = document.getElementById('folder-input').value;
       if (saveFile == 'No se seleccionó ninguna carpeta.' || saveFile == '') {
         alert('No se ha seleccionado una carpeta para guardar los datos');
         return;
@@ -36,7 +37,7 @@ document.getElementById('logButton').addEventListener('click', async () => {
     });
 
       // const inicio = new Date();
-      const filePath = await window.api.logDates(startDate, endDate,saveFile); // Operación que toma tiempo
+      const filePath = await window.api.logDates(startDate, endDate,saveFile,checkedBoxes); // Operación que toma tiempo
       // const fin = new Date();
       if(filePath == null){
         alert('Ocurrio un error al obtener los datos, por favor intente nuevamente');
@@ -66,6 +67,23 @@ document.getElementById('logButton').addEventListener('click', async () => {
   }
 });
 
+function getFormValues(){
+  const startDate = document.getElementById('startDate').value;
+  const endDate = document.getElementById('endDate').value;
+  const saveFile = document.getElementById('folder-input').value
+
+  return {startDate,endDate,saveFile};
+}
+
+function getCheckedBoxes(){
+  return {
+    pjud: document.getElementById('pjud').checked,
+    economico: document.getElementById('economicos').checked,
+    PYL: document.getElementById('PYL').checked,
+    liquidaciones: document.getElementById('liquidaciones').checked,
+    preremates: document.getElementById('preremates').checked
+  }
+}
 
 
   
