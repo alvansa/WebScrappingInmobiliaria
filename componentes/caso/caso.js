@@ -139,8 +139,8 @@ class Caso{
             montominimo = this.#montoMinimo.replaceAll('.','').replaceAll(',','.');
             moneda = "CLP";
         }else if(this.#montoMinimo !== 'N/A'){
-            montominimo = this.getMontoMinimo();
-            moneda = this.getTipoMoneda();
+            montominimo = this.normalizarMonto();
+            moneda = this.#montoMinimo["moneda"];
         }else{
             montominimo = "No especifica";
             moneda = "No aplica";
@@ -375,6 +375,11 @@ class Caso{
         const montoNormalizado = monto.replaceAll('.','').replaceAll(',','.');
         return montoNormalizado;
     }
+    normalizarMonto(){
+        const monto = this.#montoMinimo["monto"];
+        let montoFinal = monto.replaceAll('.','').replaceAll(',','.').replaceAll(' ','');
+        return montoFinal;
+    }
 
     // Devuelve el tipo de moneda en que se encuentra el monto mínimo
     getTipoMoneda(){
@@ -505,6 +510,7 @@ class Caso{
 
         let causa = valorOriginal
             .toLowerCase()
+            .replace(/[.\n ]/g, '') // Eliminar puntos, newlines y espacios
             .replace("nº", "")  // Eliminar primera ocurrencia de nº
             .replace("n°", "")  // Eliminar primera ocurrencia de n°
             .replace(/c-?/i,"c-")
@@ -512,7 +518,6 @@ class Caso{
 
         // Limpieza final y formato
         return causa
-            .replace(/[.\n ]/g, '') // Eliminar puntos, newlines y espacios
             .toUpperCase();
     } 
     normalizarJuzgado(){

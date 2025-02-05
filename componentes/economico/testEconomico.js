@@ -59,3 +59,22 @@ async function main(){
 }
 
 main()
+
+
+
+/* Ejemplo de derecho de agua.
+Ante 3° Juzgado Letras de La Serena, ubicado en Rengifo 240, causa Rol N° C1529-2014, juicio ejecutivo, caratulado “BANCO DE CHILE/AGRICOLA IGNACIO
+CORTES ARAOS”, se rematará el 27 de septiembre de 2024, a las 09:00 horas, el
+derecho de aprovechamiento de aguas que consiste en el uso de una coma noventa
+y cinco acciones provenientes del Canal Alto Peralillo de la Hoya Hidrográfica del
+Río Elqui, ubicado en la comuna de Vicuña, Provincia de Elqui, Cuarta Región,
+inscrito a nombre de la ejecutada Agrícola Ignacio Cortés Araos, Empresa Individual
+de Responsabilidad Limitada o Agrícola I.C.A. E.I.R.L. a fojas 229 número 227 del
+Registro de Propiedad de Aguas del Conservador de Bienes Raíces de Vicuña del
+año 2006. Mínimo subasta: UF 306,56, equivalentes a $11.579.219, según valor
+U.F. al día 02-09-2024. Precio deberá pagarse de contado dentro de quinto día hábil
+de firmada el acta de remate. Interesados en tomar parte deberán presentar vale
+vista emitido por Banco Estado de Chile a la orden del tribunal, por valor equivalente
+al 10% del mínimo de la subasta. Demás antecedentes en expediente. La Serena,
+2 de septiembre del año 2024.
+ */ 

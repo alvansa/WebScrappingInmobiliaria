@@ -114,8 +114,8 @@ async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,save
         // Promise.resolve([]),
         getCasosPreremates(checkedBoxes.preremates),
         // Promise.resolve([]),
-        // getDatosPjud(fechaInicioStr,fechaFinStr,checkedBoxes.pjud),
-        Promise.resolve([]),
+        getDatosPjud(fechaInicioStr,fechaFinStr,checkedBoxes.pjud),
+        // Promise.resolve([]),
         getCasosPublicosYLegales(fechaInicioStr,fechaFinStr,checkedBoxes.PYL)
     ]);
     const casos = [...casosEconomico,...casosLiquidaciones,...casosPreremates,...casosPYL,...casosPjud];
@@ -125,7 +125,6 @@ async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,save
     }
     try{
         let lastRow = insertarCasosExcel(casos,ws,fechaLimite) - 1;
-        // lastRow--;
         ws['!ref'] = 'A5:AH'+lastRow;
         const fechaInicioDMA = cambiarFormatoFecha(fechaInicioStr);
         const fechaFinDMA = cambiarFormatoFecha(fechaFinStr);
