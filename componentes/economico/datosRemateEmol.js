@@ -112,18 +112,18 @@ function procesarDatosRemate(caso){
 //crea una funcion que revise en la descripcion a base de regex el juzgado
 function getCausa(data) {
     //Anadir C- con 3 a 5 digitos, guion, 4 digitos
-    const regex = /\bC\s*[-]*\s*\d{1,7}(?:\.\d{3})*\s*-\s*\d{1,4}(?:\.\d{3})*/i;
+    const regex = /\bC\s*[-]*\s*\d{1,7}(?:\.\d{3})*\s*[-/]\s*\d{1,4}(?:\.\d{3})*/i;
     
     const causa = data.match(regex);
     if (causa != null){
         return causa;
     }
-    const causaRegexSinC = /Rol\s*[-]*\s*\d{1,7}(?:\.\d{3})*\s*-\s*\d{1,4}(?:\.\d{3})*/i;
+    const causaRegexSinC = /Rol\s*[-]*\s*\d{1,7}(?:\.\d{3})*\s*[-/]\s*\d{1,4}(?:\.\d{3})*/i;
     const causaSinC = data.match(causaRegexSinC);
     if (causaSinC != null){
         return causaSinC;
     }
-    const regexCausaRolN = /rol\s*n(?:º|°)\s*\d{1,7}(?:\.\d{3})*\s*-\s*\d{1,4}(?:\.\d{3})*/i;
+    const regexCausaRolN = /rol\s*n(?:º|°)\s*\d{1,7}(?:\.\d{3})*\s*[-/]\s*\d{1,4}(?:\.\d{3})*/i;
     const causaRolN = data.match(regexCausaRolN);
     if(causaRolN != null){
         return causaRolN; 
@@ -180,6 +180,17 @@ function getJuzgado2(data) {
                 tribunalesAceptados.push(tribunal);
                 continue;
             }
+            if(tribunal.includes("EN LO CIVIL")){
+                const tribunalVariationCivil = tribunalVariations.map(variation => variation.replace("en lo civil ",""));
+                // if(tribunal.includes("3° JUZGADO DE LETRAS EN LO CIVIL DE ANTOFAGASTA")){
+                //     console.log("Variaciones: ",tribunalVariationCivil);
+                // }
+                if (tribunalVariationCivil.some(variation => normalizedData.includes(variation))) {
+                    tribunalesAceptados.push(tribunal);
+                    continue;
+                }
+            }
+
         }
         // Verificar el tribunal original y sin "de "
         if (normalizedData.includes(tribunalNormalized) || normalizedData.includes(tribunalSinDe)) {
@@ -244,29 +255,68 @@ function getFechaRemate(data) {
 
 //Obtiene el monto minimo por el cual iniciara el remate.
 function getMontoMinimo(data) {
-    console.log(data);
-    const dataNormalizada = data.replace(/(\d)\s(?=\d{1,3}(?:\.\d{3})+)/g, '$1');
-    let montoFinal = null;
-    const regexs = [
-        /(?:subasta|m[íi]nim[oa])\s*(?:[a-zA-ZáéíóúÑñ:\s]*)\s+\$\s*(\d{1,3}(?:\.\d{3})+)\s*(\d{1,3})?/i,
-        /(?:subasta|m[íi]nim[oa])\s*[.,a-zA-ZáéíóúÑñ:º0-9\s]*\s+(\d{1,12}(?:\.\d{1,3})*(?:,\d{1,10})?)\s*\.?-?\s*(?:Unidades de Fomento|UF|U\.F\.)/i,
-        /(?:subasta|m[íi]nim[oa])\s*(?:[.,a-zA-ZáéíóúÑñ:º0-9\s]*)\s+(?:Unidades de Fomento|U\.?F\.?)\s*(\d{1,12}\s*(?:\.\d{1,3})*\s*(?:,\d{1,10})?)/i,
-        /(?:subasta|m[íi]nim[oa]|rematar|propiedad)\s*(?:[.,a-zA-ZáéíóúÑñ:º0-9\s]*)\s+\$\s*(\d{1,3}(?:\.\d{3})+)/i,
+    // console.log(data);
+    const regexPatronBase = "(?:subasta|m[íi]nim[oa]|rematar|propiedad)\\s*[.,a-zA-ZáéíóúÑñ:º0-9\\s]*\\s+";
+    
+    const regexMontoMinimo = [
+        `${regexPatronBase}(\\d{1,12}(?:\\.\\d{1,3})*(?:,\\d{1,10})?)\\s*\\.?-?\\s*(?:Unidades de Fomento|UF|U\\.F\\.)`, 
+        `${regexPatronBase}(?:Unidades de Fomento|U\\.?F\\.?)\\s*(\\d{1,12}\\s*(?:\\.\\d{1,3})*\\s*(?:,\\d{1,10})?)`,
+        `${regexPatronBase}\\$\\s*(\\d{1,3}(?:\\.\\d{3})+)`
     ];
-    for(let regex of regexs){
-        const montoMinimo = dataNormalizada.match(regex);
-        if (montoMinimo != null){
-            console.log("Monto minimo: ",montoMinimo);
-            if(montoMinimo[0].includes("$")){
-                montoFinal = {monto: montoMinimo[1], moneda: "$"};
-            }else{
-                montoFinal = {monto: montoMinimo[1], moneda: "UF"};
-            }
-            console.log("monto: ",montoFinal);
-            return montoFinal;
-        }
+    const dataNormalizada = data.replace(/(\d)\s(?=\d{1,3}(?:\.\d{3})+)/g, '$1').replace(/\n/g," ");
+    const regexList = buscarOpcionesMontoMinimo(dataNormalizada,regexMontoMinimo);
+    console.log("RegexList: ",regexList);
+    let montoFinal = buscarMontosFinal(regexList,regexMontoMinimo);
+    if (montoFinal){
+        return montoFinal;
     }
     return null;
+}
+
+function buscarOpcionesMontoMinimo(data,regexMontoMinimo){
+    let regexList = [];
+    const regexBuscarOpciones = [
+        new RegExp(regexMontoMinimo[0],"gi"),
+        new RegExp(regexMontoMinimo[1],"gi"),
+        new RegExp(regexMontoMinimo[2],"gi"),
+    ];
+    console.log("RegexBuscarOpciones: ",regexBuscarOpciones);
+    console.log(data);
+    for(let regex of regexBuscarOpciones){
+        const posibleMonto = data.match(regex);
+        if (posibleMonto){
+            regexList.push(...posibleMonto);
+        }
+    }
+    return regexList;
+}
+
+function buscarMontosFinal(regexList,regexMontoMinimo){
+    const regexBuscarMontos = [
+       { regex: new RegExp(regexMontoMinimo[0],"i"), moneda: "UF"},
+       { regex: new RegExp(regexMontoMinimo[1],"i"), moneda: "UF"},
+       { regex: new RegExp(regexMontoMinimo[2],"i"), moneda: "Pesos"},
+    ];
+    for(let posibleMonto of regexList){
+        if(!esMontoValido(posibleMonto)){
+            continue;
+        }
+        for(let {regex,moneda} of regexBuscarMontos){
+            const montoMinimo = posibleMonto.match(regex);
+            if (montoMinimo){
+                montoFinal = {monto: montoMinimo[1], moneda: moneda};
+                return montoFinal;
+            }
+        }
+    }
+}
+
+
+function esMontoValido(monto){
+    if(monto.includes("no inferior")){
+        return false;
+    }
+    return true;
 }
 
 //Funcion para buscar si hay multiples propiedades en la publicacion del remate

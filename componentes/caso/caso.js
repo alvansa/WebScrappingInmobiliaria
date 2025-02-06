@@ -137,7 +137,7 @@ class Caso{
 
         if(this.#origen == LIQUIDACIONES){
             montominimo = this.#montoMinimo.replaceAll('.','').replaceAll(',','.');
-            moneda = "CLP";
+            moneda = "$";
         }else if(this.#montoMinimo !== 'N/A'){
             montominimo = this.normalizarMonto();
             moneda = this.#montoMinimo["moneda"];
@@ -514,7 +514,8 @@ class Caso{
             .replace("nº", "")  // Eliminar primera ocurrencia de nº
             .replace("n°", "")  // Eliminar primera ocurrencia de n°
             .replace(/c-?/i,"c-")
-            .replace("rol", "c-");  // Reemplazar primera ocurrencia de rol
+            .replace("rol", "c-")  // Reemplazar primera ocurrencia de rol
+            .replace(/\//g,"-"); // Reemplazar barras por guiones
 
         // Limpieza final y formato
         return causa
