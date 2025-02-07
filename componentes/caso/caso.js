@@ -151,7 +151,9 @@ class Caso{
         const formatoEntregaNormalizado = this.normalizarFormatoEntrega();
         const juzgadoNormalizado = this.normalizarJuzgado();
         const direccionNormalizada = this.normalizarDireccion();
-        const partesNomarlizadas = this.normalizarPartes();
+        const partesNormalizadas = this.normalizarPartes();
+        const diaEntregaNormalizado = this.normalizarDiaEntrega();
+
         
 
         return {
@@ -171,13 +173,13 @@ class Caso{
             comuna: this.#comuna,
             foja: this.#foja,
             numero: this.#numero,
-            partes: this.normalizarPartes(),
+            partes: partesNormalizadas,
             tipoPropiedad: this.#tipoPropiedad,
             tipoDerecho: this.#tipoDerecho,
             anno: annoNormalizado,
             martillero: this.#martillero,
             direccion: direccionNormalizada,
-            diaEntrega: this.#diaEntrega,
+            diaEntrega: diaEntregaNormalizado,
             aviso : this.#texto,
             numero : this.#numero,
         };
@@ -446,25 +448,33 @@ class Caso{
             }
         }
 
-    return null; // Retorna `null` si no encuentra ninguna coincidencia
-}
+    return null; 
+    }
 
     normalizarPartes(){
-        // console.log("Partes: ",this.#partes);
-        if(this.#partes == "N/A"){
+        console.log("Partes: ",this.#partes);
+        if(this.#partes === "N/A"){
             return "No especifica";
         }
-        const partesNormalizadas = this.#partes.toLowerCase();
-        const palabrasClave = ["caratulados:","caratulados","caratulado:","caratulado","caratuladas:","caratuladas","caratulada:","caratulada"];
-        for(let palabra of palabrasClave){
-            if(partesNormalizadas.includes(palabra)){
-                const index = partesNormalizadas.indexOf(palabra);
-                const inicio = index + palabra.length + 1 ;
-                const partes = partesNormalizadas.slice(inicio);
-                // console.log("Partes: ",partes);
-                return partes;
-            }
-        }
+        let partesNormalizadas = this.#partes.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
+        // const palabrasClave = ["caratulados:","caratulados","caratulado:","caratulado","caratuladas:","caratuladas","caratulada:","caratulada"];
+        // for(let palabra of palabrasClave){
+        //     if(partesNormalizadas.includes(palabra)){
+        //         const index = partesNormalizadas.indexOf(palabra);
+        //         const inicio = index + palabra.length + 1 ;
+        //         const partes = partesNormalizadas.slice(inicio);
+        //         // console.log("Partes: ",partes);
+        //         return partes;
+        //     }
+        // }
+        partesNormalizadas = partesNormalizadas
+            .replace(/caratulad[oa]s?:?/gi,'')
+            .replace(/causa/gi,'')
+            .replace(/\bC\s*[-]*\s*\d{1,7}(?:\.\d{3})*\s*[-/]\s*\d{1,4}(?:\.\d{3})*,?/gi,'')
+            .replace(/rol /gi,'')
+            .replace(/\s+/g," ");
+        console.log("Partes: ",partesNormalizadas);
+        return partesNormalizadas;
         const regexExpediente = /^expediente C-\d{1,7}-\d{4} (.+)$/i;
         const expediente = partesNormalizadas.match(regexExpediente);
         if(expediente){
@@ -540,12 +550,11 @@ class Caso{
         }
         return this.#diaEntrega.toLowerCase();
     }
-    normalizarPartes(){
-        if(this.#partes == "N/A"){
+    normalizarDiaEntrega(){
+        if(this.#diaEntrega == "N/A"){
             return "No especifica";
         }
-        return this.#partes.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
-
+        return this.#diaEntrega.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
     }
 }
 

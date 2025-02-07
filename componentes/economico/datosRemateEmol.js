@@ -198,7 +198,7 @@ function getJuzgado2(data) {
     }
     }
     // Devolver el último tribunal aceptado o null si no hay coincidencias
-    console.log("Tribunales aceptados: ",tribunalesAceptados);
+    // console.log("Tribunales aceptados: ",tribunalesAceptados);
     return tribunalesAceptados.length > 0 ? tribunalesAceptados.at(-1) : null;
         
 }
@@ -265,7 +265,7 @@ function getMontoMinimo(data) {
     ];
     const dataNormalizada = data.replace(/(\d)\s(?=\d{1,3}(?:\.\d{3})+)/g, '$1').replace(/\n/g," ");
     const regexList = buscarOpcionesMontoMinimo(dataNormalizada,regexMontoMinimo);
-    console.log("RegexList: ",regexList);
+    // console.log("RegexList: ",regexList);
     let montoFinal = buscarMontosFinal(regexList,regexMontoMinimo);
     if (montoFinal){
         return montoFinal;
@@ -280,8 +280,8 @@ function buscarOpcionesMontoMinimo(data,regexMontoMinimo){
         new RegExp(regexMontoMinimo[1],"gi"),
         new RegExp(regexMontoMinimo[2],"gi"),
     ];
-    console.log("RegexBuscarOpciones: ",regexBuscarOpciones);
-    console.log(data);
+    // console.log("RegexBuscarOpciones: ",regexBuscarOpciones);
+    // console.log(data);
     for(let regex of regexBuscarOpciones){
         const posibleMonto = data.match(regex);
         if (posibleMonto){
@@ -369,7 +369,7 @@ function getPartes(data){
     data = data.replaceAll('´', ""); //Elimina comillas dobles
     // regex para partes: busca la palabra caratulado o expediente seguido de un rol, y 
     //luego busca 1 a 6 palabras seguidas de S.A., S.A.G.R., S.A.G.R., S.A. o con y otra seguida de 1 a cuatro palabras.
-    const regexPartes = /(?:caratulado?a?s?|expediente)\s*[:]?(?:(?:Rol\s)?\s*C\s*-\s*\d{1,5}\s*-\s*\d{1,5},?)?(\s*[,a-zA-ZáéíóúñÑ-]+){1,6}\s*(S\.A\.G\.R\.|S\.A\.G\.R\.|S\.A\.?\/?|con|\/|-)(\s*[a-zA-ZáéíóúñÑ]+){1,4}/i;
+    const regexPartes = /(?:caratulado?a?s?|expediente|antecedentes?|causa|autos)\s*[:]?(?:(?:Rol\s)?\s*C\s*-\s*\d{1,5}\s*-\s*\d{1,5},?)?(\s*[,a-zA-ZáéíóúñÑ-]+){1,9}\s*(S\.A\.G\.R\.|S\.A\.G\.R\.|S\.A\.?\/?|con|\/|-)(\s*[a-zA-ZáéíóúñÑ\/\.]+){1,4}/i;
     let partes = data.match(regexPartes);
     if (partes != null){
         return partes[0];
@@ -404,19 +404,23 @@ function buscarPartesNombreBanco(data){
         if (indexBanco == -1){
             continue;
         }
+        if(banco === "scotiabank"){
+            console.log("data banco: previo al rol");
+        }
+        //Aqui tiene dos opciones para busar delimitador,rol o un punto.
         // Si esta, busca la palabra rol
         const dataBanco = dataNormalized.substring(indexBanco);
-        if (!dataBanco.includes("rol")){
-            continue;
+        if (dataBanco.includes("rol")){
+            const finPartesConRol = dataBanco.indexOf('rol');
+            if (finPartesConRol == -1){
+                continue;
+            }
+            let partes = dataBanco.substring(0,finPartesConRol);
+            if (incluyeParte(partes)){
+                return partes;
+            }
         }
-        const finPartesConRol = dataBanco.indexOf('rol');
-        if (finPartesConRol == -1){
-            continue;
-        }
-        let partes = dataBanco.substring(0,finPartesConRol);
-        if (incluyeParte(partes)){
-            return partes;
-        }
+        
         //Busca un punto que finalize las partes 
         const finPartesConPunto = dataBanco.indexOf('.');
         if (finPartesConPunto == -1){
