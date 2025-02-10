@@ -472,7 +472,10 @@ class Caso{
             .replace(/causa/gi,'')
             .replace(/\bC\s*[-]*\s*\d{1,7}(?:\.\d{3})*\s*[-/]\s*\d{1,4}(?:\.\d{3})*,?/gi,'')
             .replace(/rol /gi,'')
-            .replace(/\s+/g," ");
+            .replace(/\s+/g," ")
+            .replace(/antecedentes\s*(en\s*)?/gi,"")
+            .replace(/expediente\s*/gi,"");
+            //.replace(/\.\s./g,"");
         console.log("Partes: ",partesNormalizadas);
         return partesNormalizadas;
         const regexExpediente = /^expediente C-\d{1,7}-\d{4} (.+)$/i;

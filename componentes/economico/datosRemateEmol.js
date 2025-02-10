@@ -364,21 +364,17 @@ function getNumero(data) {
 
 // Obtiene las partes del remate.
 function getPartes(data){
-    data = data.replaceAll("'", ""); //Elimina comillas simples
-    data = data.replaceAll('"', ""); //Elimina comillas dobles
-    data = data.replaceAll('´', ""); //Elimina comillas dobles
+    const regexSAGR = /S\.\s*A\.?\s*(G\.\s*)?(R\.\s*)?/gi
+    let dataNormalized = data.replace(/'/g,'').replace(/"/g,'').replace(/`/g,'');
+    dataNormalized = dataNormalized.replace(regexSAGR,(match) => match.replace(/\./g,''));
+    console.log("Data: ",dataNormalized);
     // regex para partes: busca la palabra caratulado o expediente seguido de un rol, y 
     //luego busca 1 a 6 palabras seguidas de S.A., S.A.G.R., S.A.G.R., S.A. o con y otra seguida de 1 a cuatro palabras.
-    const regexPartes = /(?:caratulado?a?s?|expediente|antecedentes?|causa|autos)\s*[:]?(?:(?:Rol\s)?\s*C\s*-\s*\d{1,5}\s*-\s*\d{1,5},?)?(\s*[,a-zA-ZáéíóúñÑ-]+){1,9}\s*(S\.A\.G\.R\.|S\.A\.G\.R\.|S\.A\.?\/?|con|\/|-)(\s*[a-zA-ZáéíóúñÑ\/\.]+){1,4}/i;
-    let partes = data.match(regexPartes);
-    if (partes != null){
-        return partes[0];
-    }
     // Si no lo encuentra con la palabra caratulado/expediente, busca con la palabra banco
     const banco = "Banco";
-    const indexBanco = data.indexOf(banco);
+    const indexBanco = dataNormalized.indexOf(banco);
     if (indexBanco != -1){
-        const bancoPartes = obtenerFrasesConBanco(data);
+        const bancoPartes = obtenerFrasesConBanco(dataNormalized);
         for(let parte of bancoPartes){
             let partesModificadas = eliminarHastaDelimitador(parte,".");
             partesModificadas = eliminarHastaDelimitador(partesModificadas,",");
@@ -389,15 +385,24 @@ function getPartes(data){
         }
     }
     // Si no lo encuentra con la palabra banco, busca con una lista de nombres propios de bancos y cooperativas. 
-    const partesNombreBanco = buscarPartesNombreBanco(data);
+    const partesNombreBanco = buscarPartesNombreBanco(dataNormalized);
     if (partesNombreBanco != null){
         return partesNombreBanco;
     }
+    const regexPartes = /(?:caratulado?a?s?|expediente|antecedentes?|autos|causa),?\s*[:]?(?:(?:Rol\s)?\s*C\s*-\s*\d{1,5}\s*-\s*\d{1,5},?)?(\s*[\.,a-zA-ZáéíóúñÑ-]+){1,12}\s*(con\s+|\/|-)(\s*[a-zA-ZáéíóúñÑ\/\.]+){1,4}/ig;
+    // const regexPartes = /(?:caratulado?a?s?|expediente|antecedentes?)\s*[:]?(?:(?:Rol\s)?\s*C\s*-\s*\d{1,5}\s*-\s*\d{1,5},?)?(\s*[,a-zA-ZáéíóúñÑ-]+){1,10}\s*(S\.A\.G\.R\.|S\.A\.G\.R\.|S\.A\.?\/?|con|\/|-)(\s*[a-zA-ZáéíóúñÑ\/\.]+){1,4}/i;
+    let partes = dataNormalized.match(regexPartes);
+    if (partes != null){
+        console.log("Partes: ",partes);
+        return partes[0];
+    }
+
     return null;
 }
 
 function buscarPartesNombreBanco(data){
     const dataNormalized = data.toLowerCase();
+    // console.log("Data banco: ",dataNormalized);
     for(let banco of BANCOS){
         // Revisa si el banco de la lista esta en el texto
         const indexBanco = dataNormalized.indexOf(banco);
@@ -548,6 +553,7 @@ function getDiaEntrega(data){
     ]
 
     for(let regex of regexDiaEntrega){
+
         const diaEntrega = data.match(regex);
         if (diaEntrega != null){
             return diaEntrega;
