@@ -14,7 +14,7 @@ class PreRemates{
     }
 
     async getRemates(){
-        this.browser = await puppeteer.launch({headless: false});
+        this.browser = await puppeteer.launch({headless: true});
         this.page = await this.browser.newPage();
         try{
             await this.page.goto(this.link, {waitUntil: 'networkidle2'});

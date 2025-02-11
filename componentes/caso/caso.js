@@ -457,16 +457,6 @@ class Caso{
             return "No especifica";
         }
         let partesNormalizadas = this.#partes.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
-        // const palabrasClave = ["caratulados:","caratulados","caratulado:","caratulado","caratuladas:","caratuladas","caratulada:","caratulada"];
-        // for(let palabra of palabrasClave){
-        //     if(partesNormalizadas.includes(palabra)){
-        //         const index = partesNormalizadas.indexOf(palabra);
-        //         const inicio = index + palabra.length + 1 ;
-        //         const partes = partesNormalizadas.slice(inicio);
-        //         // console.log("Partes: ",partes);
-        //         return partes;
-        //     }
-        // }
         partesNormalizadas = partesNormalizadas
             .replace(/caratulad[oa]s?:?/gi,'')
             .replace(/causa/gi,'')
@@ -474,17 +464,25 @@ class Caso{
             .replace(/rol /gi,'')
             .replace(/\s+/g," ")
             .replace(/antecedentes\s*(en\s*)?/gi,"")
-            .replace(/expediente\s*/gi,"");
+            .replace(/expediente\s*/gi,"")
+            .replace(/www\.pjud\.cl,?\s*/gi,"")
+            .replace(/autos\s*/gi,"")
+            .replace(/ejecutivos?\s*,\s*/gi,"");
             //.replace(/\.\s./g,"");
-        console.log("Partes: ",partesNormalizadas);
-        return partesNormalizadas;
-        const regexExpediente = /^expediente C-\d{1,7}-\d{4} (.+)$/i;
-        const expediente = partesNormalizadas.match(regexExpediente);
-        if(expediente){
-            return expediente[1];
+        if(partesNormalizadas.startsWith(",")){
+            partesNormalizadas = partesNormalizadas.substring(1);
         }
-
-        return this.#partes;
+        console.log("Partes: ",partesNormalizadas,partesNormalizadas.indexOf("."));
+        const puntoFinal = partesNormalizadas.indexOf(".");
+        if(puntoFinal != -1){
+            partesNormalizadas = partesNormalizadas.substring(0,puntoFinal);
+        }
+        console.log("Partes pre coma final: ",partesNormalizadas);   
+        const comaFinal = partesNormalizadas.indexOf(",");
+        if(comaFinal != -1 && comaFinal > 10){
+            partesNormalizadas = partesNormalizadas.substring(0,comaFinal);
+        }
+        return partesNormalizadas.trim();
     }
 
     normalizarAnno(){
