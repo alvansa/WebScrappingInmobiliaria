@@ -268,6 +268,7 @@ function getMontoMinimo(data) {
     // console.log("RegexList: ",regexList);
     let montoFinal = buscarMontosFinal(regexList,regexMontoMinimo);
     if (montoFinal){
+        console.log("Monto final: ",montoFinal);
         return montoFinal;
     }
     return null;
@@ -280,8 +281,6 @@ function buscarOpcionesMontoMinimo(data,regexMontoMinimo){
         new RegExp(regexMontoMinimo[1],"gi"),
         new RegExp(regexMontoMinimo[2],"gi"),
     ];
-    // console.log("RegexBuscarOpciones: ",regexBuscarOpciones);
-    // console.log(data);
     for(let regex of regexBuscarOpciones){
         const posibleMonto = data.match(regex);
         if (posibleMonto){
@@ -304,6 +303,7 @@ function buscarMontosFinal(regexList,regexMontoMinimo){
         for(let {regex,moneda} of regexBuscarMontos){
             const montoMinimo = posibleMonto.match(regex);
             if (montoMinimo){
+                console.log("regex ocupado: ",regex," monto: ",montoMinimo);
                 montoFinal = {monto: montoMinimo[1], moneda: moneda};
                 return montoFinal;
             }
@@ -367,7 +367,6 @@ function getPartes(data){
     const regexSAGR = /S\.\s*A\.?\s*(G\.\s*)?(R\.\s*)?/gi
     let dataNormalized = data.replace(/'/g,'').replace(/"/g,'').replace(/`/g,'');
     dataNormalized = dataNormalized.replace(regexSAGR,(match) => match.replace(/\./g,''));
-    console.log("Data: ",dataNormalized);
     // regex para partes: busca la palabra caratulado o expediente seguido de un rol, y 
     //luego busca 1 a 6 palabras seguidas de S.A., S.A.G.R., S.A.G.R., S.A. o con y otra seguida de 1 a cuatro palabras.
     // Si no lo encuentra con la palabra caratulado/expediente, busca con la palabra banco
@@ -389,11 +388,16 @@ function getPartes(data){
     if (partesNombreBanco != null){
         return partesNombreBanco;
     }
-    const regexPartes = /(?:caratulado?a?s?|expediente|antecedentes?|autos|causa),?\s*[:]?(?:(?:Rol\s)?\s*C\s*-\s*\d{1,5}\s*-\s*\d{1,5},?)?(\s*[\.,a-zA-ZáéíóúñÑ-]+){1,12}\s*(con\s+|\/|-)(\s*[a-zA-ZáéíóúñÑ\/\.]+){1,4}/ig;
+    const regexPartes = /(?:caratulado?a?s?|expediente|antecedentes?|autos|causa),?\s*[:]?(?:(?:Rol\s)?N?º?\s*C\s*-?\s*(\d{1,5}|\d{1,3}\.\d{1,3})\s*-\s*(\d{1,5}|\d{1,3}\.\d{1,3}),?)?(\s*[\.,a-zA-ZáéíóúñÑ-]+){1,12}\s*(con\s+|\/|-)(\s*[a-zA-ZáéíóúñÑ\/\.]+){1,4}/ig;
     // const regexPartes = /(?:caratulado?a?s?|expediente|antecedentes?)\s*[:]?(?:(?:Rol\s)?\s*C\s*-\s*\d{1,5}\s*-\s*\d{1,5},?)?(\s*[,a-zA-ZáéíóúñÑ-]+){1,10}\s*(S\.A\.G\.R\.|S\.A\.G\.R\.|S\.A\.?\/?|con|\/|-)(\s*[a-zA-ZáéíóúñÑ\/\.]+){1,4}/i;
     let partes = dataNormalized.match(regexPartes);
     if (partes != null){
-        console.log("Partes: ",partes);
+        if(partes.length > 1){
+            const partesValidadas = partes.filter(parte => incluyeParte(parte));
+            if (partesValidadas.length > 0){
+                return partesValidadas[0];
+            }
+        }
         return partes[0];
     }
 
@@ -408,9 +412,6 @@ function buscarPartesNombreBanco(data){
         const indexBanco = dataNormalized.indexOf(banco);
         if (indexBanco == -1){
             continue;
-        }
-        if(banco === "scotiabank"){
-            console.log("data banco: previo al rol");
         }
         //Aqui tiene dos opciones para busar delimitador,rol o un punto.
         // Si esta, busca la palabra rol
@@ -452,12 +453,6 @@ function getTipoDerecho(data){
 }
 
 function getAnno(data){
-    // Busca el año de la manera mas simple con "año xxxx"
-    // let regexAnno = /(año)\s*(\d{4})/i;
-    // const anno = data.match(regexAnno);
-    // if (anno != null){
-    //     return anno[2];
-    // }
     // Busca el año con dependencia de las fojas, "fojas xxxx del año xxxx"
     const regexFojasDependiente =/(?:fojas|fs\.?|fjs)(\s*[°º0-9a-zA-ZáéíóúñÑ,.-]+){1,12}\s*(?:del?|año)\s*(\b\d{1}(?:\.\d{3})?\b|\d{1,4})/i;
     const fojasDependiente = data.match(regexFojasDependiente);
@@ -607,7 +602,18 @@ function incluyeParte(texto){
     const incluyeContra = texto.includes("contra");
     const incluyeCon = texto.includes("Con");
     const incluyeBarra = texto.includes("/");
-    if (incluyecon || incluyeContra || incluyeCon || incluyeBarra){
+    const opcionesInvalidas = verificarOpcionesInvalidas(texto);
+    if ((incluyecon || incluyeContra || incluyeCon || incluyeBarra )&& !opcionesInvalidas){
+        return true;
+    }
+    return false;
+}
+
+function verificarOpcionesInvalidas(texto){
+    const textoNormalizado = texto.toLowerCase();
+    const includeEntregaVale = textoNormalizado.includes("entrega del vale");
+    const includeordenDelTribunal = textoNormalizado.includes("orden del tribunal");
+    if (includeEntregaVale || includeordenDelTribunal){
         return true;
     }
     return false;

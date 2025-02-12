@@ -193,7 +193,6 @@ class Caso{
             const partes = this.#fechaRemate.split('/');
             let fechaRemate = new Date(partes[2],partes[1]-1,partes[0]);
             fechaRemate.setHours(fechaRemate.getHours() + 6);
-            // console.log(fechaRemate);
             return fechaRemate;
         }
 
@@ -259,7 +258,6 @@ class Caso{
         for(let mes of meses){
             if(this.#fechaRemate.toLowerCase().includes(mes)){
                 
-                // console.log("En el get mes: ",this.#fechaRemate.toLowerCase(),mes);
                 return this.mesNumero(mes);
             }
         }
@@ -284,7 +282,6 @@ class Caso{
 
     // Devuelve el número del año en base a su nombre en palabras para escribir la fecha en tipo Date
     palabrasANumero(añoEnPalabras) {
-        // console.log("Año en palabras: ",añoEnPalabras);
         añoEnPalabras = añoEnPalabras.toLowerCase();
         const mapaNumeros = {
             "veinticuatro": 24,
@@ -389,7 +386,6 @@ class Caso{
         if(this.#montoMinimo.includes("$")){
             return "CLP";
         }else if(montoMinimo.includes("uf")|montoMinimo.includes("unidadesdefomento")|montoMinimo.includes("u.f.")|montoMinimo.includes("uf.")){
-            // console.log("UF");
             return "UF";
         }    
     }
@@ -452,7 +448,6 @@ class Caso{
     }
 
     normalizarPartes(){
-        console.log("Partes: ",this.#partes);
         if(this.#partes === "N/A"){
             return "No especifica";
         }
@@ -460,24 +455,23 @@ class Caso{
         partesNormalizadas = partesNormalizadas
             .replace(/caratulad[oa]s?:?/gi,'')
             .replace(/causa/gi,'')
-            .replace(/\bC\s*[-]*\s*\d{1,7}(?:\.\d{3})*\s*[-/]\s*\d{1,4}(?:\.\d{3})*,?/gi,'')
+            .replace(/\bC\s*[-]*\s*\d{1,7}(?:\.\d{3})*\s*[-/]\s*\d{1,4}(?:\.\d{3})*,?\.?/gi,'')
             .replace(/rol /gi,'')
             .replace(/\s+/g," ")
             .replace(/antecedentes\s*(en\s*)?/gi,"")
             .replace(/expediente\s*/gi,"")
             .replace(/www\.pjud\.cl,?\s*/gi,"")
             .replace(/autos\s*/gi,"")
-            .replace(/ejecutivos?\s*,\s*/gi,"");
+            .replace(/ejecutivos?\s*,\s*/gi,"")
+            .replace(/Nº/gi,"");
             //.replace(/\.\s./g,"");
         if(partesNormalizadas.startsWith(",")){
             partesNormalizadas = partesNormalizadas.substring(1);
         }
-        console.log("Partes: ",partesNormalizadas,partesNormalizadas.indexOf("."));
         const puntoFinal = partesNormalizadas.indexOf(".");
         if(puntoFinal != -1){
             partesNormalizadas = partesNormalizadas.substring(0,puntoFinal);
         }
-        console.log("Partes pre coma final: ",partesNormalizadas);   
         const comaFinal = partesNormalizadas.indexOf(",");
         if(comaFinal != -1 && comaFinal > 10){
             partesNormalizadas = partesNormalizadas.substring(0,comaFinal);
@@ -489,7 +483,6 @@ class Caso{
         if(this.#anno == 0 || this.#anno == "N/A" || this.#anno == null || this.#anno == "No especifica"){
             return "No especifica";
         }
-        // console.log("Anno: ",this.#anno);
         const anno = this.#anno.replaceAll(".","");
         return anno;
     }
@@ -513,7 +506,6 @@ class Caso{
     }
     normalizarCausa() {
         const valorOriginal = this.#causa;
-        // console.log(valorOriginal);
         
         if (valorOriginal === "N/A") {
             return "No especifica";
