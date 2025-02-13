@@ -545,6 +545,7 @@ function getDiaEntrega(data){
         /((día|dia)\s*(precedente|anterior))\s*(\s*[,a-zA-ZáéíóúñÑ-]+){1,12}\s*(subasta|remate)/i,
         /\d\s*días\s*hábiles(\s*[,a-zA-ZáéíóúñÑ-]+){1,12}\s*(subasta|remate)/i,
         /(?:un|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez)\s*día\s*(hábil(?:es)?\s*)?(?:[,a-zA-ZáéíóúñÑ-]+\s*){1,6}(inmediatamente\s*)?(anteriore?s?)/i,
+        /presentar\s*el\s*vale\s*vista\s*el\s*d[ií]a\s*(lunes|martes|miercoles|jueves|viernes|sabado|domingo)\s*\d{1,2}\s*de\s*[a-zA-Záéíóú]{4,10}\s*de\s*\d{4}/gi
     ]
 
     for(let regex of regexDiaEntrega){
