@@ -12,6 +12,7 @@ const {getPdfData} = require('../liquidaciones/procesarBoletin.js');
 const {PreRemates} = require('../preremates/obtenerPublicaciones.js');
 const PublicosYLegales = require('../publicosYlegales/publicosYLegales.js');
 const DataPublicosYLegales = require("../publicosYlegales/DataPublicosYLegales.js");
+const MapasSII = require('../mapasSII/MapasSII.js');
 
 function crearBase(saveFile) {
     // Crea una hoja de cálculo vacía
@@ -406,4 +407,11 @@ function getComunaJuzgado(juzgado){
     return comunaJuzgado;
 }
 
-module.exports = { crearBase,insertarDatos};
+
+async function testMapas(){
+    const testCausa = new MapasSII("MAIPÚ","2294","26");
+    const data = await testCausa.obtainDataOfCause();
+    return data;
+}
+
+module.exports = { crearBase,insertarDatos,testMapas};

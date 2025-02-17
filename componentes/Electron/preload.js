@@ -1,5 +1,5 @@
 const { contextBridge,ipcRenderer } = require('electron');
-const {crearBase,insertarDatos} = require('../excel/createXLSX.js');
+const {insertarDatos,testMapas} = require('../excel/createXLSX.js');
 const nodePath = require('path');
 
 
@@ -20,7 +20,8 @@ contextBridge.exposeInMainWorld('api', {
             console.log("No se ingreso la fecha de fin");
             return 2;
         }
-        filePath = await insertarDatos(fechaHoy,startDate,endDate,maxRetries,saveFile,checkedBoxes);
+        // filePath = await insertarDatos(fechaHoy,startDate,endDate,maxRetries,saveFile,checkedBoxes);
+        filePath = await testMapas();
         return filePath;
     }catch (error) {
         console.error('Error al obtener resultados en el index.js:', error.message);
