@@ -160,7 +160,7 @@ class Caso{
             fechaObtencion: this.#fechaObtencion,
             fechaPublicacion: this.#fechaPublicacion,
             link: this.#link,
-            causa: causaNormalizada,
+            causa: this.#causa,
             juzgado: juzgadoNormalizado,
             porcentaje: porcentajeNormalizado,
             formatoEntrega: formatoEntregaNormalizado,

@@ -20,8 +20,7 @@ contextBridge.exposeInMainWorld('api', {
             console.log("No se ingreso la fecha de fin");
             return 2;
         }
-        // filePath = await insertarDatos(fechaHoy,startDate,endDate,maxRetries,saveFile,checkedBoxes);
-        filePath = await testMapas();
+        filePath = await insertarDatos(fechaHoy,startDate,endDate,maxRetries,saveFile,checkedBoxes);
         return filePath;
     }catch (error) {
         console.error('Error al obtener resultados en el index.js:', error.message);
