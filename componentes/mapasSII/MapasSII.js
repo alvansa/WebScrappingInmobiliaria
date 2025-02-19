@@ -1,4 +1,5 @@
 const puppeteer = require('puppeteer');
+const fs = require('fs');
 
 class MapasSII {
     constructor(comuna, manzana, predio) {
@@ -12,6 +13,7 @@ class MapasSII {
         this.browser = await puppeteer.launch({ headless: false });
         this.page = await this.browser.newPage();
         await this.entryPage();
+        await this.completarComuna();
         console.log("Rellenando manzana");
         const selectorManzana = 'input[data-ng-model="manzana"]';
         await this.page.waitForSelector(selectorManzana);
@@ -20,9 +22,9 @@ class MapasSII {
         const selectorPredio = 'input[data-ng-model="predio"]';
         await this.page.waitForSelector(selectorPredio);
         await this.page.type(selectorPredio, this.predio);
-        await this.completarComuna();
         await this.page.click('button[data-ng-click="validaBusqueda()"]');
         console.log("Se hizo click Buscando");
+        await this.obtainTotalValue();
         await delay(5000);
         await this.browser.close();
         return "Mapas";
@@ -39,16 +41,16 @@ class MapasSII {
 
     async completarComuna() {
         console.log("Rellenando comuna");
-        const selectorComuna = 'input[data-ng-model="nombreComuna"]';
+        const selectorComuna = '#rolsearch input[data-ng-model="nombreComuna"]';
         await this.page.waitForSelector(selectorComuna);
         console.log("aparecio el selector ", this.comuna);
-        await this.page.focus(selectorComuna);
-        await this.page.type(selectorComuna,"MAIP");
+        // await this.page.focus(selectorComuna);
+        await this.page.type(selectorComuna, this.comuna);
         // await this.page.type(selectorComuna, this.comuna, { delay: 100 });
         // await this.page.keyboard.type("MAI", { delay: 100 });
         // await this.page.type(selectorComuna, this.comuna, { delay: 100 });
         const char = await this.page.evaluate(() => {
-            const input = document.querySelector('input[data-ng-model="nombreComuna"]');
+            const input = document.querySelector('#rolsearch input[data-ng-model="nombreComuna"]');
             return input;
         });
         console.log("se relleno con", char); // Verifica que el elemento sea el correcto
@@ -61,15 +63,36 @@ class MapasSII {
         //     comunaInput.dispatchEvent(new Event('input', { bubbles: true })); // Disparar el evento input
         // },this.comuna);
         // console.log("se relleno la comuna");
-        // const dropdownComuna = "ul.dropdown-menu";
-        // await this.page.waitForSelector(dropdownComuna, { visible: true });
+        const dropdownComuna = "#rolsearch ul.dropdown-menu";
+        await this.page.waitForSelector(dropdownComuna, { visible: true });
+        await this.page.focus(dropdownComuna);
         // await page.keyboard.press('ArrowDown'); // Navegar a la primera opción
-        // await page.keyboard.press('Enter'); // Seleccionar la opción
+        await this.page.keyboard.press('Enter'); // Seleccionar la opción
         // console.log("aparecio el dropdown");
         // const optionSelectorComuna = "ul.dropdown-menu li";
         // await this.page.waitForSelector(optionSelectorComuna);
         // await this.page.click(optionSelectorComuna);
 
+    }
+    async obtainTotalValue(){
+        const divResultado = "strong.col-xs-6 + div.col-xs-6 span.pull-right.ng-binding";
+        await this.page.waitForSelector(divResultado);
+        // const avaluoTotal = await this.page.evaluate(() => {
+        //     // Encontrar el <strong> que contiene "Avalúo Total"
+        //     const avaluoTotalLabel = Array.from(document.querySelectorAll('strong')).find(el => el.textContent.trim() === 'Avalúo Total');
+
+        //     if (avaluoTotalLabel) {
+        //         // Obtener el siguiente hermano <div> que contiene el valor
+        //         const avaluoTotalValue = avaluoTotalLabel.nextElementSibling.querySelector('span.ng-binding');
+        //         return avaluoTotalValue ? avaluoTotalValue.textContent.trim() : null;
+        //     }
+        //     return null;
+        // });
+        const avaluoTotal = await this.page.evaluate(() => {
+            const element = document.querySelector("strong.col-xs-6 + div.col-xs-6 span.pull-right.ng-binding");
+            return element ? element.innerText.replace(/\D/g, '') : null;
+        });   
+        console.log(avaluoTotal);
     }
 }
 

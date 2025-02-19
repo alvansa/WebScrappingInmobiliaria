@@ -1,0 +1,1043 @@
+<!DOCTYPE html><html lang="es-CL" xmlns:ng="http://angularjs.org" id="ng-app" class=" js flexbox canvas canvastext webgl no-touch geolocation postmessage no-websqldatabase indexeddb hashchange history draganddrop websockets rgba hsla multiplebgs backgroundsize borderimage borderradius boxshadow textshadow opacity cssanimations csscolumns cssgradients cssreflections csstransforms csstransforms3d csstransitions fontface generatedcontent video audio localstorage sessionstorage webworkers no-applicationcache svg inlinesvg smil svgclippaths"><head>
+<title>Mapas SII</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta http-equiv="X-UA-Compatible" content="IE=9">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta charset="UTF-8"><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script type="text/javascript" src="/mapasui/ruxitagentjs_ICA7NVfgqrux_10305250107141607.js" data-dtconfig="app=5e1d8bddf20314ba|cuc=3hq5c4eu|mel=100000|featureHash=ICA7NVfgqrux|dpvc=1|lastModification=1739806169900|tp=500,50,0|rdnt=1|uxrgce=1|agentUri=/mapasui/ruxitagentjs_ICA7NVfgqrux_10305250107141607.js|reportUrl=/mapasui/rb_bf05726fov|rid=RID_1480515951|rpid=1957471795|domain=sii.cl"></script><script src="/common-1.0/js/sii/loader.js"></script>
+<script type="text/javascript">
+	DepLoader.load([ '/common-1.0/conf/sii.comun.json',
+			'/mapasui/common/conf/mapasui.conf.json'], 'mapas_Module');
+</script><!--[if gte IE 5]> 
+<script type="text/javascript">document.ie="5"</script> 
+<![endif]-->
+
+<!--[if gte IE 6]> 
+<script type="text/javascript">document.ie="6"</script> 
+<![endif]-->
+
+<!--[if gte IE 7]> 
+<script type="text/javascript">document.ie="7"</script> 
+<![endif]-->
+
+<!--[if gte IE 8]> 
+<script type="text/javascript">document.ie="8"</script> 
+<![endif]-->
+
+<!--[if gte IE 9]> 
+<script type="text/javascript">document.ie="9"</script> 
+<![endif]-->
+
+<!--[if gte IE 10]> 
+<script type="text/javascript">document.ie="10"</script> 
+<![endif]-->
+
+<!--[if gte IE 11]> 
+<script type="text/javascript">document.ie="11"</script> 
+<![endif]-->
+
+<!--[if gte IE 12]> 
+<script type="text/javascript">document.ie="12"</script> 
+<![endif]-->
+
+<!--[if gte IE 13]> 
+<script type="text/javascript">document.ie="13"</script> 
+<![endif]-->
+
+<!--[if gte IE 14]> 
+<script type="text/javascript">document.ie="14"</script> 
+<![endif]-->
+
+<!--[if gte IE 15]> 
+<script type="text/javascript">document.ie="15"</script> 
+<![endif]-->
+
+<!--[if gte IE 16]> 
+<script type="text/javascript">document.ie="16"</script> 
+<![endif]-->
+
+<!--[if gte IE 17]> 
+<script type="text/javascript">document.ie="17"</script> 
+<![endif]-->
+
+<!--[if gte IE 18]> 
+<script type="text/javascript">document.ie="18"</script> 
+<![endif]-->
+
+<!--[if gte IE 19]> 
+<script type="text/javascript">document.ie="19"</script> 
+<![endif]-->
+
+
+<script type="text/javascript" src="https://zeusr.sii.cl/admin/responsive_barranav.js"></script><link rel="stylesheet" href="/common-1.0/css/bootstrap.min.css"><link rel="stylesheet" href="/common-1.0/js/vendor/angular-csp.css"><link rel="stylesheet" href="/common-1.0/font-awesome-4.4.0/css/font-awesome.min.css"><link rel="stylesheet" href="/common-1.0/css/sii-main.css"><link rel="stylesheet" href="/common-1.0/css/sii-modal.css"><link rel="stylesheet" href="/common-1.0/css/sii-messaging.css"><script type="text/javascript" src="/common-1.0/js/vendor/angular.min.js"></script><link href="https://zeusr.sii.cl/admin/responsive/css/bootstrap-sii.min.css" rel="stylesheet">
+<link href="https://zeusr.sii.cl/admin/responsive/css/general.css" rel="stylesheet">
+<link href="https://zeusr.sii.cl/admin/responsive/css/estilos.css" rel="stylesheet">
+
+<script src="https://zeusr.sii.cl/admin/js/registro_visitas.js"></script><script type="text/javascript" src="//assets.adobedtm.com/launch-EN2b1e36bbb6d548dfa15c1b55cb71b120.min.js"></script><script type="text/javascript" src="/common-1.0/js/vendor/angular-route.js"></script>
+<script type="text/javascript" src="/common-1.0/js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script><script type="text/javascript" src="/common-1.0/js/sii/settings.js"></script><script src="//assets.adobedtm.com/extensions/EPd2399f7c689a4ae38db44080f8c6e80b/AppMeasurement.min.js" async=""></script><script type="text/javascript" src="/common-1.0/js/sii/helpers.js"></script><script type="text/javascript" src="/common-1.0/js/sii/aa.js"></script><script type="text/javascript" src="/common-1.0/js/vendor/ui-bootstrap-tpls.min.js"></script><script type="text/javascript" src="/common-1.0/js/vendor/i18n/angular-locale_es-cl.js"></script><link rel="stylesheet" href="/mapasui/common/css/bbrr.css"><link rel="stylesheet" href="/mapasui/common/css/app.css"><link rel="stylesheet" href="/mapasui/common/leaflet/leaflet.css"><link rel="stylesheet" href="/mapasui/common/leaflet/Control.Loading.css"><script type="text/javascript" src="/common-1.0/js/vendor/angular-cookies.min.js"></script><script type="text/javascript" src="/common-1.0/js/vendor/angular-sanitize.min.js"></script><script type="text/javascript" src="/common-1.0/js/components/containers.js"></script><script type="text/javascript" src="/common-1.0/js/components/table.js"></script><script type="text/javascript" src="/common-1.0/js/components/modal.js"></script><script type="text/javascript" src="/common-1.0/js/components/messaging.js"></script><script type="text/javascript" src="/mapasui/common/leaflet/leaflet.js"></script><script type="text/javascript" src="/mapasui/common/leaflet/Control.Loading.js"></script><script type="text/javascript" src="/mapasui/common/jquery-ui/jquery-ui.min.js"></script><script type="text/javascript" src="/mapasui/common/directives/js/dirPagination.js"></script><script type="text/javascript" src="/mapasui/common/_content/js/modules.js"></script><script type="text/javascript" src="/mapasui/common/js/ct.js"></script><script type="text/javascript" src="/mapasui/common/js/modules.js"></script><script type="text/javascript" src="/common-1.0/js/components/containers/containerDirective.js"></script><script type="text/javascript" src="/common-1.0/js/components/containers/panelDirective.js"></script><script type="text/javascript" src="/common-1.0/js/components/table/directives.js"></script><script type="text/javascript" src="/common-1.0/js/components/modal/directives.js"></script><script type="text/javascript" src="/common-1.0/js/components/messaging/directives.js"></script><script type="text/javascript" src="/mapasui/common/_content/js/controllers.js"></script><script type="text/javascript" src="/mapasui/common/_content/js/barras-controller.js"></script><script type="text/javascript" src="/mapasui/common/_content/js/busqueda-controller.js"></script><script type="text/javascript" src="/mapasui/common/_content/js/detalle-controller.js"></script><script type="text/javascript" src="/mapasui/common/_content/js/mapas-controller.js"></script><script type="text/javascript" src="/mapasui/common/js/utils.js"></script><script type="text/javascript" src="/mapasui/common/js/services.js"></script><script type="text/javascript" src="/mapasui/common/js/controllers.js"></script><script type="text/javascript" src="/mapasui/common/js/routes.js"></script><style type="text/css">.ng-animate.item:not(.left):not(.right){-webkit-transition:0s ease-in-out left;transition:0s ease-in-out left}</style><style type="text/css">@charset "UTF-8";[ng\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\:form{display:block;}</style></head>
+<body class=""><nav id="my-menu" style="display:none;" class="mm-menu mm-offcanvas mm-hasnavbar-top-1 mm-hasnavbar-bottom-1"><div class="mm-navbar mm-navbar-bottom mm-navbar-bottom-1 mm-navbar-size-1 mm-navbar-content-2"><a data-target="#mm-0" href="http://homer.sii.cl/" class="mm-next mm-fullsubopen"><i class="fa fa-home" aria-hidden="true"></i> Inicio</a> <a href="#" id="closeMenu"><i class="fa fa-sign-out fa-flip-horizontal" aria-hidden="true"></i> Cerrar</a></div><div class="mm-navbar mm-navbar-top mm-navbar-top-1 mm-navbar-size-1"><div class="mm-search"><input placeholder="Buscar" type="text" autocomplete="off"></div></div><div class="mm-panels"><div class="mm-panel mm-hasnavbar mm-opened mm-current" id="mm-0"><div class="mm-navbar"><a class="mm-title">Menu</a></div><ul class="mm-listview">
+				  <li><a href="https://misiir.sii.cl/cgi_misii/siihome.cgi">Mi Sii</a></li>
+             <li><a class="mm-next mm-fullsubopen" href="#mm-1" data-target="#mm-1"></a><span>Servicios online</span>
+                  
+             </li>
+             <li><a href="https://www.sii.cl/ayudas/">Ayuda</a></li>
+             <li><a href="https://www.sii.cl/ayudas/asistencia/contactenos.html">Contacto</a></li>
+			</ul><div class="mm-noresultsmsg mm-hidden">No se encontraron resultados.</div></div><div class="mm-panel mm-hasnavbar mm-hidden" id="mm-1"><div class="mm-navbar"><a class="mm-btn mm-prev" href="#mm-0" data-target="#mm-0"></a><a class="mm-title" href="#mm-0">Servicios online</a></div><ul class="mm-listview">
+						<li><a class="mm-next mm-fullsubopen" href="#mm-2" data-target="#mm-2"></a><span>Clave tributaria y representantes electrónicos</span>
+							
+						</li>
+						<li><a class="mm-next mm-fullsubopen" href="#mm-3" data-target="#mm-3"></a><span>RUT e inicio de actividades</span>
+							
+						</li>
+						<li><a class="mm-next mm-fullsubopen" href="#mm-4" data-target="#mm-4"></a><span>Actualización de información</span>
+							
+						</li>
+						<li><a class="mm-next mm-fullsubopen" href="#mm-5" data-target="#mm-5"></a><span>Peticiones administrativas y otras solicitudes</span>
+							
+						</li>
+						<li><a class="mm-next mm-fullsubopen" href="#mm-6" data-target="#mm-6"></a><span>Autorización de documentos tributarios</span>
+							
+						</li>
+						<li><a class="mm-next mm-fullsubopen" href="#mm-7" data-target="#mm-7"></a><span>Factura electrónica</span>
+							
+						</li>
+						<li><a class="mm-next mm-fullsubopen" href="#mm-8" data-target="#mm-8"></a><span>Boleta de ventas y servicios electrónica</span>
+							
+						</li>
+						<li><a class="mm-next mm-fullsubopen" href="#mm-9" data-target="#mm-9"></a><span>Boletas de honorarios electrónicas</span>
+							
+						</li>
+						<li><a class="mm-next mm-fullsubopen" href="#mm-10" data-target="#mm-10"></a><span>Libros contables electrónicos</span>
+							
+						</li>
+						<li><a class="mm-next mm-fullsubopen" href="#mm-11" data-target="#mm-11"></a><span>Impuestos mensuales</span>
+							
+						</li>
+						<li><a class="mm-next mm-fullsubopen" href="#mm-12" data-target="#mm-12"></a><span>Declaraciones juradas</span>
+							
+						</li>
+						<li><a class="mm-next mm-fullsubopen" href="#mm-13" data-target="#mm-13"></a><span>Declaración de renta</span>
+							
+						</li>
+						<li><a class="mm-next mm-fullsubopen" href="#mm-14" data-target="#mm-14"></a><span>Infracciones, pago de giros y condonaciones</span>
+							
+						</li>
+						<li><a class="mm-next mm-fullsubopen" href="#mm-15" data-target="#mm-15"></a><span>Término de giro</span>
+							
+						</li>
+						<li><a class="mm-next mm-fullsubopen" href="#mm-16" data-target="#mm-16"></a><span>Situación tributaria</span>
+							
+						</li>
+						<li><a class="mm-next mm-fullsubopen" href="#mm-17" data-target="#mm-17"></a><span>Herencias</span>
+							
+						</li>
+						<li><a class="mm-next mm-fullsubopen" href="#mm-18" data-target="#mm-18"></a><span>Avalúos y contribuciones de bienes raíces</span>
+							
+						</li>
+						<li><a class="mm-next mm-fullsubopen" href="#mm-19" data-target="#mm-19"></a><span>Tasación fiscal de vehículos</span>
+							
+						</li>
+						<li><a class="mm-next mm-fullsubopen" href="#mm-20" data-target="#mm-20"></a><span>Impuesto a aviones, helicópteros, yates y vehículos de alto valor</span>
+							
+						</li>
+                  </ul></div><div class="mm-panel mm-hasnavbar mm-hidden" id="mm-2"><div class="mm-navbar"><a class="mm-btn mm-prev" href="#mm-1" data-target="#mm-1"></a><a class="mm-title" href="#mm-1">Clave tributaria y representantes electrónicos</a></div><ul class="mm-listview">
+                               <li><a href="https://www.sii.cl/servicios_online/1943-1945.html">Clave tributaria</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1943-1946.html">Representantes electrónicos</a></li>
+							</ul></div><div class="mm-panel mm-hasnavbar mm-hidden" id="mm-3"><div class="mm-navbar"><a class="mm-btn mm-prev" href="#mm-1" data-target="#mm-1"></a><a class="mm-title" href="#mm-1">RUT e inicio de actividades</a></div><ul class="mm-listview">
+                               <li><a href="https://www.sii.cl/servicios_online/1031-1032.html">Inscripción y obtención de N° de RUT</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1031-1033.html">Cédula RUT electrónica (e-RUT)</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1031-1034.html">Inicio de actividades</a></li>
+							</ul></div><div class="mm-panel mm-hasnavbar mm-hidden" id="mm-4"><div class="mm-navbar"><a class="mm-btn mm-prev" href="#mm-1" data-target="#mm-1"></a><a class="mm-title" href="#mm-1">Actualización de información</a></div><ul class="mm-listview">
+                               <li><a href="https://www4.sii.cl/modificacionesiainternetui/">Actualizar datos de identificación</a></li>
+                               <li><a href="https://www4.sii.cl/modificacioncntrui/#/modificacionactivorelevante">Declarar activos (empresario individual)</a></li>
+                               <li><a href="https://www4.sii.cl/modificacioncntrinternetui/#!/vista-general">Actualizar domicilio</a></li>
+                               <li><a href="https://www4.sii.cl/modificacioncntrinternetui/#!/vista-general">Cambiar/ampliar giro o actividad económica</a></li>
+                               <li><a href="https://www4.sii.cl/modificacioncntrinternetui/#!/vista-general">Agregar/eliminar sucursales</a></li>
+                               <li><a href="https://www4.sii.cl/modificacioncntrui/#/modificacionmail">Cambiar email y/o teléfono móvil</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1125-1100.html">Notificación por correo electrónico</a></li>
+                               <li><a href="https://www4.sii.cl/modificacionesiainternetui/#!/entidad/reorganizacion/seleccionar">Informar reorganizaciones empresariales</a></li>
+                               <li><a href="https://www4.sii.cl/actatributointernetui/#!/asociacionesCulturales">Registro de Asociaciones Culturales</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1125-4370.html">Certificados de inicio de actividades y otros</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1125-4419.html">Registrar datos de contacto asesores de alto patrimonio</a></li>
+							</ul></div><div class="mm-panel mm-hasnavbar mm-hidden" id="mm-5"><div class="mm-navbar"><a class="mm-btn mm-prev" href="#mm-1" data-target="#mm-1"></a><a class="mm-title" href="#mm-1">Peticiones administrativas y otras solicitudes</a></div><ul class="mm-listview">
+                               <li><a href="https://www.sii.cl/servicios_online/1037-1140.html">Peticiones administrativas y otras solicitudes</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1048-2573.html">Declaraciones</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1037-3729.html">Consultas sobre interpretación y aplicación de disposiciones tributarias</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1037-3604.html">Presentación RAV/RAF y Recurso Jerárquico (RJ)</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1037-1091.html">Regímenes tributarios</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1037-1097.html">Verificación de actividad para emitir facturas</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1037-3582.html">Aviso de venta de vehículos</a></li>
+                               <li><a href="https://www3.sii.cl:443/sispadinternet/index.html">Acreditar  inicio de actividad y modificaciones</a></li>
+                               <li><a href="https://www3.sii.cl:443/sispadinternet/index.html">Aviso de liquidación concursal</a></li>
+                               <li><a href="https://www3.sii.cl:443/sispadinternet/index.html">Aviso de extinción de representación o mandato</a></li>
+                               <li><a href="https://www4.sii.cl/gabineteAdmInternet/consulta.html?form=ElusionIngreso">Consultas sobre 26 bis del Código Tributario</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1037-1111.html">Solicitud de contabilidad computacional</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1037-1132.html">Dar aviso de pérdida y/o recuperación de cédula de identidad</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1037-1145.html">Certificados a presentar ante Administraciones Tributarias Extranjeras</a></li>
+							</ul></div><div class="mm-panel mm-hasnavbar mm-hidden" id="mm-6"><div class="mm-navbar"><a class="mm-btn mm-prev" href="#mm-1" data-target="#mm-1"></a><a class="mm-title" href="#mm-1">Autorización de documentos tributarios</a></div><ul class="mm-listview">
+                               <li><a href="https://www4.sii.cl/tibvsui/internet/">Solicitar Autorización de Documentos Tributarios</a></li>
+                               <li><a href="https://www4.sii.cl/copiaCertificadosBlobstoreInternet/#consulta">Consultar Certificados Emitidos</a></li>
+							</ul></div><div class="mm-panel mm-hasnavbar mm-hidden" id="mm-7"><div class="mm-navbar"><a class="mm-btn mm-prev" href="#mm-1" data-target="#mm-1"></a><a class="mm-title" href="#mm-1">Factura electrónica</a></div><ul class="mm-listview">
+                               <li><a href="https://www.sii.cl/servicios_online/1039-1182.html">Conozca sobre Factura Electrónica</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1039-1183.html">Sistema de facturación gratuito del SII</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1039-1184.html">Sistema de facturación de mercado</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1039-3256.html">Registro de Compras y Ventas</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1039-1185.html">Consultas DTE</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1039-3201.html">Registro de Aceptación o Reclamo de un DTE</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1039-1186.html">Consulta de contribuyentes</a></li>
+                               <li><a href="https://www.sii.cl/destacados/factura_electronica/cesion_facturas.html"> Publicación de Facturas</a></li>
+                               <li><a href="https://www3.sii.cl:443/sispadinternet/index.html">Solicitud de folios electrónicos y timbraje de documentos</a></li>
+							</ul></div><div class="mm-panel mm-hasnavbar mm-hidden" id="mm-8"><div class="mm-navbar"><a class="mm-btn mm-prev" href="#mm-1" data-target="#mm-1"></a><a class="mm-title" href="#mm-1">Boleta de ventas y servicios electrónica</a></div><ul class="mm-listview">
+                               <li><a href="https://www.sii.cl/servicios_online/3532-3810.html">Sistema de emisión de Boletas Electrónicas SII</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/3532-3811.html">Boleta electrónica de mercado</a></li>
+                               <li><a href="https://www4.sii.cl/bolcoreinternetui/#!/home">Consultar validez Boleta Electrónica</a></li>
+                               <li><a href="https://www4.sii.cl/actatributointernetui/#!/inicio">Declaración de modelo de emisión</a></li>
+                               <li><a href="https://www1.sii.cl/cgi-bin/Portal001/mipeSelEmpresaBol.cgi">Emitir nota de crédito electrónica</a></li>
+							</ul></div><div class="mm-panel mm-hasnavbar mm-hidden" id="mm-9"><div class="mm-navbar"><a class="mm-btn mm-prev" href="#mm-1" data-target="#mm-1"></a><a class="mm-title" href="#mm-1">Boletas de honorarios electrónicas</a></div><ul class="mm-listview">
+                               <li><a href="https://www.sii.cl/servicios_online/1040-1287.html">Emisor de boleta de honorarios</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1040-1309.html">Boleta de prestación de servicios de terceros electrónica</a></li>
+                               <li><a href="https://www.previsionsocial.gob.cl/sps/ley-honorarios/">Cotizaciones previsionales</a></li>
+                               <li><a href="https://www4.sii.cl/consultaestadof22ui/#!/validarCertificado">Consulta comprobante cotizaciones</a></li>
+                               <li><a href="https://www4.sii.cl/relacionesriacinternetui/#!/inicio">Mantenedor de Directores S.A.</a></li>
+							</ul></div><div class="mm-panel mm-hasnavbar mm-hidden" id="mm-10"><div class="mm-navbar"><a class="mm-btn mm-prev" href="#mm-1" data-target="#mm-1"></a><a class="mm-title" href="#mm-1">Libros contables electrónicos</a></div><ul class="mm-listview">
+                               <li><a href="https://www.sii.cl/servicios_online/1041-1324.html">Inscripción Libros Contables Electrónicos</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1041-1334.html">Envío de Documentos</a></li>
+							</ul></div><div class="mm-panel mm-hasnavbar mm-hidden" id="mm-11"><div class="mm-navbar"><a class="mm-btn mm-prev" href="#mm-1" data-target="#mm-1"></a><a class="mm-title" href="#mm-1">Impuestos mensuales</a></div><ul class="mm-listview">
+                               <li><a href="https://www.sii.cl/servicios_online/1042-3264.html">Declaración mensual (F29)</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1042-3265.html">Declaración mensual (F50)</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1042-3253.html">Registro de compras y ventas</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1042-3267.html">Asistente para cálculos</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1042-3266.html">Consulta y seguimiento (F29 y F50)</a></li>
+                               <li><a href="https://www4.sii.cl/rfiInternet/?opcionPagina=ConsultaGiros">Consultar y pagar giros</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1042-3640.html">Solicitud de devoluciones</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1042-3744.html">Impuesto de timbres y estampillas (F24 y F24.1)</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1042-1435.html">Otras aplicaciones y nóminas</a></li>
+                               <li><a href="https://www4.sii.cl/devolucion-anticipada/informacion-beneficios-iva">Beneficio reembolso remanente crédito fiscal IVA</a></li>
+							</ul></div><div class="mm-panel mm-hasnavbar mm-hidden" id="mm-12"><div class="mm-navbar"><a class="mm-btn mm-prev" href="#mm-1" data-target="#mm-1"></a><a class="mm-title" href="#mm-1">Declaraciones juradas</a></div><ul class="mm-listview">
+                               <li><a href="https://www.sii.cl/servicios_online/1043-1451.html">Declaraciones juradas de IVA</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1043-1518.html">Declaraciones juradas de Renta</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1043-1562.html">Declaración jurada de impuesto de timbres y estampilla</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1043-1576.html">Declaraciones juradas de bienes raíces</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1043-1584.html">Registro de inversiones en el extranjero</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1043-4598.html">Declaración jurada extraordinaria de bienes y rentas</a></li>
+							</ul></div><div class="mm-panel mm-hasnavbar mm-hidden" id="mm-13"><div class="mm-navbar"><a class="mm-btn mm-prev" href="#mm-1" data-target="#mm-1"></a><a class="mm-title" href="#mm-1">Declaración de renta</a></div><ul class="mm-listview">
+                               <li><a href="https://www2.sii.cl/navegacionf22/Inicio">Declarar Renta (F22)</a></li>
+                               <li><a href="https://alerce.sii.cl/dior_cgi/ren_mp/REN_MenusRenta.cgi?opcion=1">Corregir o rectificar declaración</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1044-2696.html">Consulta y seguimiento</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1044-2701.html">Asistentes para cálculos</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1044-4520.html">Escritorio contable</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1044-2712.html">Declaración jurada simple de cesión de beneficio de crédito por gastos en educación, art.55ter.</a></li>
+                               <li><a href="https://www4.sii.cl/devolucion-anticipada/informacion">Anticipo devolución impuesto a la renta año tributario 2020</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1044-2718.html">Bonificación ahorro previsional voluntario</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1044-4430.html">Acuerdos Anticipados de Precios de Transferencia (APA)</a></li>
+							</ul></div><div class="mm-panel mm-hasnavbar mm-hidden" id="mm-14"><div class="mm-navbar"><a class="mm-btn mm-prev" href="#mm-1" data-target="#mm-1"></a><a class="mm-title" href="#mm-1">Infracciones, pago de giros y condonaciones</a></div><ul class="mm-listview">
+                               <li><a href="https://www.sii.cl/servicios_online/1045-3212.html">Infracciones</a></li>
+                               <li><a href="https://www2.sii.cl/pagogiro-ui/">Pago de Giros</a></li>
+							</ul></div><div class="mm-panel mm-hasnavbar mm-hidden" id="mm-15"><div class="mm-navbar"><a class="mm-btn mm-prev" href="#mm-1" data-target="#mm-1"></a><a class="mm-title" href="#mm-1">Término de giro</a></div><ul class="mm-listview">
+                               <li><a href="https://www4.sii.cl/sistgiInternet/?opc=dec">Declarar término de giro </a></li>
+                               <li><a href="https://www4.sii.cl/sistgiInternet/?opc=con">Consultar declaración de término de giro </a></li>
+                               <li><a href="https://www4.sii.cl/consultaTGIInternet/">Certificado de término de giro emitidos antes del 08/08/2016</a></li>
+							</ul></div><div class="mm-panel mm-hasnavbar mm-hidden" id="mm-16"><div class="mm-navbar"><a class="mm-btn mm-prev" href="#mm-1" data-target="#mm-1"></a><a class="mm-title" href="#mm-1">Situación tributaria</a></div><ul class="mm-listview">
+                               <li><a href="https://www2.sii.cl/consulta-empleadores/consultar">Consulta para empleadores: Verificar trabajadores que solicitaron préstamo solidario tasa cero</a></li>
+                               <li><a href="https://zeus.sii.cl/cvc/vdc/index.html">Consultar timbraje de documentos</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1047-1690.html">Consultar y revisar situación tributaria</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1047-1702.html">Carpeta tributaria electrónica</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1047-1714.html">Nóminas</a></li>
+							</ul></div><div class="mm-panel mm-hasnavbar mm-hidden" id="mm-17"><div class="mm-navbar"><a class="mm-btn mm-prev" href="#mm-1" data-target="#mm-1"></a><a class="mm-title" href="#mm-1">Herencias</a></div><ul class="mm-listview">
+                               <li><a href="https://www.sii.cl/servicios_online/3140-4383.html">Impuestos a las herencias y donaciones</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/3140-4384.html">Compañías de seguros</a></li>
+							</ul></div><div class="mm-panel mm-hasnavbar mm-hidden" id="mm-18"><div class="mm-navbar"><a class="mm-btn mm-prev" href="#mm-1" data-target="#mm-1"></a><a class="mm-title" href="#mm-1">Avalúos y contribuciones de bienes raíces</a></div><ul class="mm-listview">
+                               <li><a href="https://www.sii.cl/servicios_online/1048-4544.html">Mis bienes raíces (información integrada)</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1048-4504.html">Ingresar solicitud de bienes raíces</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1048-2569.html">Consultar Reavalúos y ROL semestral de contribuciones</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1048-3661.html">Consultar beneficio del adulto mayor</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1048-3657.html">Consultar sobretasa de bienes raíces</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1048-2623.html">Pagar Contribuciones y obtener certificados de avalúo y antecedentes para terceros</a></li>
+                               <li><a href="https://www4.sii.cl/enajenacionesui/">Consultar transferencia de bienes raíces</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1048-2573.html">Ingresar declaraciones de bienes raíces</a></li>
+                               <li><a href="https://www.sii.cl/sitios_de_interes/aplicaciones_para_entidades_externas.html">Aplicaciones para entidades externas</a></li>
+							</ul></div><div class="mm-panel mm-hasnavbar mm-hidden" id="mm-19"><div class="mm-navbar"><a class="mm-btn mm-prev" href="#mm-1" data-target="#mm-1"></a><a class="mm-title" href="#mm-1">Tasación fiscal de vehículos</a></div><ul class="mm-listview">
+                               <li><a href="https://www.sii.cl/servicios_online/1049-3526.html">Consulta tasación de vehículos</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1049-2612.html">Tasación de vehículos (bajada de datos)</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1049-2618.html">Impuesto a emisiones contaminantes vehículos nuevos</a></li>
+                               <li><a href="https://www.sii.cl/destacados/tasacion_vehiculos/2024/normativa_vigente.html">Normativa vigente</a></li>
+                               <li><a href="https://www.sii.cl/servicios_online/1049-3137.html">Declaración de Vehículos Motorizados</a></li>
+							</ul></div><div class="mm-panel mm-hasnavbar mm-hidden" id="mm-20"><div class="mm-navbar"><a class="mm-btn mm-prev" href="#mm-1" data-target="#mm-1"></a><a class="mm-title" href="#mm-1">Impuesto a aviones, helicópteros, yates y vehículos de alto valor</a></div><ul class="mm-listview">
+                               <li><a href="https://www.sii.cl/servicios_online/4485-4486.html">Consulta, solicitudes y pago</a></li>
+							</ul></div></div></nav>
+	<div id="my-wrapper" class="mm-page mm-slideout"> 
+       <script type="text/javascript">mostrar("http://www.sii.cl/servicios_online/1048-.html|Avalúos y Contribuciones de bienes raíces||Mapas Digitales");</script><!-- CABECERA MOVIL-->
+
+<!-- FIN CABECERA MOVIL-->
+<!-- CABECERA DESKTOP-->
+<div class="web-sii cabecera hidden-xs">
+	<div class="header">
+		<nav class="navbar navbar-primary">
+			<div class="container">
+				<!-- MENU OPCIONES -->
+				<div id="opciones" class="navbar-collapse collapse" aria-expanded="false">
+					<ul class="nav navbar-nav" style="display:block" id="sinAutenticacion">
+					   <li class="special"> <a href="https://misiir.sii.cl/cgi_misii/siihome.cgi">Ingresar a Mi Sii</a></li>
+					</ul>
+					<ul class="nav navbar-nav usuario" style="display:none" id="conAutenticacion">
+					   <li>
+					      <span class="id">
+					         <script>imprimeRutEncabezado();</script><br>
+					         <span id="lastConexion"></span>
+					      </span>
+					   </li>
+					</ul>
+         			<span class="nav navbar-nav navbar-right hidden-xs" id="cerrar-sesion" style="display:none">
+                       <script>imprimeCerrarSesion();</script><a href="https://zeusr.sii.cl/cgi_AUT2000/autTermino.cgi">Cerrar Sesión</a>
+                    </span>
+				</div>
+			</div>
+		</nav>
+		<div class="container">
+			<h1 class="pull-left hidden-xs logo"><a href="https://homer.sii.cl/" title="Sii - Servicio de impuestos internos"><img src="https://zeusr.sii.cl/admin/responsive/images/logo.jpg" alt="Sii - Servicio de impuestos internos"></a></h1>
+			<!-- MENU DESKTOP -->
+			<ul class="dropdown nav navbar-nav hidden-xs" id="main-menu">
+				<li style="padding-top: 2px;"><a role="button" href="https://misiir.sii.cl/cgi_misii/siihome.cgi">Mi Sii</a></li>
+   <li class="dropdown"><a href="https://www.sii.cl/servicios_online/">Servicios online <i class="fa fa-caret-down" aria-hidden="true"></i></a>
+      <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+						<li><a href="https://www.sii.cl/servicios_online/1943-.html">Clave tributaria y representantes electrónicos</a></li>
+						<li><a href="https://www.sii.cl/servicios_online/1031-.html">RUT e inicio de actividades</a></li>
+						<li><a href="https://www.sii.cl/servicios_online/1125-.html">Actualización de información</a></li>
+						<li><a href="https://www.sii.cl/servicios_online/1037-.html">Peticiones administrativas y otras solicitudes</a></li>
+						<li><a href="https://www.sii.cl/servicios_online/3598-.html">Autorización de documentos tributarios</a></li>
+						<li><a href="https://www.sii.cl/servicios_online/1039-.html">Factura electrónica</a></li>
+						<li><a href="https://www.sii.cl/servicios_online/3532-.html">Boleta de ventas y servicios electrónica</a></li>
+						<li><a href="https://www.sii.cl/servicios_online/1040-.html">Boletas de honorarios electrónicas</a></li>
+						<li><a href="https://www.sii.cl/servicios_online/1041-.html">Libros contables electrónicos</a></li>
+						<li><a href="https://www.sii.cl/servicios_online/1042-.html">Impuestos mensuales</a></li>
+						<li><a href="https://www.sii.cl/servicios_online/1043-.html">Declaraciones juradas</a></li>
+						<li><a href="https://www.sii.cl/servicios_online/1044-.html">Declaración de renta</a></li>
+						<li><a href="https://www.sii.cl/servicios_online/1045-.html">Infracciones, pago de giros y condonaciones</a></li>
+						<li><a href="https://www.sii.cl/servicios_online/1046-.html">Término de giro</a></li>
+						<li><a href="https://www.sii.cl/servicios_online/1047-.html">Situación tributaria</a></li>
+						<li><a href="https://www.sii.cl/servicios_online/3140-.html">Herencias</a></li>
+						<li><a href="https://www.sii.cl/servicios_online/1048-.html">Avalúos y contribuciones de bienes raíces</a></li>
+						<li><a href="https://www.sii.cl/servicios_online/1049-.html">Tasación fiscal de vehículos</a></li>
+						<li><a href="https://www.sii.cl/servicios_online/4485-.html">Impuesto a aviones, helicópteros, yates y vehículos de alto valor</a></li>
+                  </ul>
+             </li>
+				<li style="padding-top: 2px;"><a role="button" class="#" data-target="#" href="https://www.sii.cl/ayudas/">Ayuda</a></li>
+				<li style="padding-top: 2px;"><a role="button" class="#" data-target="#" href="https://www.sii.cl/ayudas/asistencia/contactenos.html">Contacto</a></li>
+			</ul>
+			<!-- FIN MENU DESKTOP --> 
+		</div>
+        <!-- RASTRO MIGA -->
+        <div class="container">
+           <ol class="breadcrumb" id="miga"><li><a href="https://homer.sii.cl/">Home</a></li><li><a href="http://www.sii.cl/servicios_online/1048-.html">Avalúos y Contribuciones de bienes raíces</a></li>
+<li class="active">Mapas Digitales</li>
+</ol>
+        </div>
+        <!-- FIN RASTRO MIGA -->
+	</div>
+</div>
+<!-- FIN CABECERA DESKTOP -->
+
+	   <div class="web-sii cuerpo">
+		  <div class="container ng-scope" data-ng-controller="mapas_Controller">
+		      <!-- ngIf: !ready -->
+              <!-- ngIf: ready --><div ng-if="ready" class="ng-scope">
+              	  <div id="principal">
+					  <!-- ngView:  --><div data-ng-view="" class="ng-scope"><div data-ng-controller="barras_Controller" class="ng-scope">
+	<div data-ng-controller="content_Controller" class="ng-scope">
+		<div id="titulo">
+			<div data-ng-class="{ 'col-md-7 col-xs-6' : internetuser , 'col-md-8 col-xs-8' : !internetuser }" class="label-titulo col-md-7 col-xs-6">
+				<span data-ng-class="{ 'col-md-6' : internetuser , 'col-md-7' : !internetuser }" style="padding: 0;" class="col-md-6">
+					<label><span class="hidden-sm hidden-xs">CARTOGRAFIA DIGITAL</span> SII MAPAS</label>
+				</span>
+				<span class="col-md-1 label-opc" style="padding: 0;">
+					<i class="fa fa-map-signs menubtn" aria-hidden="true" data-ng-click="manejarCatalogo()" uib-tooltip="Catálogo de mapas" tooltip-placement="right"></i><span class="hidden-sm hidden-xs">Catálogo Mapas</span>
+				</span>
+			</div>
+			<div data-ng-controller="inicio_controller" class="ng-scope"></div>
+			<div data-ng-show="!knownuser" class="col-md-1 col-xs-1 label-opc">
+				<i class="fa fa-key menubtn" aria-hidden="true" data-ng-click="identificarContribuyente()" uib-tooltip="Ingresar a mis bienes raíces" tooltip-placement="top"></i> 
+				<span class="hidden-sm hidden-xs">Ingresar</span>
+			</div>
+			<div data-ng-show="internetuser &amp;&amp; knownuser" class="col-md-1 col-xs-1 label-opc ng-hide">
+				<i class="glyphicon glyphicon-th-list menubtn" aria-hidden="true" data-ng-click="mostrarPropiedadesContribuyente()" uib-tooltip="Mis Bienes Raíces" tooltip-placement="top"></i> 
+				<span class="hidden-sm hidden-xs">Bienes Raíces</span>
+			</div>
+			<div class="col-md-1 col-xs-1 label-opc">
+				<i class="fa fa-map-o menubtn" aria-hidden="true" data-ng-click="mostrarBusquedaCapas()" uib-tooltip="Buscar Capas" tooltip-placement="top"></i>
+				<span class="hidden-sm hidden-xs">Buscar Comunas</span>
+			</div>
+			<div class="col-md-1 col-xs-1 label-opc">
+				<i class="glyphicon glyphicon-tags menubtn" aria-hidden="true" data-ng-click="mostrarBusquedaAH()" uib-tooltip="Búsqueda de reavalúo áreas homogéneas" tooltip-placement="top"></i>
+				<span class="hidden-sm hidden-xs">Buscar Reavalúo</span>
+			</div>
+            <div class="col-md-1 col-xs-1 label-opc">
+                <i class="glyphicon glyphicon-map-marker menubtn" aria-hidden="true" data-ng-click="mostrarBusquedaDireccion()" uib-tooltip="Búsqueda por dirección" tooltip-placement="top"></i>
+                <span class="hidden-sm hidden-xs">Buscar Dirección</span>
+            </div>
+			<div class="col-md-1 col-xs-1 label-opc">
+				<i class="glyphicon glyphicon-search menubtn" aria-hidden="true" data-ng-click="mostrarBusquedaRol()" uib-tooltip="Búsqueda por rol" tooltip-placement="top"></i><div tooltip-animation-class="fade" uib-tooltip-classes="" ng-class="{ in: isOpen() }" uib-tooltip-popup="" title="" content="Búsqueda por rol" placement="top" popup-class="" animation="animation" is-open="isOpen" origin-scope="origScope" style="visibility: hidden; display: block; top: -9999px; left: -9999px;" class="ng-isolate-scope top fade tooltip in">
+  <div class="tooltip-arrow"></div>
+  <div class="tooltip-inner ng-binding" ng-bind="content">Búsqueda por rol</div>
+</div> 
+				<span class="hidden-sm hidden-xs">Buscar Rol</span>
+			</div>
+		</div>
+	</div>
+	<div>
+		<!-- ngInclude: '/mapasui/common/_content/modal-propiedades.html' --><div data-ng-include="'/mapasui/common/_content/modal-propiedades.html'" class="ng-scope"><script type="text/ng-template" id="modal-propiedades.html" class="ng-scope">
+<div data-ng-controller="panel_Controller">
+    <div class="modal-header">
+        <h3 class="modal-title">Mis Bienes Ra&iacute;ces</h3>
+    </div>
+    <div class="modal-body">  
+		<div data-ng-if="!ready" class="loading-big">
+			<img src="/mapasui/common/img/ajax-loader.gif" class="loading-img-big">
+			<h4 class="loading-big-text">
+				Cargando...
+			</h4>
+		</div>     
+		<div data-ng-if="showEmptyResult">
+			No existen Propiedades asociadas.
+		</div>     
+		<table class="table table-hover" data-ng-show="!$root.isNullOrEmpty(propiedades)">
+		    <thead>
+		        <tr>
+		            <th class="col-md-3 nopadding">Comuna</th>
+		            <th class="col-md-5 nopadding">Direcci&oacute;n</th>
+		            <th class="col-md-3 nopadding">Rol Predial</th>
+		            <th class="col-md-1 nopadding">Acciones</th>
+		        </tr>
+		    </thead>
+		    <tbody>
+		        <tr dir-paginate="prop in propiedades | itemsPerPage:pageSize" current-page="currentPage">
+		            <td>{{ prop.nombreComuna }}</td>
+		            <td>{{ prop.direccion }}</td>
+		            <td>{{ prop.rol }}</td>      
+		            <td>
+	           			<button type="submit"class="btn btn-default" ng-click="mostrarDetalle(prop)">Ver</button>
+		            </td>	            
+		        </tr>
+		    </tbody>
+		</table>
+		<dir-pagination-controls max-size="10" direction-links="true" boundary-links="true"> </dir-pagination-controls>
+		<div data-ng-if="ready" style="margin-top: 1rem;">
+			Si su propiedad no aparece en el listado deber&aacute; entregar los antecedentes al SII para la modificaci&oacute;n del propietario.
+		</div>
+    </div>
+    <div class="modal-footer">
+         <button class="btn btn-default" type="button" ng-click="$close()">Cerrar</button>
+    </div>
+</div>
+</script></div>
+		<!-- ngInclude: '/mapasui/common/_content/modal-ubicaciones.html' --><div data-ng-include="'/mapasui/common/_content/modal-ubicaciones.html'" class="ng-scope"><script type="text/ng-template" id="modal-ubicaciones.html" class="ng-scope"> 
+<div data-ng-controller="busquedaDireccion_Controller">
+    <div class="modal-header">
+        <h3 class="modal-title">Ubicaciones</h3>
+    </div>
+    <div class="modal-body">  
+		<div data-ng-if="!ready" class="loading-big">
+			<img src="/mapasui/common/img/ajax-loader.gif" class="loading-img-big">
+			<h4 class="loading-big-text">
+				Cargando...
+			</h4>
+		</div>     
+		<div data-ng-if="showEmptyResult">
+			No existen Propiedades asociadas.
+		</div>     
+		<table class="table table-hover" data-ng-show="!$root.isNullOrEmpty(ubicaciones)">
+		    <thead>
+		        <tr>
+		            <th class="col-md-3 nopadding">Comuna</th>
+		            <th class="col-md-5 nopadding">Dirección</th>
+		            <th class="col-md-3 nopadding">Rol Predial</th>
+		            <th class="col-md-1 nopadding">Acciones</th>
+		        </tr>
+		    </thead>
+		    <tbody>
+				<tr dir-paginate="ubic in ubicaciones | itemsPerPage:pageSize" current-page="currentPage">
+		            <td>{{ ubic.nombreComuna }}</td>
+		            <td>{{ ubic.direccion }}</td>
+		            <td>{{ ubic.rol }}</td>      
+		            <td>
+	           			<button type="submit"class="btn btn-default" ng-click="mostrarDetalle(ubic)">Ver</button>
+		            </td>	            
+		        </tr>
+		    </tbody>
+		</table>
+		<dir-pagination-controls max-size="10" direction-links="true" boundary-links="true"> </dir-pagination-controls>
+    </div>
+    <div class="modal-footer">
+         <button class="btn btn-default" type="button" ng-click="$close()">Cerrar</button>
+    </div>
+</div>
+</script></div>
+		<!-- ngInclude: '/mapasui/common/_content/modal-inicio.html' --><div data-ng-include="'/mapasui/common/_content/modal-inicio.html'" class="ng-scope"><script type="text/ng-template" id="modal-inicio.html" class="ng-scope">
+    <div class="modal-header label-titulo">
+        <h3>Aviso</h3>
+    </div>
+    <div class="modal-body">  
+    	<div class="label-inicio">
+	   		<p> El usuario, al usar este visor, declara conocer y aceptar las siguientes condiciones:</p>
+			<p> 1-	Esta publicación contiene información referencial, la cual se actualiza periódicamente, 
+				por lo que, al momento de ser consultada podría presentar diferencias o inconsistencias en 
+				relación al inmueble que se está consultando.</p>
+			<p> 2-	La información relacionada con el nombre del propietario que se registra en los sistemas del SII, 
+				no acredita dominio de los bienes raíces consultados.</p>
+			<p> 3-	La información relativa a los antecedentes de los inmuebles emplazados fuera de los límites urbanos 
+				de las comunas es propiedad del Centro de Información de Recursos Naturales CIREN; cuenta con derechos 
+				reservados y su uso no autorizado por dicho organismo está penado por la ley.</p>
+			<p> 4-	Los mapas presentados no acreditan límites comunales, regionales o internacionales, como tampoco 
+				delimitaciones de manzanas y predios, ya que sólo son referenciales para contextualizar la información 
+				desplegada.</p>
+			<p> 5-	La cartografía publicada en relación con los límites y fronteras de Chile, no comprometen en modo 
+				alguno al Estado de Chile, de acuerdo al Artículo 2°, letra g del DFL Nº83 de 1979, del Ministerio de 
+				Relaciones Exteriores.</p>
+			<p> 6-	El SII no se responsabiliza por la utilización de la información presentada en este visor para fines 
+				diversos de servir como antecedentes referenciales para la aplicación de la Ley 17.235, sobre Impuesto 
+				Territorial.</p>
+			<p> 7-	La capa Áreas Homogéneas del Reavalúo de sitios no edificados, propiedades abandonadas y pozos
+	 			lastreros 2019, está determinada de acuerdo a la base de datos catastral del SII vigente al segundo
+	 			semestre de 2018, por lo que no reflejan modificaciones posteriores.</p>
+			<p> 8-	En caso que la información presentada sea citada se debe indicar como referencia 
+				“<a href="http://www.sii.cl">www.sii.cl</a> , Cartografía Digital SII Mapas”.</p>
+    	</div>
+    </div>
+    <div class="modal-footer">
+		<div class="col-xs-7">
+         	<button class="btn btn-lg" type="button" ng-click="consultaInicio()">Aceptar</button>
+		</div>
+    </div>
+</script></div>
+		<!-- ngInclude: '/mapasui/common/_content/modal-alerta.html' --><div data-ng-include="'/mapasui/common/_content/modal-alerta.html'" class="ng-scope"><script type="text/ng-template" id="modal-alerta.html" class="ng-scope">
+	<div class="modal-header">
+	    <h4 class="modal-title">Alerta</h4>
+	</div>
+	<div class="modal-body">            
+	     <span class="modal-title">{{msgAlerta}}</span>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-warning" type="button" ng-click="$dismiss()">Cerrar</button>
+	</div>
+</script></div>
+		<!-- ngInclude: '/mapasui/common/_content/modal-leyenda.html' --><div data-ng-include="'/mapasui/common/_content/modal-leyenda.html'" class="ng-scope"><script type="text/ng-template" id="modal-leyenda.html" class="ng-scope">
+	<div class="modal-header">
+	    <h4 class="modal-title">Leyenda</h4>
+	</div>
+	<div class="modal-body">            
+		 <img ng-src="{{mapKey}}">
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-warning" type="button" ng-click="$dismiss()">Cerrar</button>
+	</div>
+</script></div>
+		<!-- ngInclude: '/mapasui/common/_content/barra-lateral.html' --><div data-ng-include="'/mapasui/common/_content/barra-lateral.html'" class="ng-scope"><div id="navegacion" class="sidenav sidenav-left ng-scope sidenavclose" data-ng-class="{ sidenavopen: mostrarCatalogo, sidenavclose: !mostrarCatalogo }" data-ng-controller="catalogo_Controller">
+	<div id="catalogo">
+		<div class="col-xs-12">
+			<div class="label-titulo">
+				<b><label>MAPAS POR REGIONAL</label></b>
+				<hr class="style2">
+			</div>
+		</div>
+        <div class="col-xs-12">
+            <ul class="nav" id="menu-lateral">
+                <!-- ngRepeat: regional in regionales -->
+            </ul>
+        </div>
+	</div>
+</div>
+</div>
+		<!-- ngInclude: '/mapasui/common/_content/detalle-predio.html' --><div data-ng-include="'/mapasui/common/_content/detalle-predio.html'" class="ng-scope"><div id="preview" class="sidenav sidenav-right ng-scope sidenavclose ng-hide" data-ng-class="{ sidenavopen: mostrarDetallePredio, sidenavclose: !mostrarDetallePredio }" data-ng-controller="detalle_Controller" data-ng-show="enableDetalle">
+    <!-- ngIf: conPredio -->
+    <!-- ngIf: existePredio && visible -->
+	<!-- ngIf: existePredio -->
+
+   	<!-- ngIf: errorSP -->
+   	
+   	<div ng-show="predioNac.csa!=0 &amp;&amp; mostrarDatosCsa" class="ng-hide">
+	    <div class="col-xs-12 label-titulo" data-ng-click="collapsedCsa = !collapsedCsa" style="cursor: pointer;">
+	        Reavalúo Agrícola 2024
+	        <!-- ngIf: !collapsedCsa --><span class="pull-right ng-scope" data-ng-if="!collapsedCsa">(-)</span><!-- end ngIf: !collapsedCsa -->
+			<!-- ngIf: collapsedCsa -->
+	        <hr class="style1">
+	    </div>
+	    <div collapse="collapsedCsa" class="collapse in" aria-expanded="true" aria-hidden="false" style="height: auto;">
+		    <strong class="col-xs-12 label-titulo ng-binding">Comuna: </strong>
+		    <strong class="col-xs-12 label-titulo ng-binding">Sector: </strong>
+		    <div class="col-xs-12"><br></div>
+		    <strong class="col-xs-12">Valores de Terreno</strong>
+		    <p class="col-xs-12">Expresados en moneda nacional al segundo semestre 2023 por hectárea.</p>
+		    <div class="col-xs-12"><br></div>
+		    <strong class="col-xs-12">Clases de Suelo</strong>
+	        <div class="col-xs-12">
+		        <strong>Riego</strong>
+		        <br>
+	        </div>
+			<!-- ngRepeat: csa in predioNac.datosCsa -->
+		    <div class="col-xs-12">
+		        <strong>Secano Arable</strong>
+		        <br>
+	        </div>
+		    <!-- ngRepeat: csa in predioNac.datosCsa -->
+		    <div class="col-xs-12">
+		        <strong>Secano no Arable</strong>
+		        <br>
+	        </div>
+		    <!-- ngRepeat: csa in predioNac.datosCsa -->
+	    </div>
+	</div>
+
+   	<!-- ngIf: all -->
+    
+</div></div>
+        <!-- ngInclude: '/mapasui/common/_content/busqueda-ah.html' --><div data-ng-include="'/mapasui/common/_content/busqueda-ah.html'" class="ng-scope"><div id="ahsearch" class="sidenav sidenav-right ng-scope sidenavclose" data-ng-class="{ sidenavopen: mostrarBusquedaAH, sidenavclose: !mostrarBusquedaAH }" data-ng-controller="busquedaAH_Controller">
+	<div class="col-xs-12  label-titulo">
+		<b><label>BÚSQUEDA DE REAVALÚO</label></b>
+		<hr class="style2">
+	</div>
+	<div class="col-xs-12">
+		<div class="form-group col-xs-12  has-error" data-ng-class="{'has-error': nombreComuna==null || nombreComuna =='' || isComunaInvalido()}">
+			<label class="control-label required">Comuna</label>
+		    <input type="text" data-ng-model="nombreComuna" uib-typeahead="comuna.nombre for comuna in comunaBusqueda | filter:$viewValue | limitTo:8" class="form-control srch-input ng-pristine ng-untouched ng-valid" typeahead-on-select="onSelect($item, $model, $label)" data-ng-change="limpiarAll()" aria-autocomplete="list" aria-expanded="false" aria-owns="typeahead-28-3336"><ul class="dropdown-menu ng-isolate-scope ng-hide" ng-show="isOpen() &amp;&amp; !moveInProgress" ng-style="{top: position().top+'px', left: position().left+'px'}" style="display: block;;display: block;" role="listbox" aria-hidden="true" uib-typeahead-popup="" id="typeahead-28-3336" matches="matches" active="activeIdx" select="select(activeIdx)" move-in-progress="moveInProgress" query="query" position="position">
+    <!-- ngRepeat: match in matches track by $index -->
+</ul>
+			<span data-ng-show="nombreComuna==null || nombreComuna =='' || isComunaInvalido()" class="help-block">Ingrese una comuna válida</span>
+		</div>
+		
+		<div class="form-group col-xs-12 has-error" data-ng-class="{'has-error': reavaluoSeleccionado==null || reavaluoSeleccionado == '' || isReavaluoInvalido()}">
+			<label class="control-label required">Reavalúo</label>
+			<select data-ng-model="reavaluoSeleccionado" id="reavaluoSeleccionado" data-ng-options="reavaluo as reavaluo.descripcion for reavaluo in reavaluos" data-ng-change="limpiarAll2()" class="form-control ng-pristine ng-untouched ng-valid"><option selected="" value="" class="">Seleccionar</option><option value="0" label="REAVALUO SITIOS NO EDIFICADOS 2025">REAVALUO SITIOS NO EDIFICADOS 2025</option><option value="1" label="REAVALUO AGRICOLA 2024">REAVALUO AGRICOLA 2024</option><option value="2" label="REAVALUO SITIOS NO EDIFICADOS 2024">REAVALUO SITIOS NO EDIFICADOS 2024</option><option value="3" label="REAVALUO SITIOS NO EDIFICADOS 2023">REAVALUO SITIOS NO EDIFICADOS 2023</option><option value="4" label="REAVALUO NO AGRICOLA 2022">REAVALUO NO AGRICOLA 2022</option><option value="5" label="REAVALUO SITIOS NO EDIFICADOS 2022">REAVALUO SITIOS NO EDIFICADOS 2022</option><option value="6" label="REAVALUO SITIOS NO EDIFICADOS 2021">REAVALUO SITIOS NO EDIFICADOS 2021</option><option value="7" label="REAVALUO SITIOS NO EDIFICADOS 2020">REAVALUO SITIOS NO EDIFICADOS 2020</option><option value="8" label="REAVALUO SITIOS NO EDIFICADOS 2019">REAVALUO SITIOS NO EDIFICADOS 2019</option><option value="9" label="REAVALUO NO AGRICOLA 2018">REAVALUO NO AGRICOLA 2018</option></select>
+		 	<span data-ng-show="reavaluoSeleccionado==null || reavaluoSeleccionado == '' || isReavaluoInvalido()" class="help-block">Seleccione un reavalúo válido</span>
+		</div>
+		
+		<div ng-hide="validarAH() || reavaluoSeleccionado.codigo == 20" class="form-group col-xs-12  has-error ng-hide" data-ng-class="{'has-error': codigoah==null || codigoah =='' || isAHInvalido()}">
+			<label class="control-label required">Código</label>
+		    <input type="text" data-ng-model="codigoah" uib-typeahead="ah.codigoAh for ah in tiposAhEac | filter:$viewValue | limitTo:8" class="form-control srch-input ng-pristine ng-untouched ng-valid" typeahead-on-select="onSelectAH($item)" data-ng-change="limpiarAHSeleccionada" aria-autocomplete="list" aria-expanded="false" aria-owns="typeahead-29-7562"><ul class="dropdown-menu ng-isolate-scope ng-hide" ng-show="isOpen() &amp;&amp; !moveInProgress" ng-style="{top: position().top+'px', left: position().left+'px'}" style="display: block;;display: block;" role="listbox" aria-hidden="true" uib-typeahead-popup="" id="typeahead-29-7562" matches="matches" active="activeIdx" select="select(activeIdx)" move-in-progress="moveInProgress" query="query" position="position">
+    <!-- ngRepeat: match in matches track by $index -->
+</ul>
+			<span data-ng-show="(codigoah==null || codigoah =='' || isAHInvalido()) &amp;&amp; reavaluoSeleccionado.codigo != 20" class="help-block">Ingrese un código de Área homogénea válido</span>
+		</div>
+		
+		<div ng-hide="reavaluoSeleccionado.codigo != 20" class="form-group col-xs-12  has-error ng-hide" data-ng-class="{'has-error': sector==null || sector =='' }">
+			<label class="control-label required">Sector</label>
+		    <select data-ng-model="sector" id="sector" data-ng-options="sector.sector for sector in sectoresEac" class="form-control ng-pristine ng-untouched ng-valid"><option value="?" selected="selected" label=""></option></select>
+		    <input type="hidden" data-ng-model="sectorHidden" class="form-control srch-input ng-pristine ng-untouched ng-valid">
+		</div>
+		
+		<div class="row col-xs-12 form-group">
+			<div style="text-align: center;">
+				<button class="btn btn-small btn-primary" data-ng-show="reavaluoSeleccionado.codigo != 20" data-ng-click="validaBusquedaAh()" data-ng-disabled="busquedaAhDeshabilitada">Buscar</button>
+				<button class="btn btn-small btn-primary ng-hide" data-ng-show="reavaluoSeleccionado.codigo == 20" data-ng-click="validaBusquedaCsa()" data-ng-disabled="busquedaAhDeshabilitada">Buscar</button>
+				<button class="btn btn-small btn-default" data-ng-click="cerrarBusquedaAH()">Ocultar</button>
+			</div>
+		</div>
+	</div>
+
+    <div data-ng-show="showAhDetail &amp;&amp; !(validarAH() || reavaluoSeleccionado.codigo == 20) &amp;&amp; codigoah != null" class="ng-hide">
+        <div class="col-xs-12  label-titulo">
+            Área Homogénea
+            <hr class="style2">
+        </div>
+        <strong class="col-xs-12">Reavalúo</strong>
+        <div class="col-xs-12 ng-binding"></div>
+        <strong class="col-xs-12">Código Área Homogénea</strong>
+        <div class="col-xs-12 ng-binding"></div>
+        <strong class="col-xs-12">Rango Superficie Predial (en m<sup>2</sup>)</strong>
+        <div class="col-xs-12 ng-binding"></div>
+        <strong class="col-xs-12">Valor m<sup>2</sup> de Terreno</strong>
+        <div class="col-xs-12 ng-binding"></div>
+	</div>
+
+    <div ng-show="showCsaDetail &amp;&amp; !(reavaluoSeleccionado.codigo != 20) &amp;&amp; csa != null" class="ng-hide">
+	    <div class="col-xs-12 label-titulo">
+	        REAVALUO AGRÍCOLA 2024
+	        <hr class="style2">
+	    </div>
+	    <strong class="col-xs-12 label-titulo ng-binding">Comuna: </strong>
+	    <strong class="col-xs-12 label-titulo ng-binding">Sector: </strong>
+		<div class="col-xs-12"><br></div>
+		<strong class="col-xs-12">Valores de Terreno</strong>
+		<p class="col-xs-12">Expresados en moneda nacional al segundo semestre 2023 por hectárea.</p>
+		<div class="col-xs-12"><br></div>
+		<strong class="col-xs-12">Clases de Suelo</strong>
+		<!-- ngIf: hayElementosValidos(detallesCsa.detalles, ['1R', '2R', '3R', '4R']) -->
+		<!-- ngRepeat: csa in detallesCsa.detalles -->
+		<!-- ngIf: hayElementosValidos(detallesCsa.detalles, ['1', '2', '3', '4']) -->
+	    <!-- ngRepeat: csa in detallesCsa.detalles -->
+		<!-- ngIf: hayElementosValidos(detallesCsa.detalles, ['5', '6', '7', '8']) -->
+	    <!-- ngRepeat: csa in detallesCsa.detalles -->
+		<!-- ngIf: hayElementosValidos(detallesCsa.detalles, ['20', '21', '22']) -->
+		<!-- ngRepeat: csa in detallesCsa.detalles -->
+		<!-- ngIf: hayElementosValidos(detallesCsa.detalles, ['23', '24', '25', '26', '27', '28', '29']) -->
+		<!-- ngRepeat: csa in detallesCsa.detalles -->
+	</div></div></div>
+		<!-- ngInclude: '/mapasui/common/_content/busqueda-rol.html' --><div data-ng-include="'/mapasui/common/_content/busqueda-rol.html'" class="ng-scope"><div id="rolsearch" class="sidenav sidenav-right ng-scope sidenavclose" data-ng-class="{ sidenavopen: mostrarBusquedaRol, sidenavclose: !mostrarBusquedaRol }" data-ng-controller="busqueda_Controller">
+	<div class="col-xs-12  label-titulo">
+		<b><label>BÚSQUEDA POR ROL</label></b>
+		<hr class="style2">
+	</div>
+	<div class="col-xs-12">
+		<div class="form-group col-xs-12  has-error" data-ng-class="{'has-error': nombreComuna==null || nombreComuna =='' || isComunaInvalido()}">
+			<label class="control-label required">Comuna</label> <input type="text" data-ng-model="nombreComuna" uib-typeahead="comuna.nombre for comuna in comunaBusqueda | filter:$viewValue | limitTo:8" class="form-control srch-input ng-pristine ng-untouched ng-valid" typeahead-on-select="onSelect($item, $model, $label)" data-ng-change="limpiarComunaSeleccionada()" aria-autocomplete="list" aria-expanded="false" aria-owns="typeahead-40-1465"><ul class="dropdown-menu ng-isolate-scope ng-hide" ng-show="isOpen() &amp;&amp; !moveInProgress" ng-style="{top: position().top+'px', left: position().left+'px'}" style="display: block;;display: block;" role="listbox" aria-hidden="true" uib-typeahead-popup="" id="typeahead-40-1465" matches="matches" active="activeIdx" select="select(activeIdx)" move-in-progress="moveInProgress" query="query" position="position">
+    <!-- ngRepeat: match in matches track by $index -->
+</ul>
+				<span data-ng-show="nombreComuna==null || nombreComuna =='' || isComunaInvalido()" class="help-block">
+                            Ingrese una comuna válida</span> 
+		</div>
+		<div class="form-group col-xs-12 has-error" data-ng-class="{'has-error': manzana==null || manzana =='' }">
+			<label class="control-label required">Manzana</label> <input type="text" data-ng-model="manzana" only-numbers="" max-len="5" class="form-control srch-input ng-pristine ng-untouched ng-valid">
+			<span data-ng-show="manzana==null || manzana ==''" class="help-block">
+	                        Ingrese un número de manzana válido</span>
+		</div>
+		<div class="form-group col-xs-12 has-error" data-ng-class="{'has-error': predio==null || predio =='' }">
+			<label class="control-label required">Predio</label> <input type="text" data-ng-model="predio" only-numbers="" max-len="5" class="form-control srch-input ng-pristine ng-untouched ng-valid">
+			<span data-ng-show="predio==null || predio ==''" class="help-block">
+                     Ingrese un número de predio válido</span>
+		</div>
+		<div class="row col-xs-12">
+			<div style="text-align: center;">
+				<button class="btn btn-small btn-primary" data-ng-click="validaBusqueda()" data-ng-disabled="busquedaDeshabilitada">Buscar</button>
+				<button class="btn btn-small btn-default" data-ng-click="cerrarBusquedaRol()">Ocultar</button>
+			</div>
+		</div>
+	</div>
+</div></div>
+		<!-- ngInclude: '/mapasui/common/_content/busqueda-direccion.html' --><div data-ng-include="'/mapasui/common/_content/busqueda-direccion.html'" class="ng-scope"><div id="addresssearch" class="sidenav sidenav-right ng-scope sidenavclose" data-ng-class="{ sidenavopen: mostrarBusquedaDireccion, sidenavclose: !mostrarBusquedaDireccion }" data-ng-controller="busquedaDireccion_Controller">
+	<div class="col-xs-12  label-titulo">
+		<b><label>BÚSQUEDA POR DIRECCIÓN</label></b>
+		<hr class="style2">
+	</div>
+	<div class="col-xs-12">
+		<div class="form-group col-xs-12 has-error" data-ng-class="{'has-error': nombreComuna == null || nombreComuna =='' || isComunaInvalido()}">
+			<label class="control-label required">Comuna</label> <input type="text" data-ng-model="nombreComuna" uib-typeahead="comuna.nombre for comuna in comunaBusqueda | filter:$viewValue | limitTo:8" class="form-control srch-input ng-pristine ng-untouched ng-valid" typeahead-on-select="onSelect($item, $model, $label)" data-ng-change="limpiarComunaSeleccionada()" aria-autocomplete="list" aria-expanded="false" aria-owns="typeahead-36-9897"><ul class="dropdown-menu ng-isolate-scope ng-hide" ng-show="isOpen() &amp;&amp; !moveInProgress" ng-style="{top: position().top+'px', left: position().left+'px'}" style="display: block;;display: block;" role="listbox" aria-hidden="true" uib-typeahead-popup="" id="typeahead-36-9897" matches="matches" active="activeIdx" select="select(activeIdx)" move-in-progress="moveInProgress" query="query" position="position">
+    <!-- ngRepeat: match in matches track by $index -->
+</ul>
+			<span data-ng-show="nombreComuna == null || nombreComuna =='' || isComunaInvalido()" class="help-block">
+                           Ingrese una comuna válida</span>
+		</div>
+		<div class="form-group col-xs-12 has-error" data-ng-class="{'has-error': calle==null}">
+			<label class="control-label required">Nombre de Calle</label> <input type="text" data-ng-model="calle" class="form-control srch-input ng-pristine ng-untouched ng-invalid ng-invalid-required" required="">
+			<span data-ng-show="calle==null" class="help-block">
+                           Ingrese un nombre de calle válido</span>
+		</div>
+		<div class="form-group col-xs-12">
+			<label class="control-label">Número</label> <input type="text" data-ng-model="numeroCalle" only-numbers="" max-len="5" class="form-control srch-input ng-pristine ng-untouched ng-invalid ng-invalid-required" required="">
+		</div>
+		<div class="form-group col-xs-12" data-ng-show="!mostrarAvanzado">
+			<a href="" data-ng-click="mostrarCampos()">(+) Mostrar más opciones de búsqueda</a>
+        </div>		
+		<div class="form-group col-xs-12 ng-hide" data-ng-show="mostrarAvanzado">
+			<label class="control-label">Tipo de Ubicación</label> 
+			 <select name="detalle" id="detalle" data-ng-model="detalle" data-ng-options="detalle.descripcion for detalle in detalleBusqueda" class="form-control ng-pristine ng-untouched ng-invalid ng-invalid-required" required=""><option value="" class="">--- Seleccione ---</option><option value="0" label="CASA">CASA</option><option value="1" label="SITIO">SITIO</option><option value="2" label="MANZANA">MANZANA</option><option value="3" label="BLOCK">BLOCK</option><option value="4" label="DEPARTAMENTO">DEPARTAMENTO</option><option value="5" label="OFICINA">OFICINA</option><option value="6" label="BOX">BOX</option><option value="7" label="BODEGA">BODEGA</option><option value="8" label="CAMINO">CAMINO</option><option value="9" label="LOTEO">LOTEO</option><option value="10" label="PARCELA">PARCELA</option><option value="11" label="LOCAL">LOCAL</option></select> 
+        </div>
+		<div class="form-group col-xs-12 ng-hide" data-ng-show="mostrarAvanzado">
+			<label class="control-label">Número del Tipo de Ubicación</label> <input type="text" data-ng-model="numeroDetalle" only-numbers="" max-len="5" class="form-control srch-input ng-pristine ng-untouched ng-invalid ng-invalid-required" required="">
+		</div>
+		<div class="form-group col-xs-12 ng-hide" data-ng-show="mostrarAvanzado">
+			<label class="control-label">Población / Villa / Lugar</label> <input type="text" data-ng-model="lugar" class="form-control srch-input ng-pristine ng-untouched ng-invalid ng-invalid-required" required="">
+		</div>
+		<div class="form-group col-xs-12 ng-hide" data-ng-show="mostrarAvanzado">
+			<a href="" data-ng-click="mostrarCampos()">(-) Mostrar menos opciones de búsqueda</a>
+        </div>		
+		<div class="row col-xs-12">
+			<div style="text-align: center;">
+				<button class="btn btn-small btn-primary" data-ng-click="validaBusqueda()" data-ng-disabled="busquedaDireccionDeshabilitada">Buscar</button>
+				<button class="btn btn-small btn-default" data-ng-click="cerrarBusquedaDireccion()">Ocultar</button>
+			</div>
+		</div>
+	</div>
+</div></div>
+		<!-- ngInclude: '/mapasui/common/_content/busqueda-capas.html' --><div data-ng-include="'/mapasui/common/_content/busqueda-capas.html'" class="ng-scope"><div id="layersearch" class="sidenav sidenav-right ng-scope sidenavclose" data-ng-class="{ sidenavopen: mostrarBusquedaCapas, sidenavclose: !mostrarBusquedaCapas }" data-ng-controller="busquedaCapas_Controller">
+	<div class="col-xs-12  label-titulo">
+		<b><label>BÚSQUEDA DE INFORMACIÓN</label></b>
+		<hr class="style2">
+	</div>
+	<div class="col-xs-12">
+		<div class="form-group col-xs-12 has-error" data-ng-class="{'has-error': nombreComuna == null || nombreComuna =='' || isComunaInvalido()}">
+			<label class="control-label required">Región</label> <select data-ng-model="regionSeleccionada" id="regionSeleccionada" data-ng-options="region.codigo as region.nombre for region in regiones" data-ng-change="cambioRegion()" class="form-control ng-pristine ng-untouched ng-valid"><option selected="" value="" class="">Seleccionar</option><option value="0" label="REGIÓN DE TARAPACÁ">REGIÓN DE TARAPACÁ</option><option value="1" label="REGIÓN DE ANTOFAGASTA">REGIÓN DE ANTOFAGASTA</option><option value="2" label="REGIÓN DE ATACAMA">REGIÓN DE ATACAMA</option><option value="3" label="REGIÓN DE COQUIMBO">REGIÓN DE COQUIMBO</option><option value="4" label="REGIÓN DE VALPARAÍSO">REGIÓN DE VALPARAÍSO</option><option value="5" label="REGIÓN DEL LIBERTADOR BERNARDO O'HIGGINS">REGIÓN DEL LIBERTADOR BERNARDO O'HIGGINS</option><option value="6" label="REGIÓN DEL MAULE">REGIÓN DEL MAULE</option><option value="7" label="REGIÓN DEL BÍO BÍO">REGIÓN DEL BÍO BÍO</option><option value="8" label="REGIÓN DE LA ARAUCANÍA">REGIÓN DE LA ARAUCANÍA</option><option value="9" label="REGIÓN DE LOS LAGOS">REGIÓN DE LOS LAGOS</option><option value="10" label="REGIÓN DE AYSÉN DEL GENERAL CARLOS IBAÑEZ DEL CAMPO">REGIÓN DE AYSÉN DEL GENERAL CARLOS IBAÑEZ DEL CAMPO</option><option value="11" label="REGIÓN DE MAGALLANES Y LA ANTÁRTICA CHILENA">REGIÓN DE MAGALLANES Y LA ANTÁRTICA CHILENA</option><option value="12" label="REGIÓN METROPOLITANA DE SANTIAGO">REGIÓN METROPOLITANA DE SANTIAGO</option><option value="13" label="REGIÓN DE LOS RÍOS">REGIÓN DE LOS RÍOS</option><option value="14" label="REGIÓN DE ARICA Y PARINACOTA">REGIÓN DE ARICA Y PARINACOTA</option><option value="15" label="REGIÓN DE ÑUBLE">REGIÓN DE ÑUBLE</option></select>
+			<label class="control-label required">Comuna</label> <select data-ng-model="comunaSeleccionada" id="comunaSeleccionada" data-ng-options="comuna.codigo as comuna.nombre for comuna in comunas" data-ng-change="cambioComuna()" class="form-control ng-pristine ng-untouched ng-valid"><option selected="" value="" class="">Seleccionar</option></select> <span data-ng-show="nombreComuna == null || nombreComuna =='' || isComunaInvalido()" class="help-block">
+				Seleccione una comuna válida</span>
+		</div>
+		<div class="form-group row col-xs-12" style="text-align: center; padding-bottom:18px;">
+			<div>
+				<button class="btn btn-md btn-primary" data-ng-click="buscarServicios()" data-ng-disabled="busquedaCapasDeshabilitada">Buscar</button>
+				<button class="btn btn-md btn-default" data-ng-click="cerrarBusquedaCapas()">Ocultar</button>
+			</div>
+		</div> 
+		<div class="form-group col-xs-12">
+			<table class="table table-hover ng-hide" data-ng-show="!$root.isNullOrEmpty(servicios)">
+			    <thead>
+			        <tr>
+			            <th class="col-md-6 col-xs-6">Información</th>
+			            <th class="col-md-6 col-xs-6">Acción</th>
+			        </tr>
+			    </thead>
+			    <tbody>
+			        <!-- ngRepeat: serv in servicios -->
+			    </tbody>
+			</table>
+		</div>
+		<div class="form-group col-xs-12 ng-hide" data-ng-show="!$root.isNullOrEmpty(arrCapas)">
+			<table class="table table-hover">
+			    <thead>
+			        <tr>
+			            <th class="col-md-6 col-xs-6">Información Visible</th>
+			            <th class="col-md-6 col-xs-6">Opciones</th>
+			        </tr>
+			    </thead>
+			    <tbody>
+			        <!-- ngRepeat: capa in arrCapas -->
+			    </tbody>
+			</table>
+		</div>
+	</div>
+</div></div>
+		<div data-ng-controller="mapas_contentController" class="ng-scope">
+			<div id="mapaid" style="height: 65vh; position: relative;" class="leaflet-container leaflet-touch leaflet-fade-anim leaflet-grab leaflet-touch-drag leaflet-touch-zoom" tabindex="0"><div class="leaflet-pane leaflet-map-pane" style="transform: translate3d(0px, 0px, 0px);"><div class="leaflet-pane leaflet-tile-pane"><div class="leaflet-layer " style="z-index: 1; opacity: 1;"><div class="leaflet-tile-container leaflet-zoom-animated" style="z-index: 19; transform: translate3d(0px, 0px, 0px) scale(1);"><img alt="" role="presentation" src="https://b.tile.openstreetmap.org/17/39811/78468.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(256px, 30px, 0px); opacity: 1;"><img alt="" role="presentation" src="https://a.tile.openstreetmap.org/17/39811/78467.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(256px, -226px, 0px); opacity: 1;"><img alt="" role="presentation" src="https://a.tile.openstreetmap.org/17/39810/78468.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(0px, 30px, 0px); opacity: 1;"><img alt="" role="presentation" src="https://c.tile.openstreetmap.org/17/39812/78468.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(512px, 30px, 0px); opacity: 1;"><img alt="" role="presentation" src="https://c.tile.openstreetmap.org/17/39811/78469.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(256px, 286px, 0px); opacity: 1;"><img alt="" role="presentation" src="https://c.tile.openstreetmap.org/17/39810/78467.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(0px, -226px, 0px); opacity: 1;"><img alt="" role="presentation" src="https://b.tile.openstreetmap.org/17/39812/78467.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(512px, -226px, 0px); opacity: 1;"><img alt="" role="presentation" src="https://b.tile.openstreetmap.org/17/39810/78469.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(0px, 286px, 0px); opacity: 1;"><img alt="" role="presentation" src="https://a.tile.openstreetmap.org/17/39812/78469.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(512px, 286px, 0px); opacity: 1;"></div></div><div class="leaflet-layer " style="z-index: 2; opacity: 1;"><div class="leaflet-tile-container leaflet-zoom-animated" style="z-index: 19; transform: translate3d(0px, 0px, 0px) scale(1);"><img alt="" role="presentation" src="/mapasui/services/ui/wmsProxyService/call?service=WMS&amp;request=GetMap&amp;layers=sii%3ABR_CART_LIMITE_COMUNAL&amp;styles=LIMITE_COMUNAL_V0&amp;format=image%2Fpng&amp;transparent=true&amp;version=1.1.1&amp;height=256&amp;width=256&amp;srs=EPSG%3A3857&amp;bbox=-7865370.2105446365,-3954240.347248738,-7865064.462431495,-3953934.5991355977" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(256px, 30px, 0px); opacity: 1;"><img alt="" role="presentation" src="/mapasui/services/ui/wmsProxyService/call?service=WMS&amp;request=GetMap&amp;layers=sii%3ABR_CART_LIMITE_COMUNAL&amp;styles=LIMITE_COMUNAL_V0&amp;format=image%2Fpng&amp;transparent=true&amp;version=1.1.1&amp;height=256&amp;width=256&amp;srs=EPSG%3A3857&amp;bbox=-7865370.2105446365,-3953934.5991355977,-7865064.462431495,-3953628.851022458" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(256px, -226px, 0px); opacity: 1;"><img alt="" role="presentation" src="/mapasui/services/ui/wmsProxyService/call?service=WMS&amp;request=GetMap&amp;layers=sii%3ABR_CART_LIMITE_COMUNAL&amp;styles=LIMITE_COMUNAL_V0&amp;format=image%2Fpng&amp;transparent=true&amp;version=1.1.1&amp;height=256&amp;width=256&amp;srs=EPSG%3A3857&amp;bbox=-7865675.958657777,-3954240.347248738,-7865370.2105446365,-3953934.5991355977" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(0px, 30px, 0px); opacity: 1;"><img alt="" role="presentation" src="/mapasui/services/ui/wmsProxyService/call?service=WMS&amp;request=GetMap&amp;layers=sii%3ABR_CART_LIMITE_COMUNAL&amp;styles=LIMITE_COMUNAL_V0&amp;format=image%2Fpng&amp;transparent=true&amp;version=1.1.1&amp;height=256&amp;width=256&amp;srs=EPSG%3A3857&amp;bbox=-7865064.462431495,-3954240.347248738,-7864758.714318355,-3953934.5991355977" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(512px, 30px, 0px); opacity: 1;"><img alt="" role="presentation" src="/mapasui/services/ui/wmsProxyService/call?service=WMS&amp;request=GetMap&amp;layers=sii%3ABR_CART_LIMITE_COMUNAL&amp;styles=LIMITE_COMUNAL_V0&amp;format=image%2Fpng&amp;transparent=true&amp;version=1.1.1&amp;height=256&amp;width=256&amp;srs=EPSG%3A3857&amp;bbox=-7865370.2105446365,-3954546.0953618777,-7865064.462431495,-3954240.347248738" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(256px, 286px, 0px); opacity: 1;"><img alt="" role="presentation" src="/mapasui/services/ui/wmsProxyService/call?service=WMS&amp;request=GetMap&amp;layers=sii%3ABR_CART_LIMITE_COMUNAL&amp;styles=LIMITE_COMUNAL_V0&amp;format=image%2Fpng&amp;transparent=true&amp;version=1.1.1&amp;height=256&amp;width=256&amp;srs=EPSG%3A3857&amp;bbox=-7865675.958657777,-3953934.5991355977,-7865370.2105446365,-3953628.851022458" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(0px, -226px, 0px); opacity: 1;"><img alt="" role="presentation" src="/mapasui/services/ui/wmsProxyService/call?service=WMS&amp;request=GetMap&amp;layers=sii%3ABR_CART_LIMITE_COMUNAL&amp;styles=LIMITE_COMUNAL_V0&amp;format=image%2Fpng&amp;transparent=true&amp;version=1.1.1&amp;height=256&amp;width=256&amp;srs=EPSG%3A3857&amp;bbox=-7865064.462431495,-3953934.5991355977,-7864758.714318355,-3953628.851022458" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(512px, -226px, 0px); opacity: 1;"><img alt="" role="presentation" src="/mapasui/services/ui/wmsProxyService/call?service=WMS&amp;request=GetMap&amp;layers=sii%3ABR_CART_LIMITE_COMUNAL&amp;styles=LIMITE_COMUNAL_V0&amp;format=image%2Fpng&amp;transparent=true&amp;version=1.1.1&amp;height=256&amp;width=256&amp;srs=EPSG%3A3857&amp;bbox=-7865675.958657777,-3954546.0953618777,-7865370.2105446365,-3954240.347248738" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(0px, 286px, 0px); opacity: 1;"><img alt="" role="presentation" src="/mapasui/services/ui/wmsProxyService/call?service=WMS&amp;request=GetMap&amp;layers=sii%3ABR_CART_LIMITE_COMUNAL&amp;styles=LIMITE_COMUNAL_V0&amp;format=image%2Fpng&amp;transparent=true&amp;version=1.1.1&amp;height=256&amp;width=256&amp;srs=EPSG%3A3857&amp;bbox=-7865064.462431495,-3954546.0953618777,-7864758.714318355,-3954240.347248738" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(512px, 286px, 0px); opacity: 1;"></div></div></div><div class="leaflet-pane leaflet-shadow-pane"><img src="https://www4.sii.cl/mapasui/common/leaflet/images/marker-shadow.png" class="leaflet-marker-shadow leaflet-zoom-animated" style="margin-left: -12px; margin-top: -41px; width: 41px; height: 41px; transform: translate3d(360px, 195px, 0px);"></div><div class="leaflet-pane leaflet-overlay-pane"></div><div class="leaflet-pane leaflet-marker-pane"><img src="https://www4.sii.cl/mapasui/common/leaflet/images/marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" tabindex="0" style="margin-left: -12px; margin-top: -41px; width: 25px; height: 41px; transform: translate3d(360px, 195px, 0px); z-index: 195;"></div><div class="leaflet-pane leaflet-tooltip-pane"></div><div class="leaflet-pane leaflet-popup-pane"><div class="leaflet-popup  leaflet-zoom-animated" style="opacity: 1; transform: translate3d(361px, 161px, 0px); bottom: -7px; left: -110px;"><a class="leaflet-popup-close-button" href="#close">×</a><div class="leaflet-popup-content-wrapper"><div class="leaflet-popup-content" style="width: 179px;"><b>Servicio de Impuestos Internos</b></div></div><div class="leaflet-popup-tip-container"><div class="leaflet-popup-tip"></div></div></div></div><div class="leaflet-proxy leaflet-zoom-animated"></div></div><div class="leaflet-control-container"><div class="leaflet-top leaflet-left"><div class="leaflet-control-zoom leaflet-bar leaflet-control"><a class="leaflet-control-zoom-in" href="#" title="Zoom in" role="button" aria-label="Zoom in">+</a><a class="leaflet-control-zoom-out" href="#" title="Zoom out" role="button" aria-label="Zoom out">-</a></div><div class="leaflet-control-zoom leaflet-bar leaflet-control"><a class="leaflet-control-loading"></a></div></div><div class="leaflet-top leaflet-right"><div class="leaflet-control-layers leaflet-control" aria-haspopup="true"><a class="leaflet-control-layers-toggle" href="#" title="Layers"></a><form class="leaflet-control-layers-list"><div class="leaflet-control-layers-base"><label><div><input type="radio" class="leaflet-control-layers-selector" name="leaflet-base-layers" checked="checked"><span> Open Street Maps</span></div></label><label><div><input type="radio" class="leaflet-control-layers-selector" name="leaflet-base-layers"><span> Sin Mapa Base</span></div></label></div><div class="leaflet-control-layers-separator"></div><div class="leaflet-control-layers-overlays"><label><div><input type="checkbox" class="leaflet-control-layers-selector" checked=""><span> Límite Comunal</span></div></label></div></form></div></div><div class="leaflet-bottom leaflet-left"></div><div class="leaflet-bottom leaflet-right"><div class="leaflet-control-attribution leaflet-control">Map data © <a href="http://openstreetmap.org" target="_blank">OpenStreetMap</a> contributors</div></div></div></div>
+			
+			<div>La información espacial contenida es solo referencial.</div>
+			<div>Información espacial almacenada en WGS 84, proyección UTM, huso 12 Sur, 17 Sur, 19 Sur según corresponda.</div>
+			<div>Capa vectorial de límites de propiedades rurales, fue generada por CIREN, a partir de los planos análogos del SII sobre imágenes satelitales ortorrectificadas.</div>
+			<div>La capa Áreas Homogéneas del Reavalúo SNE 2025 está determinada de acuerdo a la base de datos catastral del SII vigente al segundo semestre de 2024, por lo que no reflejan modificaciones posteriores y los montos de valor m<sup>2</sup> de terreno están expresados en moneda nacional al SEGUNDO SEMESTRE DE 2024.</div>
+			<div>La capa Comuna-Sector del Reavalúo Agrícola 2024 determina los valores de terreno por clases de suelo en moneda nacional por hectárea expresados en moneda nacional al SEGUNDO SEMESTRE DE 2023.</div>
+			<div>Las capas de Áreas Homogéneas y el valor del m<sup>2</sup> de terreno (en moneda nacional al SEGUNDO SEMESTRE DE 2021) del Reavalúo 2022 están determinadas de acuerdo a la base de datos catastral del SII vigente al segundo semestre de 2021, por lo que no reflejan modificaciones posteriores.</div>
+			<div>La capa Áreas Homogéneas del Reavalúo de sitios no edificados, propiedades abandonadas y pozos lastreros 2021, está determinada de acuerdo a la base de datos catastral del SII vigente al segundo semestre de 2020, por lo que no reflejan modificaciones posteriores y los montos de valor m<sup>2</sup> de terreno están expresados en moneda nacional al SEGUNDO SEMESTRE DE 2020.</div>
+            <div>La capa Áreas Homogéneas del Reavalúo de sitios no edificados, propiedades abandonadas y pozos lastreros 2020, está determinada de acuerdo a la base de datos catastral del SII vigente al segundo semestre de 2019, por lo que no reflejan modificaciones posteriores y los montos de valor m<sup>2</sup> de terreno están expresados en moneda nacional al SEGUNDO SEMESTRE DE 2019.</div>
+			<div>La capa Áreas Homogéneas del Reavalúo de sitios no edificados, propiedades abandonadas y pozos lastreros 2019, está determinada de acuerdo a la base de datos catastral del SII vigente al segundo semestre de 2018, por lo que no reflejan modificaciones posteriores y los montos de valor m<sup>2</sup> de terreno están expresados en moneda nacional al SEGUNDO SEMESTRE DE 2018.
+			<div class="alert alert-info ng-hide" data-ng-show="mensaje">
+				<p class="ng-binding"></p>
+			</div>
+			<!-- Modal Leyenda -->
+			<div class="modal ui-draggable" id="modal-leyenda" tabindex="-1" role="dialog" aria-labelledby="modal-leyenda-label">
+				<div class="modal-dialog modal-sm" role="document">
+					<div class="modal-content">
+						<div class="modal-header ui-draggable-handle">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">×</span>
+							</button>
+							<h4 class="modal-title ng-binding" id="modal-leyenda-label">Leyenda </h4>
+						</div>
+						<div class="modal-body"><img></div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default" data-dismiss="modal">Ocultar</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div></div></div>
+				  </div>
+              </div><!-- end ngIf: ready -->
+          </div>
+	   </div>
+	   <script type="text/javascript">mostrarPie()</script><div class="web-sii pie">
+  <footer>
+    <div class="container">
+      <div class="row hidden-xs">
+        <div class="col-sm-12 col-md-2-5">
+           <h3 class="hidden-xs">Valores y fechas</h3>
+           <div class="btn btn-block navbar-toggle hidden-sm hidden-md hidden-lg arrow-click" data-target=".pie01" data-toggle="collapse"><span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>Valores y fechas</div>
+           <ul class="list-unstyled collapse navbar-collapse pie01">
+                               <li><a href="https://www.sii.cl/valores_y_fechas/uf/uf2025.htm">UF</a></li>
+                               <li><a href="https://www.sii.cl/valores_y_fechas/dolar/dolar2025.htm">Dólar</a></li>
+                               <li><a href="https://www.sii.cl/valores_y_fechas/utm/utm2025.htm">UTM-UTA-IPC</a></li>
+                               <li><a href="https://www.sii.cl/valores_y_fechas/renta/datos_valores_renta.html">Datos y valores de Renta</a></li>
+                               <li><a href="https://www.sii.cl/valores_y_fechas/iva/datos_valores_iva.html">Datos y valores de IVA</a></li>
+                               <li><a href="https://www.sii.cl/valores_y_fechas/otros_valores/otros_valores.html">Otros valores</a></li>
+           </ul>
+        </div>
+        <div class="col-sm-12 col-md-2-5">
+           <h3 class="hidden-xs">Normativa y legislación</h3>
+           <div class="btn btn-block navbar-toggle hidden-sm hidden-md hidden-lg arrow-click" data-target=".pie02" data-toggle="collapse"><span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>Normativa y legislación</div>
+           <ul class="list-unstyled collapse navbar-collapse pie02">
+                               <li><a href="https://www.sii.cl/normativa_legislacion/circulares/2025/indcir2025.htm">Circulares</a></li>
+                               <li><a href="https://www.sii.cl/normativa_legislacion/resoluciones/2025/res_ind2025.htm">Resoluciones</a></li>
+                               <li><a href="https://www4.sii.cl/consultaProyectosNormativosInternet/#Inicio">Consulta pública de normas</a></li>
+                               <li><a href="https://www3.sii.cl/normaInternet/">Administrador de contenido normativo</a></li>
+                               <li><a href="https://www4.sii.cl/acjui/internet/#/instancia/1">Administrador de contenido de Jurisprudencia</a></li>
+                               <li><a href="https://www.sii.cl/normativa_legislacion/legislacion_tributaria.html">Legislación tributaria y convenios internacionales</a></li>
+                               <li><a href="https://www.sii.cl/normativa_legislacion/jurisprudencia_y_tribunales.html">Jurisprudencia y tribunales</a></li>
+           </ul>
+        </div>
+        <div class="col-sm-12 col-md-2-5">
+           <h3 class="hidden-xs">Redes sociales</h3>
+           <div class="btn btn-block navbar-toggle hidden-sm hidden-md hidden-lg arrow-click" data-target=".pie03" data-toggle="collapse"><span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>Redes sociales</div>
+           <ul class="list-unstyled collapse navbar-collapse pie03">
+                               <li><a href="https://www.facebook.com/impuestosinternoschile/">Facebook</a></li>
+                               <li><a href="https://x.com/SII_Chile/">X</a></li>
+                               <li><a href="https://www.youtube.com/user/sii/">Youtube</a></li>
+                               <li><a href="https://www.sii.cl/redes_sociales/rss.html">RSS</a></li>
+                               <li><a href="https://www.sii.cl/ayudas/apps/">APPs</a></li>
+                               <li><a href="https://cl.linkedin.com/company/servicio-de-impuestos-internos">LinkedIn</a></li>
+                               <li><a href="https://www.instagram.com/sii_chile/?hl=es">Instagram</a></li>
+           </ul>
+        </div>
+        <div class="col-sm-12 col-md-2-5">
+           <h3 class="hidden-xs">Sitios de interés</h3>
+           <div class="btn btn-block navbar-toggle hidden-sm hidden-md hidden-lg arrow-click" data-target=".pie04" data-toggle="collapse"><span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>Sitios de interés</div>
+           <ul class="list-unstyled collapse navbar-collapse pie04">
+                               <li><a href="https://www.sii.cl/sitios_de_interes/sinteres_appdoc.html">Aplicaciones y documentos</a></li>
+                               <li><a href="https://www.sii.cl/sitios_de_interes/sinteres_wutiles.html">Web útiles</a></li>
+                               <li><a href="https://www.sii.cl/sitios_de_interes/sinteres_sgob.html">Sitios de gobierno relacionados</a></li>
+                               <li><a href="https://www.sii.cl/sitios_de_interes/sinteres_orgrelacionados.html">Organismos relacionados</a></li>
+                               <li><a href="https://www.sii.cl/asuntos_internacionales/">Intercambios de Información - Estándar CRS</a></li>
+           </ul>
+        </div>
+        <div class="col-sm-12 col-md-2-5">
+           <h3 class="hidden-xs">Sobre el SII</h3>
+           <div class="btn btn-block navbar-toggle hidden-sm hidden-md hidden-lg arrow-click" data-target=".pie05" data-toggle="collapse"><span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>Sobre el SII</div>
+           <ul class="list-unstyled collapse navbar-collapse pie05">
+                               <li><a href="https://www.sii.cl/sobre_el_sii/nuestro_servicio.htm">Nuestro Servicio</a></li>
+                               <li><a href="https://www.sii.cl/sobre_el_sii/trabaja_con_nosotros.html">Trabaja con nosotros</a></li>
+                               <li><a href="https://www.sii.cl/sobre_el_sii/gestion_y_estadisticas.html">Gestión y estadísticas</a></li>
+                               <li><a href="https://capacita.sii.cl:433/">CFiT Virtual</a></li>
+                               <li><a href="https://www.sii.cl/sobre_el_sii/derechos_contribuyentes.htm">Derechos de los contribuyentes</a></li>
+                               <li><a href="https://www.sii.cl/sobre_el_sii/terminos_sitio_web.html">Términos de uso del sitio web</a></li>
+                               <li><a href="https://www.sii.cl/sobre_el_sii/declaracion_de_privacidad.html">Declaración de Privacidad</a></li>
+                               <li><a href="https://www.sii.cl/sobre_el_sii/recomendaciones_seguridad.htm">Recomendaciones de seguridad</a></li>
+           </ul>
+        </div>
+      </div>
+      <div class="row visible-xs">
+         <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+              <div class="panel panel-default">
+                 <div class="panel-heading" role="tab" id="heading01">
+                    <h4 class="panel-title">
+                       <a class="arrow-click collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse01" aria-expanded="true" aria-controls="collapse01"><span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>Valores y fechas</a>
+                    </h4>
+                 </div>
+                 <div id="collapse01" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading01">
+                    <div class="panel-body">
+                       <ul class="list-unstyled">
+                               <li><a href="https://www.sii.cl/valores_y_fechas/uf/uf2025.htm">UF</a></li>
+                               <li><a href="https://www.sii.cl/valores_y_fechas/dolar/dolar2025.htm">Dólar</a></li>
+                               <li><a href="https://www.sii.cl/valores_y_fechas/utm/utm2025.htm">UTM-UTA-IPC</a></li>
+                               <li><a href="https://www.sii.cl/valores_y_fechas/renta/datos_valores_renta.html">Datos y valores de Renta</a></li>
+                               <li><a href="https://www.sii.cl/valores_y_fechas/iva/datos_valores_iva.html">Datos y valores de IVA</a></li>
+                               <li><a href="https://www.sii.cl/valores_y_fechas/otros_valores/otros_valores.html">Otros valores</a></li>
+                       </ul>
+                    </div>
+                 </div>
+              </div>
+              <div class="panel panel-default">
+                 <div class="panel-heading" role="tab" id="heading02">
+                    <h4 class="panel-title">
+                       <a class="arrow-click collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse02" aria-expanded="true" aria-controls="collapse02"><span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>Normativa y legislación</a>
+                    </h4>
+                 </div>
+                 <div id="collapse02" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading02">
+                    <div class="panel-body">
+                       <ul class="list-unstyled">
+                               <li><a href="https://www.sii.cl/normativa_legislacion/circulares/2025/indcir2025.htm">Circulares</a></li>
+                               <li><a href="https://www.sii.cl/normativa_legislacion/resoluciones/2025/res_ind2025.htm">Resoluciones</a></li>
+                               <li><a href="https://www4.sii.cl/consultaProyectosNormativosInternet/#Inicio">Consulta pública de normas</a></li>
+                               <li><a href="https://www3.sii.cl/normaInternet/">Administrador de contenido normativo</a></li>
+                               <li><a href="https://www4.sii.cl/acjui/internet/#/instancia/1">Administrador de contenido de Jurisprudencia</a></li>
+                               <li><a href="https://www.sii.cl/normativa_legislacion/legislacion_tributaria.html">Legislación tributaria y convenios internacionales</a></li>
+                               <li><a href="https://www.sii.cl/normativa_legislacion/jurisprudencia_y_tribunales.html">Jurisprudencia y tribunales</a></li>
+                       </ul>
+                    </div>
+                 </div>
+              </div>
+              <div class="panel panel-default">
+                 <div class="panel-heading" role="tab" id="heading03">
+                    <h4 class="panel-title">
+                       <a class="arrow-click collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse03" aria-expanded="true" aria-controls="collapse03"><span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>Redes sociales</a>
+                    </h4>
+                 </div>
+                 <div id="collapse03" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading03">
+                    <div class="panel-body">
+                       <ul class="list-unstyled">
+                               <li><a href="https://www.facebook.com/impuestosinternoschile/">Facebook</a></li>
+                               <li><a href="https://x.com/SII_Chile/">X</a></li>
+                               <li><a href="https://www.youtube.com/user/sii/">Youtube</a></li>
+                               <li><a href="https://www.sii.cl/redes_sociales/rss.html">RSS</a></li>
+                               <li><a href="https://www.sii.cl/ayudas/apps/">APPs</a></li>
+                               <li><a href="https://cl.linkedin.com/company/servicio-de-impuestos-internos">LinkedIn</a></li>
+                               <li><a href="https://www.instagram.com/sii_chile/?hl=es">Instagram</a></li>
+                       </ul>
+                    </div>
+                 </div>
+              </div>
+              <div class="panel panel-default">
+                 <div class="panel-heading" role="tab" id="heading04">
+                    <h4 class="panel-title">
+                       <a class="arrow-click collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse04" aria-expanded="true" aria-controls="collapse04"><span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>Sitios de interés</a>
+                    </h4>
+                 </div>
+                 <div id="collapse04" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading04">
+                    <div class="panel-body">
+                       <ul class="list-unstyled">
+                               <li><a href="https://www.sii.cl/sitios_de_interes/sinteres_appdoc.html">Aplicaciones y documentos</a></li>
+                               <li><a href="https://www.sii.cl/sitios_de_interes/sinteres_wutiles.html">Web útiles</a></li>
+                               <li><a href="https://www.sii.cl/sitios_de_interes/sinteres_sgob.html">Sitios de gobierno relacionados</a></li>
+                               <li><a href="https://www.sii.cl/sitios_de_interes/sinteres_orgrelacionados.html">Organismos relacionados</a></li>
+                               <li><a href="https://www.sii.cl/asuntos_internacionales/">Intercambios de Información - Estándar CRS</a></li>
+                       </ul>
+                    </div>
+                 </div>
+              </div>
+              <div class="panel panel-default">
+                 <div class="panel-heading" role="tab" id="heading05">
+                    <h4 class="panel-title">
+                       <a class="arrow-click collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse05" aria-expanded="true" aria-controls="collapse05"><span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>Sobre el SII</a>
+                    </h4>
+                 </div>
+                 <div id="collapse05" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading05">
+                    <div class="panel-body">
+                       <ul class="list-unstyled">
+                               <li><a href="https://www.sii.cl/sobre_el_sii/nuestro_servicio.htm">Nuestro Servicio</a></li>
+                               <li><a href="https://www.sii.cl/sobre_el_sii/trabaja_con_nosotros.html">Trabaja con nosotros</a></li>
+                               <li><a href="https://www.sii.cl/sobre_el_sii/gestion_y_estadisticas.html">Gestión y estadísticas</a></li>
+                               <li><a href="https://capacita.sii.cl:433/">CFiT Virtual</a></li>
+                               <li><a href="https://www.sii.cl/sobre_el_sii/derechos_contribuyentes.htm">Derechos de los contribuyentes</a></li>
+                               <li><a href="https://www.sii.cl/sobre_el_sii/terminos_sitio_web.html">Términos de uso del sitio web</a></li>
+                               <li><a href="https://www.sii.cl/sobre_el_sii/declaracion_de_privacidad.html">Declaración de Privacidad</a></li>
+                               <li><a href="https://www.sii.cl/sobre_el_sii/recomendaciones_seguridad.htm">Recomendaciones de seguridad</a></li>
+                       </ul>
+                    </div>
+                 </div>
+              </div>
+         </div>
+      </div>
+    </div>
+  </footer>
+</div>
+<script src="https://zeusr.sii.cl/admin/responsive/js/general.js"></script>
+<script src="https://zeusr.sii.cl/admin/responsive/js/functions.js"></script>
+<script src="https://zeusr.sii.cl/admin/js/encuestas.js"></script>
+
+	</div>
+
+<div id="mm-blocker" class="mm-slideout"></div><div class="web-sii cabecera hidden-sm hidden-md hidden-lg mm-slideout">
+	<div class="header">
+		<nav class="navbar navbar-primary">
+			<div class="container"> 
+				<!-- BOTONES MOVIL -->
+				<div class="navbar-header">
+					<button class="navbar-toggle pull-left" type="button" id="abrirMenu"> <span class="sr-only">Mostrar menu</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span></button>
+					<h1 class="hidden-sm hidden-md hidden-lg"><a href="https://homer.sii.cl/" title="Sii - Servicio de impuestos internos"><img src="https://zeusr.sii.cl/admin/responsive/images/logo.jpg" alt="Sii - Servicio de impuestos internos"></a></h1>
+					<button aria-expanded="false" data-target="#opciones_movil" data-toggle="collapse" class="navbar-toggle collapsed" type="button"><span aria-hidden="true" class="glyphicon glyphicon-user"></span></button>
+					<div class="border"></div>
+				</div>
+				<!-- MENU OPCIONES -->
+				<div id="opciones_movil" class="navbar-collapse collapse" aria-expanded="false">
+					<ul class="nav navbar-nav" style="display:block" id="sinAutenticacionMovil">
+						<li class="special"> <a href="https://misiir.sii.cl/cgi_misii/siihome.cgi">Ingresar a Mi Sii</a></li>
+					</ul>
+					<ul class="nav navbar-nav usuario" style="display:none" id="conAutenticacionMovil">
+					   <li>
+					      <span class="id">
+					         <script>imprimeRutEncabezadoMovil();</script><br>
+					         <span id="lastConexionMovil"></span>
+					      </span>
+					   </li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+		<!-- MENU MOVIL -->
+		
+		<!-- FIN MENU MOVIL --> 
+	</div>
+</div><iframe sandbox="allow-scripts allow-same-origin" title="Adobe ID Syncing iFrame" id="destination_publishing_iframe_sii_0" name="destination_publishing_iframe_sii_0_name" src="https://sii.demdex.net/dest5.html?d_nsid=0#https%3A%2F%2Fwww4.sii.cl" class="aamIframeLoaded" style="display: none; width: 0px; height: 0px;"></iframe></body></html>
