@@ -29,6 +29,8 @@ class Caso{
     #direccion;
     #origen;
     #diaEntrega;
+    #rolPropiedad;
+    #avaluoPropiedad;
 
     constructor(fechaObtencion,fechaPublicacion='N/A',link='N/A',origen='N/A' ){    
         this.#fechaPublicacion = fechaPublicacion;
@@ -55,6 +57,8 @@ class Caso{
         this.#direccion = 'N/A';
         this.#diaEntrega = 'N/A';
         this.#numero = 'No aplica';
+        this.#rolPropiedad = 'N/A';
+        this.#avaluoPropiedad = 'N/A';
     }
     darfechaPublicacion(fechaPublicacion){
         this.#fechaPublicacion = fechaPublicacion;
@@ -116,6 +120,9 @@ class Caso{
     darDiaEntrega(diaEntrega){
         this.#diaEntrega = diaEntrega;
     }
+    darRolPropiedad(rolPropiedad){
+        this.#rolPropiedad = rolPropiedad;
+    }
     
     get link(){ 
         return String(this.#link);
@@ -128,6 +135,9 @@ class Caso{
     }
     get causa(){
         return String(this.#causa);
+    }
+    get comuna(){
+        return String(this.#comuna);
     }
   
 
@@ -182,6 +192,8 @@ class Caso{
             diaEntrega: diaEntregaNormalizado,
             aviso : this.#texto,
             numero : this.#numero,
+            rolPropiedad : this.#rolPropiedad,
+            avaluoPropiedad : this.#avaluoPropiedad
         };
     } 
 
@@ -445,6 +457,15 @@ class Caso{
         }
 
     return null; 
+    }
+
+    // Separar el rol de la propiedad y lo devuelve
+    getRolPropiedad(){
+        if(this.#rolPropiedad == "N/A"){
+            return null;
+        }
+        const rol = this.#rolPropiedad.split("-");
+        return rol;
     }
 
     normalizarPartes(){

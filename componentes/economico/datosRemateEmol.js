@@ -42,8 +42,9 @@ function procesarDatosRemate(caso){
     const direccion = getDireccion(texto);
     const diaEntrega = getDiaEntrega(texto);
     const anno = getAnno(texto);
+    const rolPropiedad = getRolPropiedad(texto);
 
-    if (causa != null){
+    if (causa){
         caso.darCausa(causa[0]);
     }else{
         // console.log("Causa no encontrada");
@@ -57,24 +58,24 @@ function procesarDatosRemate(caso){
         caso.darJuzgado(juzgado);
     }
 
-    if (porcentaje != null){
+    if (porcentaje){
         caso.darPorcentaje(porcentaje[0]);
         const minimoPorcentaje =porcentaje[0].match(/\d{1,3}\s*%/);
         const minimoPesos = porcentaje[0].match(/(\d{1,3}\.)*\d{1,3}(,\d{1,5})*/);
-        if(minimoPorcentaje != null){
+        if(minimoPorcentaje){
             caso.darPorcentaje(minimoPorcentaje[0]);
-        }else if(minimoPesos != null){
+        }else if(minimoPesos){
             caso.darPorcentaje(minimoPesos[0]);
         }
 
     }
-    if (formatoEntrega != null){
+    if (formatoEntrega){
         caso.darFormatoEntrega(formatoEntrega[0]);
     }
-    if (fechaRemate != null){
+    if (fechaRemate){
         caso.darFechaRemate(fechaRemate[0]);
     }
-    if (montoMinimo != null){
+    if (montoMinimo){
         caso.darMontoMinimo(montoMinimo);
     }
     caso.darMultiples(multiples);
@@ -103,8 +104,11 @@ function procesarDatosRemate(caso){
     if (direccion != null){
         caso.darDireccion(direccion);
     }
-    if (diaEntrega != null){
+    if (diaEntrega){
         caso.darDiaEntrega(diaEntrega[0]);
+    }
+    if (rolPropiedad){
+        caso.darRolPropiedad(rolPropiedad);
     }
 }
 
@@ -128,6 +132,8 @@ function getCausa(data) {
     if(causaRolN != null){
         return causaRolN; 
     } 
+    
+    return null;
 }
 
 function getCausaVoluntaria(data){
@@ -247,10 +253,11 @@ function getFechaRemate(data) {
     ];
     for(let regex of regexs){
         const fechaRemate = data.match(regex);
-        if (fechaRemate != null){
+        if (fechaRemate){
             return fechaRemate;
         }
     }
+    return null;
 }
 
 //Obtiene el monto minimo por el cual iniciara el remate.
@@ -558,6 +565,19 @@ function getDiaEntrega(data){
     return null;
 }
 
+function getRolPropiedad(data){
+    const regexRolAvaluo = /rol\s*(?:de\s*)?aval[uú]o\s*(?:Nº?°?\s*)?(\d{1,4}\s*-\s*\d{1,3})/i;
+    const rolAvaluo = data.match(regexRolAvaluo);
+    
+    if(rolAvaluo){
+        console.log("Rol avaluo: ",rolAvaluo[1]);
+        return rolAvaluo[1];
+    }
+
+    return null;
+
+}
+
 // Funcion para probar un solo remate
 async function testUnico(fecha,link){
     const caso = new Caso(fecha,fecha,link,0);
@@ -566,6 +586,7 @@ async function testUnico(fecha,link){
     caso.darTexto(description);
     procesarDatosRemate(caso);
     console.log(caso.toObject());
+    return caso;
 }
 
 function convertirANombre(numero) {
