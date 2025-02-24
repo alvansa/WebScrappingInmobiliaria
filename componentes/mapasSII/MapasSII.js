@@ -12,7 +12,15 @@ class MapasSII {
         await this.entryPage();
     }
 
-    async obtainDataOfCause(comuna, manzana, predio) {
+    async obtainDataOfCause(caso) {
+        const comuna = caso.comuna;
+        const rolPropiedad = caso.getRolPropiedad();
+        if(rolPropiedad === null || comuna === null){
+            return null;
+        }
+        const manzana = rolPropiedad[0];
+        const predio = rolPropiedad[1];
+        // const predio = "12345678";
         await this.clickSearchButton();
         await this.completarComuna(comuna);
         console.log("Rellenando manzana");
@@ -25,10 +33,7 @@ class MapasSII {
         await this.page.type(selectorPredio, predio);
         await this.page.click('button[data-ng-click="validaBusqueda()"]');
         console.log("Se hizo click Buscando");
-        await this.obtainTotalValue();
-        await delay(5000);
-        await this.browser.close();
-        return "Mapas";
+        await this.obtainTotalValue(caso);
     }
 
     async entryPage() {
@@ -36,6 +41,7 @@ class MapasSII {
         await this.page.waitForSelector("div.col-xs-7 button.btn-lg");
         await this.page.click("div.col-xs-7 button.btn-lg");
     }
+
     async clickSearchButton() {
         await this.page.waitForSelector(".glyphicon.glyphicon-search");
         await this.page.click(".glyphicon.glyphicon-search");
@@ -51,26 +57,49 @@ class MapasSII {
         await this.page.focus(dropdownComuna);
         await this.page.keyboard.press('Enter'); // Seleccionar la opción
     }
-    async obtainTotalValue(){
-        const divResultado = "strong.col-xs-6 + div.col-xs-6 span.pull-right.ng-binding";
-        await this.page.waitForSelector(divResultado);
-        // const avaluoTotal = await this.page.evaluate(() => {
-        //     // Encontrar el <strong> que contiene "Avalúo Total"
-        //     const avaluoTotalLabel = Array.from(document.querySelectorAll('strong')).find(el => el.textContent.trim() === 'Avalúo Total');
 
-        //     if (avaluoTotalLabel) {
-        //         // Obtener el siguiente hermano <div> que contiene el valor
-        //         const avaluoTotalValue = avaluoTotalLabel.nextElementSibling.querySelector('span.ng-binding');
-        //         return avaluoTotalValue ? avaluoTotalValue.textContent.trim() : null;
-        //     }
-        //     return null;
-        // });
-        const avaluoTotal = await this.page.evaluate(() => {
-            const element = document.querySelector("strong.col-xs-6 + div.col-xs-6 span.pull-right.ng-binding");
-            return element ? element.innerText.replace(/\D/g, '') : null;
-        });   
-        console.log(avaluoTotal);
+    async obtainTotalValue(caso){
+        const divResultado = "strong.col-xs-6 + div.col-xs-6 span.pull-right.ng-binding";
+        const divError = "span.modal-title.ng-binding";
+        const botonCerrar = "button.btn.btn-warning"; 
+        try{
+            // busca el elemento de resultado o error
+            await this.page.waitForSelector(`${divResultado},${divError}`,{timeout: 5000});
+            // Verificar si el mensaje de error está presente
+            const errorElement = await this.page.$(divError);
+            if (errorElement) {
+                const errorText = await this.page.evaluate(el => el.textContent, errorElement);
+                if (errorText.includes("No se pudo encontrar")) {
+                    console.log("La búsqueda falló:", errorText);
+                    // Hacer clic en el botón de cerrar
+                    const cerrarButton = await this.page.$(botonCerrar);
+                    if (cerrarButton) {
+                        await cerrarButton.click();
+                        console.log("Botón de cerrar clickeado.");
+                    } else {
+                        console.log("No se encontró el botón de cerrar.");
+                    }
+                    caso.avaluoPropiedad = null; // O puedes asignar un valor por defecto
+                    return; // Salir de la función si hay un error
+                }
+            }
+            //Si no encontro el erro, obtiene el valor total de la propiedad
+            const avaluoTotal = await this.page.evaluate(() => {
+                const element = document.querySelector("strong.col-xs-6 + div.col-xs-6 span.pull-right.ng-binding");
+                return element ? element.innerText.replace(/\D/g, '') : null;
+            });   
+            
+            caso.avaluoPropiedad = avaluoTotal;
+            delay(5000);
+        }catch(error){
+            console.error("Error al buscar el elemento:", error);
+            caso.avaluoPropiedad = null;
+        }
     }
+
+    async closeBrowser(){
+        await this.browser.close();
+    }   
 }
 
 

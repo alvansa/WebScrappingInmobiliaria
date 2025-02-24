@@ -125,7 +125,21 @@ async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,save
         return null;
     }
     try{
-        let lastRow = insertarCasosExcel(casos,ws,fechaLimite) - 1;
+        const mapasSII = new MapasSII();
+        await mapasSII.Initialize();
+        for (let caso of casos) {
+            if (caso.rolPropiedad) {
+                await obtainPropertyValue(caso, mapasSII);
+                await new Promise(resolve => setTimeout(resolve,1000));
+            }
+        }
+        await mapasSII.closeBrowser();
+    }catch(error){
+        console.error('Error al obtener resultados:', error);
+        return null;
+    }
+    try{
+        let lastRow = await insertarCasosExcel(casos,ws,fechaLimite) - 1;
         ws['!ref'] = 'A5:AH'+lastRow;
         const fechaInicioDMA = cambiarFormatoFecha(fechaInicioStr);
         const fechaFinDMA = cambiarFormatoFecha(fechaFinStr);
@@ -235,7 +249,7 @@ async function getCasosPublicosYLegales(fechaInicioStr,fechaFinStr,PYLChecked){
     return casos;
 }
 
-function insertarCasosExcel(casos,ws,fechaLimite){
+async function insertarCasosExcel(casos,ws,fechaLimite){
     let remates = new Set();
     let currentRow = 6;
     if (!Array.isArray(casos) || casos.length === 0) {
@@ -266,6 +280,11 @@ function shouldSkip(caso,remates,fechaLimite){
         return true;
     }
     return false;
+}
+
+async function obtainPropertyValue(caso,mapasSII){
+    console.log(caso.causa,caso.rolPropiedad,caso.comuna);
+    await mapasSII.obtainDataOfCause(caso);
 }
 
 function insertarCasoIntoWorksheet(caso,ws,currentRow){
@@ -303,7 +322,7 @@ function insertarCasoIntoWorksheet(caso,ws,currentRow){
     ws['Q'+ currentRow ] = {v: caso.porcentaje, t: 's'};
     ws['R'+ currentRow ] = {v: caso.diaEntrega, t: 's'};
     ws['S'+ currentRow ] = {v: caso.tipoDerecho, t: 's'};
-    // ws['T'+ currentRow ] = {v: 'deuda 1 ', t: 's'};
+    ws['T'+ currentRow ] = {v: caso.rolPropiedad, t: 's'};
     // ws['U'+ currentRow ] = {v: 'deuda 2 ', t: 's'};
     // ws['V'+ currentRow ] = {v: 'deuda 3 ', t: 's'};
     // ws['W'+ currentRow ] = {v: 'rol ', t: 's'};
@@ -319,7 +338,8 @@ function insertarCasoIntoWorksheet(caso,ws,currentRow){
         ws['Y' + currentRow] = { v:parseFloat(caso.montoMinimo), t: 'n', z: '#,##0' };
     }
     ws['Z' + currentRow] = { v: caso.moneda, t: 's' };                
-    // ws['AC'+ currentRow ] = {v: 'avaluo fiscal ', t: 's'};
+    ws['AC'+ currentRow ] = {v: caso.avaluoPropiedad, t: 'n'};
+    console.log(caso.causa,caso.avaluoPropiedad);
     // ws['AE' + currentRow ] = {v: 'estado civil ', t: 's'};
     // ws['AF' + currentRow ] = {v: 'Px $ compra ant ', t: 's'};
     // ws['AG' + currentRow ] = {v: 'año compr ant ', t: 's'};

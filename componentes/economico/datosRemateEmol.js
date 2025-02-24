@@ -102,13 +102,13 @@ function procesarDatosRemate(caso){
         caso.darTipoDerecho(tipoDerecho[0]);
     }
     if (direccion != null){
-        caso.darDireccion(direccion);
+        caso.direccion = direccion;
     }
     if (diaEntrega){
-        caso.darDiaEntrega(diaEntrega[0]);
+        caso.diaEntrega= diaEntrega[0];
     }
     if (rolPropiedad){
-        caso.darRolPropiedad(rolPropiedad);
+        caso.rolPropiedad = rolPropiedad;
     }
 }
 
@@ -566,7 +566,7 @@ function getDiaEntrega(data){
 }
 
 function getRolPropiedad(data){
-    const regexRolAvaluo = /rol\s*(?:de\s*)?aval[uú]o\s*(?:Nº?°?\s*)?(\d{1,4}\s*-\s*\d{1,3})/i;
+    const regexRolAvaluo = /rol\s*(?:de\s*)?aval[uú]o\s*(?:es\s*)?(?:el\s*)?(?:Nº?°?\s*)?(\d{1,5}\s*-\s*\d{1,5})/i;
     const rolAvaluo = data.match(regexRolAvaluo);
     
     if(rolAvaluo){

@@ -49,7 +49,7 @@ function obtainDataRematesPdf(data,caso) {
         caso.darAnno(annoNumero);
     }
     if(direccion){
-        caso.darDireccion(direccion);
+        caso.direccion = direccion;
     }
     if(tipoPropiedad){
         caso.darTipoPropiedad(tipoPropiedad[0]);

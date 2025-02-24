@@ -16,11 +16,11 @@ async function main(){
     }else if(args[0] === "-l"){
         const link = args[1];
         const caso = await testLinkArgs(link);
-        const rolPropiedad = caso.getRolPropiedad();
-        console.log(rolPropiedad);
         const testCausa = new MapasSII();
         await testCausa.Initialize();
-        await testCausa.obtainDataOfCause(caso.comuna,rolPropiedad[0], rolPropiedad[1]);
+        await testCausa.obtainDataOfCause(caso);
+        await testCausa.closeBrowser();
+        console.log(caso.toObject());
 
     }
     else{

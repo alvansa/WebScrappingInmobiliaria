@@ -57,8 +57,8 @@ class Caso{
         this.#direccion = 'N/A';
         this.#diaEntrega = 'N/A';
         this.#numero = 'No aplica';
-        this.#rolPropiedad = 'N/A';
-        this.#avaluoPropiedad = 'N/A';
+        this.#rolPropiedad = null;
+        this.#avaluoPropiedad = null;
     }
     darfechaPublicacion(fechaPublicacion){
         this.#fechaPublicacion = fechaPublicacion;
@@ -114,14 +114,17 @@ class Caso{
     darMartillero(martillero){
         this.#martillero = martillero;
     }
-    darDireccion(direccion){
+    set direccion(direccion){
         this.#direccion = direccion;
     }
-    darDiaEntrega(diaEntrega){
+    set diaEntrega(diaEntrega){
         this.#diaEntrega = diaEntrega;
     }
-    darRolPropiedad(rolPropiedad){
+    set rolPropiedad(rolPropiedad){
         this.#rolPropiedad = rolPropiedad;
+    }
+    set avaluoPropiedad(avaluoPropiedad){
+        this.#avaluoPropiedad = avaluoPropiedad;
     }
     
     get link(){ 
@@ -138,6 +141,12 @@ class Caso{
     }
     get comuna(){
         return String(this.#comuna);
+    }
+    get rolPropiedad(){
+        return String(this.#rolPropiedad);
+    }
+    get avaluoPropiedad(){
+        return Number(this.#avaluoPropiedad);
     }
   
 
@@ -193,7 +202,7 @@ class Caso{
             aviso : this.#texto,
             numero : this.#numero,
             rolPropiedad : this.#rolPropiedad,
-            avaluoPropiedad : this.#avaluoPropiedad
+            avaluoPropiedad : Number(this.#avaluoPropiedad)
         };
     } 
 
@@ -461,7 +470,7 @@ class Caso{
 
     // Separar el rol de la propiedad y lo devuelve
     getRolPropiedad(){
-        if(this.#rolPropiedad == "N/A"){
+        if(this.#rolPropiedad == "N/A" || this.#rolPropiedad == null){
             return null;
         }
         const rol = this.#rolPropiedad.split("-");
