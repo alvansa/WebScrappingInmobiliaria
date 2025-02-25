@@ -124,20 +124,7 @@ async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,save
         console.log('No se encontraron datos para insertar.');
         return null;
     }
-    try{
-        const mapasSII = new MapasSII();
-        await mapasSII.Initialize();
-        for (let caso of casos) {
-            if (caso.rolPropiedad) {
-                await obtainPropertyValue(caso, mapasSII);
-                await new Promise(resolve => setTimeout(resolve,1000));
-            }
-        }
-        await mapasSII.closeBrowser();
-    }catch(error){
-        console.error('Error al obtener resultados:', error);
-        return null;
-    }
+    await obtainValueInformation(casos);
     try{
         let lastRow = await insertarCasosExcel(casos,ws,fechaLimite) - 1;
         ws['!ref'] = 'A5:AH'+lastRow;
@@ -282,10 +269,6 @@ function shouldSkip(caso,remates,fechaLimite){
     return false;
 }
 
-async function obtainPropertyValue(caso,mapasSII){
-    console.log(caso.causa,caso.rolPropiedad,caso.comuna);
-    await mapasSII.obtainDataOfCause(caso);
-}
 
 function insertarCasoIntoWorksheet(caso,ws,currentRow){
     // if(caso.fechaPublicacion !== "N/A"){
@@ -339,7 +322,6 @@ function insertarCasoIntoWorksheet(caso,ws,currentRow){
     }
     ws['Z' + currentRow] = { v: caso.moneda, t: 's' };                
     ws['AC'+ currentRow ] = {v: caso.avaluoPropiedad, t: 'n'};
-    console.log(caso.causa,caso.avaluoPropiedad);
     // ws['AE' + currentRow ] = {v: 'estado civil ', t: 's'};
     // ws['AF' + currentRow ] = {v: 'Px $ compra ant ', t: 's'};
     // ws['AG' + currentRow ] = {v: 'año compr ant ', t: 's'};
@@ -374,7 +356,33 @@ function cambiarAnchoColumnas(ws){
         { wch: 15 },  // X
         { wch: 15 },  // Y
         { wch: 15 },  // Z
+        { wch: 15 },  // AA
+        { wch: 15 },  // AB
+        { wch: 25 },  // AC
     ];
+}
+
+async function obtainValueInformation(casos){
+    let mapasSII = null;
+    try{
+        const mapasSII = new MapasSII();
+        await mapasSII.Initialize();
+        for (let caso of casos) {
+            if (caso.rolPropiedad) {
+                console.log(caso.causa,caso.rolPropiedad,caso.link);
+                await mapasSII.obtainDataOfCause(caso);
+                await new Promise(resolve => setTimeout(resolve,1000));
+            }
+        }
+    }catch(error){
+        console.error('Error al obtener resultados:', error);
+        console.log("valor del mapasSII cuando es error",mapasSII);
+        return null;
+    }finally{
+        if(mapasSII){
+            await mapasSII.closeBrowser();
+        }
+    }
 }
 
 // Dado un string con el formato yyyy-mm-dd, devuelve un string con el formato dd-mm-yyyy
@@ -428,10 +436,5 @@ function getComunaJuzgado(juzgado){
 }
 
 
-async function testMapas(){
-    const testCausa = new MapasSII("MAIPÚ","2294","26");
-    const data = await testCausa.obtainDataOfCause();
-    return data;
-}
 
-module.exports = { crearBase,insertarDatos,testMapas};
+module.exports = { crearBase,insertarDatos};

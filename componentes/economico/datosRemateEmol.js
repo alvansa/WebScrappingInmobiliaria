@@ -27,7 +27,7 @@ async function getDatosRemate(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries){
 function procesarDatosRemate(caso){
     texto = caso.texto;
     const causa = getCausa(texto);
-    const juzgado = getJuezPartidor(texto) ? "Juez Partidor" : getJuzgado2(texto);
+    const juzgado = getJuezPartidor(texto) ? "Juez Partidor" : getJuzgado(texto);
     const porcentaje = getPorcentaje(texto);
     const formatoEntrega = getFormatoEntrega(texto);
     const fechaRemate = getFechaRemate(texto);
@@ -47,14 +47,13 @@ function procesarDatosRemate(caso){
     if (causa){
         caso.darCausa(causa[0]);
     }else{
-        // console.log("Causa no encontrada");
         const causaVoluntaria = getCausaVoluntaria(texto);
-        if (causaVoluntaria != null){
+        if (causaVoluntaria){
             caso.darCausa(causaVoluntaria[0]);
         }
     }
 
-    if (juzgado != null){
+    if (juzgado){
         caso.darJuzgado(juzgado);
     }
 
@@ -80,28 +79,28 @@ function procesarDatosRemate(caso){
     }
     caso.darMultiples(multiples);
     
-    if (comuna != null){
+    if (comuna){
         caso.darComuna(comuna);
     }
-    if (foja != null){
+    if (foja){
         caso.darFoja(foja[0]);
     }
-    if (anno != null){
+    if (anno){
         caso.darAnno(anno);
     }
     if (numero != null){
         caso.darNumero(numero[1]);
     }
-    if (partes != null){
+    if (partes){
         caso.darPartes(partes);
     }
-    if (tipoPropiedad != null){
+    if (tipoPropiedad){
         caso.darTipoPropiedad(tipoPropiedad[0]);
     }
-    if (tipoDerecho != null){
+    if (tipoDerecho){
         caso.darTipoDerecho(tipoDerecho[0]);
     }
-    if (direccion != null){
+    if (direccion){
         caso.direccion = direccion;
     }
     if (diaEntrega){
@@ -142,7 +141,7 @@ function getCausaVoluntaria(data){
     return causa;
 }
 //Probando para refactorizar la funcion que busca el juzgado
-function getJuzgado2(data) {
+function getJuzgado(data) {
     const normalizedData = data.toLowerCase().replaceAll(",",'').replaceAll("de ",'').normalize("NFD").replace(/[\u0300-\u036f]/g, "").replaceAll("stgo","santiago").replaceAll("  "," ").replace(/\n/g," ");
     let tribunalesAceptados = [];
     // console.log("Data normalizada en getJuzgado2: ",normalizedData);
@@ -275,7 +274,7 @@ function getMontoMinimo(data) {
     // console.log("RegexList: ",regexList);
     let montoFinal = buscarMontosFinal(regexList,regexMontoMinimo);
     if (montoFinal){
-        console.log("Monto final: ",montoFinal);
+        // console.log("Monto final: ",montoFinal);
         return montoFinal;
     }
     return null;
@@ -310,7 +309,6 @@ function buscarMontosFinal(regexList,regexMontoMinimo){
         for(let {regex,moneda} of regexBuscarMontos){
             const montoMinimo = posibleMonto.match(regex);
             if (montoMinimo){
-                console.log("regex ocupado: ",regex," monto: ",montoMinimo);
                 montoFinal = {monto: montoMinimo[1], moneda: moneda};
                 return montoFinal;
             }
@@ -340,7 +338,6 @@ function getMultiples(data) {
 
 // Obtiene la comuna del remate a base de una lista de comunas.
 function getComuna(data) {
-    let comunaMinuscula;
     const dataNormalizada = data.toLowerCase();
     for (let comuna of comunas){
         comuna = comuna.toLowerCase();
@@ -570,7 +567,6 @@ function getRolPropiedad(data){
     const rolAvaluo = data.match(regexRolAvaluo);
     
     if(rolAvaluo){
-        console.log("Rol avaluo: ",rolAvaluo[1]);
         return rolAvaluo[1];
     }
 

@@ -1,5 +1,5 @@
 const { contextBridge,ipcRenderer } = require('electron');
-const {insertarDatos,testMapas} = require('../excel/createXLSX.js');
+const {insertarDatos} = require('../excel/createXLSX.js');
 const nodePath = require('path');
 
 

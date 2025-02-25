@@ -21,14 +21,18 @@ class MapasSII {
         const manzana = rolPropiedad[0];
         const predio = rolPropiedad[1];
         // const predio = "12345678";
+        const selectorManzana = 'input[data-ng-model="manzana"]';
+        const selectorPredio = 'input[data-ng-model="predio"]';
         await this.clickSearchButton();
+        await this.clearInput('#rolsearch input[data-ng-model="nombreComuna"]');
+        await this.clearInput(selectorManzana);
+        await this.clearInput(selectorPredio);
+
         await this.completarComuna(comuna);
         console.log("Rellenando manzana");
-        const selectorManzana = 'input[data-ng-model="manzana"]';
         await this.page.waitForSelector(selectorManzana);
         await this.page.type(selectorManzana, manzana);
         console.log("Rellenando predio");
-        const selectorPredio = 'input[data-ng-model="predio"]';
         await this.page.waitForSelector(selectorPredio);
         await this.page.type(selectorPredio, predio);
         await this.page.click('button[data-ng-click="validaBusqueda()"]');
@@ -61,13 +65,14 @@ class MapasSII {
     async obtainTotalValue(caso){
         const divResultado = "strong.col-xs-6 + div.col-xs-6 span.pull-right.ng-binding";
         const divError = "span.modal-title.ng-binding";
-        const botonCerrar = "button.btn.btn-warning"; 
+        const botonCerrar = "div.modal-footer.ng-scope button.btn.btn-warning"; 
         try{
             // busca el elemento de resultado o error
             await this.page.waitForSelector(`${divResultado},${divError}`,{timeout: 5000});
             // Verificar si el mensaje de error está presente
             const errorElement = await this.page.$(divError);
             if (errorElement) {
+            console.log("Elemnto fallido econtrado");
                 const errorText = await this.page.evaluate(el => el.textContent, errorElement);
                 if (errorText.includes("No se pudo encontrar")) {
                     console.log("La búsqueda falló:", errorText);
@@ -80,6 +85,8 @@ class MapasSII {
                         console.log("No se encontró el botón de cerrar.");
                     }
                     caso.avaluoPropiedad = null; // O puedes asignar un valor por defecto
+                    console.log("1");
+                    delay(500);
                     return; // Salir de la función si hay un error
                 }
             }
@@ -88,13 +95,17 @@ class MapasSII {
                 const element = document.querySelector("strong.col-xs-6 + div.col-xs-6 span.pull-right.ng-binding");
                 return element ? element.innerText.replace(/\D/g, '') : null;
             });   
-            
             caso.avaluoPropiedad = avaluoTotal;
-            delay(5000);
+            delay(500);
+            
         }catch(error){
             console.error("Error al buscar el elemento:", error);
             caso.avaluoPropiedad = null;
         }
+    }
+
+    async clearInput(selector){
+        await this.page.evaluate((selector) => document.querySelector(selector).value = "", selector);
     }
 
     async closeBrowser(){
