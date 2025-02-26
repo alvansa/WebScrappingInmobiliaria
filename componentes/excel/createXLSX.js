@@ -321,7 +321,7 @@ function insertarCasoIntoWorksheet(caso,ws,currentRow){
         ws['Y' + currentRow] = { v:parseFloat(caso.montoMinimo), t: 'n', z: '#,##0' };
     }
     ws['Z' + currentRow] = { v: caso.moneda, t: 's' };                
-    ws['AC'+ currentRow ] = {v: caso.avaluoPropiedad, t: 'n'};
+    ws['AC'+ currentRow ] = {v: caso.avaluoPropiedad, t: 'n', z: '#,##0'};
     // ws['AE' + currentRow ] = {v: 'estado civil ', t: 's'};
     // ws['AF' + currentRow ] = {v: 'Px $ compra ant ', t: 's'};
     // ws['AG' + currentRow ] = {v: 'año compr ant ', t: 's'};
@@ -365,11 +365,11 @@ function cambiarAnchoColumnas(ws){
 async function obtainValueInformation(casos){
     let mapasSII = null;
     try{
-        const mapasSII = new MapasSII();
+        mapasSII = new MapasSII();
         await mapasSII.Initialize();
         for (let caso of casos) {
             if (caso.rolPropiedad) {
-                console.log(caso.causa,caso.rolPropiedad,caso.link);
+                console.log(caso.causa,caso.rolPropiedad,caso.comuna,caso.link);
                 await mapasSII.obtainDataOfCause(caso);
                 await new Promise(resolve => setTimeout(resolve,1000));
             }
@@ -430,6 +430,9 @@ function cambiarFechaFin(fecha){
 
 // Dado un juzgado, obtiene la comuna del juzgado
 function getComunaJuzgado(juzgado){
+    if(juzgado == null){
+        return "no especifica";
+    }
     const juzgadoNormalizado = juzgado.toLowerCase();
     const comunaJuzgado = juzgadoNormalizado.split("de ").at(-1);
     return comunaJuzgado;

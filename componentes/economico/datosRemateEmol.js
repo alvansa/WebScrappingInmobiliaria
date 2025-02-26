@@ -68,44 +68,57 @@ function procesarDatosRemate(caso){
         }
 
     }
+
     if (formatoEntrega){
         caso.darFormatoEntrega(formatoEntrega[0]);
     }
+
     if (fechaRemate){
         caso.darFechaRemate(fechaRemate[0]);
     }
+    
     if (montoMinimo){
         caso.darMontoMinimo(montoMinimo);
     }
+
     caso.darMultiples(multiples);
     
     if (comuna){
         caso.darComuna(comuna);
     }
+    
     if (foja){
         caso.darFoja(foja[0]);
     }
+
     if (anno){
         caso.darAnno(anno);
     }
+    
     if (numero != null){
         caso.darNumero(numero[1]);
     }
+
     if (partes){
         caso.darPartes(partes);
     }
+
     if (tipoPropiedad){
         caso.darTipoPropiedad(tipoPropiedad[0]);
     }
+
     if (tipoDerecho){
         caso.darTipoDerecho(tipoDerecho[0]);
     }
+
     if (direccion){
         caso.direccion = direccion;
     }
+
     if (diaEntrega){
         caso.diaEntrega= diaEntrega[0];
     }
+
     if (rolPropiedad){
         caso.rolPropiedad = rolPropiedad;
     }

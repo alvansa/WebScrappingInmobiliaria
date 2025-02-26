@@ -140,6 +140,9 @@ class Caso{
         return String(this.#causa);
     }
     get comuna(){
+        if(this.#comuna == null){
+            return null;
+        }
         return String(this.#comuna);
     }
     get rolPropiedad(){
@@ -154,16 +157,7 @@ class Caso{
         let montominimo;
         let moneda;
 
-        if(this.#origen == LIQUIDACIONES){
-            montominimo = this.#montoMinimo.replaceAll('.','').replaceAll(',','.');
-            moneda = "$";
-        }else if(this.#montoMinimo !== 'N/A'){
-            montominimo = this.normalizarMonto();
-            moneda = this.#montoMinimo["moneda"];
-        }else{
-            montominimo = "No especifica";
-            moneda = "No aplica";
-        }
+        const montoMoneda = this.normalizarMonto(); 
         const causaNormalizada = this.normalizarCausa();
         const annoNormalizado = this.normalizarAnno();
         const porcentajeNormalizado = this.normalizarPorcentaje(); 
@@ -172,6 +166,8 @@ class Caso{
         const direccionNormalizada = this.normalizarDireccion();
         const partesNormalizadas = this.normalizarPartes();
         const diaEntregaNormalizado = this.normalizarDiaEntrega();
+        const comunaNormalizada = this.normalizarComuna();
+        const tipoDerechoNormalizado = this.normalizarTipoDerecho();
 
         
 
@@ -185,16 +181,16 @@ class Caso{
             formatoEntrega: formatoEntregaNormalizado,
             fechaRemate: this.transformarFecha(),
             // montoMinimo: this.#montoMinimo,
-            montoMinimo: montominimo,
-            moneda : moneda,
+            montoMinimo: montoMoneda["monto"],
+            moneda : montoMoneda["moneda"],
             multiples: this.#multiples,
             multiplesFoja : this.#multiplesFoja,
-            comuna: this.#comuna,
+            comuna: comunaNormalizada,
             foja: this.#foja,
             numero: this.#numero,
             partes: partesNormalizadas,
             tipoPropiedad: this.#tipoPropiedad,
-            tipoDerecho: this.#tipoDerecho,
+            tipoDerecho: tipoDerechoNormalizado,
             anno: annoNormalizado,
             martillero: this.#martillero,
             direccion: direccionNormalizada,
@@ -208,6 +204,8 @@ class Caso{
 
     // Transforma la fecha de la publicación de estar escrita en palabras a un objeto Date
     transformarFecha(){
+        if(this.#fechaRemate == "N/A" || this.#fechaRemate == null){ return null;}
+
         // Si el origen es Pjud, viene con formato tipo dd/mm/yyyy HH:mm:ss
         if(this.#origen == PJUD){
             this.#fechaRemate = this.#fechaRemate.split(' ')[0];
@@ -235,12 +233,9 @@ class Caso{
         return null;
     }
 
-    getCorte(){
-        const comuna = this.#juzgado.split('de').at(-1).trim();
-    }
     // Obtiene el número de la causa para buscar el remate en el pjud
     getCausaPjud(){
-        if(this.#causa.includes('N/A')){
+        if(this.#causa.includes('N/A') || this.#causa == null){
             return null;
         }
         const causa = this.#causa.split('-');
@@ -249,7 +244,7 @@ class Caso{
 
     // Obtiene el año de la causa para buscar el remate en el pjud
     getAnnoPjud(){
-        if(this.#causa.includes('N/A')){
+        if(this.#causa.includes('N/A') || this.#causa == null){
             return null;
         }
             
@@ -259,6 +254,9 @@ class Caso{
    
     // Obtiene el día de la fecha de cuando se realizara el remate.
     getDia(){
+        if(this.#fechaRemate == "N/A" || this.#fechaRemate == null){
+            return null;
+        }
         const dias = ['uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve','diez','once','doce','trece','catorce','quince','dieciseis','diecisiete','dieciocho','diecinueve','veinte','veintiuno','veintidos','veintitres','veinticuatro','veinticinco','veintiseis','veintisiete','veintiocho','veintinueve','treinta','treinta y uno'];
         const diaRegex = /(\d{1,2})/g;
         const diaRemate = this.#fechaRemate.match(diaRegex);
@@ -275,6 +273,7 @@ class Caso{
 
     // Obtiene el mes de la fecha de cuando se realizara el remate.
     getMes(){
+        if(this.#fechaRemate == "N/A" || this.#fechaRemate == null){return null}
         const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
         for(let mes of meses){
             if(this.#fechaRemate.toLowerCase().includes(mes)){
@@ -396,9 +395,24 @@ class Caso{
         return montoNormalizado;
     }
     normalizarMonto(){
-        const monto = this.#montoMinimo["monto"];
-        let montoFinal = monto.replaceAll('.','').replaceAll(',','.').replaceAll(' ','');
-        return montoFinal;
+        if(this.#montoMinimo == "N/A" || this.#montoMinimo == null){
+            return {"monto": "No especifica", "moneda": "No aplica"};
+        }
+        let montoFinal;
+        let moneda;
+        if(this.#origen == LIQUIDACIONES){ 
+            montoFinal = this.#montoMinimo.replaceAll('.','').replaceAll(',','.');
+            moneda = "$";
+        }else if(this.#montoMinimo !== null){
+            let montominimo = this.#montoMinimo["monto"];
+            montoFinal = montominimo.replaceAll('.', '').replaceAll(',', '.').replaceAll(' ', '');
+            moneda = this.#montoMinimo["moneda"];
+        }else{
+            montoFinal = "No especifica";
+            moneda = "No aplica";
+        }
+
+        return {"monto": montoFinal, "moneda" : moneda};
     }
 
     // Devuelve el tipo de moneda en que se encuentra el monto mínimo
@@ -408,12 +422,14 @@ class Caso{
             return "CLP";
         }else if(montoMinimo.includes("uf")|montoMinimo.includes("unidadesdefomento")|montoMinimo.includes("u.f.")|montoMinimo.includes("uf.")){
             return "UF";
+        }else{
+            return null;
         }    
     }
 
      //Devuelve el indentificador de la corte a la cual pertenece el juzgado del caso
     getCortePjud() {
-        if (this.#juzgado === "N/A" | this.#juzgado === "juez partidor") {
+        if (this.#juzgado === "N/A" | this.#juzgado === "juez partidor" || this.#juzgado == null) {
             return null;
         }
         const comuna = this.#juzgado.toLowerCase();
@@ -478,7 +494,7 @@ class Caso{
     }
 
     normalizarPartes(){
-        if(this.#partes === "N/A"){
+        if(this.#partes === "N/A" || this.#partes === null){
             return "No especifica";
         }
         let partesNormalizadas = this.#partes.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
@@ -518,7 +534,7 @@ class Caso{
     }
 
     normalizarPorcentaje(){
-        if(this.#porcentaje == "N/A"){
+        if(this.#porcentaje == "N/A" || this.#porcentaje == null){
             return "No especifica";
         }
         const porcentaje = this.#porcentaje.replaceAll(" ","");
@@ -526,7 +542,7 @@ class Caso{
     }
 
     normalizarFormatoEntrega(){
-        if(this.#formatoEntrega == "N/A"){
+        if(this.#formatoEntrega == "N/A" || this.#formatoEntrega == null){
             return "No especifica";
         }
         if(this.#formatoEntrega == "vale a la vista"){
@@ -537,7 +553,7 @@ class Caso{
     normalizarCausa() {
         const valorOriginal = this.#causa;
         
-        if (valorOriginal === "N/A") {
+        if (valorOriginal === "N/A" || valorOriginal === null) {
             return "No especifica";
         }
 
@@ -555,29 +571,42 @@ class Caso{
             .toUpperCase();
     } 
     normalizarJuzgado(){
-        if(this.#juzgado == "N/A"){
+        if(this.#juzgado == "N/A" || this.#juzgado == null){
             return "No especifica";
         }
         return this.#juzgado.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
     }
 
     normalizarDireccion(){
-        if(this.#direccion == "N/A"){
+        if(this.#direccion == "N/A" || this.#direccion == null){
             return "No especifica";
         }
         return this.#direccion.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
     }
+    // normalizarDiaEntrega(){
+    //     if(this.#diaEntrega == "N/A" || this.#diaEntrega == null){
+    //         return "No especifica";
+    //     }
+    //     return this.#diaEntrega.toLowerCase();
+    // }
     normalizarDiaEntrega(){
-        if(this.#diaEntrega == "N/A"){
-            return "No especifica";
-        }
-        return this.#diaEntrega.toLowerCase();
-    }
-    normalizarDiaEntrega(){
-        if(this.#diaEntrega == "N/A"){
+        if(this.#diaEntrega == "N/A" || this.#diaEntrega == null){
             return "No especifica";
         }
         return this.#diaEntrega.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
+    }
+    normalizarComuna(){
+        if(this.#comuna == "N/A" || this.#comuna == null){
+            return "No especifica";
+        }
+
+        return this.#comuna.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
+    }
+    normalizarTipoDerecho(){
+        if(this.#tipoDerecho == "N/A" || this.#tipoDerecho == null){
+            return "No especifica";
+        }
+        return this.#tipoDerecho.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
     }
 }
 

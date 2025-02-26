@@ -15,9 +15,11 @@ class MapasSII {
     async obtainDataOfCause(caso) {
         const comuna = caso.comuna;
         const rolPropiedad = caso.getRolPropiedad();
+        console.log("comuna: ", comuna, "rolPropiedad: ", rolPropiedad);
         if(rolPropiedad === null || comuna === null){
             return null;
         }
+        console.log("Rellenando formulario");
         const manzana = rolPropiedad[0];
         const predio = rolPropiedad[1];
         // const predio = "12345678";
