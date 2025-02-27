@@ -6,6 +6,7 @@ const fs = require('fs');
 
 const path = require('path');
 
+const {getCausa,insertCaso} = require('../../model/Causas.js');
 const {getDatosRemate} = require('../economico/datosRemateEmol.js'); 
 const {getPJUD,datosFromPjud} = require('../pjud/getPjud.js');
 const {getPdfData} = require('../liquidaciones/procesarBoletin.js');
@@ -249,10 +250,12 @@ async function insertarCasosExcel(casos,ws,fechaLimite){
         if(shouldSkip(caso,remates,fechaLimite)){
             continue;
         }
-        remates.add(caso.causa);
+        remates.add({causa: caso.causa, juzgado: caso.juzgado});
         insertarCasoIntoWorksheet(caso,ws,currentRow);
         currentRow++;
     }
+    console.log("Casos insertados: ",remates);
+    insertCaso(remates);
     return currentRow;
 }
 
@@ -326,6 +329,10 @@ function insertarCasoIntoWorksheet(caso,ws,currentRow){
     // ws['AF' + currentRow ] = {v: 'Px $ compra ant ', t: 's'};
     // ws['AG' + currentRow ] = {v: 'año compr ant ', t: 's'};
     // ws['AH' + currentRow ] = {v: 'precio venta nos ', t: 's'};
+}
+
+function insertarCasoDB(caso){
+
 }
 
 function cambiarAnchoColumnas(ws){

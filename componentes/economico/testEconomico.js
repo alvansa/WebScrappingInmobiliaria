@@ -1,6 +1,7 @@
 const {testUnico, procesarDatosRemate} = require('./datosRemateEmol.js');
 const Caso = require('../caso/caso.js');
 const process = require('process');
+const {getCausas,getTables,createDB,DeleteAll} = require('../../model/Causas.js');
 
 async function testLink(){
     try {
@@ -36,8 +37,17 @@ function testTexto(){
     }
 }
 
+function obtainCausasFromDB(){
+    try {
+        const causas = getCausas();
+        console.log("Causas: ",causas);
+    }catch (error) {
+        console.error('Error al obtener resultados:', error);
+    }
+}
+
 function use(){
-    console.log("Uso: node testEconomico.js -l para probar un link fijo en el codigo o node testEconomico.js -t para probar un texto o node testEconomico.js -L link para probar el link");
+    console.log("Uso: node testEconomico.js -l para probar un link fijo en el codigo o node testEconomico.js -t para probar un texto o node testEconomico.js -L link para probar el link -d para probar la base de datos");
 }
 
 async function main(){
@@ -53,6 +63,10 @@ async function main(){
         testTexto();
     }else if(args[0] === "-L"){
         testLinkArgs(args[1]);
+    }else if(args[0] === "-d"){
+        obtainCausasFromDB();
+    }else if(args[0] === "-borrar"){
+        DeleteAll();
     }else{
         use();
     }
