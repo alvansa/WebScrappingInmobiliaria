@@ -63,6 +63,9 @@ class Caso{
     darfechaPublicacion(fechaPublicacion){
         this.#fechaPublicacion = fechaPublicacion;
     }
+    set fechaPublicacion(fechaPublicacion){
+        this.#fechaPublicacion = fechaPublicacion;
+    }
     darTexto(texto){
         this.#texto = texto;
     }
@@ -126,6 +129,8 @@ class Caso{
     set avaluoPropiedad(avaluoPropiedad){
         this.#avaluoPropiedad = avaluoPropiedad;
     }
+
+
     
     get link(){ 
         return String(this.#link);
@@ -146,6 +151,9 @@ class Caso{
         return String(this.#comuna);
     }
     get rolPropiedad(){
+        if(this.#rolPropiedad == null){
+            return null;
+        }
         return String(this.#rolPropiedad);
     }
     get avaluoPropiedad(){

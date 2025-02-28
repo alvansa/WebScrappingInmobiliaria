@@ -1,39 +1,59 @@
 const dbmgr = require("./bdmng");
 
-const db = dbmgr.db;
-function getCausas() {
-  const query = "Select * from Causa;";
-  const causas = db.prepare(query).all();
-  return causas;
-}
-function getTables(){
-    const query = "SELECT name FROM sqlite_master WHERE type='table';";
-    const tables = db.prepare(query).all();
-    return tables;
-}
+class Causas {
+    constructor() {
+        this.db = dbmgr.db;
+    }
+    getAllCausas() {
+        const query = "Select * from Causa;";
+        const causas = this.db.prepare(query).all();
+        return causas;
+    }
+    getTables() {
+        const query = "SELECT name FROM sqlite_master WHERE type='table';";
+        const tables = this.db.prepare(query).all();
+        return tables;
+    }
 
-function createDB(){
-    const query = `
+    createDB() {
+        const query = `
     CREATE TABLE IF NOT EXISTS Causa (
         causa TEXT,
         juzgado TEXT,
+        fecha TEXT,
         PRIMARY KEY (causa, juzgado)
     )`;
-    db.prepare(query).run();
-}
-function insertCaso(casos){
-    const query = "INSERT OR IGNORE INTO Causa (causa, juzgado) VALUES (?, ?)";
-    const stmt = db.prepare(query);
-    for(const caso of casos){
-        try{
-            stmt.run(caso.causa,caso.juzgado);
-        }catch(error){
-            console.error("Error al insertar caso: ",e);
+        this.db.prepare(query).run();
+    }
+    insertCaso(casos) {
+        const query = "INSERT OR IGNORE INTO Causa (causa, juzgado,fecha) VALUES (?, ?, ?)";
+        const stmt = this.db.prepare(query);
+        for (const caso of casos) {
+            try {
+                stmt.run(caso.causa, caso.juzgado,caso.fecha);
+            } catch (error) {
+                console.error("Error al insertar caso: ", e);
+            }
         }
     }
+    DeleteAll() {
+        const query = "DELETE FROM Causa;";
+        this.db.prepare(query).run();
+    }
+    DropCausa() {
+        const query = "DROP TABLE Causa;";
+        this.db.prepare(query).run();
+    }
+
+    getCausas(fechalimite) {
+        const query = "Select * from Causa WHERE fecha < ?;";
+        const causas = this.db.prepare(query).all(fechalimite);
+        return causas;
+    }   
+    searchByCausa(causa){
+        const query = "Select * from Causa WHERE causa = ?;";
+        const causas = this.db.prepare(query).all(causa);
+        return causas;
+    }
 }
-function DeleteAll(){
-    const query = "DELETE FROM Causa;";
-    db.prepare(query).run();
-}
-module.exports = { getCausas, getTables,createDB,insertCaso,DeleteAll };
+module.exports =  Causas ;

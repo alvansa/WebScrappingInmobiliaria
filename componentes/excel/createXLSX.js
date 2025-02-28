@@ -6,7 +6,7 @@ const fs = require('fs');
 
 const path = require('path');
 
-const {getCausa,insertCaso} = require('../../model/Causas.js');
+const Causas = require('../../model/Causas.js');
 const {getDatosRemate} = require('../economico/datosRemateEmol.js'); 
 const {getPJUD,datosFromPjud} = require('../pjud/getPjud.js');
 const {getPdfData} = require('../liquidaciones/procesarBoletin.js');
@@ -98,6 +98,7 @@ function crearBase(saveFile) {
 
 async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,saveFile,checkedBoxes) {
     const fechaLimite = stringToDate(fechaFinStr);
+    const fechaInicio = stringToDate(fechaInicioStr);
     var filePath = path.join(saveFile, 'Remates.xlsx');
     // Revisa si el archivo base ya existe
     if(!fs.existsSync(path.join(saveFile, 'Remates.xlsx'))){
@@ -127,7 +128,7 @@ async function insertarDatos(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries,save
     }
     await obtainValueInformation(casos);
     try{
-        let lastRow = await insertarCasosExcel(casos,ws,fechaLimite) - 1;
+        let lastRow = await insertarCasosExcel(casos,ws,fechaLimite,fechaInicio) - 1;
         ws['!ref'] = 'A5:AH'+lastRow;
         const fechaInicioDMA = cambiarFormatoFecha(fechaInicioStr);
         const fechaFinDMA = cambiarFormatoFecha(fechaFinStr);
@@ -237,9 +238,11 @@ async function getCasosPublicosYLegales(fechaInicioStr,fechaFinStr,PYLChecked){
     return casos;
 }
 
-async function insertarCasosExcel(casos,ws,fechaLimite){
+async function insertarCasosExcel(casos,ws,fechaLimite,fechaInicio){
     let remates = new Set();
     let currentRow = 6;
+    const causa = new Causas();
+    const rematesDB = causa.getCausas(formatDateToSQLite(fechaInicio));
     if (!Array.isArray(casos) || casos.length === 0) {
         console.log("No se encontraron datos para insertar.");
         return;
@@ -247,27 +250,37 @@ async function insertarCasosExcel(casos,ws,fechaLimite){
     const casosObj = casos.map(caso => caso.toObject());
     
     for(let caso of casosObj){
-        if(shouldSkip(caso,remates,fechaLimite)){
+        if(caso.fechaPublicacion === "N/A" || caso.fechaPublicacion == null){
+            caso.fechaPublicacion = fechaMenosUno(fechaLimite);
+        }
+        if(shouldSkip(caso,remates,fechaLimite,rematesDB,fechaInicio)){
             continue;
         }
-        remates.add({causa: caso.causa, juzgado: caso.juzgado});
+        remates.add({causa: caso.causa, juzgado: caso.juzgado,fecha: formatDateToSQLite(caso.fechaPublicacion)});
         insertarCasoIntoWorksheet(caso,ws,currentRow);
         currentRow++;
     }
     console.log("Casos insertados: ",remates);
-    insertCaso(remates);
+    causa.insertCaso(remates);
     return currentRow;
 }
 
-function shouldSkip(caso,remates,fechaLimite){
-    if(remates.has(caso.causa)){
-        return true;
+function shouldSkip(caso,remates,fechaLimite,rematesDB,fechaInicio){
+    for(let remate of remates){
+        if(remate.causa === caso.causa && remate.juzgado === caso.juzgado){
+            return true;
+        }
     }
     if(caso.fechaRemate < fechaLimite){
         return true;
     }
     if(caso.juzgado === "Juez Partidor"){
         return true;
+    }
+    for(let remate of rematesDB){
+        if(remate.causa === caso.causa && remate.juzgado === caso.juzgado && remate.fecha < formatDateToSQLite(fechaInicio)){
+            return true;
+        }
     }
     return false;
 }
@@ -308,7 +321,7 @@ function insertarCasoIntoWorksheet(caso,ws,currentRow){
     ws['Q'+ currentRow ] = {v: caso.porcentaje, t: 's'};
     ws['R'+ currentRow ] = {v: caso.diaEntrega, t: 's'};
     ws['S'+ currentRow ] = {v: caso.tipoDerecho, t: 's'};
-    ws['T'+ currentRow ] = {v: caso.rolPropiedad, t: 's'};
+    // ws['T'+ currentRow ] = {v: caso.rolPropiedad, t: 's'};
     // ws['U'+ currentRow ] = {v: 'deuda 2 ', t: 's'};
     // ws['V'+ currentRow ] = {v: 'deuda 3 ', t: 's'};
     // ws['W'+ currentRow ] = {v: 'rol ', t: 's'};
@@ -375,7 +388,7 @@ async function obtainValueInformation(casos){
         mapasSII = new MapasSII();
         await mapasSII.Initialize();
         for (let caso of casos) {
-            if (caso.rolPropiedad) {
+            if (caso.rolPropiedad !== null && caso.comuna !== null) {
                 console.log(caso.causa,caso.rolPropiedad,caso.comuna,caso.link);
                 await mapasSII.obtainDataOfCause(caso);
                 await new Promise(resolve => setTimeout(resolve,1000));
@@ -443,6 +456,26 @@ function getComunaJuzgado(juzgado){
     const juzgadoNormalizado = juzgado.toLowerCase();
     const comunaJuzgado = juzgadoNormalizado.split("de ").at(-1);
     return comunaJuzgado;
+}
+function formatDateToSQLite(date) {
+  // Asegúrate de que el parámetro sea un objeto Date válido
+  if (!(date instanceof Date) || isNaN(date)) {
+    throw new Error("El parámetro debe ser un objeto Date válido.");
+  }
+
+  // Obtener el año, mes y día
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Los meses van de 0 a 11
+  const day = String(date.getDate()).padStart(2, '0');
+
+  // Formatear como YYYY-MM-DD
+  return `${year}-${month}-${day}`;
+}
+
+function fechaMenosUno(fecha){
+    const nuevaFecha = new Date(fecha);
+    nuevaFecha.setDate(nuevaFecha.getDate() - 1);
+    return nuevaFecha;
 }
 
 

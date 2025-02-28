@@ -1,7 +1,7 @@
 const {testUnico, procesarDatosRemate} = require('./datosRemateEmol.js');
 const Caso = require('../caso/caso.js');
 const process = require('process');
-const {getCausas,getTables,createDB,DeleteAll} = require('../../model/Causas.js');
+const Causas = require('../../model/Causas.js');
 
 async function testLink(){
     try {
@@ -39,7 +39,8 @@ function testTexto(){
 
 function obtainCausasFromDB(){
     try {
-        const causas = getCausas();
+        const causa = new Causas();
+        const causas = causa.getAllCausas();
         console.log("Causas: ",causas);
     }catch (error) {
         console.error('Error al obtener resultados:', error);
@@ -66,7 +67,23 @@ async function main(){
     }else if(args[0] === "-d"){
         obtainCausasFromDB();
     }else if(args[0] === "-borrar"){
-        DeleteAll();
+        const causa = new Causas();
+        causa.DeleteAll();
+    }else if(args[0] === "-drop"){
+        const causa = new Causas();
+        causa.DropCausa();
+    }else if(args[0] === "-tables"){
+        const causa = new Causas();
+        console.log(causa.getTables());
+    }else if(args[0] === "-create"){
+        const causa = new Causas();
+        causa.createDB();
+    }else if(args[0] === "-getFecha"){
+        const causa = new Causas();
+        console.log(causa.getCausas("2025-02-13"));
+    }else if(args[0] === "-searchCausa"){
+        const causa = new Causas();
+        console.log(causa.searchByCausa(args[1]));
     }else{
         use();
     }
