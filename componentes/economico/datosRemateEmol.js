@@ -10,7 +10,8 @@ async function getDatosRemate(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries){
         for (caso of casos){
             pagina = caso.link;
             const description = await getRemates(pagina,maxRetries);
-            caso.darTexto(description);
+            const normalizedDescription = normalizeDescription(description);
+            caso.darTexto(normalizedDescription);
         }
         // Procesa los remates a partir del texto obtenido.
         for(let caso of casos){
@@ -108,7 +109,7 @@ function procesarDatosRemate(caso){
     }
 
     if (tipoDerecho){
-        caso.darTipoDerecho(tipoDerecho[0]);
+        caso.darTipoDerecho(tipoDerecho);
     }
 
     if (direccion){
@@ -352,9 +353,10 @@ function getMultiples(data) {
 // Obtiene la comuna del remate a base de una lista de comunas.
 function getComuna(data) {
     const dataNormalizada = data.toLowerCase();
+    console.log("Data normalizada: ",dataNormalizada);
     for (let comuna of comunas){
         comuna = comuna.toLowerCase();
-        const listaPreFrases = ["comuna de ","comuna ","comuna y provincia de ","conservador de bienes raíces de ","conservador bienes raíces "];
+        const listaPreFrases = ["comuna de ","comuna ","comuna y provincia de ","conservador de bienes raíces de ","conservador bienes raíces ","registro de propiedad de ","registro propiedad ","registro propiedad cbr "];
         for(let preFrase of listaPreFrases){
             const comunaPreFrase = preFrase + comuna;
             if (dataNormalizada.includes(comunaPreFrase)){
@@ -422,53 +424,95 @@ function getPartes(data){
 }
 
 function buscarPartesNombreBanco(data){
-    const dataNormalized = data.toLowerCase();
+    const normalizedData = data.toLowerCase();
     // console.log("Data banco: ",dataNormalized);
-    for(let banco of BANCOS){
+    for(let bank of BANCOS){
         // Revisa si el banco de la lista esta en el texto
-        const indexBanco = dataNormalized.indexOf(banco);
-        if (indexBanco == -1){
+        const bankIndex = normalizedData.indexOf(bank);
+        if (bankIndex == -1){
             continue;
         }
         //Aqui tiene dos opciones para busar delimitador,rol o un punto.
         // Si esta, busca la palabra rol
-        const dataBanco = dataNormalized.substring(indexBanco);
-        if (dataBanco.includes("rol")){
-            const finPartesConRol = dataBanco.indexOf('rol');
-            if (finPartesConRol == -1){
+        const bankData = dataNormalized.substring(indexBank);
+        if (bankData.includes("rol")){
+            const rolIndex = dataBank.indexOf('rol');
+            if ( rolIndex == -1){
                 continue;
             }
-            let partes = dataBanco.substring(0,finPartesConRol);
-            if (incluyeParte(partes)){
-                return partes;
+            let parties = bankIndex.substring(0,rolIndex);
+            if (incluyeParte(parties)){
+                return parties;
             }
         }
         
         //Busca un punto que finalize las partes 
-        const finPartesConPunto = dataBanco.indexOf('.');
-        if (finPartesConPunto == -1){
+        const endOfPartiesWithPeriod = dataBank.indexOf('.');
+        if (endOfPartiesWithPeriod == -1){
             continue;
         }
-        partes = dataBanco.substring(0,finPartesConPunto);
-        if (incluyeParte(partes)){
-            return partes;
+        parties = bankData.substring(0,endOfPartiesWithPeriod);
+        if (incluyeParte(parties)){
+            return parties;
         }
         
     }
 }
 
 function getTipoPropiedad(data){
-    const regexPropiedad = /(?:casa|departamento|terreno|parcela|sitio|local|bodega|oficina(?!\s+judicial)|vivienda)/i;
-    const tipoPropiedad = data.match(regexPropiedad);
-    return tipoPropiedad;
+    const regexProperty = /(?:casa|departamento|terreno|parcela|sitio|local|bodega|oficina(?!\s+judicial)|vivienda)/i;
+    const propertyType = data.match(regexProperty);
+    return propertyType;
 }
 
 function getTipoDerecho(data){
-    const regexDerecho = /(?:posesión|usufructo|nuda propiedad|bien familiar)/i;
-    const tipoDerecho = data.match(regexDerecho);
-    return tipoDerecho;
+    const normalizedData = data.toLowerCase();
+    const regexForeclosure = /(?:posesión|usufructo|nuda propiedad|bien familiar)/i;
+    const tipoDerecho = normalizedData.match(regexForeclosure);
+    if(tipoDerecho){
+        return tipoDerecho[0];
+    }
+    const multipleRegexForeclosures = [
+        /derechos\s*correspondientes\s*a\s*(\d{1,3}(?:,\d{1,8})?)%/gi,
+        /(\d{1,3}(?:,\d{1,8})?)%\sde\slos\sderechos/gi,
+        /derechos\s*(?:[a-zA-Zñáéíóú,]*\s){1,50}(\d{1,2}(?:,\d{1,8})?)%/gi,
+    ];
+    let foreclosure = [];
+    for(let regex of multipleRegexForeclosures){
+        const foreclosure = normalizedData.match(regex);
+        if (foreclosure){
+            foreclosure.push(foreclosure);
+        }
+    }
+    if (foreclosure.length > 0){
+        const foreclosurePercentage = obtainFinalPercentage(derechos);
+        return foreclosurePercentage;
+    }
+    return null;
 }
 
+function obtainFinalPercentage(foreclosures){
+    let minPercentage = Infinity;
+    let minForeclosure = null;
+    const numberRegex = /\d{1,3}(?:,\d{1,8})?/g;
+    if(foreclosures.length == 1){
+        return foreclosures[0][0];
+    }
+    
+    for(let foreclosure of foreclosures){
+        const foreclosureString = foreclosure[0];
+        let percentage = foreclosureString.match(numberRegex);
+        if(percentage){
+            const percentageNumber = parseFloat(percentage[0].replace(",","."));
+            if(percentageNumber < minPercentage){
+                minPercentage = percentageNumber;
+                minForeclosure = foreclosureString;
+            }
+        }
+    }
+
+    return minForeclosure;
+}
 function getAnno(data){
     // Busca el año con dependencia de las fojas, "fojas xxxx del año xxxx"
     const regexFojasDependiente =/(?:fojas|fs\.?|fjs)(\s*[°º0-9a-zA-ZáéíóúñÑ,.-]+){1,12}\s*(?:del?|año)\s*(\b\d{1}(?:\.\d{3})?\b|\d{1,4})/i;
@@ -592,7 +636,8 @@ async function testUnico(fecha,link){
     const caso = new Caso(fecha,fecha,link,0);
     const maxRetries = 2;
     description =  await getRemates(link,maxRetries,caso);
-    caso.darTexto(description);
+    const normalizedDescription = normalizeDescription(description); 
+    caso.darTexto(normalizedDescription);
     procesarDatosRemate(caso);
     console.log(caso.toObject());
     return caso;
@@ -648,6 +693,9 @@ function verificarOpcionesInvalidas(texto){
         return true;
     }
     return false;
+}
+function normalizeDescription(description){
+    return description.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, ' ').trim();
 }
 
 module.exports = {  getDatosRemate , testUnico, procesarDatosRemate };

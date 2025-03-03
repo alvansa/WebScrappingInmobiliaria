@@ -48,7 +48,20 @@ function obtainCausasFromDB(){
 }
 
 function use(){
-    console.log("Uso: node testEconomico.js -l para probar un link fijo en el codigo o node testEconomico.js -t para probar un texto o node testEconomico.js -L link para probar el link -d para probar la base de datos");
+    console.log(`
+       Uso : node testEconomico.js
+        -h : ayuda
+        -l : probar el link fijo en el codigo
+        -t : probar un texto
+        -L link : probar el link
+        -all : obtener todas las causas de la base de datos 
+        -borrar : borrar todas las causas de la base de datos
+        -drop : borrar la tabla causa
+        -tables : obtener las tablas de la base de datos
+        -create : crear la base de datos
+        -getFecha : obtener las causas previas a una fecha fija 2025-02-13
+        -searchCausa causa : buscar una causa en la base de datos con causa como parametro
+        `)
 }
 
 async function main(){
@@ -58,13 +71,15 @@ async function main(){
         use();
         return;
     }
-    if(args[0] === "-l"){
+    if(args[0] === "-h"){
+        use();
+    }else if(args[0] === "-l"){
         await testLink();
     }else if(args[0] === "-t"){
         testTexto();
     }else if(args[0] === "-L"){
         testLinkArgs(args[1]);
-    }else if(args[0] === "-d"){
+    }else if(args[0] === "-all"){
         obtainCausasFromDB();
     }else if(args[0] === "-borrar"){
         const causa = new Causas();
