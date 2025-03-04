@@ -64,7 +64,7 @@ function obtainDataRematesPdf(data,caso) {
 async function getPdfData(fechaInicio,fechaFin,fechaHoy) {
     let casos = [];
     try{
-        const downloadPath = path.join(os.homedir(),"Documents","pdfDownload");
+        const downloadPath = path.join(os.homedir(),"Documents","infoRemates/pdfDownload");
         await getDatosBoletin(fechaInicio,fechaFin,casos,fechaHoy);
         const pdfs = fs.readdirSync(downloadPath);
         for (let pdf of pdfs) {
@@ -93,7 +93,7 @@ async function getPdfData(fechaInicio,fechaFin,fechaHoy) {
 
 function deleteFiles() {
     console.log("Eliminando archivos");
-    const downloadPath = path.join(os.homedir(),"Documents","pdfDownload");
+    const downloadPath = path.join(os.homedir(),"Documents","infoRemates/pdfDownload");
     fs.readdir(downloadPath, (err, files) => {
         if (err) {
             console.error("Error al leer el directorio:", err);

@@ -434,20 +434,20 @@ function buscarPartesNombreBanco(data){
         }
         //Aqui tiene dos opciones para busar delimitador,rol o un punto.
         // Si esta, busca la palabra rol
-        const bankData = dataNormalized.substring(indexBank);
+        const bankData = normalizedData.substring(bankIndex);
         if (bankData.includes("rol")){
-            const rolIndex = dataBank.indexOf('rol');
+            const rolIndex = bankData.indexOf('rol');
             if ( rolIndex == -1){
                 continue;
             }
-            let parties = bankIndex.substring(0,rolIndex);
+            let parties = bankData.substring(0,rolIndex);
             if (incluyeParte(parties)){
                 return parties;
             }
         }
         
         //Busca un punto que finalize las partes 
-        const endOfPartiesWithPeriod = dataBank.indexOf('.');
+        const endOfPartiesWithPeriod = bankData.indexOf('.');
         if (endOfPartiesWithPeriod == -1){
             continue;
         }

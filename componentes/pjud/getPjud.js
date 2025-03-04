@@ -8,9 +8,9 @@ const ERROR = 0;
 async function getPJUD(fechaDesde,fechaHasta){
     const browser = await puppeteer.launch({headless: false});
     const page = await browser.newPage();
-    await page.goto('https://oficinajudicialvirtual.pjud.cl/indexN.php');
     try{    
         
+        await page.goto('https://oficinajudicialvirtual.pjud.cl/indexN.php');
         await page.evaluate(() => {
             verRemates();
           });

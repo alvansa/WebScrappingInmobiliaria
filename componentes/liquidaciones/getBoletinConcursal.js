@@ -20,7 +20,7 @@ async function getDatosBoletin (startDate,endDate,casos,fechaHoy){
     let tienePaginaSiguiente = true;
     // Configura el directorio para guardar descargas
     // Configurar la ruta de descarga
-    const downloadPath = path.join(os.homedir(),"Documents","pdfDownload");
+    const downloadPath = path.join(os.homedir(),"Documents","InfoRemates/pdfDownload");
 
     // Asegurarte de que la carpeta exista
     if (!fs.existsSync(downloadPath)) {

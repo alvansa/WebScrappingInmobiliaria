@@ -253,9 +253,9 @@ async function insertarCasosExcel(casos,ws,fechaLimite,fechaInicio){
         if(caso.fechaPublicacion === "N/A" || caso.fechaPublicacion == null){
             caso.fechaPublicacion = fechaMenosUno(fechaLimite);
         }
-        if(shouldSkip(caso,remates,fechaLimite,rematesDB,fechaInicio)){
-            continue;
-        }
+        // if(shouldSkip(caso,remates,fechaLimite,rematesDB,fechaInicio)){
+        //     continue;
+        // }
         remates.add({causa: caso.causa, juzgado: caso.juzgado,fecha: formatDateToSQLite(caso.fechaPublicacion)});
         insertarCasoIntoWorksheet(caso,ws,currentRow);
         currentRow++;
