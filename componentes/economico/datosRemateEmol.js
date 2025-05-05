@@ -698,4 +698,25 @@ function normalizeDescription(description){
     return description.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, ' ').trim();
 }
 
-module.exports = {  getDatosRemate , testUnico, procesarDatosRemate };
+module.exports = {  getDatosRemate , testUnico, procesarDatosRemate, 
+    getAnno,
+    getCausa,
+    getCausaVoluntaria,
+    getJuzgado,
+    getJuezPartidor,
+    getComuna,
+    getDiaEntrega,
+    getDireccion,
+    getFoja,
+    getFormatoEntrega,
+    getJuezPartidor,
+    getMontoMinimo,
+    getMultiples,
+    getNumero,
+    getPartes,
+    getPorcentaje,
+    getRolPropiedad,
+    getTipoDerecho,
+    getTipoPropiedad,
+    getFechaRemate
+};
