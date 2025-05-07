@@ -81,6 +81,7 @@ async function getRemates(url,maxRetries){
             const { data } = await axios.get(url);
             const $ = cheerio.load(data);
             const description = $('div#description p').text();
+            console.log("description: ",description);
             return description;
         } catch (error) {
             if (error.response && error.response.status === 503) {

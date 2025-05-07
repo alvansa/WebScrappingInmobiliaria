@@ -46,70 +46,74 @@ function procesarDatosRemate(caso){
     const rolPropiedad = getRolPropiedad(texto);
 
     if (causa){
-        caso.darCausa(causa[0]);
+        caso.causa = causa[0];
     }else{
         const causaVoluntaria = getCausaVoluntaria(texto);
         if (causaVoluntaria){
-            caso.darCausa(causaVoluntaria[0]);
+            caso.causa = causaVoluntaria[0];
         }
     }
 
     if (juzgado){
-        caso.darJuzgado(juzgado);
+        caso.juzgado = juzgado;
     }
 
     if (porcentaje){
-        caso.darPorcentaje(porcentaje[0]);
+        caso.porcentaje = porcentaje[0];
         const minimoPorcentaje =porcentaje[0].match(/\d{1,3}\s*%/);
         const minimoPesos = porcentaje[0].match(/(\d{1,3}\.)*\d{1,3}(,\d{1,5})*/);
         if(minimoPorcentaje){
-            caso.darPorcentaje(minimoPorcentaje[0]);
+            caso.porcentaje = minimoPorcentaje[0];
         }else if(minimoPesos){
-            caso.darPorcentaje(minimoPesos[0]);
+            caso.porcentaje = minimoPesos[0];
         }
 
     }
 
     if (formatoEntrega){
-        caso.darFormatoEntrega(formatoEntrega[0]);
+        caso.formatoEntrega = formatoEntrega[0];
     }
 
     if (fechaRemate){
-        caso.darFechaRemate(fechaRemate[0]);
+        caso.fechaRemate = fechaRemate[0];
     }
     
     if (montoMinimo){
-        caso.darMontoMinimo(montoMinimo);
+        caso.montoMinimo = montoMinimo;
     }
 
-    caso.darMultiples(multiples);
+    // caso.darMultiples(multiples);
     
     if (comuna){
-        caso.darComuna(comuna);
+        caso.comuna = comuna;
     }
     
     if (foja){
-        caso.darFoja(foja[0]);
+        caso.foja = foja[0];
     }
 
     if (anno){
-        caso.darAnno(anno);
+        caso.anno = anno;
     }
     
     if (numero != null){
-        caso.darNumero(numero[1]);
+        caso.numero = numero[1];
     }
 
     if (partes){
-        caso.darPartes(partes);
+        caso.partes = partes;
     }
 
     if (tipoPropiedad){
-        caso.darTipoPropiedad(tipoPropiedad[0]);
+        if (tipoPropiedad === "estacionamiento"){
+            caso.tipoPropiedad = "estacionamiento";
+        } else {
+            caso.tipoPropiedad = tipoPropiedad[0];
+        }
     }
 
     if (tipoDerecho){
-        caso.darTipoDerecho(tipoDerecho);
+        caso.tipoDerecho = tipoDerecho;
     }
 
     if (direccion){
@@ -417,6 +421,9 @@ function getPartes(data){
                 return partesValidadas[0];
             }
         }
+        if (incluyeParte(partes[0])){
+            return partes[0];
+        }
         return partes[0];
     }
 
@@ -460,6 +467,11 @@ function buscarPartesNombreBanco(data){
 }
 
 function getTipoPropiedad(data){
+    const regexCheckParking = /la\s*propiedad\s*que\s*corresponde\s*al\s*estacionamiento/gi;
+    const parking = data.match(regexCheckParking);
+    if (parking){
+        return "estacionamiento";
+    }
     const regexProperty = /(?:casa|departamento|terreno|parcela|sitio|local|bodega|oficina(?!\s+judicial)|vivienda)/i;
     const propertyType = data.match(regexProperty);
     return propertyType;
@@ -467,11 +479,14 @@ function getTipoPropiedad(data){
 
 function getTipoDerecho(data){
     const normalizedData = data.toLowerCase();
+    // Primero revisa si hay una propiedad con derecho de usufructo, nuda propiedad o bien familiar
+    // de manera mas simple.
     const regexForeclosure = /(?:posesión|usufructo|nuda propiedad|bien familiar)/i;
     const tipoDerecho = normalizedData.match(regexForeclosure);
     if(tipoDerecho){
         return tipoDerecho[0];
     }
+    // Si no encuentra nada, busca con una lista de posibles maneras de escribir derecho.
     const multipleRegexForeclosures = [
         /derechos\s*correspondientes\s*a\s*(\d{1,3}(?:,\d{1,8})?)%/gi,
         /(\d{1,3}(?:,\d{1,8})?)%\sde\slos\sderechos/gi,
@@ -484,9 +499,20 @@ function getTipoDerecho(data){
             foreclosure.push(foreclosure);
         }
     }
+    // Luego de agregar todos los posibles derechos, revisa si hay alguno que tenga un porcentaje.
+    // Si hay uno, lo devuleve.
     if (foreclosure.length > 0){
         const foreclosurePercentage = obtainFinalPercentage(derechos);
         return foreclosurePercentage;
+    }
+    const regexDerechoSinPorcentaje = [ 
+        /derechos\s*(:?sobre|en)\s*(:?la|el)?\s*(:?propiedad|departamento|inmueble)/gi 
+    ]
+    for(let regex of regexDerechoSinPorcentaje){
+        const derechoSinPorcentaje = normalizedData.match(regex);
+        if (derechoSinPorcentaje){
+            return "derecho";
+        }
     }
     return null;
 }
@@ -637,7 +663,7 @@ async function testUnico(fecha,link){
     const maxRetries = 2;
     description =  await getRemates(link,maxRetries,caso);
     const normalizedDescription = normalizeDescription(description); 
-    caso.darTexto(normalizedDescription);
+    caso.texto = normalizedDescription;
     procesarDatosRemate(caso);
     console.log(caso.toObject());
     return caso;
