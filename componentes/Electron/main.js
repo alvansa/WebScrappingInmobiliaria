@@ -28,6 +28,8 @@ class MainApp{
     }
 
 
+
+
     createMainWindow(){
         this.mainWindow = new BrowserWindow({
             width: 700,

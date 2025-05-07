@@ -1,15 +1,9 @@
 const puppeteer = require('puppeteer');
+require('dotenv').config();
 
 async function main(){
-    const proxyData = [{
-        "server" : " http://45.127.248.127:5128 ",
-        "username" : "jyhuwzla",
-        "password" : "u119x5g9j0kt"
-    },{
-        "server" : " http://198.23.239.134:6540",
-        "username" : "jyhuwzla",
-        "password" : "u119x5g9j0kt",
-    }];
+    const proxyData = JSON.parse(process.env.PROXY_DATA);
+
     const randomIndex = Math.floor(Math.random() * proxyData.length);
     const url =  'https://oficinajudicialvirtual.pjud.cl/indexN.php';
     const url2 = "https://www.google.com";
@@ -29,7 +23,7 @@ async function main(){
 
     browser.close();
     console.log('Browser closed');
-    console.log("Se probo la conexion con el proxy: ",proxyData[randomIndex]);
+    console.log("Se probo la conexion con el proxy numero: ",randomIndex);
 
 }
 
