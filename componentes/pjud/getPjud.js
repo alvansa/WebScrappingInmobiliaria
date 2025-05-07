@@ -1,6 +1,8 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
+
 const Caso = require('../caso/caso.js');
+const {delay} = require('../../utils/delay.js');
 
 const EXITO = 1;
 const ERROR = 0;
@@ -270,12 +272,6 @@ async function obtenerPDF(page,row){
     console.log('Descargando PDF de ',referencia);
 }
 
-
-function delay(time) {
-    return new Promise(function(resolve) { 
-        setTimeout(resolve, time)
-    });
- }
 
 async function datosFromPjud(fechaInicio,fechaFin){
     const datos = await getPJUD(fechaInicio,fechaFin);

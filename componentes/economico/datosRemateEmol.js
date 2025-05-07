@@ -158,15 +158,45 @@ function getCausaVoluntaria(data){
     const causa = data.match(regex);
     return causa;
 }
+
 //Probando para refactorizar la funcion que busca el juzgado
 function getJuzgado(data) {
-    const normalizedData = data.toLowerCase().replaceAll(",",'').replaceAll("de ",'').normalize("NFD").replace(/[\u0300-\u036f]/g, "").replaceAll("stgo","santiago").replaceAll("  "," ").replace(/\n/g," ");
+    const normalizedData = data
+    .toLowerCase()
+    .replace(/[,.\n]/g, ' ')
+    .replace(/de\s*/g,'')
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replaceAll(/\bstgo\b/g,"santiago")
+    .replaceAll(/\s+/,' ')
+
     let tribunalesAceptados = [];
-    // console.log("Data normalizada en getJuzgado2: ",normalizedData);
+    console.log("Data normalizada en getJuzgado: ",normalizedData);
+
     for (let tribunal of tribunales2){
-        const tribunalNormalized = tribunal.toLowerCase().replaceAll("de ","").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        const tribunalNormalized = tribunal
+        .toLowerCase()
+        .replace(/de\s+/,'')
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+
         const tribunalSinDe = tribunalNormalized.replaceAll("de ",'');
         const numero = tribunal.match(/\d{1,2}/);
+
+        const variaciones = [tribunalNormalized];
+
+        const numeroMatch = tribunal.match(/\d{1,2}/);
+        if (numeroMatch){
+            const numero = parseInt(numeroMatch[0]);
+            const numeroOrdinal = convertirANombre(numero);
+            const simbolosOrdinales = ['°', 'º', ''];
+
+            const bases = [
+                tribunalNormalized,
+                tribunalNormalized.replace('juzgado','tribunal')
+            ]
+
+        }
         
         if (numero){
             const numeroOrdinal = convertirANombre(parseInt(numero));
@@ -193,16 +223,20 @@ function getJuzgado(data) {
                 tribunalNormalized.replace(/\d{1,2}°\s*/,numero+" °"),
                 tribunalNormalized.replace(/\d{1,2}°\s*/,numero+" º"),
             ];
-            // if(tribunal.includes("14° JUZGADO CIVIL DE SANTIAGO")){
 
-            //     console.log("Variaciones: ",tribunalVariations);
-            // }
+
+
+            if(tribunal.includes("4° JUZGADO CIVIL DE SANTIAGO")){
+
+                console.log("Variaciones: ",tribunalVariations);
+            }
 
             // Verificar si alguna variación coincide
             if (tribunalVariations.some(variation => normalizedData.includes(variation))) {
                 tribunalesAceptados.push(tribunal);
                 continue;
             }
+            // console.log("Tribunales aceptados 1 : ", tribunalesAceptados);
             if(tribunal.includes("EN LO CIVIL")){
                 const tribunalVariationCivil = tribunalVariations.map(variation => variation.replace("en lo civil ",""));
                 // if(tribunal.includes("3° JUZGADO DE LETRAS EN LO CIVIL DE ANTOFAGASTA")){
@@ -217,15 +251,76 @@ function getJuzgado(data) {
         }
         // Verificar el tribunal original y sin "de "
         if (normalizedData.includes(tribunalNormalized) || normalizedData.includes(tribunalSinDe)) {
-        tribunalesAceptados.push(tribunal);
-    }
+            tribunalesAceptados.push(tribunal);
+        }
     }
     // Devolver el último tribunal aceptado o null si no hay coincidencias
-    // console.log("Tribunales aceptados: ",tribunalesAceptados);
+    console.log("Tribunales aceptados: ",tribunalesAceptados);
     return tribunalesAceptados.length > 0 ? tribunalesAceptados.at(-1) : null;
         
 }
 
+function getJuzgado2(data) {
+    const normalizedData = data
+    .toLowerCase()
+    .replace(/[,.\n]/g, ' ')
+    .replace(/de\s*/g,'')
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replaceAll(/\bstgo\b/g,"santiago")
+    .replaceAll(/\s+/,' ')
+
+    let tribunalesAceptados = [];
+    console.log("Data normalizada en getJuzgado: ",normalizedData);
+
+    for (let tribunal of tribunales2){
+        const tribunalNormalized = tribunal
+        .toLowerCase()
+        .replace(/de\s+/,'')
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+
+        const tribunalSinDe = tribunalNormalized.replaceAll("de ",'');
+        const numero = tribunal.match(/\d{1,2}/);
+
+        const variaciones = [tribunalNormalized];
+
+        const numeroMatch = tribunal.match(/\d{1,2}/);
+        if (numeroMatch){
+            const numero = parseInt(numeroMatch[0]);
+            const numeroOrdinal = convertirANombre(numero);
+            const simbolosOrdinales = ['°', 'º', ''];
+
+            const bases = [
+                tribunalNormalized,
+                tribunalNormalized.replace('juzgado','tribunal')
+            ]
+
+            for(const base of bases){
+                simbolosOrdinales.forEach((simbolo) => {
+                    variaciones.push(base.replace(/\d{1,2}°/, `${numero}${simbolo}`)); // 3°
+                    variaciones.push(base.replace(/\d{1,2}°/,`${numeroOrdinal}`)); // tercero
+                    variaciones.push(base.replace(/\d{1,2}°/,`${numero} ${simbolo}`)); // 3 °
+                });
+                variaciones.push(base.replace(/\s+/g,'')); // 3°juzgado
+            }
+            if(tribunalNormalized.includes("en lo civil")){
+                variaciones.push(...variaciones.map(variation => variation.replace("en lo civil ","")));
+            }
+            
+
+        }
+        
+        // Verificar el tribunal original y sin "de "
+        if (normalizedData.includes(tribunalNormalized) || normalizedData.includes(tribunalSinDe)) {
+            tribunalesAceptados.push(tribunal);
+        }
+    }
+    // Devolver el último tribunal aceptado o null si no hay coincidencias
+    console.log("Tribunales aceptados: ",tribunalesAceptados);
+    return tribunalesAceptados.length > 0 ? tribunalesAceptados.at(-1) : null;
+        
+}
 
 // Si no se encuentra el juzgado de la lista, se busca si es un juez partidor
 function getJuezPartidor(data){

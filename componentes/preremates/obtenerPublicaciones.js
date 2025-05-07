@@ -1,7 +1,9 @@
-const config =  require("../../config.js");
 const puppeteer = require('puppeteer');
-const Caso = require('../caso/caso.js');
+
 const {procesarDatosRemate} = require('../economico/datosRemateEmol.js');
+const Caso = require('../caso/caso.js');
+const config =  require("../../config.js");
+const {delay} = require('../../utils/delay.js')
 
 const PREREMATES = 4;
 
@@ -164,11 +166,5 @@ class PreRemates{
     }
 }
 
-
-async function delay(time) {
-    return new Promise(function(resolve) { 
-        setTimeout(resolve, time)
-    });
-}
 
 module.exports = {PreRemates};

@@ -1,6 +1,8 @@
 const puppeteer = require('puppeteer');
 require('dotenv').config();
 
+const {delay} = require('../../utils/delay.js');
+
 async function main(){
     const proxyData = JSON.parse(process.env.PROXY_DATA);
 
@@ -25,10 +27,6 @@ async function main(){
     console.log('Browser closed');
     console.log("Se probo la conexion con el proxy numero: ",randomIndex);
 
-}
-
-async function delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 main();

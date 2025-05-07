@@ -2,8 +2,9 @@ const puppeteer = require("puppeteer");
 const path = require("path");
 const fs = require("fs");
 const os = require("os");
-const Caso  = require('../caso/caso');
 
+const {delay} = require('../../utils/delay');
+const Caso  = require('../caso/caso');
 
 const EXITO = 1;
 const ERROR = 0;
@@ -271,12 +272,6 @@ function isbetweenDates(date, startDate, endDate) {
     endDate.setHours(0, 0, 0, 0);
     return date >= startDate && date <= endDate;
 }
-
-function delay(time) {
-    return new Promise(function(resolve) { 
-        setTimeout(resolve, time)
-    });
- }
 
 
 module.exports = { getDatosBoletin };

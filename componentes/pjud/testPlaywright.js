@@ -1,7 +1,23 @@
 const { chromium } = require('playwright'); // También puedes usar 'firefox' o 'webkit'
+
 const Caso = require('../caso/caso');
+const {delay} = require('../../utils/delay');
 
 const ERROR = 0;
+
+async function main(){
+    const caso = new Caso("2025/11/30");
+    caso.juzgado = "7º JUZGADO CIVIL DE SANTIAGO";
+    caso.causa = "C-5336-2022";
+    const causa = new ConsultaCausaPjudPlaywright([caso]);
+    causa.getConsultaCausaPjud().then((result) => {
+        console.log('Resultado:', result);
+    }).catch((error) => {
+        console.error('Error:', error);
+    });
+}
+
+main();
 
 class ConsultaCausaPjudPlaywright {
     constructor(casos) {
@@ -338,19 +354,3 @@ class ConsultaCausaPjudPlaywright {
         }
     }
 }
-
-async function delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-async function main(){
-    const caso = new Caso("2025/11/30");
-    caso.juzgado = "7º JUZGADO CIVIL DE SANTIAGO";
-    caso.causa = "C-5336-2022";
-    const causa = new ConsultaCausaPjudPlaywright([caso]);
-    causa.getConsultaCausaPjud().then((result) => {
-        console.log('Resultado:', result);
-    }).catch((error) => {
-        console.error('Error:', error);
-    });
-}
-main();

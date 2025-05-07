@@ -1,6 +1,8 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 
+const {delay} = require('../utils/utils.js');
+
 class MapasSII {
     constructor() {
         this.URL = 'https://www4.sii.cl/mapasui/internet/#/contenido/index.html';
@@ -115,12 +117,6 @@ class MapasSII {
     }   
 }
 
-
-function delay(time) {
-    return new Promise(function (resolve) {
-        setTimeout(resolve, time)
-    });
-}
 
 
 module.exports = MapasSII;

@@ -4,6 +4,8 @@ const puppeteer = require('puppeteer');
 const path = require('path');
 const request = require('request');
 
+const {delay} = require('../../utils/delay');
+
 async function descargarPdf(pdfUrl, outputFileName){
 
     let pdfBuffer = await axios.get(pdfUrl, {responseType: 'arraybuffer'});
@@ -42,9 +44,3 @@ async function testLink(link,outputFileName) {
 testLink(link,outputFileName);
 
 // descargarPdf(link,outputFileName);
-
-function delay(time) {
-    return new Promise(function(resolve) { 
-        setTimeout(resolve, time)
-    });
- }

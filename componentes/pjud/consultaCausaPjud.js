@@ -1,8 +1,10 @@
-// const puppeteer = require('puppeteer');
-const { ipcRenderer } = require('electron');
-const config =  require("../../config.js");
+const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require('path');
+require('dotenv').config();
+
+const {delay} = require('../utils/utils.js');
+const config =  require("../../utils/delay.js");
 
 const ERROR = 0;
 const EXITO = 1;
@@ -14,14 +16,24 @@ class ConsultaCausaPjud{
     }
 
     async getConsultaCausaPjud(){
+        const proxyData = json.parse(process.env.PROXY_DATA);
+        const randomIndex = Math.floor(Math.random() * proxyData.length);
+        const currentProxy = proxyData[randomIndex];
         let lineaAnterior = '';
-        let numeroCaso = 0;
         let valorInicial = false;
         let remates = new Set();
-        console.log('Configuraciones iniciales creadas');
-        // this.browser = await puppeteer.launch({ headless: false });
-        // this.page = await this.browser.newPage();
+        this.browser = await puppeteer.launch({ 
+            headless: false,
+            proxy: {
+                server: currentProxy.proxy,
+
+                username: currentProxy.username,
+                password: currentProxy.password
+            }
+        });
+        this.page = await this.browser.newPage();
         await this.loadPageWithRetries();
+        console.log('Configuraciones iniciales creadas');
         console.log('Página cargada: ',this.tablaRemates,this.tablaRemates.entries());
         try{
             for (let [index, caso] of this.tablaRemates.entries()) {
@@ -470,11 +482,5 @@ class ConsultaCausaPjud{
     }
 }
 
-
-function delay(time) {
-    return new Promise(function(resolve) { 
-        setTimeout(resolve, time)
-    });
- }
 
 module.exports = {ConsultaCausaPjud};
