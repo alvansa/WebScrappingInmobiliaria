@@ -2,6 +2,7 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 
 const Caso = require('../caso/caso');
+const { delay } = require('../../utils/delay');
 
 let url = 'https://www.economicos.cl/todo_chile/remates_de_propiedades_el_mercurio'
 let urlBase = "https://www.economicos.cl"
@@ -81,6 +82,7 @@ async function getRemates(url,maxRetries){
             const { data } = await axios.get(url);
             const $ = cheerio.load(data);
             const description = $('div#description p').text();
+            console.log("description: ",description);
             return description;
         } catch (error) {
             if (error.response && error.response.status === 503) {
@@ -94,9 +96,6 @@ async function getRemates(url,maxRetries){
         }
     }
 }
- 
-// Función para manejar reintentos con backoff exponencial
-const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 
 // Funcion de ejemplo para mostrar como se utiliza el getPaginas

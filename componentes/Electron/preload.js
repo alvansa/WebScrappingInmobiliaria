@@ -1,30 +1,33 @@
-const { contextBridge,ipcRenderer } = require('electron');
-const {insertarDatos} = require('../excel/createXLSX.js');
+const { contextBridge, ipcRenderer } = require('electron');
+// const {insertarDatos} = require('../excel/createXLSX.js');
 const nodePath = require('path');
 
 
 contextBridge.exposeInMainWorld('api', {
-  logDates:async (startDate, endDate,saveFile,checkedBoxes) => {
+  startProcess: async (startDate, endDate, saveFile, checkedBoxes) => {
     try {
-        const fechaHoy = new Date();
-        const maxRetries = 10;
-        var casos = [];
-        // console.log(path.join(__dirname, './Controller/datosRemate.js'));
-        if(!startDate && !endDate){
-            console.log("No se ingresaron fechas");
-            return 0
-        }else if(!startDate){
-            console.log("No se ingreso la fecha de inicio");
-            return 1;
-        }else if(!endDate){
-            console.log("No se ingreso la fecha de fin");
-            return 2;
-        }
-        filePath = await insertarDatos(fechaHoy,startDate,endDate,maxRetries,saveFile,checkedBoxes);
+      if (!startDate && !endDate) {
+        console.log("No se ingresaron fechas");
+        return 0
+      } else if (!startDate) {
+        console.log("No se ingreso la fecha de inicio");
+        return 1;
+      } else if (!endDate) {
+        console.log("No se ingreso la fecha de fin");
+        return 2;
+      } else if (startDate > endDate) {
+        console.log("La fecha de inicio es mayor a la fecha de fin");
+        return 3;
+      } else if (allValuesAllFalse(checkedBoxes)) {
+        console.log("No se selecciono ninguna opcion");
+        return 4;
+      } else {
+        filePath = ipcRenderer.invoke('start-proccess', startDate, endDate, saveFile, checkedBoxes)
         return filePath;
-    }catch (error) {
-        console.error('Error al obtener resultados en el index.js:', error.message);
-        return null;
+      }
+    } catch (error) {
+      console.error('Error al obtener resultados en el index.js:', error.message);
+      return null;
     }
   },
   printConsole: (message) => {
@@ -33,12 +36,14 @@ contextBridge.exposeInMainWorld('api', {
     console.log(nodePath.join(__dirname, './Controller/datosRemate.js'));
   },
   selectFolder: () => ipcRenderer.invoke('select-folder-btn'),
-  updateProgress: (message) => ipcRenderer.on('update-progress', message),
-
 });
 
-contextBridge.exposeInMainWorld('electronAPI', {
-  sendPdfForProcessing: (filePath) => ipcRenderer.send('prefix-convert-pdf', filePath),
-  onPdfProcessed: (callback) => ipcRenderer.once('prefix-pdf-converted', (event, data) => callback(data)),
-  onPdfProcessingError: (callback) => ipcRenderer.once('prefix-pdf-converted-error', (event, error) => callback(error)),
-});
+
+function allValuesAllFalse(checkboxes) {
+  for(let key in checkboxes) {
+    if(checkboxes[key] == true) {
+      return false;
+    }
+  }
+  return true;
+}

@@ -2,42 +2,43 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const fs = require('fs');
 const Caso = require("../caso/caso");
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
+const pie = require('puppeteer-in-electron');
 
 
 class PublicosYLegales{
-    constructor(startDate,endDate,queryDate){
+    constructor(startDate,endDate,queryDate,browser,page,window){
         this.startDate = startDate;
         this.endDate = endDate;
         this.queryDate = queryDate;
         this.link = "https://publicosylegales.cl/lorem-ipsum-dolor-sit-amet/";
         this.date = "2024.12.9";
         this.casos = [];
-        this.browser = null;
-        this.page = null;
+        this.browser = browser;
+        this.page = page;
+        this.window = window;
     }
 
     async scrapePage(){
-        this.browser = await puppeteer.launch({headless: false});
-        this.page = await this.browser.newPage();
+        // this.browser = await puppeteer.launch({headless: false});
+        // this.page = await this.browser.newPage();
         // await this.testSearchAuction();
         // return [];
         await this.searchAuctions();
         console.log(this.casos);
         console.log(this.casos.length);
-        for(let caso of this.casos){
-            await this.getDataAuction(caso);
-        } 
-        this.browser.close();
+        // for(let caso of this.casos){
+        //     await this.getDataAuction(caso);
+        // } 
         return this.casos;
     }
 
     async testSearchAuction(){
-        const browser = await puppeteer.launch();
-        const page = await browser.newPage();
-        await page.goto("https://publicosylegales.cl/busqueda/?jsf=jet-engine:lista_encontrada&tax=category:41&date=2024.12.9");
+        // const browser = await puppeteer.launch();
+        // const page = await browser.newPage();
+        // await page.goto("https://publicosylegales.cl/busqueda/?jsf=jet-engine:lista_encontrada&tax=category:41&date=2024.12.9");
         await page.screenshot({path: 'example.png'});
-        await browser.close();
+        // await browser.close();
     }
 
     async getDataAuction(caso){
@@ -76,7 +77,9 @@ class PublicosYLegales{
     async obtainLinks(date){
         const currentDate = this.formatDateToString(date);
         const searchLink = `https://publicosylegales.cl/busqueda/?jsf=jet-engine:lista_encontrada&tax=category:41&date=${currentDate}`;
-        await this.page.goto(searchLink,{waitUntil: 'networkidle2'});
+        await this.window.loadURL(searchLink);
+        this.page = await pie.getPage(this.browser,this.window);
+        // await this.page.goto(searchLink,{waitUntil: 'networkidle2'});
         const casos = await this.page.evaluate(()=>{
             const divs = document.querySelectorAll(".elementor-element-b8562e3");
             const casos = [];

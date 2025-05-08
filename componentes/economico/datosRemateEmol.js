@@ -46,70 +46,74 @@ function procesarDatosRemate(caso){
     const rolPropiedad = getRolPropiedad(texto);
 
     if (causa){
-        caso.darCausa(causa[0]);
+        caso.causa = causa[0];
     }else{
         const causaVoluntaria = getCausaVoluntaria(texto);
         if (causaVoluntaria){
-            caso.darCausa(causaVoluntaria[0]);
+            caso.causa = causaVoluntaria[0];
         }
     }
 
     if (juzgado){
-        caso.darJuzgado(juzgado);
+        caso.juzgado = juzgado;
     }
 
     if (porcentaje){
-        caso.darPorcentaje(porcentaje[0]);
+        caso.porcentaje = porcentaje[0];
         const minimoPorcentaje =porcentaje[0].match(/\d{1,3}\s*%/);
         const minimoPesos = porcentaje[0].match(/(\d{1,3}\.)*\d{1,3}(,\d{1,5})*/);
         if(minimoPorcentaje){
-            caso.darPorcentaje(minimoPorcentaje[0]);
+            caso.porcentaje = minimoPorcentaje[0];
         }else if(minimoPesos){
-            caso.darPorcentaje(minimoPesos[0]);
+            caso.porcentaje = minimoPesos[0];
         }
 
     }
 
     if (formatoEntrega){
-        caso.darFormatoEntrega(formatoEntrega[0]);
+        caso.formatoEntrega = formatoEntrega[0];
     }
 
     if (fechaRemate){
-        caso.darFechaRemate(fechaRemate[0]);
+        caso.fechaRemate = fechaRemate[0];
     }
     
     if (montoMinimo){
-        caso.darMontoMinimo(montoMinimo);
+        caso.montoMinimo = montoMinimo;
     }
 
-    caso.darMultiples(multiples);
+    // caso.darMultiples(multiples);
     
     if (comuna){
-        caso.darComuna(comuna);
+        caso.comuna = comuna;
     }
     
     if (foja){
-        caso.darFoja(foja[0]);
+        caso.foja = foja[0];
     }
 
     if (anno){
-        caso.darAnno(anno);
+        caso.anno = anno;
     }
     
     if (numero != null){
-        caso.darNumero(numero[1]);
+        caso.numero = numero[1];
     }
 
     if (partes){
-        caso.darPartes(partes);
+        caso.partes = partes;
     }
 
     if (tipoPropiedad){
-        caso.darTipoPropiedad(tipoPropiedad[0]);
+        if (tipoPropiedad === "estacionamiento"){
+            caso.tipoPropiedad = "estacionamiento";
+        } else {
+            caso.tipoPropiedad = tipoPropiedad[0];
+        }
     }
 
     if (tipoDerecho){
-        caso.darTipoDerecho(tipoDerecho);
+        caso.tipoDerecho = tipoDerecho;
     }
 
     if (direccion){
@@ -154,15 +158,45 @@ function getCausaVoluntaria(data){
     const causa = data.match(regex);
     return causa;
 }
+
 //Probando para refactorizar la funcion que busca el juzgado
 function getJuzgado(data) {
-    const normalizedData = data.toLowerCase().replaceAll(",",'').replaceAll("de ",'').normalize("NFD").replace(/[\u0300-\u036f]/g, "").replaceAll("stgo","santiago").replaceAll("  "," ").replace(/\n/g," ");
+    const normalizedData = data
+    .toLowerCase()
+    .replace(/[,.\n]/g, ' ')
+    .replace(/de\s*/g,'')
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replaceAll(/\bstgo\b/g,"santiago")
+    .replaceAll(/\s+/,' ')
+
     let tribunalesAceptados = [];
-    // console.log("Data normalizada en getJuzgado2: ",normalizedData);
+    console.log("Data normalizada en getJuzgado: ",normalizedData);
+
     for (let tribunal of tribunales2){
-        const tribunalNormalized = tribunal.toLowerCase().replaceAll("de ","").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        const tribunalNormalized = tribunal
+        .toLowerCase()
+        .replace(/de\s+/,'')
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+
         const tribunalSinDe = tribunalNormalized.replaceAll("de ",'');
         const numero = tribunal.match(/\d{1,2}/);
+
+        const variaciones = [tribunalNormalized];
+
+        const numeroMatch = tribunal.match(/\d{1,2}/);
+        if (numeroMatch){
+            const numero = parseInt(numeroMatch[0]);
+            const numeroOrdinal = convertirANombre(numero);
+            const simbolosOrdinales = ['°', 'º', ''];
+
+            const bases = [
+                tribunalNormalized,
+                tribunalNormalized.replace('juzgado','tribunal')
+            ]
+
+        }
         
         if (numero){
             const numeroOrdinal = convertirANombre(parseInt(numero));
@@ -189,16 +223,20 @@ function getJuzgado(data) {
                 tribunalNormalized.replace(/\d{1,2}°\s*/,numero+" °"),
                 tribunalNormalized.replace(/\d{1,2}°\s*/,numero+" º"),
             ];
-            // if(tribunal.includes("14° JUZGADO CIVIL DE SANTIAGO")){
 
-            //     console.log("Variaciones: ",tribunalVariations);
-            // }
+
+
+            if(tribunal.includes("4° JUZGADO CIVIL DE SANTIAGO")){
+
+                console.log("Variaciones: ",tribunalVariations);
+            }
 
             // Verificar si alguna variación coincide
             if (tribunalVariations.some(variation => normalizedData.includes(variation))) {
                 tribunalesAceptados.push(tribunal);
                 continue;
             }
+            // console.log("Tribunales aceptados 1 : ", tribunalesAceptados);
             if(tribunal.includes("EN LO CIVIL")){
                 const tribunalVariationCivil = tribunalVariations.map(variation => variation.replace("en lo civil ",""));
                 // if(tribunal.includes("3° JUZGADO DE LETRAS EN LO CIVIL DE ANTOFAGASTA")){
@@ -213,15 +251,76 @@ function getJuzgado(data) {
         }
         // Verificar el tribunal original y sin "de "
         if (normalizedData.includes(tribunalNormalized) || normalizedData.includes(tribunalSinDe)) {
-        tribunalesAceptados.push(tribunal);
-    }
+            tribunalesAceptados.push(tribunal);
+        }
     }
     // Devolver el último tribunal aceptado o null si no hay coincidencias
-    // console.log("Tribunales aceptados: ",tribunalesAceptados);
+    console.log("Tribunales aceptados: ",tribunalesAceptados);
     return tribunalesAceptados.length > 0 ? tribunalesAceptados.at(-1) : null;
         
 }
 
+function getJuzgado2(data) {
+    const normalizedData = data
+    .toLowerCase()
+    .replace(/[,.\n]/g, ' ')
+    .replace(/de\s*/g,'')
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replaceAll(/\bstgo\b/g,"santiago")
+    .replaceAll(/\s+/,' ')
+
+    let tribunalesAceptados = [];
+    console.log("Data normalizada en getJuzgado: ",normalizedData);
+
+    for (let tribunal of tribunales2){
+        const tribunalNormalized = tribunal
+        .toLowerCase()
+        .replace(/de\s+/,'')
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+
+        const tribunalSinDe = tribunalNormalized.replaceAll("de ",'');
+        const numero = tribunal.match(/\d{1,2}/);
+
+        const variaciones = [tribunalNormalized];
+
+        const numeroMatch = tribunal.match(/\d{1,2}/);
+        if (numeroMatch){
+            const numero = parseInt(numeroMatch[0]);
+            const numeroOrdinal = convertirANombre(numero);
+            const simbolosOrdinales = ['°', 'º', ''];
+
+            const bases = [
+                tribunalNormalized,
+                tribunalNormalized.replace('juzgado','tribunal')
+            ]
+
+            for(const base of bases){
+                simbolosOrdinales.forEach((simbolo) => {
+                    variaciones.push(base.replace(/\d{1,2}°/, `${numero}${simbolo}`)); // 3°
+                    variaciones.push(base.replace(/\d{1,2}°/,`${numeroOrdinal}`)); // tercero
+                    variaciones.push(base.replace(/\d{1,2}°/,`${numero} ${simbolo}`)); // 3 °
+                });
+                variaciones.push(base.replace(/\s+/g,'')); // 3°juzgado
+            }
+            if(tribunalNormalized.includes("en lo civil")){
+                variaciones.push(...variaciones.map(variation => variation.replace("en lo civil ","")));
+            }
+            
+
+        }
+        
+        // Verificar el tribunal original y sin "de "
+        if (normalizedData.includes(tribunalNormalized) || normalizedData.includes(tribunalSinDe)) {
+            tribunalesAceptados.push(tribunal);
+        }
+    }
+    // Devolver el último tribunal aceptado o null si no hay coincidencias
+    console.log("Tribunales aceptados: ",tribunalesAceptados);
+    return tribunalesAceptados.length > 0 ? tribunalesAceptados.at(-1) : null;
+        
+}
 
 // Si no se encuentra el juzgado de la lista, se busca si es un juez partidor
 function getJuezPartidor(data){
@@ -353,7 +452,7 @@ function getMultiples(data) {
 // Obtiene la comuna del remate a base de una lista de comunas.
 function getComuna(data) {
     const dataNormalizada = data.toLowerCase();
-    console.log("Data normalizada: ",dataNormalizada);
+    // console.log("Data normalizada: ",dataNormalizada);
     for (let comuna of comunas){
         comuna = comuna.toLowerCase();
         const listaPreFrases = ["comuna de ","comuna ","comuna y provincia de ","conservador de bienes raíces de ","conservador bienes raíces ","registro de propiedad de ","registro propiedad ","registro propiedad cbr "];
@@ -417,6 +516,9 @@ function getPartes(data){
                 return partesValidadas[0];
             }
         }
+        if (incluyeParte(partes[0])){
+            return partes[0];
+        }
         return partes[0];
     }
 
@@ -460,6 +562,11 @@ function buscarPartesNombreBanco(data){
 }
 
 function getTipoPropiedad(data){
+    const regexCheckParking = /la\s*propiedad\s*que\s*corresponde\s*al\s*estacionamiento/gi;
+    const parking = data.match(regexCheckParking);
+    if (parking){
+        return "estacionamiento";
+    }
     const regexProperty = /(?:casa|departamento|terreno|parcela|sitio|local|bodega|oficina(?!\s+judicial)|vivienda)/i;
     const propertyType = data.match(regexProperty);
     return propertyType;
@@ -467,11 +574,14 @@ function getTipoPropiedad(data){
 
 function getTipoDerecho(data){
     const normalizedData = data.toLowerCase();
+    // Primero revisa si hay una propiedad con derecho de usufructo, nuda propiedad o bien familiar
+    // de manera mas simple.
     const regexForeclosure = /(?:posesión|usufructo|nuda propiedad|bien familiar)/i;
     const tipoDerecho = normalizedData.match(regexForeclosure);
     if(tipoDerecho){
         return tipoDerecho[0];
     }
+    // Si no encuentra nada, busca con una lista de posibles maneras de escribir derecho.
     const multipleRegexForeclosures = [
         /derechos\s*correspondientes\s*a\s*(\d{1,3}(?:,\d{1,8})?)%/gi,
         /(\d{1,3}(?:,\d{1,8})?)%\sde\slos\sderechos/gi,
@@ -484,9 +594,20 @@ function getTipoDerecho(data){
             foreclosure.push(foreclosure);
         }
     }
+    // Luego de agregar todos los posibles derechos, revisa si hay alguno que tenga un porcentaje.
+    // Si hay uno, lo devuleve.
     if (foreclosure.length > 0){
         const foreclosurePercentage = obtainFinalPercentage(derechos);
         return foreclosurePercentage;
+    }
+    const regexDerechoSinPorcentaje = [ 
+        /derechos\s*(:?sobre|en)\s*(:?la|el)?\s*(:?propiedad|departamento|inmueble)/gi 
+    ]
+    for(let regex of regexDerechoSinPorcentaje){
+        const derechoSinPorcentaje = normalizedData.match(regex);
+        if (derechoSinPorcentaje){
+            return "derecho";
+        }
     }
     return null;
 }
@@ -637,7 +758,7 @@ async function testUnico(fecha,link){
     const maxRetries = 2;
     description =  await getRemates(link,maxRetries,caso);
     const normalizedDescription = normalizeDescription(description); 
-    caso.darTexto(normalizedDescription);
+    caso.texto = normalizedDescription;
     procesarDatosRemate(caso);
     console.log(caso.toObject());
     return caso;
@@ -698,4 +819,25 @@ function normalizeDescription(description){
     return description.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, ' ').trim();
 }
 
-module.exports = {  getDatosRemate , testUnico, procesarDatosRemate };
+module.exports = {  getDatosRemate , testUnico, procesarDatosRemate, 
+    getAnno,
+    getCausa,
+    getCausaVoluntaria,
+    getJuzgado,
+    getJuezPartidor,
+    getComuna,
+    getDiaEntrega,
+    getDireccion,
+    getFoja,
+    getFormatoEntrega,
+    getJuezPartidor,
+    getMontoMinimo,
+    getMultiples,
+    getNumero,
+    getPartes,
+    getPorcentaje,
+    getRolPropiedad,
+    getTipoDerecho,
+    getTipoPropiedad,
+    getFechaRemate
+};

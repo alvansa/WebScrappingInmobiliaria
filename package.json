@@ -1,13 +1,14 @@
 {
   "name": "app-remates",
   "version": "1.0.0",
-  "description": "Apliacacion para la busqueda y entrega de resumen de remates",
+  "description": "Aplicacion para la busqueda y entrega de resumen de remates",
   "main": "componentes/Electron/main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron .",
+    "rebuild": "electron-rebuild -f -w better-sqlite3",
     "make": "electron-builder",
-    "rebuild": "electron-rebuild -f -w better-sqlite3"
+    "postinstall": "electron-builder install-app-deps"
   },
   "author": "Alvaro",
   "license": "ISC",
@@ -16,7 +17,8 @@
     "@types/electron": "^1.4.38",
     "electron": "^33.2.1",
     "electron-builder": "^25.1.8",
-    "electron-rebuild": "^3.2.9"
+    "electron-rebuild": "^3.2.9",
+    "jest": "^29.7.0"
   },
   "dependencies": {
     "axios": "^1.7.7",
@@ -24,7 +26,8 @@
     "cheerio": "^1.0.0",
     "dotenv": "^16.4.7",
     "pdf2json": "^3.1.4",
-    "puppeteer": "^23.11.1",
+    "puppeteer-core": "^24.4.0",
+    "puppeteer-in-electron": "^3.0.5",
     "webpack": "^5.96.1",
     "xlsx": "^0.18.5"
   },

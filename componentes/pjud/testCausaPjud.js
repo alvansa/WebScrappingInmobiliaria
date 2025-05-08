@@ -4,11 +4,11 @@ const Caso  = require('../caso/caso');
 
 function crearCasosPrueba(){
     const casos = [];
-    const caso1 = new Caso(new Date(),new Date(),)
-    caso1.darJuzgado("7º JUZGADO CIVIL DE SANTIAGO");
-    caso1.darCausa("C-5336-2022");
-    caso1.darFechaRemate("02/12/2024 15:30");
-    casos.push(caso1);
+    const caso = new Caso("2025/11/30");
+    caso.juzgado = "7º JUZGADO CIVIL DE SANTIAGO";
+    caso.causa = "C-5336-2022";
+    caso.fechaRemate = "02/12/2024 15:30";
+    casos.push(caso);
 
     return casos;
 }

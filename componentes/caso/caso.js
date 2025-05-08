@@ -66,55 +66,55 @@ class Caso{
     set fechaPublicacion(fechaPublicacion){
         this.#fechaPublicacion = fechaPublicacion;
     }
-    darTexto(texto){
+    set texto(texto){
         this.#texto = texto;
     }
-    darCausa(causa){
+    set causa(causa){
         this.#causa = causa;
     }
-    darJuzgado(juzgado){
+    set juzgado(juzgado){
         this.#juzgado = juzgado;
     }
-    darPorcentaje(porcentaje){
+    set porcentaje(porcentaje){
         this.#porcentaje = porcentaje;
     }
-    darFormatoEntrega(formatoEntrega){
+    set formatoEntrega(formatoEntrega){
         this.#formatoEntrega = formatoEntrega;
     }
-    darFechaRemate(fechaRemate){
+    set fechaRemate(fechaRemate){
         this.#fechaRemate = fechaRemate;
     }
-    darMontoMinimo(montoMinimo){
+    set montoMinimo(montoMinimo){
         this.#montoMinimo = montoMinimo;
     }
-    darMultiples(multiples){
+    set multiples(multiples){
         this.#multiples = multiples;
     }
-    darComuna(comuna){
+    set comuna(comuna){
         this.#comuna = comuna;
     }
-    darFoja(foja){
+    set foja(foja){
         this.#foja = foja;
     }
-    darMultiplesFoja(multiplesFoja){
+    set multiplesFoja(multiplesFoja){
         this.#multiplesFoja = multiplesFoja;
     }
-    darNumero(numero){
+    set numero(numero){
         this.#numero = numero;
     }
-    darPartes(partes){
+    set partes(partes){
         this.#partes = partes;
     }
-    darTipoPropiedad(tipoPropiedad){
+    set tipoPropiedad(tipoPropiedad){
         this.#tipoPropiedad = tipoPropiedad;
     }
-    darTipoDerecho(tipoDerecho){
+    set tipoDerecho(tipoDerecho){
         this.#tipoDerecho = tipoDerecho;
     }
-    darAnno(anno){
+    set anno(anno){
         this.#anno = anno;
     }
-    darMartillero(martillero){
+    set martillero(martillero){
         this.#martillero = martillero;
     }
     set direccion(direccion){

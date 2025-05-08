@@ -1,26 +1,31 @@
 const config =  require("../../config.js");
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
 const Caso = require('../caso/caso.js');
 const {procesarDatosRemate} = require('../economico/datosRemateEmol.js');
+const Caso = require('../caso/caso.js');
+const config =  require("../../config.js");
+const {delay} = require('../../utils/delay.js')
 
 const PREREMATES = 4;
 
 class PreRemates{
-    constructor(Email,Password){
+    constructor(Email,Password,browser,page){
         this.link = "https://preremates.cl/content/proximos-remates";
         this.email = Email;
         this.password = Password;
         this.casos = [];
+        this.browser = browser;
+        this.page = page;
     }
 
     async getRemates(){
-        this.browser = await puppeteer.launch({headless: true});
-        this.page = await this.browser.newPage();
-        try{
-            await this.page.goto(this.link, {waitUntil: 'networkidle2'});
-        }catch(error){
-            return new Error('Error al obtener resultados:', error);
-        }
+        // this.browser = await puppeteer.launch({headless: true});
+        // this.page = await this.browser.newPage();
+        // try{
+        //     await this.page.goto(this.link, {waitUntil: 'networkidle2'});
+        // }catch(error){
+        //     return new Error('Error al obtener resultados:', error);
+        // }
         console.log("Se inicio el navegador");
         try{
             const form = await this.fill_form();
@@ -59,9 +64,10 @@ class PreRemates{
             }
         }catch(error){
             console.error('Error al obtener resultados:', error);
-        }finally{
-            await this.browser.close();
         }
+        // finally{
+        //     await this.browser.close();
+        // }
         return this.casos;
     }
 
@@ -164,11 +170,5 @@ class PreRemates{
     }
 }
 
-
-async function delay(time) {
-    return new Promise(function(resolve) { 
-        setTimeout(resolve, time)
-    });
-}
 
 module.exports = {PreRemates};
