@@ -2,8 +2,6 @@ const config =  require("../../config.js");
 const puppeteer = require('puppeteer-core');
 const Caso = require('../caso/caso.js');
 const {procesarDatosRemate} = require('../economico/datosRemateEmol.js');
-const Caso = require('../caso/caso.js');
-const config =  require("../../config.js");
 const {delay} = require('../../utils/delay.js')
 
 const PREREMATES = 4;

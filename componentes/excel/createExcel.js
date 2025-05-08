@@ -8,38 +8,16 @@ const { create } = require('domain');
 
 
 class createExcel {
-    constructor(saveFile, startDate, endDate) {
+    constructor(saveFile, startDate, endDate,emptyMode) {
         this.saveFile = saveFile;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.emptyMode = emptyMode;
 
     }
     crearBase() {
         // Crea una hoja de cálculo vacía
         const ws = {};
-
-        // Define cada celda con el valor y el tipo
-        // ws['B5'] = { v: 'Link', t: 's' };
-        // ws['C5'] = { v: 'Fecha Obtención', t: 's' };
-        // ws['D5'] = { v: 'Fecha Publicación', t: 's' };
-        // ws['E5'] = { v: 'Fecha Remate', t: 's' };
-        // ws['F5'] = { v: 'Causa', t: 's' };
-        // ws['G5'] = { v: 'Juzgado', t: 's' };
-        // ws['H5'] = { v: 'Comuna del juzgado', t: 's' };
-        // ws['I5'] = { v: 'Partes', t: 's' };
-        // ws['J5'] = { v: 'Tipo propiedad', t: 's' };
-        // ws['K5'] = { v: 'Dirección', t: 's' };
-        // ws['L5'] = { v: 'Tipo derecho', t: 's' };
-        // ws['M5'] = { v: 'Comuna', t: 's' };
-        // ws['N5'] = { v: 'Foja', t: 's' };
-        // ws['O5'] = { v: 'Numero', t: 's' };
-        // ws['P5'] = { v: 'Año', t: 's' };
-        // ws['Q5'] = { v: 'VV o Cupón', t: 's' };
-        // ws['R5'] = { v: 'Porcentaje', t: 's' };
-        // ws['S5'] = { v: 'Día entrega', t: 's' };
-        // ws['T5'] = { v: 'Monto Mínimo', t: 's' };
-        // ws['U5'] = { v: 'Moneda', t: 's' };
-        // ws['V5'] = { v: 'Martillero', t: 's' };
 
         ws['A5'] = { v: 'vacia ', t: 's' };
         ws['B5'] = { v: 'status ', t: 's' };
@@ -73,7 +51,6 @@ class createExcel {
         ws['AG5'] = { v: 'año compr ant ', t: 's' };
         ws['AH5'] = { v: 'precio venta nos ', t: 's' };
 
-
         // Ajusta el ancho de las columnas
         this.cambiarAnchoColumnas(ws);
 
@@ -96,8 +73,6 @@ class createExcel {
 
 
     async writeData(casos) {
-        // const fechaLimite = stringToDate(fechaFinStr);
-        // const fechaInicio = stringToDate(fechaInicioStr);
         var filePath = path.join(this.saveFile, 'Remates.xlsx');
         // Revisa si el archivo base ya existe
         if (!fs.existsSync(path.join(this.saveFile, 'Remates.xlsx'))) {
@@ -124,13 +99,12 @@ class createExcel {
 
     }
 
-
     async insertarCasosExcel(casos, ws) {
         const startDateSQL = stringToDate(this.startDate); 
         let remates = new Set();
         let currentRow = 6;
-        const causa = new Causas();
-        const rematesDB = causa.getCausas(formatDateToSQLite(startDateSQL));
+        const causaDB = new Causas();
+        const rematesDB = causaDB.getCausas(formatDateToSQLite(startDateSQL));
         if (!Array.isArray(casos) || casos.length === 0) {
             console.log("No se encontraron datos para insertar.");
             return;
@@ -144,92 +118,93 @@ class createExcel {
             if(this.shouldSkip(caso,remates,rematesDB,startDateSQL)){
                 continue;
             }
-            remates.add({ causa: caso.causa, juzgado: caso.juzgado, fecha: formatDateToSQLite(caso.fechaPublicacion) });
+
+            if(!this.emptyMode){
+                remates.add({ causa: caso.causa, juzgado: caso.juzgado, fecha: formatDateToSQLite(caso.fechaPublicacion) });
+            }
             this.insertarCasoIntoWorksheet(caso, ws, currentRow);
             currentRow++;
         }
-        // console.log("Casos insertados: ", remates);
-        causa.insertCaso(remates);
+        // Agrega los remates a la base de datos
+        if (!this.emptyMode) {
+            causaDB.insertCaso(remates);
+        }
         return currentRow;
     }
 
-    shouldSkip(caso, remates, rematesDB,startDateSQL) {
-        for (let remate of remates) {
-            if (remate.causa === caso.causa && remate.juzgado === caso.juzgado) {
+    shouldSkip(currentCase, cacheAuctions, auctionsDB,startDateSQL) {
+        for (let auction of cacheAuctions) {
+            if (auction.causa === currentCase.causa && auction.juzgado === currentCase.juzgado) {
                 return true;
             }
         }
-        if (caso.fechaRemate < this.endDate) {
+        if (currentCase.fechaRemate < this.endDate) {
             return true;
         }
-        if (caso.juzgado === "Juez Partidor") {
+        if (currentCase.juzgado === "Juez Partidor") {
             return true;
         }
-        for (let remate of rematesDB) {
-            if (remate.causa === caso.causa && remate.juzgado === caso.juzgado && remate.fecha < formatDateToSQLite(startDateSQL)) {
+        for (let savedAuction of auctionsDB) {
+            if (savedAuction.causa === currentCase.causa && savedAuction.juzgado === currentCase.juzgado && savedAuction.fecha < formatDateToSQLite(startDateSQL)) {
                 return true;
             }
+        }
+        if (currentCase.tipoPropiedad === "Estacionamiento") {
+            return true;
         }
         return false;
     }
 
 
     insertarCasoIntoWorksheet(caso, ws, currentRow) {
-        // if(caso.fechaPublicacion !== "N/A"){
-        //     const adjustedDate = new Date(caso.fechaPublicacion);
-        //     adjustedDate.setHours(adjustedDate.getHours() + 6);
-        //     ws['D' + currentRow] = { v: adjustedDate, t: 'd' };
-        // }
-        // ws['J' + currentRow] = { v: caso.tipoPropiedad, t: 's' };
-
-        // ws['A'+ currentRow ] = {v: 'vacia ', t: 's'};
-        // ws['B'+ currentRow ] = {v: 'status ', t: 's'};
-        ws['C' + currentRow] = { v: caso.fechaObtencion, t: 'd' };
-        ws['D' + currentRow] = { v: caso.link, t: 's' };
+        console.log("Fecha de obtenion : ", caso.fechaObtencion, "Tipo :", typeof caso.fechaObtencion);
+        this.writeLine(ws,'C',currentRow, caso.fechaObtencion, 'd');
+        this.writeLine(ws,'D',currentRow, caso.link, 's');
         // ws['E'+ currentRow ] = {v: 'notas ', t: 's'};
-        if (caso.fechaRemate !== "N/A") {
+        if (caso.fechaRemate !== null) {
             const adjustedAuctionDate = new Date(caso.fechaRemate);
             adjustedAuctionDate.setHours(adjustedAuctionDate.getHours() + 6);
-            ws['F' + currentRow] = { v: adjustedAuctionDate, t: 'd' };
+            this.writeLine(ws, 'F', currentRow,adjustedAuctionDate, 'd');
         }
-        ws['G' + currentRow] = { v: caso.martillero, t: 's' };
-        ws['H' + currentRow] = { v: caso.direccion, t: 's' };
-        ws['I' + currentRow] = { v: caso.causa, t: 's' };
-        ws['J' + currentRow] = { v: caso.juzgado, t: 's' };
-        ws['K' + currentRow] = { v: getComunaJuzgado(caso.juzgado), t: 's' };
-        ws['L' + currentRow] = { v: caso.comuna, t: 's' };
-        if (caso.anno == 'No especifica') {
-            ws['M' + currentRow] = { v: caso.anno, t: 's' };
-        } else {
-            ws['M' + currentRow] = { v: caso.anno, t: 'n' };
-        }
-        ws['N' + currentRow] = { v: caso.partes, t: 's' };
+        this.writeLine(ws,'G',currentRow, caso.martillero, 's');
+        this.writeLine(ws,'H',currentRow, caso.direccion, 's');
+        this.writeLine(ws,'I',currentRow, caso.causa, 's');
+        this.writeLine(ws,'J',currentRow, caso.juzgado, 's');
+        this.writeLine(ws,'K',currentRow, getComunaJuzgado(caso.juzgado), 's');
+        this.writeLine(ws,'L',currentRow, caso.comuna, 's');
+        this.writeLine(ws,'M',currentRow, caso.anno, 's');
+        this.writeLine(ws,'N',currentRow, caso.partes, 's');
         // ws['O'+ currentRow ] = {v: 'dato ', t: 's'};
-        ws['P' + currentRow] = { v: caso.formatoEntrega, t: 's' };
-        ws['Q' + currentRow] = { v: caso.porcentaje, t: 's' };
-        ws['R' + currentRow] = { v: caso.diaEntrega, t: 's' };
-        ws['S' + currentRow] = { v: caso.tipoDerecho, t: 's' };
+        this.writeLine(ws,'P',currentRow, caso.formatoEntrega, 's');
+        this.writeLine(ws,'Q',currentRow, caso.porcentaje, 's');
+        this.writeLine(ws,'R',currentRow, caso.diaEntrega, 's');
+        this.writeLine(ws,'S',currentRow, caso.tipoDerecho, 's');
         // ws['T'+ currentRow ] = {v: caso.rolPropiedad, t: 's'};
         // ws['U'+ currentRow ] = {v: 'deuda 2 ', t: 's'};
         // ws['V'+ currentRow ] = {v: 'deuda 3 ', t: 's'};
         // ws['W'+ currentRow ] = {v: 'rol ', t: 's'};
         // ws['X'+ currentRow ] = {v: 'notif ', t: 's'};
         // Formato de monto minimo segun el tipo de moneda
-        if (caso.moneda === 'No aplica') {
-            ws['Y' + currentRow] = { v: caso.montoMinimo, t: 's' };
-            ws["Z" + currentRow] = { v: caso.moneda, t: 's' };
-        }
-        else if (caso.moneda == 'UF') {
+        if (caso.moneda === 'UF') {
             ws['Y' + currentRow] = { v: parseFloat(caso.montoMinimo), t: 'n', z: '#,##0.0000' };
-        } else {
+        }
+        else if (caso.moneda == 'Pesos') {
             ws['Y' + currentRow] = { v: parseFloat(caso.montoMinimo), t: 'n', z: '#,##0' };
         }
-        ws['Z' + currentRow] = { v: caso.moneda, t: 's' };
-        ws['AC' + currentRow] = { v: caso.avaluoPropiedad, t: 'n', z: '#,##0' };
+        this.writeLine(ws,'Z',currentRow, caso.moneda, 's');
+        if(caso.avaluoPropiedad != null){
+            ws['AC' + currentRow] = { v: caso.avaluoPropiedad, t: 'n', z: '#,##0' };
+        }
         // ws['AE' + currentRow ] = {v: 'estado civil ', t: 's'};
         // ws['AF' + currentRow ] = {v: 'Px $ compra ant ', t: 's'};
         // ws['AG' + currentRow ] = {v: 'año compr ant ', t: 's'};
         // ws['AH' + currentRow ] = {v: 'precio venta nos ', t: 's'};
+    }
+
+    writeLine(ws,row,col,value,type){
+        if(value != null){
+            ws[row + col] = { v: value, t: type };
+        }
     }
 
 
@@ -314,7 +289,7 @@ function cambiarFechaFin(fecha) {
 // Dado un juzgado, obtiene la comuna del juzgado
 function getComunaJuzgado(juzgado) {
     if (juzgado == null) {
-        return "no especifica";
+        return null;
     }
     const juzgadoNormalizado = juzgado.toLowerCase();
     const comunaJuzgado = juzgadoNormalizado.split("de ").at(-1);

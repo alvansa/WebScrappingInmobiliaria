@@ -2,7 +2,8 @@ const {app, BrowserWindow, ipcMain, dialog,electron} = require('electron');
 const path = require('node:path');
 const puppeteer = require('puppeteer-core');
 const pie = require('puppeteer-in-electron');
-const {getDatosRemate} = require('../economico/datosRemateEmol.js');
+
+const {getDatosRemate,emptyCaseEconomico} = require('../economico/datosRemateEmol.js');
 const {PreRemates} = require('../preremates/obtenerPublicaciones.js');
 const MapasSII = require('../mapasSII/MapasSII.js');
 const ProcesarBoletin = require('../liquidaciones/procesarBoletin.js');
@@ -10,6 +11,11 @@ const PublicosYLegales = require('../publicosYlegales/publicosYLegales.js');
 const Pjud = require('../pjud/getPjud.js');
 const createExcel = require('../excel/createExcel.js');
 const config = require('../../config.js');
+const { fakeDelay } = require('../../utils/delay.js');
+const { start } = require('node:repl');
+
+const isDevMode = process.argv.includes('--dev');
+const emptyMode = process.argv.includes('--empty');
 
 let pieInitialized = pie.initialize(app);
 
@@ -19,9 +25,25 @@ class MainApp{
         this.browser = null;
         this.mapasSII = null;
 
+        // Manejo de crashes
+        process.on('uncaughtException', (error) => {
+            console.error('Uncaught Exception:', error);
+            this.cleanupBeforeExit(true);
+        });
+
+        process.on('unhandledRejection', (reason, promise) => {
+            console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+            this.cleanupBeforeExit(true);
+        });
+
         app.whenReady().then(async ()=>{
             await pieInitialized;
             this.createMainWindow()
+            // Manejo de crash en el renderer
+            this.mainWindow.webContents.on('render-process-gone', (event, details) => {
+                console.error('Renderer crashed:', details.reason);
+                this.cleanupBeforeExit();
+            });
             app.on('activate', () => {
                 if (BrowserWindow.getAllWindows().length === 0) {
                     createWindow()
@@ -40,29 +62,27 @@ class MainApp{
                 await this.browser.close();
             }
         });
-
-        // app.on("will-quit", async () => {
-        //     if(this.browser){
-        //         await this.browser.close();
-        //     }
-        // });
-
     }
 
-
-
-    createMainWindow(){
+    //Funcion para crear la ventana principal
+      createMainWindow(){
         this.mainWindow = new BrowserWindow({
             width: 700,
             height: 500,
             webPreferences: {
                 preload: path.join(__dirname, './preload.js'), // Archivo que se ejecutará antes de cargar el renderer process
-                nodeIntegration: true
+                nodeIntegration: true,
+                webPreferences : {devTools : isDevMode}
             },
         })
     
         this.mainWindow.loadFile('componentes/Electron/index.html')
         this.registerIpcHandlers();
+
+        if(isDevMode){
+            this.mainWindow.webContents.openDevTools();
+            console.log("DevTools opened");
+        }
     }
 
     async launchPuppeteer_inElectron(){
@@ -93,32 +113,43 @@ class MainApp{
     }
 
     async insertarDatos(startDate,endDate,saveFile, checkedBoxes) {
+        let casos = [];
         const fechaHoy = new Date();
         await this.launchPuppeteer_inElectron();
+        if(emptyMode){
+           casos = emptyCaseEconomico(); 
+        }else{
+            const [casosEconomico, casosPreremates, casosBoletin, casosPYL, casosPJUD] = await Promise.all([
+                this.getCasosEconomico(fechaHoy, startDate, endDate, 3, checkedBoxes.economico),
+                this.getCasosPreremates(checkedBoxes.preremates),
+                this.getCasosBoletin(startDate, endDate, fechaHoy, checkedBoxes.liquidaciones),
+                this.getPublicosYLegales(startDate, endDate, fechaHoy, checkedBoxes.PYL),
+                this.getDatosPjud(startDate, endDate, checkedBoxes.pjud)
+            ]);
 
-        const [casosEconomico, casosPreremates, casosBoletin, casosPYL, casosPJUD] = await Promise.all([
-            this.getCasosEconomico(fechaHoy, startDate, endDate, 3, checkedBoxes.economico),
-            this.getCasosPreremates(checkedBoxes.preremates),
-            this.getCasosBoletin(startDate,endDate,fechaHoy,checkedBoxes.liquidaciones),
-            this.getPublicosYLegales(startDate,endDate,fechaHoy,checkedBoxes.PYL),
-            this.getDatosPjud(startDate,endDate,checkedBoxes.pjud)
-        ]);
-        const casos = [...casosEconomico, ...casosPreremates, ...casosBoletin, ...casosPYL, ...casosPJUD];
-        await this.obtainMapasSIIInfo(casos);
+            casos = [...casosEconomico, ...casosPreremates, ...casosBoletin, ...casosPYL, ...casosPJUD];
+            await this.obtainMapasSIIInfo(casos);
+        }
+
         if(casos.length === 0){
             console.log("No se encontraron datos");
             return 5;
         }
-        const createExcelFile = new createExcel(saveFile,startDate,endDate);
+        const createExcelFile = new createExcel(saveFile,startDate,endDate,emptyMode);
         const filePath = createExcelFile.writeData(casos);
         return filePath;
         
     }
     
     async getCasosEconomico(fechaHoy, fechaInicioStr, fechaFinStr, maxRetries, economicoChecked) {
+        if(emptyMode){
+            return emptyCaseEconomico();
+        }
+    
         if (!economicoChecked) {
             return [];
         }
+
         let casos = [];
         try {
             casos = await getDatosRemate(fechaHoy, fechaInicioStr, fechaFinStr, maxRetries) || [];
@@ -129,7 +160,6 @@ class MainApp{
     }
 
     async getCasosPreremates(prerematesChecked) {
-        console.log("checkbox: ", prerematesChecked);
         if (!prerematesChecked) {
             return [];
         }
@@ -212,9 +242,16 @@ class MainApp{
             return [];
         }
         let casos = [];
-        const daysDiff = calculateDiffDays(fechaInicioStr,fechaFinStr);
-        const startDate = cambiarFechaInicio(fechaInicioStr,daysDiff);
-        const endDate = cambiarFechaFin(fechaFinStr);
+        let startDate;
+        let endDate;
+        if (isDevMode) {
+            startDate = cambiarFechaInicio(fechaInicioStr,0);
+            endDate = cambiarFechaInicio(fechaFinStr,0);
+        } else {
+            const daysDiff = calculateDiffDays(fechaInicioStr, fechaFinStr);
+            startDate = cambiarFechaInicio(fechaInicioStr, daysDiff);
+            endDate = cambiarFechaFin(fechaFinStr);
+        }
         // const endDate = cambiarFechaInicio(fechaFinStr,3);
         try{
             const window = new BrowserWindow({ show: false });
@@ -247,6 +284,7 @@ class MainApp{
             for (let caso of casos) {
                 if (caso.rolPropiedad !== null && caso.comuna !== null) {
                     console.log(caso.causa, caso.rolPropiedad, caso.comuna, caso.link);
+                    await fakeDelay(1, 3);
                     await mapasSII.obtainDataOfCause(caso);
                     await new Promise(resolve => setTimeout(resolve, 1000));
                 }
@@ -262,13 +300,31 @@ class MainApp{
         }
         return;
     }
+    cleanupBeforeExit(isCrash = false) {
+        try{
+            console.log('Limpieza antes de salir...');
+            if (this.browser) {
+                this.browser.close();
+                this.browser = null;
+            }
+            BrowserWindow.getAllWindows().forEach((window) => {
+                if (!window.isDestroyed()) {
+                    window.destroy();
+                }
+            });
+            if(isCrash){
+                app.quit(1);
+            }else if(process.platform !== 'darwin'){
+                app.quit();
+            }
+
+
+        }catch(error){
+            console.error('Error al limpiar antes de salir:', error);
+        }
+    }
 }
 
-async function delay(time) {
-    return new Promise(function (resolve) {
-        setTimeout(resolve, time)
-    });
-}
 
 function stringToDate(fecha) {
     const partes = fecha.split("-"); // Dividimos la fecha en partes [año, mes, día]

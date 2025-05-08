@@ -1,6 +1,7 @@
 const { getPaginas, getRemates } = require('./getNextPage.js');
 const { comunas, tribunales2,BANCOS } = require('../caso/datosLocales.js');
 const Caso  = require('../caso/caso.js');
+const {fakeDelay} = require('../../utils/delay.js');
 
 async function getDatosRemate(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries){
     try {
@@ -9,9 +10,10 @@ async function getDatosRemate(fechaHoy,fechaInicioStr,fechaFinStr,maxRetries){
         const casos = await getPaginas(fechaHoy,fechaInicioStr,fechaFinStr);
         for (caso of casos){
             pagina = caso.link;
+            await fakeDelay(2,5);
             const description = await getRemates(pagina,maxRetries);
             const normalizedDescription = normalizeDescription(description);
-            caso.darTexto(normalizedDescription);
+            caso.texto = normalizedDescription;
         }
         // Procesa los remates a partir del texto obtenido.
         for(let caso of casos){
@@ -167,8 +169,8 @@ function getJuzgado(data) {
     .replace(/de\s*/g,'')
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
-    .replaceAll(/\bstgo\b/g,"santiago")
-    .replaceAll(/\s+/,' ')
+    .replace(/\bstgo\b/g,"santiago")
+    .replace(/\s+/,' ')
 
     let tribunalesAceptados = [];
     console.log("Data normalizada en getJuzgado: ",normalizedData);
@@ -806,6 +808,11 @@ function incluyeParte(texto){
     return false;
 }
 
+function emptyCaseEconomico(){
+    const caso = new Caso("","","",0);
+    return [caso];
+}
+
 function verificarOpcionesInvalidas(texto){
     const textoNormalizado = texto.toLowerCase();
     const includeEntregaVale = textoNormalizado.includes("entrega del vale");
@@ -839,5 +846,6 @@ module.exports = {  getDatosRemate , testUnico, procesarDatosRemate,
     getRolPropiedad,
     getTipoDerecho,
     getTipoPropiedad,
-    getFechaRemate
+    getFechaRemate,
+    emptyCaseEconomico
 };

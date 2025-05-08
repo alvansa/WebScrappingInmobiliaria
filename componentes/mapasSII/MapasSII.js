@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const {delay} = require('../utils/utils.js');
+const {delay} = require('../../utils/delay');
 
 class MapasSII {
     constructor(browser, page) {

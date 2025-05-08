@@ -29,36 +29,36 @@ class ProcesarBoletin {
 
         if (fechaRemate) {
             // console.log(fechaRemate);
-            caso.darFechaRemate(new Date(fechaRemate));
+            caso.fechaRemate = new Date(fechaRemate);
         }
         if (causa) {
-            caso.darCausa(causa[0]);
+            caso.causa = causa[0];
         }
         if (tribunal) {
             const juzgado = tribunal[0].split(":")[1];
-            caso.darJuzgado(juzgado);
+            caso.juzgado = juzgado;
         }
         if (comuna) {
             // const comunaStr = comuna[0].split(":")[1];
-            caso.darComuna(comuna);
+            caso.comuna = comuna;
         }
         if (monto) {
             // const montoMinimo = monto[0].match(/\d+/g);
             console.log("Monto minimo: ", monto);
-            caso.darMontoMinimo(monto[1]);
+            caso.montoMinimo = monto[1] ;
         }
         if (anno) {
             const annoNumero = anno[0].match(/\d+/g)[0];
-            caso.darAnno(annoNumero);
+            caso.anno = annoNumero;
         }
         if (direccion) {
             caso.direccion = direccion;
         }
         if (tipoPropiedad) {
-            caso.darTipoPropiedad(tipoPropiedad[0]);
+            caso.tipoPropiedad = tipoPropiedad[0];
         }
         if (tipoDerecho) {
-            caso.darTipoDerecho(tipoDerecho[0]);
+            caso.tipoDerecho = tipoDerecho[0];
         }
         console.log("Caso: ", caso.causa);
 

@@ -36,7 +36,7 @@ class Caso{
         this.#fechaPublicacion = fechaPublicacion;
         this.#fechaObtencion = fechaObtencion;
         this.#origen = origen;
-        this.#texto = '';
+        this.#texto = null;
         this.#link = link
         this.#causa = null;
         this.#juzgado = null;
@@ -52,7 +52,7 @@ class Caso{
         this.#partes = null;
         this.#tipoPropiedad = null;
         this.#tipoDerecho = null;
-        this.#anno = 0;
+        this.#anno = null;
         this.#martillero = null;
         this.#direccion = null;
         this.#diaEntrega = null;
@@ -162,9 +162,7 @@ class Caso{
   
 
     toObject() {
-        let montominimo;
-        let moneda;
-
+        const fechaObtencionNormalizada = this.normalizarFechaObtencion()
         const montoMoneda = this.normalizarMonto(); 
         const causaNormalizada = this.normalizarCausa();
         const annoNormalizado = this.normalizarAnno();
@@ -177,10 +175,8 @@ class Caso{
         const comunaNormalizada = this.normalizarComuna();
         const tipoDerechoNormalizado = this.normalizarTipoDerecho();
 
-        
-
         return {
-            fechaObtencion: this.#fechaObtencion,
+            fechaObtencion: fechaObtencionNormalizada,
             fechaPublicacion: this.#fechaPublicacion,
             link: this.#link,
             causa: causaNormalizada,
@@ -206,13 +202,15 @@ class Caso{
             aviso : this.#texto,
             numero : this.#numero,
             rolPropiedad : this.#rolPropiedad,
-            avaluoPropiedad : Number(this.#avaluoPropiedad)
+            avaluoPropiedad : Number(this.#avaluoPropiedad) !=0 ? Number(this.#avaluoPropiedad) : null,
         };
     } 
 
     // Transforma la fecha de la publicación de estar escrita en palabras a un objeto Date
     transformarFecha(){
-        if(this.#fechaRemate == "N/A" || this.#fechaRemate == null){ return null;}
+        if(this.#fechaRemate == "N/A" || this.#fechaRemate == null){ 
+            return null;
+        }
 
         // Si el origen es Pjud, viene con formato tipo dd/mm/yyyy HH:mm:ss
         if(this.#origen == PJUD){
@@ -404,22 +402,18 @@ class Caso{
     }
     normalizarMonto(){
         if(this.#montoMinimo == "N/A" || this.#montoMinimo == null){
-            return {"monto": "No especifica", "moneda": "No aplica"};
+            return {"monto": null, "moneda": null};
         }
         let montoFinal;
         let moneda;
         if(this.#origen == LIQUIDACIONES){ 
             montoFinal = this.#montoMinimo.replaceAll('.','').replaceAll(',','.');
-            moneda = "$";
+            moneda = "Pesos";
         }else if(this.#montoMinimo !== null){
             let montominimo = this.#montoMinimo["monto"];
             montoFinal = montominimo.replaceAll('.', '').replaceAll(',', '.').replaceAll(' ', '');
             moneda = this.#montoMinimo["moneda"];
-        }else{
-            montoFinal = "No especifica";
-            moneda = "No aplica";
         }
-
         return {"monto": montoFinal, "moneda" : moneda};
     }
 
@@ -503,7 +497,7 @@ class Caso{
 
     normalizarPartes(){
         if(this.#partes === "N/A" || this.#partes === null){
-            return "No especifica";
+            return null;
         }
         let partesNormalizadas = this.#partes.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
         partesNormalizadas = partesNormalizadas
@@ -535,7 +529,7 @@ class Caso{
 
     normalizarAnno(){
         if(this.#anno == 0 || this.#anno == "N/A" || this.#anno == null || this.#anno == "No especifica"){
-            return "No especifica";
+            return null;
         }
         const anno = this.#anno.replaceAll(".","");
         return anno;
@@ -543,7 +537,7 @@ class Caso{
 
     normalizarPorcentaje(){
         if(this.#porcentaje == "N/A" || this.#porcentaje == null){
-            return "No especifica";
+            return null;
         }
         const porcentaje = this.#porcentaje.replaceAll(" ","");
         return porcentaje;
@@ -551,7 +545,7 @@ class Caso{
 
     normalizarFormatoEntrega(){
         if(this.#formatoEntrega == "N/A" || this.#formatoEntrega == null){
-            return "No especifica";
+            return null;
         }
         if(this.#formatoEntrega == "vale a la vista"){
             return "vale vista";
@@ -562,7 +556,7 @@ class Caso{
         const valorOriginal = this.#causa;
         
         if (valorOriginal === "N/A" || valorOriginal === null) {
-            return "No especifica";
+            return null;
         }
 
         let causa = valorOriginal
@@ -580,14 +574,14 @@ class Caso{
     } 
     normalizarJuzgado(){
         if(this.#juzgado == "N/A" || this.#juzgado == null){
-            return "No especifica";
+            return null;
         }
         return this.#juzgado.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
     }
 
     normalizarDireccion(){
         if(this.#direccion == "N/A" || this.#direccion == null){
-            return "No especifica";
+            return null;
         }
         return this.#direccion.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
     }
@@ -599,22 +593,28 @@ class Caso{
     // }
     normalizarDiaEntrega(){
         if(this.#diaEntrega == "N/A" || this.#diaEntrega == null){
-            return "No especifica";
+            return null;
         }
         return this.#diaEntrega.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
     }
     normalizarComuna(){
         if(this.#comuna == "N/A" || this.#comuna == null){
-            return "No especifica";
+            return null;
         }
 
         return this.#comuna.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
     }
     normalizarTipoDerecho(){
         if(this.#tipoDerecho == "N/A" || this.#tipoDerecho == null){
-            return "No especifica";
+            return null;
         }
         return this.#tipoDerecho.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
+    }
+    normalizarFechaObtencion(){
+        if(this.#fechaObtencion == "N/A" || this.#fechaObtencion == null || this.#fechaObtencion == "" || this.#fechaObtencion == " "){
+            return null;
+        }
+        return this.#fechaObtencion;
     }
 }
 

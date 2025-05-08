@@ -8,7 +8,9 @@
     "start": "electron .",
     "rebuild": "electron-rebuild -f -w better-sqlite3",
     "make": "electron-builder",
-    "postinstall": "electron-builder install-app-deps"
+    "postinstall": "electron-rebuild",
+    "dev": "electron . --dev",
+    "empty": "electron . --empty"
   },
   "author": "Alvaro",
   "license": "ISC",

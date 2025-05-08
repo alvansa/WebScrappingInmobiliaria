@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer-core');
 const fs = require('fs');
 
 const Caso = require('../caso/caso.js');
-const {delay} = require('../../utils/delay.js');
+const {delay, fakeDelay} = require('../../utils/delay.js');
 
 const EXITO = 1;
 const ERROR = 0;
@@ -23,13 +23,10 @@ class Pjud {
             await this.setValoresInciales();
             console.log("Valores fecha :", this.startDate, this.endDate);
             await this.setDates('#desde', this.startDate);
-            const desdeValue = await this.page.$eval('#desde', el => el.value);
-            console.log(desdeValue);
+            await fakeDelay(1, 3);
             await delay(500);
             await this.setDates('#hasta', this.endDate);
-            const hastaValue = await this.page.$eval('#hasta', el => el.value);
-            console.log(hastaValue);
-            await delay(500);
+            await fakeDelay(1, 3);
 
             await this.page.waitForSelector('#btnConsultaRemates.btn.btn-primary', { visible: true });
             try {
@@ -56,6 +53,7 @@ class Pjud {
                     tableData.push(...datosTabla);
 
                     tienePaginaSiguiente = await this.manejarPaginaSiguiente(firstRowContent);
+                    fakeDelay(2, 4);
                 }catch(error){
                     console.error('Error en el while de getPJUD:', error);
                     break;
@@ -72,9 +70,13 @@ class Pjud {
     async setValoresInciales() {
         await this.page.waitForSelector('#competencia');
         await this.page.type('#competencia', '1');
+        await fakeDelay(1,3);
         await this.page.type('#corte', '0');
+        await fakeDelay(1,3);
         await this.page.type('#tribunal', '0');
+        await fakeDelay(1,3);
         await this.page.waitForSelector('#tipo');
+        await fakeDelay(1,3);
         await this.page.type('#tipo', 'C');
     }
 
