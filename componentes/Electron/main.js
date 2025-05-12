@@ -12,7 +12,9 @@ const Pjud = require('../pjud/getPjud.js');
 const createExcel = require('../excel/createExcel.js');
 const config = require('../../config.js');
 const { fakeDelay } = require('../../utils/delay.js');
-const { start } = require('node:repl');
+const {testTexto,testTextoArgs} = require('../economico/testEconomico.js');
+
+
 
 const isDevMode = process.argv.includes('--dev');
 const emptyMode = process.argv.includes('--empty');
@@ -46,7 +48,7 @@ class MainApp{
             });
             app.on('activate', () => {
                 if (BrowserWindow.getAllWindows().length === 0) {
-                    createWindow()
+                    this.createMainWindow()
                 }
             })
         })
@@ -62,6 +64,7 @@ class MainApp{
                 await this.browser.close();
             }
         });
+        this.registerIpcHandlers();
     }
 
     //Funcion para crear la ventana principal
@@ -70,18 +73,19 @@ class MainApp{
             width: 700,
             height: 500,
             webPreferences: {
-                preload: path.join(__dirname, './preload.js'), // Archivo que se ejecutará antes de cargar el renderer process
+                preload: path.join(__dirname, './prod/preload.js'), // Archivo que se ejecutará antes de cargar el renderer process
                 nodeIntegration: true,
                 webPreferences : {devTools : isDevMode}
             },
         })
     
-        this.mainWindow.loadFile('componentes/Electron/index.html')
-        this.registerIpcHandlers();
 
         if(isDevMode){
+            this.mainWindow.loadFile('componentes/Electron/dev/index.html')
             this.mainWindow.webContents.openDevTools();
             console.log("DevTools opened");
+        }else{
+            this.mainWindow.loadFile('componentes/Electron/prod/index.html')
         }
     }
 
@@ -100,6 +104,7 @@ class MainApp{
             // Retornar la ruta seleccionada o null si el usuario cancela
             return result.canceled ? null : result.filePaths[0];
         });
+
         ipcMain.handle("start-proccess", async (event,startDate,endDate,saveFile, checkedBoxes) => {
             console.log("handle start-proccess starDate: ", startDate, " endDate: ", endDate, " saveFile: ", saveFile, " checkedBoxes: ", checkedBoxes);
             try{
@@ -110,6 +115,15 @@ class MainApp{
                 console.error('Ocurrió un error:', error);
             };
         });
+
+        ipcMain.handle('testEconomico', (event,args) => {
+            try{
+                this.testEconomico(args)
+
+            }catch(error){
+                console.error('Error al obtener resultados:', error);
+            }
+        })
     }
 
     async insertarDatos(startDate,endDate,saveFile, checkedBoxes) {
@@ -321,6 +335,19 @@ class MainApp{
 
         }catch(error){
             console.error('Error al limpiar antes de salir:', error);
+        }
+    }
+
+    testEconomico(args){
+        // console.log("Esta vivo args: ",args);
+        const arg = args[0];
+        let result;
+        if(arg === 'imbeddedText'){
+            result = testTexto();
+            console.log("Resultados del texto hardCodded: ",result);
+        }else if(arg === 'uploadedText'){
+            result = testTextoArgs(args[1]);
+            // console.log("Resultados del texto introducido: ",result);
         }
     }
 }

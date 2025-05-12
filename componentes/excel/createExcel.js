@@ -149,9 +149,9 @@ class createExcel {
                 return true;
             }
         }
-        if (currentCase.tipoPropiedad === "Estacionamiento") {
-            return true;
-        }
+        // if (currentCase.tipoPropiedad === "Estacionamiento") {
+        //     return true;
+        // }
         return false;
     }
 

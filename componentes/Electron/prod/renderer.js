@@ -81,8 +81,6 @@ function getCheckedBoxes() {
   }
 }
 
-
-
 document.getElementById('select-folder-btn').addEventListener('click', async () => {
   // Llama al proceso principal para abrir el selector de carpetas
   const folderPath = await window.api.selectFolder();

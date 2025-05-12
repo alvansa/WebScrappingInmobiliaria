@@ -30,12 +30,19 @@ contextBridge.exposeInMainWorld('api', {
       return null;
     }
   },
+
   printConsole: (message) => {
     console.log(message);
     // test();
     console.log(nodePath.join(__dirname, './Controller/datosRemate.js'));
   },
-  selectFolder: () => ipcRenderer.invoke('select-folder-btn'),
+
+  selectFolder: () => {ipcRenderer.invoke('select-folder-btn')},
+
+  testEconomico : (args) => {
+    const results = ipcRenderer.invoke('testEconomico', args)
+    console.log("resultados en preload: ", results);
+  },
 });
 
 

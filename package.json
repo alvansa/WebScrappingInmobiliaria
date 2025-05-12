@@ -27,6 +27,7 @@
     "better-sqlite3": "^11.8.1",
     "cheerio": "^1.0.0",
     "dotenv": "^16.4.7",
+    "electron-store": "^10.0.1",
     "pdf2json": "^3.1.4",
     "puppeteer-core": "^24.4.0",
     "puppeteer-in-electron": "^3.0.5",

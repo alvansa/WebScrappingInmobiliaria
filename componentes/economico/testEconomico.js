@@ -26,15 +26,32 @@ async function testLinkArgs(link){
 
 function testTexto(){
     try{
-        const texto = 'Extracto. Juzgado Cobranza Laboral y Previsional Santiago, San Martín N° 950, 7 piso, Santiago, RIT C-3594-2023 RUC: 22-4-0410204-8, "Miño/H.E. Fiberglass S.I.C. S.A.", 22/05/2025 12:00 horas, se rematará inmueble ubicado en Las Araucarias N° 9000, Quilicura, Santiago, Región Metropolitana. De propiedad H.E. Fiberglass Sociedad Industrial y Comercial S.A. Inscrita Fojas 65960 N° 58203 Registro Propiedad 1991 Conservador de Bienes Raíces de Santiago. Mínimo posturas $1.215.388.108. Precio pagado contado dentro quinto día hábil realizada subasta mediante depósito cuenta corriente tribunal. Derecho posturas consignar garantía suficiente $121.538.810 equivalente 10% mínimo, mediante vale vista a nombre del Tribunal. Remitir comprobante por escrito presentado por O.J.V, junto copia carnet identidad señalando nombre completo persona participará calidad de postor, email y teléfono, si actúa por sí o en representación de otro, y en este último caso deberá expresar los datos de la persona - natural o jurídica - a quien representa, nombre y RUT del tomador del vale vista y correo electrónico del participante, y remitir mismos antecedentes a jcobsantiago_remates@pjud.cl. Plazo vence 12:00 horas día anterior fecha fijada para el remate. Se realizará dependencias Tribunal ubicado en San Martin N° 950 piso 8, Santiago. Ejecutante no deberá presentar garantía para tomar parte subasta, abonándose a precio remate el valor del crédito tenga contra ejecutante. Subastador designará domicilio dentro radio urbano Santiago. Demás bases y antecedentes del remate de la propiedad y derechos, causa individualizada, accediendo a módulos consulta tribunal o www.poderjudicial.cl. Santiago, veintiuno de abril de dos mil veinticinco.';
+        const texto = 'Remate Décimo Séptimo Juzgado Civil Santiago, Huérfanos 1409, 5º piso, se rematará en dependencias del tribunal, el día 8 de mayo de 2025, a las 10:30 horas, la propiedad propiedad ubicada en Avenida Grumete Díaz número ocho mil cincuenta, que corresponde al lote número seis de la manzana G del campamento Arturo Prat, comuna de La Florida, Región Metropolitana. Inmueble inscrito a nombre del ejecutado a fojas 92800 número 131233 correspondiente al registro de propiedad del año 2018 del Conservador De Bienes Raíces De Santiago. Mínimo postura en la suma de $ 52.694.968.- los interesados deberán constituir garantía suficiente, equivalente al 10% del mínimo establecido para la subasta, para participar en el remate mediante vale vista a la orden del tribunal, que deberá entregarse a la sra. Oficial primero, y enviar un correo electrónico a jcsantiago17_remates@pjud.cl, indicando en el asunto remate rol C-17494-2023, señalando sus datos personales, adjuntando comprobante legible de la garantía y de cedula de identidad, correo electrónico y un número telefónico de contacto, todo ello antes de las 12:00 horas del día anterior al fijado para el remate. Asimismo, se hace presente a los postores, que para efectos del cumplimiento de lo dispuesto en el inciso quinto del artículo 29 de la ley 21.389, deberán señalar en su postura, si fuera pertinente, los datos de la persona por quien se presentan, para efectos de realizar la revisión en el registro correspondiente. En el caso que éste sea una persona natural deberá constar con el correspondiente certificado emitido por el registro nacional de deudores de pensiones de alimentos a fin de dar cumplimiento a lo dispuesto por el inciso 5° del artículo 29 de la ley 21.389, bajo apercibimiento de no ser admitido para participar en el remate como postor. El precio de la subasta deberá ser pagado mediante consignación en la cuenta corriente del tribunal, dentro de quinto día hábil siguiente a la fecha de remate y suscripción de la respectiva acta. De no consignarse el precio en dicho plazo, el remate quedará sin efecto, y se hará efectiva la caución que se señaló en la base tercera. El valor de ésta, deducido el monto de los gastos del remate, se abonará en un 50% al crédito y en un 50%a beneficio de la corporación administrativa del poder judicial. Demás antecedentes y bases juicio Banco De Chile Con Bustamante, Rol C-17494-2023. Secretaria.';
         const testCaso = new Caso("2025-05-05");
         testCaso.texto = texto;
         procesarDatosRemate(testCaso); 
         const casoObjt = testCaso.toObject();
         console.log("Caso: ",casoObjt);
+        return casoObjt;
     }catch(error){
         console.error('Error al obtener resultados:', error);
+        return null;
     }
+}
+
+function testTextoArgs(texto){
+    try{
+        const testCaso = new Caso("2025-05-05");
+        testCaso.texto = texto;
+        procesarDatosRemate(testCaso); 
+        const casoObjt = testCaso.toObject();
+        console.log("Caso: ",casoObjt);
+        return casoObjt;
+    }catch(error){
+        console.error('Error al obtener resultados:', error);
+        return null;
+    }
+
 }
 
 function obtainCausasFromDB(){
@@ -104,7 +121,14 @@ async function main(){
     }
 }
 
-main()
+// main()
+module.exports = {
+    testLink,
+    testLinkArgs,
+    testTexto,
+    obtainCausasFromDB,
+    testTextoArgs,
+}
 
 
 
