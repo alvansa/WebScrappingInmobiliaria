@@ -11,6 +11,7 @@ class ProcesarBoletin {
     constructor(browser,page) {
         this.browser = browser;
         this.page = page;
+        this.downloadPath = path.join(os.homedir(), "Documents", "infoRemates/pdfDownload");
     }
     obtainDataRematesPdf(data, caso) {
         if (!caso) {
@@ -68,17 +69,16 @@ class ProcesarBoletin {
         let casos = [];
         let texto = "";
         try {
-            const downloadPath = path.join(os.homedir(), "Documents", "infoRemates/pdfDownload");
             const boletin = new BoletinConcursal(this.browser,this.page);
             await boletin.getDatosBoletin(fechaInicio, fechaFin, casos, fechaHoy);
-            const pdfs = fs.readdirSync(downloadPath);
+            const pdfs = fs.readdirSync(this.downloadPath);
             for (let pdf of pdfs) {
-                const pdfFile = path.join(downloadPath, pdf);
+                const pdfFile = path.join(this.downloadPath, pdf);
                 if (fs.existsSync(pdfFile)) {
                     console.log("Procesando pdf: ", pdf," con path: ",pdfFile);
                     // Aqui se envian los pdf a el proceso principal para ser convertidos a texto y poder trabajar con ellos.
                     try{
-                        texto = await this.convertPdfToText(pdfFile);
+                        texto = await ProcesarBoletin.convertPdfToText(pdfFile);
                         const caso = this.getCaso(pdf, casos);
                         this.obtainDataRematesPdf(texto, caso);
                     }catch(error){
@@ -98,14 +98,14 @@ class ProcesarBoletin {
 
     deleteFiles() {
         console.log("Eliminando archivos");
-        const downloadPath = path.join(os.homedir(), "Documents", "infoRemates/pdfDownload");
-        fs.readdir(downloadPath, (err, files) => {
+        // const downloadPath = path.join(os.homedir(), "Documents", "infoRemates/pdfDownload");
+        fs.readdir(this.downloadPath, (err, files) => {
             if (err) {
                 console.error("Error al leer el directorio:", err);
                 return;
             }
             for (const file of files) {
-                fs.unlink(path.join(downloadPath, file), (err) => {
+                fs.unlink(path.join(this.downloadPath, file), (err) => {
                     if (err) {
                         console.error("Error al eliminar el archivo:", err);
                         return;
@@ -236,7 +236,7 @@ class ProcesarBoletin {
         return tipoDerecho;
     }
 
-    async convertPdfToText(filePath) {
+    static async convertPdfToText(filePath) {
         return new Promise((resolve, reject) => {
             const pdfParser = new PDFParser(this,1);
 
@@ -262,4 +262,3 @@ class ProcesarBoletin {
 }
 
 module.exports = ProcesarBoletin
-

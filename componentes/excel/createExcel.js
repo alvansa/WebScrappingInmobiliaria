@@ -105,6 +105,9 @@ class createExcel {
         let currentRow = 6;
         const causaDB = new Causas();
         const rematesDB = causaDB.getCausas(formatDateToSQLite(startDateSQL));
+        for(let i = 0; i < rematesDB.length; i++){
+            rematesDB[i].juzgado = rematesDB[i].juzgado.replace(/°/g,'')
+        }
         if (!Array.isArray(casos) || casos.length === 0) {
             console.log("No se encontraron datos para insertar.");
             return;
@@ -133,6 +136,7 @@ class createExcel {
     }
 
     shouldSkip(currentCase, cacheAuctions, auctionsDB,startDateSQL) {
+        currentCase.juzgado = currentCase.juzgado.replace(/°/g, '');
         for (let auction of cacheAuctions) {
             if (auction.causa === currentCase.causa && auction.juzgado === currentCase.juzgado) {
                 return true;

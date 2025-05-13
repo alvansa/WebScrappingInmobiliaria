@@ -13,7 +13,7 @@ const createExcel = require('../excel/createExcel.js');
 const config = require('../../config.js');
 const { fakeDelay } = require('../../utils/delay.js');
 const {testTexto,testTextoArgs} = require('../economico/testEconomico.js');
-
+const {downloadPdfFromUrl,checkUserAgent} = require('../pjud/downloadPDF.js');
 
 
 const isDevMode = process.argv.includes('--dev');
@@ -89,6 +89,12 @@ class MainApp{
         }
     }
 
+    //Funcion para lanzar el navegador estandar de electron sin proxy
+    async launchPuppeteer_inElectron(){
+        this.browser = await pie.connect(app, puppeteer);
+        console.log("Browser launched");
+    }
+    // Funcion para lanzar el navegador con Proxy
     async launchPuppeteer_inElectron(){
         this.browser = await pie.connect(app, puppeteer);
         console.log("Browser launched");
@@ -116,9 +122,9 @@ class MainApp{
             };
         });
 
-        ipcMain.handle('testEconomico', (event,args) => {
+        ipcMain.handle('testEconomico', async (event,args) => {
             try{
-                this.testEconomico(args)
+                await this.testEconomico(args)
 
             }catch(error){
                 console.error('Error al obtener resultados:', error);
@@ -338,16 +344,22 @@ class MainApp{
         }
     }
 
-    testEconomico(args){
+    async testEconomico(args){
+        await this.launchPuppeteer_inElectron();
         // console.log("Esta vivo args: ",args);
         const arg = args[0];
         let result;
-        if(arg === 'imbeddedText'){
+        if (arg === 'imbeddedText') {
             result = testTexto();
             console.log("Resultados del texto hardCodded: ",result);
         }else if(arg === 'uploadedText'){
             result = testTextoArgs(args[1]);
             // console.log("Resultados del texto introducido: ",result);
+        }else if(arg === 'downloadPDF'){
+            console.log("Descargando PDF ubicado en: ",args[1]);  
+            result = await checkUserAgent(this.browser,args[1]);
+            console.log("Resultados del texto introducido: ",result);
+
         }
     }
 }
