@@ -2,6 +2,7 @@ const {app, BrowserWindow, ipcMain, dialog,electron} = require('electron');
 const path = require('node:path');
 const puppeteer = require('puppeteer-core');
 const pie = require('puppeteer-in-electron');
+const os = require('os');
 
 const {getDatosRemate,emptyCaseEconomico} = require('../economico/datosRemateEmol.js');
 const {PreRemates} = require('../preremates/obtenerPublicaciones.js');
@@ -10,6 +11,8 @@ const ProcesarBoletin = require('../liquidaciones/procesarBoletin.js');
 const PublicosYLegales = require('../publicosYlegales/publicosYLegales.js');
 const Pjud = require('../pjud/getPjud.js');
 const createExcel = require('../excel/createExcel.js');
+const Caso = require('../caso/caso.js')
+const ConsultaCausaPjud = require('../pjud/consultaCausaPjud.js');
 const config = require('../../config.js');
 const { fakeDelay } = require('../../utils/delay.js');
 const {testTexto,testTextoArgs} = require('../economico/testEconomico.js');
@@ -357,13 +360,65 @@ class MainApp{
             // console.log("Resultados del texto introducido: ",result);
         }else if(arg === 'downloadPDF'){
             console.log("Descargando PDF ubicado en: ",args[1]);  
-            result = await checkUserAgent(this.browser,args[1]);
+            result = await downloadPdfFromUrl(this.browser,args[1]);
             console.log("Resultados del texto introducido: ",result);
 
+        }else if(arg === 'testConsultaCausa'){
+
+            result = await consultaCausa();
+            console.log("Resultados del caso de prueba en pjud: ",result.toObject());
+        }else if(arg === 'readPdf'){
+            console.log("Leyendo PDF ubicado en: ",args[1]);
+            const downloadPath = path.join(os.homedir(), "Documents", "infoRemates/pdfDownload");
+            const pdfPath = path.join(downloadPath, args[1]);
+            console.log("Leyendo PDF ubicado en: ",pdfPath);
+            result = await ProcesarBoletin.convertPdfToText(pdfPath);
+            console.log("Resultados del texto introducido: ",result);
         }
     }
 }
 
+async function consultaCausa(){
+    const browser = await pie.connect(app, puppeteer);
+    let window;
+    window = openWindow(window,true);
+    const caso = crearCasoPrueba();
+    const consultaCausa = new ConsultaCausaPjud(browser,window,caso);
+    await consultaCausa.getConsulta()
+
+    return caso;
+}
+
+function crearCasoPrueba(){
+    const caso = new Caso("2025/11/30");
+    caso.juzgado = "7º JUZGADO CIVIL DE SANTIAGO";
+    caso.causa = "C-5336-2022";
+    caso.fechaRemate = "02/12/2024 15:30";
+
+    return caso;
+}
+
+function openWindow(window, useProxy){
+    const proxyData = JSON.parse(process.env.PROXY_DATA);
+    const randomIndex = Math.floor(Math.random() * proxyData.length); 
+    console.log("Se probo la conexion con el proxy numero: ",proxyData[randomIndex].server);
+    if(useProxy){
+        console.log("Se lanza el navegador con proxy");
+        window = new BrowserWindow({
+            show: true,// Ocultar ventana para procesos en background
+            proxy :{
+                username: proxyData[randomIndex].username,
+                password: proxyData[randomIndex].password,
+                server: proxyData[randomIndex].server,
+            }
+        });
+    }else{
+        window = new BrowserWindow({
+            show: true,// Ocultar ventana para procesos en background
+        });
+    }
+    return window;
+}
 
 function stringToDate(fecha) {
     const partes = fecha.split("-"); // Dividimos la fecha en partes [año, mes, día]

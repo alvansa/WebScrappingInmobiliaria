@@ -87,6 +87,8 @@ async function downloadPdfFromUrl2(browser,url) {
 }
 
 async function downloadPdfFromUrl(browser,url) {
+    const userAgents = JSON.parse(process.env.USER_AGENTS);
+    const randomIndex = Math.floor(Math.random() * userAgents.length);
     let window;
     window = openWindow(window,false);
     await window.loadURL(url);
@@ -104,12 +106,14 @@ async function downloadPdfFromUrl(browser,url) {
             }
         });
 
+        customUA = userAgents[randomIndex].userAgent;
+        await page.setUserAgent(customUA);
         await page.goto(url);
         // await page.setRequestInterception(true);
         await delay(3000);
         //Leer el pdf descargado
         let resultado = 'ah'
-        resultado = await ProcesarBoletin.convertPdfToText(pdfPath);
+        // resultado = await ProcesarBoletin.convertPdfToText(pdfPath);
 
         window.destroy();
         return resultado;
@@ -139,24 +143,34 @@ function openWindow(window, useProxy){
 }
 
 async function checkUserAgent(browser,url){
-    const userAgents = process.env.USER_AGENTS;
+    const userAgents = JSON.parse(process.env.USER_AGENTS);
     const randomIndex = Math.floor(Math.random() * userAgents.length);
-    // let window;
-    // window = new BrowserWindow({
-    //     show: true,// Ocultar ventana para procesos en background
-    // });
-    // await window.loadURL(url);
-    // const page = await pie.getPage(browser, window);
-    // customUA  = userAgents[randomIndex];
-    // await page.setUserAgent(customUA);
-    // await page.goto(url);
+    let window;
+    window = new BrowserWindow({
+        show: true,// Ocultar ventana para procesos en background
+    });
+    await window.loadURL(url);
+    const page = await pie.getPage(browser, window);
+    customUA  = userAgents[randomIndex].userAgent;
+    await page.setUserAgent(customUA);
+    await page.goto(url);
 
-    // await delay(4000);
+    await delay(4000);
 
-    // window.destroy();
+    window.destroy();
 
     console.log("User Agent configurado:", userAgents[randomIndex]," de la lista ", userAgents);
+    console.log("Tipo de los user Agents: ",typeof userAgents, " y su longitud: ", userAgents.length);  
     return customUA;
+}
+
+
+async function readPdf(pdfPath) {
+
+        let resultado = 'ah'
+        resultado = await ProcesarBoletin.convertPdfToText(pdfPath);
+
+        return resultado;
 }
 
 module.exports = { downloadPdfFromUrl,checkUserAgent };

@@ -39,8 +39,8 @@ contextBridge.exposeInMainWorld('api', {
 
   selectFolder: () => {ipcRenderer.invoke('select-folder-btn')},
 
-  testEconomico : (args) => {
-    const results = ipcRenderer.invoke('testEconomico', args)
+  testEconomico : async (args) => {
+    const results = await ipcRenderer.invoke('testEconomico', args)
     console.log("resultados en preload: ", results);
   },
 });

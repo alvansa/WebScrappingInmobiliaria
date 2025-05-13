@@ -8,4 +8,9 @@ async function fakeDelay(min,max) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-module.exports = {delay,fakeDelay};
+async function fakeDelayms(min,max) {
+    const ms = (Math.random() * (max - min) + min);
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+module.exports = {delay,fakeDelay,fakeDelayms};
