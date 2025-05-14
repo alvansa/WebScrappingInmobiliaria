@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const PDFParser = require( 'pdf2json' );
+const pdf = require('pdf-parse');
 const os = require('os');
 const Caso = require('../caso/caso.js');
 const { comunas, tribunales2 } = require('../caso/datosLocales.js');
@@ -257,6 +258,17 @@ class ProcesarBoletin {
                 reject(error);
             }
         });
+    }
+
+    static async convertPdfToText2(filePath){
+        try {
+            const dataBuffer = fs.readFileSync(filePath);
+            const data = await pdf(dataBuffer);
+            return data.text;
+        } catch (error) {
+            console.error('Error al procesar PDF:', error);
+            throw error;
+        }
     }
 
 }

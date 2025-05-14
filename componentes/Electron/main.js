@@ -13,6 +13,7 @@ const Pjud = require('../pjud/getPjud.js');
 const createExcel = require('../excel/createExcel.js');
 const Caso = require('../caso/caso.js')
 const ConsultaCausaPjud = require('../pjud/consultaCausaPjud.js');
+const PjudPdfData = require('../pjud/PjudPdfData.js');
 const config = require('../../config.js');
 const { fakeDelay } = require('../../utils/delay.js');
 const {testTexto,testTextoArgs} = require('../economico/testEconomico.js');
@@ -85,7 +86,7 @@ class MainApp{
 
         if(isDevMode){
             this.mainWindow.loadFile('componentes/Electron/dev/index.html')
-            this.mainWindow.webContents.openDevTools();
+            // this.mainWindow.webContents.openDevTools();
             console.log("DevTools opened");
         }else{
             this.mainWindow.loadFile('componentes/Electron/prod/index.html')
@@ -369,11 +370,15 @@ class MainApp{
             console.log("Resultados del caso de prueba en pjud: ",result.toObject());
         }else if(arg === 'readPdf'){
             console.log("Leyendo PDF ubicado en: ",args[1]);
+            const caso = crearCasoPrueba();
             const downloadPath = path.join(os.homedir(), "Documents", "infoRemates/pdfDownload");
             const pdfPath = path.join(downloadPath, args[1]);
             console.log("Leyendo PDF ubicado en: ",pdfPath);
-            result = await ProcesarBoletin.convertPdfToText(pdfPath);
-            console.log("Resultados del texto introducido: ",result);
+            result = await ProcesarBoletin.convertPdfToText2(pdfPath);
+            const processPDF = new PjudPdfData(caso);
+            processPDF.processInfo(result);
+
+            console.log("Resultados del texto introducido: ",caso.toObject());
         }
     }
 }
@@ -391,8 +396,8 @@ async function consultaCausa(){
 
 function crearCasoPrueba(){
     const caso = new Caso("2025/11/30");
-    caso.juzgado = "7º JUZGADO CIVIL DE SANTIAGO";
-    caso.causa = "C-5336-2022";
+    caso.juzgado = "8º JUZGADO CIVIL DE SANTIAGO";
+    caso.causa = "C-2822-2021";
     caso.fechaRemate = "02/12/2024 15:30";
 
     return caso;

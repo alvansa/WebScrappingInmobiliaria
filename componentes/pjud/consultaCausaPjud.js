@@ -9,7 +9,10 @@ const https = require('https');
 require('dotenv').config();
 
 const {delay,fakeDelay,fakeDelayms} = require('../../utils/delay.js');
-const { validate } = require('schema-utils');
+const ProcesarBoletin = require('../liquidaciones/procesarBoletin.js');
+const PjudPdfData = require('./PjudPdfData.js');
+const { load } = require('cheerio');
+const Pjud = require('./getPjud.js');
 
 const ERROR = 0;
 const EXITO = 1;
@@ -22,9 +25,37 @@ class ConsultaCausaPjud{
         this.link = 'https://oficinajudicialvirtual.pjud.cl/includes/sesion-consultaunificada.php';
         this.page = null;
         this.downloadPath = path.join(os.homedir(), "Documents", "infoRemates/pdfDownload");
+        this.dirPath = '';
+        this.pdfPath = '';
+        this.PjudData = new PjudPdfData(this.caso);
     }
 
     async getConsulta(){
+        let lineaAnterior = '';
+        let result = false;
+
+        await this.loadConfig()
+        await this.loadPageWithRetries();
+
+        try{
+            console.log("Intentando Caso : ", this.caso)
+            result = await this.procesarCaso(this.caso, 1 , lineaAnterior)
+            await this.window.destroy();
+            this.cleanFilesDownloaded();
+        }catch(error){
+            console.error('Error en la función getEspecificDataFromPjud:', error);
+            await this.browser.close();
+            return false;
+        }finally{
+            if(!this.window.isDestroyed()){
+                this.window.destroy();
+            }
+        }
+
+        return this.caso;
+    }
+
+    async loadConfig(){
         const userAgents = JSON.parse(process.env.USER_AGENTS);
         const randomIndex = Math.floor(Math.random() * userAgents.length);
         await this.window.loadURL(this.link);
@@ -32,36 +63,7 @@ class ConsultaCausaPjud{
         await this.page.setUserAgent(userAgents[randomIndex].userAgent);
         await this.page.goto(this.link);
 
-        let lineaAnterior = '';
-        let resultado = false;
-        let valorInicial = false;
-        // const proxyData = json.parse(process.env.PROXY_DATA);
-        // const randomIndex = Math.floor(Math.random() * proxyData.length);
-        // const currentProxy = proxyData[randomIndex];
-        // this.browser = await puppeteer.launch({ 
-        //     headless: false,
-        //     proxy: {
-        //         server: currentProxy.proxy,
-
-        //         username: currentProxy.username,
-        //         password: currentProxy.password
-        //     }
-        // });
-        // this.page = await this.browser.newPage();
-        await this.loadPageWithRetries();
-        console.log('Página cargada  ');
-        try{
-            console.log("Intentando Caso : ", this.caso)
-            resultado = await this.procesarCaso(this.caso, 1 , lineaAnterior)
-            await this.window.destroy();
-            return this.caso;
-        }catch(error){
-            console.error('Error en la función getEspecificDataFromPjud:', error);
-            await this.browser.close();
-            return false;
-        }
     }
-
 
     async loadPageWithRetries(maxRetries = 3) {
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -77,15 +79,15 @@ class ConsultaCausaPjud{
                     throw new Error(`No se pudo cargar la página después de ${maxRetries} intentos`);
                 }
             }
-            await fakeDelay(5,10);
+            await fakeDelay(2,7);
         }
     }
 
-async procesarCaso(lineaAnterior) {
+    async procesarCaso(lineaAnterior) {
         let cambioPagina = false;
         try {
             const valorInicial = await this.setValoresIncialesBusquedaCausa();
-            if(!valorInicial){
+            if (!valorInicial) {
                 console.log('No se pudieron setear los valores iniciales');
                 return lineaAnterior; // Salta al siguiente caso
             }
@@ -94,7 +96,7 @@ async procesarCaso(lineaAnterior) {
             return lineaAnterior; // Salta al siguiente caso
         }
         console.log('Valores Iniciales : Listo');
-        
+
         try {
             cambioPagina = await this.revisarPrimeraLinea(lineaAnterior);
         } catch (error) {
@@ -103,7 +105,7 @@ async procesarCaso(lineaAnterior) {
         }
 
         try {
-            if(!cambioPagina){
+            if (!cambioPagina) {
                 console.log('No se cambio el resultado. Saltando caso.');
                 return lineaAnterior; // Salta al siguiente caso
             }
@@ -112,11 +114,9 @@ async procesarCaso(lineaAnterior) {
             console.error('Error al obtener la primera línea del caso:', error);
             return lineaAnterior; // Salta al siguiente caso
         }
-        
-        // if(config.probarFuncionalidades == true){
-            console.log('Test Pjud activado');
-            await this.buscarGP();    
-        // }
+
+        console.log('Test Pjud activado');
+        await this.buscarGP();
 
         console.log('Checkpoint 3');
         // console.log('Caso procesado:',numeroCaso," con causa :", caso.causa);
@@ -146,7 +146,7 @@ async procesarCaso(lineaAnterior) {
         try {
             await this.page.waitForSelector('#btnConConsulta');
             await this.page.click('#btnConConsulta');
-            await fakeDelay(4, 10);
+            await fakeDelay(2,7);
             await this.page.waitForSelector('#dtaTableDetalle tbody tr:first-child', { timeout: 1000 });
             console.log('Tabla encontrada');
             // el waitForFunction espera a que la tabla se actualice
@@ -245,7 +245,7 @@ async procesarCaso(lineaAnterior) {
 
         if(!selectedCuaderno){ return false; }
 
-        await fakeDelay(4, 10);
+        // await fakeDelay(4, 10);
 
         await this.getAvaluoTablaCausa();
     }
@@ -261,7 +261,7 @@ async procesarCaso(lineaAnterior) {
                 console.log("Enlace no econtrado");
                 return false
             }
-            await fakeDelay(4, 10);
+            await fakeDelay(2,7);
             await link.click(); // Simula un clic en el enlace
             return true;
         }catch(error){
@@ -272,8 +272,12 @@ async procesarCaso(lineaAnterior) {
 
 
     async selectCuaderno() {
-        // Esperar a que el <select> esté disponible   
-        await this.page.waitForSelector('#selCuaderno');
+        const selectorCuaderno = '#selCuaderno';
+        const targetOptionText = '2 - Apremio Ejecutivo Obligación de Dar';
+        // Espera a que se carguen las opciones de Historia Causa Cuaderno
+        await this.page.waitForSelector(selectorCuaderno);
+
+        // const options = await this.page
 
         // Obtener todas las opciones del <select>
         const options = await this.page.$$eval('#selCuaderno option', (opts) => {
@@ -289,7 +293,7 @@ async procesarCaso(lineaAnterior) {
         const optionToSelect = options.find(option => option.text.includes('Apremio Ejecutivo'));
 
         if (optionToSelect) {
-            await fakeDelay(4, 10);
+            await fakeDelay(2,7);
             // Seleccionar la opción encontrada
             await this.page.select('#selCuaderno', optionToSelect.value);
         } else {
@@ -348,7 +352,7 @@ async procesarCaso(lineaAnterior) {
             await fakeDelay(2, 5);
             const linkToDir = await row.$('td:nth-child(3) a');
             linkToDir.click();
-            await delay(5000);
+            await fakeDelay(2, 5);
 
             const downloaded = await this.obtainLinkOfPdf();
             if(downloaded){
@@ -362,32 +366,13 @@ async procesarCaso(lineaAnterior) {
             return EXITO;
             }
 
-
-        // if(descripcion === 'Cumple lo ordenado' ){
-        //     const button = await row.$('td:nth-child(3) a');
-        //     if(!button){
-        //         console.log('No se encontró el botón');
-        //         return ERROR;
-        //     }
-        //     await this.page.waitForSelector('td:nth-child(3) a',{visible:true});
-        //     console.log('Botón encontrado',descripcion,fecha);
-        //     await button.click();
-        //     const tableSelector = 'div#modalAnexoSolicitudCivil div.table-responsive table.table-striped.table-hover'
-        //     await this.page.waitForSelector(tableSelector,{visible:true});
-        //     const rows = await this.page.$(tableSelector + ' tbody tr');
-        //     await this.obtenerPDF(rows);
-        //     // for(let tableRow of rows){
-        //     //     await obtenerPDF(page,tableRow);
-        //     // }
-        //     // await delay(5000);
-        //     return EXITO;
-        // }
         console.log('Fila:',number,uselessFile,directory,stage, tramite, descripcion, fecha);
 
         return ERROR;
     }
 
     async obtainLinkOfPdf(){
+        let isDone = false
         try{
             const tableOfPdf = '#modalAnexoSolicitudCivil > div > div > div.modal-body > div > div > div > table > tbody tr';
             const rows = await this.page.$$(tableOfPdf);
@@ -399,11 +384,17 @@ async procesarCaso(lineaAnterior) {
                     row.$eval('td:nth-child(1) form input[name="dtaDoc"', input => input.value),
                 ]);
                 console.log('Doc: ', doc, ' Fecha: ', fecha, ' Referencia: ', reference, ' Value: ', valuePdf);
-                //download 1 pdf for trying
+                
+                //Donwload pdf and save it in a specific folder
                 const linkToPdf = "https://oficinajudicialvirtual.pjud.cl/ADIR_871/civil/documentos/anexoDocCivil.php?dtaDoc=" + valuePdf
-                await this.downloadPdfFromUrl(linkToPdf);
-                return true;
+                await fakeDelay(2, 5);
+                isDone = await this.downloadPdfFromUrl(linkToPdf);
+                if(isDone){
+                    console.log("Ya se obtuvieron todos los datos posibles del pjud");
+                    return true;
+                }
             }
+            return false;
         }catch(error){
             console.error('Error al obtener el link del PDF:', error);
             return false;
@@ -411,35 +402,51 @@ async procesarCaso(lineaAnterior) {
     }
 
     async downloadPdfFromUrl(url) {
+        let resultado = '';
         const pdfWindow = new BrowserWindow({ show: true });
         await pdfWindow.loadURL(url);
         const pdfPage = await pie.getPage(this.browser, pdfWindow);
-
+        
+        const nameDir = `${this.caso.causa}_${this.caso.juzgado}`;
         const pdfName = `boletin_${Date.now()}.pdf`;
-        const pdfPath = path.join(this.downloadPath, pdfName);
+        this.dirPath = path.join(this.downloadPath, nameDir);
+        this.pdfPath = path.join(this.dirPath, pdfName);
      
         console.log("probando la funcion inicial para descargar el pdf");
         try{
+            if(!fs.existsSync(this.dirPath)){
+                fs.mkdirSync(this.dirPath, { recursive: true });
+            }
+
             pdfPage.on('request', req => {
                 if (req.url() === url) {
-                    const file = fs.createWriteStream(pdfPath);
+                    const file = fs.createWriteStream(this.pdfPath);
                     https.get(req.url(), response => response.pipe(file));
                 }
             });
     
             await pdfPage.goto(url);
-            // await page.setRequestInterception(true);
-            await delay(3000);
+            await fakeDelay(2,5);
+
             //Leer el pdf descargado
-            let resultado = 'ah'
-            // resultado = await ProcesarBoletin.convertPdfToText(pdfPath);
-    
+            resultado = await ProcesarBoletin.convertPdfToText2(this.pdfPath);
+            console.log('Resultado de la lectura del PDF:', resultado);
+            const resultOfProcess = this.PjudData.processInfo(resultado);
             pdfWindow.destroy();
-            return true;
+            if(resultOfProcess){
+                console.log('Caso completo');
+                return true;
+            }
+            return false
         }catch(error){
             console.error('Error al hacer la petición:', error.message);
             return false;
+        }finally{
+            if(!pdfWindow.isDestroyed()){
+                pdfWindow.destroy();
+            }
         }
+
     }
 
     async obtenerPDF(row){
@@ -490,7 +497,7 @@ async procesarCaso(lineaAnterior) {
                 const conCorte = document.querySelector('#conCorte');
                 return conCorte && conCorte.options.length > 1; // Verifica que haya más de una opción disponible
             });
-            await fakeDelay(4, 10);
+            await fakeDelay(2,7);
             return true;
         }catch(error){
             console.log('Error al configurar la competencia:', error);
@@ -515,7 +522,7 @@ async procesarCaso(lineaAnterior) {
                 const conTribunal = document.querySelector('#conTribunal');
                 return conTribunal && conTribunal.options.length > 1;
             });
-            await fakeDelay(4, 10);
+            await fakeDelay(2,7);
             return true;
         }catch(error){
             console.log('Error al configurar la corte:', error);
@@ -545,7 +552,7 @@ async procesarCaso(lineaAnterior) {
                 const conTipoCausa = document.querySelector('#conTipoCausa');
                 return conTipoCausa && conTipoCausa.options.length > 1;
             });
-            await fakeDelay(4, 10);
+            await fakeDelay(2,7);
             return true;
         }catch(error){
             console.log('Error al configurar el tribunal:', error);
@@ -566,7 +573,7 @@ async procesarCaso(lineaAnterior) {
                 console.log('No se seleccionó el rol:', valorCausa);
                 return false;
             }
-            await fakeDelay(4, 10);
+            await fakeDelay(2,7);
             return true;
         }catch(error){
             console.log('Error al configurar la causa:', error);
@@ -584,13 +591,58 @@ async procesarCaso(lineaAnterior) {
                 console.log('No se seleccionó el año:', valorAnno);
                 return false;
             }
-            await fakeDelay(4, 10);
+            await fakeDelay(2,7);
             return true;
         }catch(error){
             console.log('Error al configurar el año:', error);
             return false;
         }
 
+    }
+
+    cleanFilesDownloaded(){
+        console.log("Iniciando eliminacion de archivos.");
+        try {
+            this.deleteFilesDownloaded();
+            this.deleteDirectory();
+        } catch (error) {
+            console.error('Error al eliminar archivos:', error.message);
+        }
+    }
+
+    deleteFilesDownloaded(){
+        try {
+            if (fs.existsSync(this.dirPath)) {
+                fs.readdir(this.dirPath, (err, files) => {
+                    if (err) {throw err;}
+
+                    files.forEach(file => {
+                        const filePath = path.join(this.dirPath, file);
+                        fs.unlink(filePath, err => {
+                            if (err) throw err;
+                            console.log(`Archivo ${file} eliminado`);
+                        });
+                    });
+                });
+            }
+        } catch (error) {
+            console.error('Error al eliminar archivos:', error);
+        }
+    }
+
+    deleteDirectory(){
+        try {
+            const files = fs.readdirSync(this.dirPath);
+            if (files.length > 0) {
+                throw new Error('El directorio no está vacío');
+            }
+            
+            fs.rmdirSync(this.dirPath);
+            console.log(`Directorio eliminado: ${this.dirPath}`);
+        } catch (error) {
+            console.error(`No se pudo eliminar el directorio ${this.dirPath}:`, error.message);
+            throw error;
+        }
     }
 }
 

@@ -31,6 +31,7 @@ class Caso{
     #diaEntrega;
     #rolPropiedad;
     #avaluoPropiedad;
+    #estadoCivil;
 
     constructor(fechaObtencion,fechaPublicacion='N/A',link='N/A',origen='N/A' ){    
         this.#fechaPublicacion = fechaPublicacion;
@@ -59,77 +60,104 @@ class Caso{
         this.#numero = null;
         this.#rolPropiedad = null;
         this.#avaluoPropiedad = null;
+        this.#estadoCivil = null;
     }
+
     darfechaPublicacion(fechaPublicacion){
         this.#fechaPublicacion = fechaPublicacion;
     }
+
     set fechaPublicacion(fechaPublicacion){
         this.#fechaPublicacion = fechaPublicacion;
     }
+
     set texto(texto){
         this.#texto = texto;
     }
+
     set causa(causa){
         this.#causa = causa;
     }
+    
     set juzgado(juzgado){
         this.#juzgado = juzgado;
     }
+
     set porcentaje(porcentaje){
         this.#porcentaje = porcentaje;
     }
+
     set formatoEntrega(formatoEntrega){
         this.#formatoEntrega = formatoEntrega;
     }
+
     set fechaRemate(fechaRemate){
         this.#fechaRemate = fechaRemate;
     }
+
     set montoMinimo(montoMinimo){
         this.#montoMinimo = montoMinimo;
     }
+
     set multiples(multiples){
         this.#multiples = multiples;
     }
+
     set comuna(comuna){
         this.#comuna = comuna;
     }
+
     set foja(foja){
         this.#foja = foja;
     }
+
     set multiplesFoja(multiplesFoja){
         this.#multiplesFoja = multiplesFoja;
     }
+
     set numero(numero){
         this.#numero = numero;
     }
+    
     set partes(partes){
         this.#partes = partes;
     }
+
     set tipoPropiedad(tipoPropiedad){
         this.#tipoPropiedad = tipoPropiedad;
     }
+
     set tipoDerecho(tipoDerecho){
         this.#tipoDerecho = tipoDerecho;
     }
+
     set anno(anno){
         this.#anno = anno;
     }
+
     set martillero(martillero){
         this.#martillero = martillero;
     }
+
     set direccion(direccion){
         this.#direccion = direccion;
     }
+
     set diaEntrega(diaEntrega){
         this.#diaEntrega = diaEntrega;
     }
+
     set rolPropiedad(rolPropiedad){
         this.#rolPropiedad = rolPropiedad;
     }
+
     set avaluoPropiedad(avaluoPropiedad){
         this.#avaluoPropiedad = avaluoPropiedad;
     }
 
+    set estadoCivil(estadoCivil){
+        this.#estadoCivil = estadoCivil;
+    }
 
     
     get link(){ 
@@ -203,6 +231,7 @@ class Caso{
             numero : this.#numero,
             rolPropiedad : this.#rolPropiedad,
             avaluoPropiedad : Number(this.#avaluoPropiedad) !=0 ? Number(this.#avaluoPropiedad) : null,
+            estadoCivil : this.#estadoCivil,
         };
     } 
 
