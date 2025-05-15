@@ -134,6 +134,30 @@ class MainApp{
                 console.error('Error al obtener resultados:', error);
             }
         })
+        ipcMain.handle('open-dialog-local', async () =>{
+            const result = await dialog.showOpenDialog(this.mainWindow, {
+                properties: ['openFile'],
+                filters: [
+                  { name: 'Todos los archivos', extensions: ['*'] }
+                ]
+            });
+            return result.filePaths[0] || null;
+        });
+        ipcMain.handle('process-file', async (event, filePath) => {
+            try {
+                // Aquí puedes procesar el archivo seleccionado
+                console.log('Archivo seleccionado:', filePath);
+                // Llama a tu función que procesa el archivo
+                const caso = crearCasoPrueba();
+                const pdfProcess = new ProcesarBoletin(null,null);
+                const result = await ProcesarBoletin.convertPdfToText2(filePath);
+                pdfProcess.obtainDataRematesPdf(result, caso);
+                console.log("Caso procesado: ", caso.toObject());
+                // await processFile(filePath);
+            } catch (error) {
+                console.error('Error al procesar el archivo:', error);
+            }
+        });
     }
 
     async insertarDatos(startDate,endDate,saveFile, checkedBoxes) {

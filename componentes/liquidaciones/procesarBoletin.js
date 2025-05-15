@@ -19,19 +19,22 @@ class ProcesarBoletin {
             console.error("No se ha recibido caso");
             return;
         }
-        const fechaRemate = this.getfechaRemate(data);
-        const causa = this.getCausa(data);
-        const tribunal = this.getTribunal(data);
-        const comuna = this.getComuna(data);
-        const monto = this.montoMinimo(data);
-        const anno = this.getAnno(data);
-        const direccion = this.getDireccion(data);
-        const tipoPropiedad = this.getTipoPropiedad(data);
-        const tipoDerecho = this.getTipoDerecho(data);
+        const normalizedData = this.normalizeData(data);
+
+        console.log("Caso previo al proceso: ", caso.toObject());
+        const fechaRemate = this.getfechaRemate(normalizedData);
+        const causa = this.getCausa(normalizedData);
+        const tribunal = this.getTribunal(normalizedData);
+        const comuna = this.getComuna(normalizedData);
+        const monto = this.montoMinimo(normalizedData);
+        const anno = this.getAnno(normalizedData);
+        const direccion = this.getDireccion(normalizedData);
+        const tipoPropiedad = this.getTipoPropiedad(normalizedData);
+        const tipoDerecho = this.getTipoDerecho(normalizedData);
 
         if (fechaRemate) {
-            // console.log(fechaRemate);
-            caso.fechaRemate = new Date(fechaRemate);
+            console.log("La fecha de remate obtenida es: ",fechaRemate);
+            caso.fechaRemate = fechaRemate;
         }
         if (causa) {
             caso.causa = causa[0];
@@ -63,6 +66,7 @@ class ProcesarBoletin {
             caso.tipoDerecho = tipoDerecho[0];
         }
         console.log("Caso: ", caso.causa);
+        console.log("Fecha remate: ", caso.fechaRemate);
 
     }
 
@@ -235,6 +239,18 @@ class ProcesarBoletin {
         const regexDerecho = /(?:posesión|usufructo|nuda propiedad|bien familiar)/i;
         const tipoDerecho = data.match(regexDerecho);
         return tipoDerecho;
+    }
+
+    normalizeData(data) {
+        const newData = data
+        .toLowerCase()
+        .replace(/[,.\n]/g, ' ')
+        .replace(/de\s*/g, '')
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\bstgo\b/g, "santiago")
+        .replace(/\s+/, ' ');
+        return newData;
     }
 
     static async convertPdfToText(filePath) {

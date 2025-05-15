@@ -169,6 +169,13 @@ class Caso{
     get juzgado(){
         return String(this.#juzgado);
     }
+    get fechaRemate(){
+        if(this.#fechaRemate == "N/A" || this.#fechaRemate == null){
+            return null;
+        }
+        return this.#fechaRemate;
+    }
+
     get causa(){
         return String(this.#causa);
     }
@@ -185,7 +192,22 @@ class Caso{
         return String(this.#rolPropiedad);
     }
     get avaluoPropiedad(){
+        if(this.#avaluoPropiedad === null){
+            return null;
+        }
         return Number(this.#avaluoPropiedad);
+    }
+    get estadoCivil(){
+        if(this.#estadoCivil === null){
+            return null;
+        }
+        return String(this.#estadoCivil);
+    }
+    get direccion(){
+        if(this.#direccion === null){
+            return null;
+        }
+        return String(this.#direccion);
     }
   
 
@@ -294,6 +316,7 @@ class Caso{
         }
         const dias = ['uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve','diez','once','doce','trece','catorce','quince','dieciseis','diecisiete','dieciocho','diecinueve','veinte','veintiuno','veintidos','veintitres','veinticuatro','veinticinco','veintiseis','veintisiete','veintiocho','veintinueve','treinta','treinta y uno'];
         const diaRegex = /(\d{1,2})/g;
+        console.log(`Fecha de remate en la funcion getDia: ${this.#fechaRemate}`);
         const diaRemate = this.#fechaRemate.match(diaRegex);
         if(diaRemate){
             return diaRemate[0];

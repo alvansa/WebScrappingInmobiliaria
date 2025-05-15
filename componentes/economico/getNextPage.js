@@ -2,14 +2,14 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 
 const Caso = require('../caso/caso');
-const { delay } = require('../../utils/delay');
+const { delay, fakeDelay} = require('../../utils/delay');
 
 let url = 'https://www.economicos.cl/todo_chile/remates_de_propiedades_el_mercurio'
 let urlBase = "https://www.economicos.cl"
 
 async function getPaginas(fechaHoy,fechaInicioStr,fechaFinStr) {
     const EMOL = 1;
-    fechaInicio = new Date(fechaInicioStr);
+    let fechaInicio = new Date(fechaInicioStr);
     fechaFin = new Date(fechaFinStr);
     
     const maxRetries = 5;  // Número máximo de reintentos
@@ -52,6 +52,7 @@ async function getPaginas(fechaHoy,fechaInicioStr,fechaFinStr) {
             }
 
             if (urlNextPage) {
+
                 url = urlBase + urlNextPage;
                 // console.log(urlNextPage);
                 // console.log(url);

@@ -125,10 +125,10 @@ class Pjud {
 
         // Ahora, fuera del evaluate, creamos objetos Caso a partir de los datos extraídos
         rowsData.forEach(data => {
-            const caso = new Caso(new Date(), "N/A", "Letra grande/ Pjud", 2);
-            caso.darJuzgado(data.tribunal);
-            caso.darCausa(data.causa);
-            caso.darFechaRemate(data.fechaHora);
+            const caso = new Caso(new Date(), "N/A", "Lgr", 2);
+            caso.juzgado = data.tribunal;
+            caso.causa = data.causa;
+            caso.fechaRemate = data.fechaHora;
 
             // Guardamos el objeto en la lista de casos
             casos.push(caso);

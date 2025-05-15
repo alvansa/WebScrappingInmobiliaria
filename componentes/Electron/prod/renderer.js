@@ -84,7 +84,7 @@ function getCheckedBoxes() {
 document.getElementById('select-folder-btn').addEventListener('click', async () => {
   // Llama al proceso principal para abrir el selector de carpetas
   const folderPath = await window.api.selectFolder();
-  console.log(folderPath);
+  console.log("Path escogido: ",folderPath);
   const folderInput = document.getElementById('folder-input'); // Obtén el input
 
   if (folderPath) {

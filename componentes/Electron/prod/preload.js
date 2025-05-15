@@ -37,12 +37,14 @@ contextBridge.exposeInMainWorld('api', {
     console.log(nodePath.join(__dirname, './Controller/datosRemate.js'));
   },
 
-  selectFolder: () => {ipcRenderer.invoke('select-folder-btn')},
+  selectFolder: async () => ipcRenderer.invoke('select-folder-btn'),
 
   testEconomico : async (args) => {
     const results = await ipcRenderer.invoke('testEconomico', args)
     console.log("resultados en preload: ", results);
   },
+  openFileLocal: () => ipcRenderer.invoke('open-dialog-local'),
+  processFile: (filePath) => ipcRenderer.invoke('process-file', filePath),
 });
 
 

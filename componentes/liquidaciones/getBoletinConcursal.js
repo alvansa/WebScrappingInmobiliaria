@@ -140,7 +140,7 @@ class BoletinConcursal {
 
             // Crea y guarda el caso
             const caso = new Caso(fechaHoy, fileDate, downloadedFile, LIQUIDACIONES);
-            caso.darMartillero(martillero);
+            caso.martillero = martillero ;
             casos.push(caso);
             return EXITO;
         } else {

@@ -11,8 +11,6 @@ require('dotenv').config();
 const {delay,fakeDelay,fakeDelayms} = require('../../utils/delay.js');
 const ProcesarBoletin = require('../liquidaciones/procesarBoletin.js');
 const PjudPdfData = require('./PjudPdfData.js');
-const { load } = require('cheerio');
-const Pjud = require('./getPjud.js');
 
 const ERROR = 0;
 const EXITO = 1;
@@ -270,7 +268,6 @@ class ConsultaCausaPjud{
         }
     }
 
-
     async selectCuaderno() {
         const selectorCuaderno = '#selCuaderno';
         const targetOptionText = '2 - Apremio Ejecutivo Obligación de Dar';
@@ -308,35 +305,32 @@ class ConsultaCausaPjud{
 
     }
 
-    async getAvaluoTablaCausa(){
-        let success = ERROR;
-        try{
+    async getAvaluoTablaCausa() {
+        let isDone = false;
+        try {
             await this.page.waitForSelector("#historiaCiv", { timeout: 10000 });
-
             // Get all rows from the table
             const rows = await this.page.$$('#historiaCiv .table tbody tr');
-            console.log(rows.length);
+            console.log("cantidad de filas en el cuaderno: ",rows.length);
             for (const row of rows) {
                 // Track if the row is processed successfull
-                    try {
-                        if(success === EXITO){
-                            break;
-                        }
-                        success = await this.procesarFilaTablaPrincipal(row);
-                    } catch (error) {
-                        console.error(`Error processing row on attempt : ${error.message}`);
-                        success = ERROR;
+                try {
+                    if (isDone === true) {
+                        break;
                     }
+                    isDone = await this.searchForDirectory(row);
+                } catch (error) {
+                    console.error(`Error processing row on attempt : ${error.message}`);
+                    isDone = false;
+                }
             }
-
-        }catch(error){
+        } catch (error) {
             console.error('Error en la función getDatosTablaRemate:', error);
-            return [];
+            return false;
         }
-
     }
 
-    async procesarFilaTablaPrincipal(row){
+    async searchForDirectory(row){
         const [number,uselessFile,directory,dirHasLink,stage, tramite, descripcion, fecha] = await Promise.all([
             row.$eval('td:nth-child(1)', el => el.textContent.trim()),
             row.$eval('td:nth-child(2)', el => el.textContent.trim()),
@@ -356,14 +350,14 @@ class ConsultaCausaPjud{
 
             const downloaded = await this.obtainLinkOfPdf();
             if(downloaded){
-                return EXITO;
+                return true;
             }
 
             const xSelector = '#modalAnexoSolicitudCivil > div > div > div.modal-header > button';
             await fakeDelay(2, 5);
             await this.page.waitForSelector(xSelector, { visible: true });
             await this.page.click(xSelector);
-            return EXITO;
+            return false;
             }
 
         console.log('Fila:',number,uselessFile,directory,stage, tramite, descripcion, fecha);
@@ -427,10 +421,9 @@ class ConsultaCausaPjud{
     
             await pdfPage.goto(url);
             await fakeDelay(2,5);
-
             //Leer el pdf descargado
             resultado = await ProcesarBoletin.convertPdfToText2(this.pdfPath);
-            console.log('Resultado de la lectura del PDF:', resultado);
+            // console.log('Resultado de la lectura del PDF:', resultado);
             const resultOfProcess = this.PjudData.processInfo(resultado);
             pdfWindow.destroy();
             if(resultOfProcess){
@@ -449,23 +442,6 @@ class ConsultaCausaPjud{
 
     }
 
-    async obtenerPDF(row){
-        const linkPjud = "https://oficinajudicialvirtual.pjud.cl/ADIR_871/civil/documentos/anexoDocCivil.php?dtaDoc=";
-        const [fecha,referencia] = await Promise.all([
-            row.$eval('td:nth-child(2)', el => el.textContent.trim()),
-            row.$eval('td:nth-child(3)', el => el.textContent.trim()),
-        ]);
-        console.log('Fecha :',fecha);
-        console.log('Referencia :',referencia);
-        console.log('Row :',row);
-        const idValue = await row.$eval('form input[name="dtaDoc"]', input => input.value);
-        const linkPDF = linkPjud + idValue;
-        console.log('Link PDF:',idValue," referencia :",referencia);
-        console.log('Link PDF:',linkPDF);
-        
-        await this.procesarPdf(linkPDF);
-    }
-    
     validateInitialValues(){
         const caso = this.caso;
         const valores = {
@@ -618,7 +594,7 @@ class ConsultaCausaPjud{
 
                     files.forEach(file => {
                         const filePath = path.join(this.dirPath, file);
-                        fs.unlink(filePath, err => {
+                        fs.unlinkSync(filePath, err => {
                             if (err) throw err;
                             console.log(`Archivo ${file} eliminado`);
                         });

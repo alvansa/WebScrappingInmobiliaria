@@ -130,6 +130,10 @@ module.exports = {
     testTextoArgs,
 }
 
+if (require.main === module) {
+    main();
+}
+
 
 
 /* Ejemplo de derecho de agua.
