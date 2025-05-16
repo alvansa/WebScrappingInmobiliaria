@@ -45,6 +45,10 @@ contextBridge.exposeInMainWorld('api', {
   },
   openFileLocal: () => ipcRenderer.invoke('open-dialog-local'),
   processFile: (filePath) => ipcRenderer.invoke('process-file', filePath),
+  searchCase: async (corte, tribunal,juzgado, rol, year) => {
+    result = ipcRenderer.invoke('search-case', corte, tribunal,juzgado, rol, year)
+    return result;
+  },
 });
 
 

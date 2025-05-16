@@ -133,7 +133,8 @@ class MainApp{
             }catch(error){
                 console.error('Error al obtener resultados:', error);
             }
-        })
+        });
+
         ipcMain.handle('open-dialog-local', async () =>{
             const result = await dialog.showOpenDialog(this.mainWindow, {
                 properties: ['openFile'],
@@ -143,12 +144,16 @@ class MainApp{
             });
             return result.filePaths[0] || null;
         });
+
         ipcMain.handle('process-file', async (event, filePath) => {
             try {
                 // Aquí puedes procesar el archivo seleccionado
                 console.log('Archivo seleccionado:', filePath);
                 // Llama a tu función que procesa el archivo
                 const caso = crearCasoPrueba();
+                caso.origen = "3";
+                caso.causa = null;
+                caso.juzgado = null;
                 const pdfProcess = new ProcesarBoletin(null,null);
                 const result = await ProcesarBoletin.convertPdfToText2(filePath);
                 pdfProcess.obtainDataRematesPdf(result, caso);
@@ -158,6 +163,37 @@ class MainApp{
                 console.error('Error al procesar el archivo:', error);
             }
         });
+
+        ipcMain.handle('search-case', async (event, corte, tribunal,juzgado, rol, year) => {
+            try{
+                let filePath = null;
+                const caso = new Caso("");
+                caso.tribunal = tribunal;
+                const causa = `C-${rol}-${year}`;
+                caso.causa = causa;
+                caso.corte = corte;
+                caso.juzgado = juzgado;
+                caso.numeroJuzgado = tribunal;
+                caso.link = "Lgr";
+                console.log("Caso: ",caso.toObject()); 
+                const result = await consultaCausa(caso);
+                console.log("Resultados del caso de prueba en pjud: ", caso.toObject());
+                if(result){
+                    // Write the case in excel.
+                    const downloadPath = path.join(os.homedir(), "Documents", "infoRemates");
+                    const createOneExcelFile = new createExcel(downloadPath,null,null,false,true);
+                    filePath = await createOneExcelFile.writeData(caso);
+                    console.log("Caso guardado en: ", filePath);
+                    
+                }
+                console.log("Retornando Caso: ", filePath);
+                return filePath;
+            }catch(error){
+                console.error('Error al buscar el caso:', error.message);
+                return null;
+            }
+        })
+
     }
 
     async insertarDatos(startDate,endDate,saveFile, checkedBoxes) {
@@ -242,7 +278,7 @@ class MainApp{
         const startDate = stringToDate(fechaInicioStr);
         const endDate = stringToDate(fechaFinStr);
        try{
-            const window = new BrowserWindow({ show: false });
+            const window = new BrowserWindow({ show: true });
             const url = 'https://www.boletinconcursal.cl/boletin/remates';
             await window.loadURL(url);
             const page = await pie.getPage(this.browser, window);
@@ -390,7 +426,8 @@ class MainApp{
 
         }else if(arg === 'testConsultaCausa'){
 
-            result = await consultaCausa();
+            const caso = crearCasoPrueba();
+            result = await consultaCausa(caso);
             console.log("Resultados del caso de prueba en pjud: ",result.toObject());
         }else if(arg === 'readPdf'){
             console.log("Leyendo PDF ubicado en: ",args[1]);
@@ -407,15 +444,14 @@ class MainApp{
     }
 }
 
-async function consultaCausa(){
+async function consultaCausa(caso){
     const browser = await pie.connect(app, puppeteer);
     let window;
     window = openWindow(window,true);
-    const caso = crearCasoPrueba();
     const consultaCausa = new ConsultaCausaPjud(browser,window,caso);
-    await consultaCausa.getConsulta()
+    const result = await consultaCausa.getConsulta()
 
-    return caso;
+    return result;
 }
 
 function crearCasoPrueba(){

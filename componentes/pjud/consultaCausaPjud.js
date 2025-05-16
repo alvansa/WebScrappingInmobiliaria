@@ -36,7 +36,6 @@ class ConsultaCausaPjud{
         await this.loadPageWithRetries();
 
         try{
-            console.log("Intentando Caso : ", this.caso)
             result = await this.procesarCaso(this.caso, 1 , lineaAnterior)
             await this.window.destroy();
             this.cleanFilesDownloaded();
@@ -50,7 +49,7 @@ class ConsultaCausaPjud{
             }
         }
 
-        return this.caso;
+        return true;
     }
 
     async loadConfig(){
@@ -77,7 +76,7 @@ class ConsultaCausaPjud{
                     throw new Error(`No se pudo cargar la página después de ${maxRetries} intentos`);
                 }
             }
-            await fakeDelay(2,7);
+            await fakeDelay(2,5);
         }
     }
 
@@ -93,7 +92,6 @@ class ConsultaCausaPjud{
             console.error('Error al setear los valores iniciales:', error);
             return lineaAnterior; // Salta al siguiente caso
         }
-        console.log('Valores Iniciales : Listo');
 
         try {
             cambioPagina = await this.revisarPrimeraLinea(lineaAnterior);
@@ -114,29 +112,28 @@ class ConsultaCausaPjud{
         }
 
         console.log('Test Pjud activado');
-        await this.buscarGP();
+        // await this.buscarGP();
 
-        console.log('Checkpoint 3');
-        // console.log('Caso procesado:',numeroCaso," con causa :", caso.causa);
         const lineaActual = this.getPrimeraLinea();
         return lineaActual;
     }
 
     // Obtiene las partes del remate.
     async getPartesCaso(caso){
-        let partes = 'N/A';
+        let partes = null;
         try{
             partes = await this.page.$eval('#dtaTableDetalle tbody tr:first-child', (row) => {
                 const cells = row.querySelectorAll('td');
                 const caratulado= cells[3] ? cells[3].innerText.trim() : '';
-                return caratulado; 
+                const original =  cells[3].innerText;    
+                return {"parte" :  caratulado, "original": original}; 
             });
         }catch(error){
             console.error('Error al obtener las partes :', error);
             return false;
         }
-        this.caso.partes = partes;
-        //   console.log('Partes:',partes," del caso con causa: ",caso.causa);
+        console.log('Partes del caso:', partes);
+        this.caso.partes = partes.parte;
         return true;
     }
 
@@ -144,9 +141,8 @@ class ConsultaCausaPjud{
         try {
             await this.page.waitForSelector('#btnConConsulta');
             await this.page.click('#btnConConsulta');
-            await fakeDelay(2,7);
+            await fakeDelay(2,5);
             await this.page.waitForSelector('#dtaTableDetalle tbody tr:first-child', { timeout: 1000 });
-            console.log('Tabla encontrada');
             // el waitForFunction espera a que la tabla se actualice
             // sus parametros son una función que se ejecuta en el contexto de la página
             // un objeto con las opciones de timeout
@@ -171,7 +167,6 @@ class ConsultaCausaPjud{
 
             return true;
         } catch (error) {
-            // console.log('No se encontró la tabla. Saltando caso.');
             return false; // Salta al siguiente caso
         }
 
@@ -183,7 +178,6 @@ class ConsultaCausaPjud{
             return Array.from(cells).map(cell => cell.innerText.trim()).join(' ');
         });
 
-        console.log('Checkpoint 4');
         return primeraLinea;
     }
 
@@ -200,7 +194,7 @@ class ConsultaCausaPjud{
         if(!await this.configurateCorte(valores.corte)){ return false; }
         console.log('Corte : Listo');
 
-        if(!await this.configurateTribunal(valores.juzgado)){ return false; }
+        if(!await this.configurateTribunal2(valores.juzgado)){ return false; }
         console.log('Tribunal : Listo');
 
         if(!await this.configurateCausa(valores.causa)){ return false; }
@@ -259,7 +253,7 @@ class ConsultaCausaPjud{
                 console.log("Enlace no econtrado");
                 return false
             }
-            await fakeDelay(2,7);
+            await fakeDelay(2,5);
             await link.click(); // Simula un clic en el enlace
             return true;
         }catch(error){
@@ -284,17 +278,16 @@ class ConsultaCausaPjud{
             }));
         });
 
-        console.log('Opciones de cueadernos encontradas:', options);
-
         // Buscar la opción que contiene "2 - Apremio Ejecutivo Obligación de Dar"
         const optionToSelect = options.find(option => option.text.includes('Apremio Ejecutivo'));
 
         if (optionToSelect) {
-            await fakeDelay(2,7);
+            await fakeDelay(2,5);
             // Seleccionar la opción encontrada
             await this.page.select('#selCuaderno', optionToSelect.value);
         } else {
             console.log('La opción deseada no se encuentra en el select.');
+            
         }
         const cuadernoValue = await this.page.$eval('#selCuaderno', el => el.value);
         if(cuadernoValue !== optionToSelect.value){
@@ -311,7 +304,6 @@ class ConsultaCausaPjud{
             await this.page.waitForSelector("#historiaCiv", { timeout: 10000 });
             // Get all rows from the table
             const rows = await this.page.$$('#historiaCiv .table tbody tr');
-            console.log("cantidad de filas en el cuaderno: ",rows.length);
             for (const row of rows) {
                 // Track if the row is processed successfull
                 try {
@@ -377,14 +369,11 @@ class ConsultaCausaPjud{
                     row.$eval('td:nth-child(3)', el => el.textContent.trim()),
                     row.$eval('td:nth-child(1) form input[name="dtaDoc"', input => input.value),
                 ]);
-                console.log('Doc: ', doc, ' Fecha: ', fecha, ' Referencia: ', reference, ' Value: ', valuePdf);
-                
                 //Donwload pdf and save it in a specific folder
                 const linkToPdf = "https://oficinajudicialvirtual.pjud.cl/ADIR_871/civil/documentos/anexoDocCivil.php?dtaDoc=" + valuePdf
                 await fakeDelay(2, 5);
                 isDone = await this.downloadPdfFromUrl(linkToPdf);
                 if(isDone){
-                    console.log("Ya se obtuvieron todos los datos posibles del pjud");
                     return true;
                 }
             }
@@ -406,7 +395,6 @@ class ConsultaCausaPjud{
         this.dirPath = path.join(this.downloadPath, nameDir);
         this.pdfPath = path.join(this.dirPath, pdfName);
      
-        console.log("probando la funcion inicial para descargar el pdf");
         try{
             if(!fs.existsSync(this.dirPath)){
                 fs.mkdirSync(this.dirPath, { recursive: true });
@@ -423,7 +411,6 @@ class ConsultaCausaPjud{
             await fakeDelay(2,5);
             //Leer el pdf descargado
             resultado = await ProcesarBoletin.convertPdfToText2(this.pdfPath);
-            // console.log('Resultado de la lectura del PDF:', resultado);
             const resultOfProcess = this.PjudData.processInfo(resultado);
             pdfWindow.destroy();
             if(resultOfProcess){
@@ -445,12 +432,11 @@ class ConsultaCausaPjud{
     validateInitialValues(){
         const caso = this.caso;
         const valores = {
-            corte: caso.getCortePjud(),
-            juzgado: caso.juzgado,
+            corte: caso.corte,
+            juzgado: caso.numeroJuzgado,
             causa: caso.getCausaPjud(),
             anno: caso.getAnnoPjud()
         };
-        console.log('Valores:',valores);
         for (const [clave,valor] of Object.entries(valores)){
             if(valor === null){
                 console.log('Falta valor:',clave);
@@ -473,7 +459,7 @@ class ConsultaCausaPjud{
                 const conCorte = document.querySelector('#conCorte');
                 return conCorte && conCorte.options.length > 1; // Verifica que haya más de una opción disponible
             });
-            await fakeDelay(2,7);
+            await fakeDelay(2,5);
             return true;
         }catch(error){
             console.log('Error al configurar la competencia:', error);
@@ -488,7 +474,6 @@ class ConsultaCausaPjud{
 
             // Opcional: Verifica que el valor fue seleccionado correctamente
             const valorCortePage = await this.page.$eval('#conCorte', el => el.value);
-            // console.log(`Valor seleccionado: ${selectedValue}`); // Debería imprimir "10"
             if (valorCortePage !== valorCorte) {
                 console.log('No se seleccionó el corte:', valorCorte);
                 return false;
@@ -498,7 +483,7 @@ class ConsultaCausaPjud{
                 const conTribunal = document.querySelector('#conTribunal');
                 return conTribunal && conTribunal.options.length > 1;
             });
-            await fakeDelay(2,7);
+            await fakeDelay(2,5);
             return true;
         }catch(error){
             console.log('Error al configurar la corte:', error);
@@ -528,10 +513,34 @@ class ConsultaCausaPjud{
                 const conTipoCausa = document.querySelector('#conTipoCausa');
                 return conTipoCausa && conTipoCausa.options.length > 1;
             });
-            await fakeDelay(2,7);
+            await fakeDelay(2,5);
             return true;
         }catch(error){
             console.log('Error al configurar el tribunal:', error);
+            return false;
+        }
+    }
+
+    async configurateTribunal2(valorTribunal){
+        try{
+            // Seleccionar corte
+            await this.page.select('#conTribunal', valorTribunal);
+
+            // Opcional: Verifica que el valor fue seleccionado correctamente
+            const valorCortePage = await this.page.$eval('#conTribunal', el => el.value);
+            if (valorCortePage !== valorTribunal) {
+                console.log('No se seleccionó el corte:', valorTribunal);
+                return false;
+            }
+            // Esperar actualización del selector dependiente
+            await this.page.waitForFunction(() => {
+                const conTribunal = document.querySelector('#conTribunal');
+                return conTribunal && conTribunal.options.length > 1;
+            });
+            await fakeDelay(2,5);
+            return true;
+        }catch(error){
+            console.log('Error al configurar la corte:', error);
             return false;
         }
     }
@@ -543,13 +552,13 @@ class ConsultaCausaPjud{
 
             // Rol de la causa
             await this.page.waitForSelector('#conRolCausa');
-            await this.page.type('#conRolCausa', valorCausa, { delay: Math.random() * 100 });
+            await this.page.type('#conRolCausa', valorCausa, { delay: Math.random() * 45 });
             const rolValue = await this.page.$eval('#conRolCausa', el => el.value);
             if (rolValue !== valorCausa) {
                 console.log('No se seleccionó el rol:', valorCausa);
                 return false;
             }
-            await fakeDelay(2,7);
+            await fakeDelay(2,5);
             return true;
         }catch(error){
             console.log('Error al configurar la causa:', error);
@@ -561,13 +570,13 @@ class ConsultaCausaPjud{
         try{
             // Año de la causa
             await this.page.waitForSelector('#conEraCausa');
-            await this.page.type('#conEraCausa', valorAnno,{ delay: Math.random() * 100 });
+            await this.page.type('#conEraCausa', valorAnno,{ delay: Math.random() * 45 });
             const annoValue = await this.page.$eval('#conEraCausa', el => el.value);
             if (annoValue !== valorAnno) {
                 console.log('No se seleccionó el año:', valorAnno);
                 return false;
             }
-            await fakeDelay(2,7);
+            await fakeDelay(2,5);
             return true;
         }catch(error){
             console.log('Error al configurar el año:', error);

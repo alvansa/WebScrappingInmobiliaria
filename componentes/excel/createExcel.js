@@ -8,11 +8,12 @@ const { create } = require('domain');
 
 
 class createExcel {
-    constructor(saveFile, startDate, endDate,emptyMode) {
+    constructor(saveFile, startDate, endDate,emptyMode,isOne) {
         this.saveFile = saveFile;
         this.startDate = startDate;
         this.endDate = endDate;
         this.emptyMode = emptyMode;
+        this.isOne = isOne;
 
     }
     crearBase() {
@@ -50,6 +51,7 @@ class createExcel {
         ws['AF5'] = { v: 'Px $ compra ant ', t: 's' };
         ws['AG5'] = { v: 'año compr ant ', t: 's' };
         ws['AH5'] = { v: 'precio venta nos ', t: 's' };
+        ws['AE5'] = { v: 'estado civil ', t: 's' };
 
         // Ajusta el ancho de las columnas
         this.cambiarAnchoColumnas(ws);
@@ -73,7 +75,7 @@ class createExcel {
 
 
     async writeData(casos) {
-        var filePath = path.join(this.saveFile, 'Remates.xlsx');
+        let filePath = path.join(this.saveFile, 'Remates.xlsx');
         // Revisa si el archivo base ya existe
         if (!fs.existsSync(path.join(this.saveFile, 'Remates.xlsx'))) {
             this.crearBase(this.saveFile);
@@ -83,14 +85,20 @@ class createExcel {
         const wb = XLSX.readFile(path.join(this.saveFile, 'Remates.xlsx'));
         const ws = wb.Sheets['Remates'];
         this.cambiarAnchoColumnas(ws);
+        
         try {
-            let lastRow = await this.insertarCasosExcel(casos, ws) - 1;
-            ws['!ref'] = 'A5:AH' + lastRow;
-            const fechaInicioDMA = cambiarFormatoFecha(this.startDate);
-            const fechaFinDMA = cambiarFormatoFecha(this.endDate);
-            filePath = path.join(this.saveFile, 'Remates_' + fechaInicioDMA + '_a_' + fechaFinDMA + '.xlsx');
+            if(this.isOne){
+                const lastRow = this.fillWithOne(ws,casos);
+                ws['!ref'] = 'A5:AH' + lastRow;
+                filePath = path.join(this.saveFile, 'Caso_'+casos.causa+casos.juzgado+'.xlsx');
+            }else{
+                let lastRow = await this.insertarCasosExcel(casos, ws) - 1;
+                ws['!ref'] = 'A5:AH' + lastRow;
+                const fechaInicioDMA = cambiarFormatoFecha(this.startDate);
+                const fechaFinDMA = cambiarFormatoFecha(this.endDate);
+                filePath = path.join(this.saveFile, 'Remates_' + fechaInicioDMA + '_a_' + fechaFinDMA + '.xlsx');
+            }
             XLSX.writeFile(wb, filePath);
-            console.log(filePath);
             return filePath;
         } catch (error) {
             console.error('Error al obtener resultados:', error);
@@ -99,15 +107,25 @@ class createExcel {
 
     }
 
+
+    fillWithOne(ws, casos){
+        const caso = casos.toObject();
+
+        let currentRow = 6;
+        this.insertarCasoIntoWorksheet(caso, ws, currentRow);
+        currentRow = currentRow + 1;
+        return currentRow
+    }
+
     async insertarCasosExcel(casos, ws) {
         const startDateSQL = stringToDate(this.startDate); 
         let remates = new Set();
         let currentRow = 6;
         const causaDB = new Causas();
         const rematesDB = causaDB.getCausas(formatDateToSQLite(startDateSQL));
-        for(let i = 0; i < rematesDB.length; i++){
-            if(rematesDB[i].juzgado){
-                rematesDB[i].juzgado = rematesDB[i].juzgado.replace(/º/g, '°');
+        for(let remateDB of rematesDB){
+            if(remateDB.juzgado){
+                remateDB.juzgado = remateDB.juzgado.replace(/º/g, '°');
             }
         }
         if (!Array.isArray(casos) || casos.length === 0) {
@@ -191,7 +209,7 @@ class createExcel {
         // ws['T'+ currentRow ] = {v: caso.rolPropiedad, t: 's'};
         // ws['U'+ currentRow ] = {v: 'deuda 2 ', t: 's'};
         // ws['V'+ currentRow ] = {v: 'deuda 3 ', t: 's'};
-        // ws['W'+ currentRow ] = {v: 'rol ', t: 's'};
+        this.writeLine(ws, "W",currentRow, caso.rolPropiedad,"s");
         // ws['X'+ currentRow ] = {v: 'notif ', t: 's'};
         // Formato de monto minimo segun el tipo de moneda
         if (caso.moneda === 'UF') {
@@ -204,7 +222,7 @@ class createExcel {
         if(caso.avaluoPropiedad != null){
             ws['AC' + currentRow] = { v: caso.avaluoPropiedad, t: 'n', z: '#,##0' };
         }
-        // ws['AE' + currentRow ] = {v: 'estado civil ', t: 's'};
+        this.writeLine(ws, "AE",currentRow, caso.estadoCivil,"s");
         // ws['AF' + currentRow ] = {v: 'Px $ compra ant ', t: 's'};
         // ws['AG' + currentRow ] = {v: 'año compr ant ', t: 's'};
         // ws['AH' + currentRow ] = {v: 'precio venta nos ', t: 's'};

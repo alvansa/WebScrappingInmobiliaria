@@ -6,14 +6,12 @@ class PjudPdfData{
 
     processInfo(item){
         const normalizeInfo = this.normalizeInfo(item);
-        console.log(`caso base ${this.caso.toObject()}`);
         // Check if all the posible variables that can be obtain by pdf's is already donde
         if (this.isCaseComplete()) {
             console.log("Caso completo");
             return true;
         }
 
-        console.log("caso estado civil: ", this.caso.estadoCivil , "tipo de :", typeof this.caso.estadoCivil);
         if(!this.caso.estadoCivil){
             const civilStatus = this.obtainCivilStatus(normalizeInfo);
             console.log("Estado civil identificado: ", civilStatus);
@@ -60,7 +58,6 @@ class PjudPdfData{
             .normalize("NFD")
             .replace(/[\u0300-\u036f]/g, "")
             .replace(/−/g, "-");
-        console.log("Texto obtenido del pdf", processItem);
         return processItem;
     }
 
@@ -122,7 +119,6 @@ class PjudPdfData{
         const regexComuna = /comuna\s*:\s*(\w{4,15})/g;
         const matchComuna = info.match(regexComuna);
         if(matchComuna){
-            console.log("texto identificado en obtainComuna: ",matchComuna)
             const comuna = matchComuna[0].split(" ")[1];
             return comuna;
         }
@@ -143,7 +139,6 @@ class PjudPdfData{
 
     //This function will check if the case is complete, if it is the process end
     isCaseComplete(){
-        // console.log("Caso completo: ", this.caso.toObject());
        if(this.caso.estadoCivil 
             && this.caso.rolPropiedad 
             && this.caso.direccion

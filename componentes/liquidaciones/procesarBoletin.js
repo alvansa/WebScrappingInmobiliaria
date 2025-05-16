@@ -6,6 +6,7 @@ const os = require('os');
 const Caso = require('../caso/caso.js');
 const { comunas, tribunales2 } = require('../caso/datosLocales.js');
 const BoletinConcursal = require('./getBoletinConcursal.js');
+const { delay } = require('../../utils/delay.js');
 
 
 class ProcesarBoletin {
@@ -20,12 +21,12 @@ class ProcesarBoletin {
             return;
         }
         const normalizedData = this.normalizeData(data);
+        console.log("Texto normalizado: ", normalizedData);
 
-        console.log("Caso previo al proceso: ", caso.toObject());
         const fechaRemate = this.getfechaRemate(normalizedData);
         const causa = this.getCausa(normalizedData);
-        const tribunal = this.getTribunal(normalizedData);
-        const comuna = this.getComuna(normalizedData);
+        const juzgado = this.getJuzgado(data);
+        const comuna = this.getComuna(data);
         const monto = this.montoMinimo(normalizedData);
         const anno = this.getAnno(normalizedData);
         const direccion = this.getDireccion(normalizedData);
@@ -33,14 +34,13 @@ class ProcesarBoletin {
         const tipoDerecho = this.getTipoDerecho(normalizedData);
 
         if (fechaRemate) {
-            console.log("La fecha de remate obtenida es: ",fechaRemate);
             caso.fechaRemate = fechaRemate;
         }
         if (causa) {
             caso.causa = causa[0];
         }
-        if (tribunal) {
-            const juzgado = tribunal[0].split(":")[1];
+        if (juzgado) {
+            // const juzgado = tribunal[0].split(":")[1];
             caso.juzgado = juzgado;
         }
         if (comuna) {
@@ -49,7 +49,6 @@ class ProcesarBoletin {
         }
         if (monto) {
             // const montoMinimo = monto[0].match(/\d+/g);
-            console.log("Monto minimo: ", monto);
             caso.montoMinimo = monto[1] ;
         }
         if (anno) {
@@ -65,12 +64,11 @@ class ProcesarBoletin {
         if (tipoDerecho) {
             caso.tipoDerecho = tipoDerecho[0];
         }
-        console.log("Caso: ", caso.causa);
-        console.log("Fecha remate: ", caso.fechaRemate);
 
     }
 
     async getPdfData(fechaInicio, fechaFin, fechaHoy) {
+        await delay(2000);
         let casos = [];
         let texto = "";
         try {
@@ -141,15 +139,22 @@ class ProcesarBoletin {
         return null;
     }
     getCausa(texto) {
-        const regex = /C-\d{1,7}-\d{4}/g;
+        const regex = /C-\d{1,7}-\d{4}/gi;
         let causa = texto.match(regex);
+
         return causa;
     }
 
-    getTribunal(texto) {
-        const regex = /tribunal:\s*([a-zA-ZñÑ0123456789ºáéíóú]*\s)*/gi;
-        let tribunal = texto.match(regex);
-        return tribunal;
+    getJuzgado(texto) {
+        texto = texto.toLowerCase();
+        const indexTribunal = texto.indexOf("tribunal:");
+        const indexDeudor = texto.indexOf("deudor:");
+        if (indexTribunal === -1 || indexDeudor === -1 || indexTribunal > indexDeudor) {
+            console.error("No se encontró el tribunal o el deudor en el texto.");
+            return null;
+        }
+        let juzgado = texto.slice(indexTribunal + 9, indexDeudor);
+        return juzgado;
     }
 
 
@@ -159,31 +164,43 @@ class ProcesarBoletin {
     }
 
     montoMinimo(texto) {
-        const reMonto = /Valor\s*Mínimo\s*\(pesos\):\s*(\d{7,13}|\d{1,3}(.\d{1,3})*)/i;
+        console.log("Texto: ", texto);
+        const reMonto = /Valor\s*Minimo\s*\(pesos\):\s*(\d{7,13}|\d{1,3}(\.\d{1,3})*)/i;
         let monto = texto.match(reMonto);
         return monto;
     }
 
     getComuna(texto) {
-        //let comuna;
+        const foundComunas = [];
+        const indexInicio = texto.indexOf("Detalle");
+        texto = texto.slice(indexInicio);
+        texto = texto.toLowerCase();
         for (let comuna of comunas) {
-            const comunaMinuscula = 'comuna de ' + comuna;
-            const comunaMayuscula = 'Comuna de ' + comuna;
-            if (texto.includes(comuna) || texto.includes(comunaMinuscula) || texto.includes(comunaMayuscula)) {
+            const comunaMinuscula = comuna.toLowerCase();
+            if (texto.includes(comuna) || texto.includes(comunaMinuscula)) {
+                foundComunas.push(comunaMinuscula);
+            }
+        }
+        for(let comuna of foundComunas){
+            const findComuna = 'comuna de ' + comuna;
+            if(texto.includes(findComuna)){
                 return comuna;
             }
         }
-        return "N/A";
+        if(comunas.length > 0){
+            const comuna = foundComunas[0];
+            return comuna;
+        }
+        return null;
     }
     getAnno(data) {
-        const detalle = 'Detalle';
+        const detalle = 'detalle';
         const detalleIndex = data.indexOf(detalle);
         if (detalleIndex === -1) {
             return null;
         }
         let dataAnno = data.slice(detalleIndex);
-        dataAnno = dataAnno.toLowerCase();
-        const regexAnno = /(?:año)\s*(\d{4})/i;
+        const regexAnno = /(?:ano)\s*(\d{4})/i;
         const anno = dataAnno.match(regexAnno);
         if (anno) {
             return anno;
@@ -244,11 +261,9 @@ class ProcesarBoletin {
     normalizeData(data) {
         const newData = data
         .toLowerCase()
-        .replace(/[,.\n]/g, ' ')
-        .replace(/de\s*/g, '')
+        // .replace(/[,.\n]/g, ' ')
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
-        .replace(/\bstgo\b/g, "santiago")
         .replace(/\s+/, ' ');
         return newData;
     }

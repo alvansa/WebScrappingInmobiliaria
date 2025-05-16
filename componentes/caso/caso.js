@@ -32,6 +32,8 @@ class Caso{
     #rolPropiedad;
     #avaluoPropiedad;
     #estadoCivil;
+    #corte;
+    #numeroJuzgado;
 
     constructor(fechaObtencion,fechaPublicacion='N/A',link='N/A',origen='N/A' ){    
         this.#fechaPublicacion = fechaPublicacion;
@@ -61,6 +63,8 @@ class Caso{
         this.#rolPropiedad = null;
         this.#avaluoPropiedad = null;
         this.#estadoCivil = null;
+        this.#corte = null;
+        this.#numeroJuzgado = null;
     }
 
     darfechaPublicacion(fechaPublicacion){
@@ -158,6 +162,18 @@ class Caso{
     set estadoCivil(estadoCivil){
         this.#estadoCivil = estadoCivil;
     }
+    set origen(origen){
+        this.#origen = origen;
+    }
+    set corte(corte){
+        this.#corte = corte;
+    }
+    set numeroJuzgado(numeroJuzgado){
+        this.#numeroJuzgado = numeroJuzgado;
+    }
+    set link(link){
+        this.#link = link;
+    }
 
     
     get link(){ 
@@ -175,7 +191,6 @@ class Caso{
         }
         return this.#fechaRemate;
     }
-
     get causa(){
         return String(this.#causa);
     }
@@ -208,6 +223,18 @@ class Caso{
             return null;
         }
         return String(this.#direccion);
+    }
+    get corte(){
+        if(this.#corte === null){
+            return null;
+        }
+        return String(this.#corte);
+    }
+    get numeroJuzgado(){
+        if(this.#numeroJuzgado === null){
+            return null;
+        }
+        return String(this.#numeroJuzgado);
     }
   
 
@@ -254,6 +281,8 @@ class Caso{
             rolPropiedad : this.#rolPropiedad,
             avaluoPropiedad : Number(this.#avaluoPropiedad) !=0 ? Number(this.#avaluoPropiedad) : null,
             estadoCivil : this.#estadoCivil,
+            corte : this.#corte,
+            numeroJuzgado : this.#numeroJuzgado,
         };
     } 
 
@@ -273,7 +302,9 @@ class Caso{
         }
 
         // Si el origen es Liquidaciones, viene con el formato Date listo
-        if(this.#origen == LIQUIDACIONES){return this.#fechaRemate;}
+        if(this.#origen == LIQUIDACIONES){
+            return new Date(this.#fechaRemate);
+        }
         if(typeof(this.#fechaRemate) == Date){
             return this.#fechaRemate;
         }
@@ -316,7 +347,6 @@ class Caso{
         }
         const dias = ['uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve','diez','once','doce','trece','catorce','quince','dieciseis','diecisiete','dieciocho','diecinueve','veinte','veintiuno','veintidos','veintitres','veinticuatro','veinticinco','veintiseis','veintisiete','veintiocho','veintinueve','treinta','treinta y uno'];
         const diaRegex = /(\d{1,2})/g;
-        console.log(`Fecha de remate en la funcion getDia: ${this.#fechaRemate}`);
         const diaRemate = this.#fechaRemate.match(diaRegex);
         if(diaRemate){
             return diaRemate[0];
@@ -486,6 +516,9 @@ class Caso{
         if (this.#juzgado === "N/A" | this.#juzgado === "juez partidor" || this.#juzgado == null) {
             return null;
         }
+        if(this.#corte){
+            return this.#corte;
+        }
         const comuna = this.#juzgado.toLowerCase();
 
         const regiones = {
@@ -550,6 +583,8 @@ class Caso{
     normalizarPartes(){
         if(this.#partes === "N/A" || this.#partes === null){
             return null;
+        }else if(this.#link === "Lgr"){
+            return this.#partes;
         }
         let partesNormalizadas = this.#partes.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
         partesNormalizadas = partesNormalizadas
