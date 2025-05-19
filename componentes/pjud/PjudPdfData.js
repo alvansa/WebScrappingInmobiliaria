@@ -22,15 +22,19 @@ class PjudPdfData{
             const rolPropiedad = this.obtainRolPropiedad(normalizeInfo);
             console.log("Rol propiedad identificado: ", rolPropiedad);
             if(rolPropiedad){
-                if (rolPropiedad.tipo.includes("habitacional")) {
+                if (!rolPropiedad.tipo.includes("estacionamiento")) {
                     this.caso.rolPropiedad = rolPropiedad.rol;
                 }
             }
         }
         
         if(!this.caso.avaluoPropiedad){
-            const rolPropiedad = this.obtainAvaluoPropiedad(normalizeInfo);
-            this.caso.avaluoPropiedad = rolPropiedad;
+            const avaluoPropiedad = this.obtainAvaluoPropiedad(normalizeInfo);
+            if(avaluoPropiedad){
+                if (!avaluoPropiedad.tipo.includes("estacionamiento")) {
+                    this.caso.avaluoPropiedad = avaluoPropiedad.avaluo;
+                }
+            }
         }
 
         if(!this.caso.comuna){
@@ -70,7 +74,8 @@ class PjudPdfData{
         if(info.match(regexDivorced)) {
             return "Divorciado";
         }else if(info.match(regexMarried)) {
-            return "Casado";
+            const tipo = this.findTipeMarriage(info);
+            return "Casado " + tipo;
         }else if(info.match(regexSingle)) {
             return "Soltero";
         }else if(info.match(regexWidowed)) {
@@ -78,6 +83,20 @@ class PjudPdfData{
         }
 
         return null;
+    }
+
+    findTipeMarriage(info){
+        const regexSeparacion = /separacion\sde\sbienes/i;
+        const regexConyugal = /matrimonio\s(?:conyugal|por\sregimen\spatrimonial\sdiferente\sa\slos\sgenerales)/i;
+        const regexComunidad = /matrimonio\s(?:comunidad|por\sregimen\scomun)/i;
+
+        if(info.match(regexSeparacion)) {
+            return "separacion de bienes";
+        }else if(info.match(regexConyugal)) {
+            this.caso.tipoMatrimonio = "Conyugal";
+        }else if(info.match(regexComunidad)) {
+            this.caso.tipoMatrimonio = "Comunidad";
+        }
     }
 
     obtainRolPropiedad(info){
@@ -104,18 +123,61 @@ class PjudPdfData{
     }
 
     obtainAvaluoPropiedad(info){
+        let avaluoType = '';
+        const regexTipo = /destino\sdel\sbien\sraiz:\s(\w{1,20})/g;
+        let tipoBien = info.match(regexTipo);
+        if(tipoBien){
+            avaluoType = tipoBien[0];
+        }
+        else{
+            return null;
+        }
         const regexAvaluo = /avaluo\stotal\s*:\$(\d{1,3}.?)*/g;
         const avaluoMatch = info.match(regexAvaluo);
         if(avaluoMatch){
             const avaluo = avaluoMatch[0].match(/(\d{1,3}.?)+/);
             const avaluoNumber = avaluo[0].replace(/\./g,'');
-            return avaluoNumber;   
+            return {
+                "tipo": avaluoType,
+                "avaluo": avaluoNumber
+            };   
         }else{
             return null;
         }
     }
 
     obtainComuna(info){
+        console.log("info en comuna: ", info);
+        let comuna = this.obtainComunaByIndex(info);
+        if(comuna){
+            return comuna;
+        }
+        comuna = this.obtainComunaByregex(info);
+        if(comuna){
+            return comuna;
+        }
+    }
+
+    obtainComunaByIndex(info){
+        const startText = "comuna:";
+        const startIndex = info.indexOf(startText);
+        if (startIndex === -1) {
+            return null;
+        }
+        const modifiedInfo = info.substring(startIndex);   
+        const endText = "numero de rol de avaluo";
+        const endIndex = modifiedInfo.indexOf(endText);
+
+        if (endIndex === -1) {
+            return null;
+        }
+        const comuna = modifiedInfo.substring(startText.length, endIndex).trim();
+        console.log("comuna by index: ", comuna);
+        return comuna;
+
+    }
+
+    obtainComunaByregex(info){
         const regexComuna = /comuna\s*:\s*(\w{4,15})/g;
         const matchComuna = info.match(regexComuna);
         if(matchComuna){
@@ -124,7 +186,6 @@ class PjudPdfData{
         }
         return null;
     }
-
     obtainDireccion(info){
         const startText = "direccion o nombre del bien raiz:";
         const endText = "destino del bien raiz:";

@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../../css/styles.css">
     <title>Developer Mode</title>
 </head>
 <body>
+
     <h1>Developer Mode</h1>
     <p>This is the developer mode for the Electron application.</p>
     <p>Use this mode to test and debug your application.</p>
@@ -20,8 +22,8 @@
         <button id="downloadPDF">Download And Read PDF</button>
     </p>
     <p>
-        <input type="text" id="pdfPath" placeholder="Enter path to pdf to read">
         <button id="readPdf">Read PDF</button>
+        <div id="fileInfoPjud"></div>
     </p>
     <button id="testConsultaCausa" >Test consulta causa al pjud</button> 
     
@@ -29,6 +31,20 @@
         <button id="selectFileBtn">Seleccionar Archivo para prueba boletin</button>
         <div id="fileInfo"></div>
     </p>
+    <p>
+        <button id="consultaMultipleCases"> Test para casos multiples</button>
+    </p>
+
+
+    <div id="waitingModal" class="view">
+        <div class="modal-container">
+          <h3 id="waitingMessage">Por favor espera...</h3>
+          <div class="spinner-container">
+            <div class="spinner"></div>
+          </div>
+          <p id="countdown"><span id="seconds"></span></p>
+        </div>
+      </div>
 
     <script>
         // Add your JavaScript code here

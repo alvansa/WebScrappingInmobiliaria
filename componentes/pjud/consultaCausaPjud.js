@@ -38,7 +38,7 @@ class ConsultaCausaPjud{
         try{
             result = await this.procesarCaso(this.caso, 1 , lineaAnterior)
             await this.window.destroy();
-            this.cleanFilesDownloaded();
+            await this.cleanFilesDownloaded();
         }catch(error){
             console.error('Error en la función getEspecificDataFromPjud:', error);
             await this.browser.close();
@@ -112,7 +112,7 @@ class ConsultaCausaPjud{
         }
 
         console.log('Test Pjud activado');
-        // await this.buscarGP();
+        await this.buscarGP();
 
         const lineaActual = this.getPrimeraLinea();
         return lineaActual;
@@ -585,45 +585,43 @@ class ConsultaCausaPjud{
 
     }
 
-    cleanFilesDownloaded(){
+    async cleanFilesDownloaded(){
         console.log("Iniciando eliminacion de archivos.");
         try {
-            this.deleteFilesDownloaded();
-            this.deleteDirectory();
+            await this.deleteFilesDownloaded();
+            await this.deleteDirectory();
         } catch (error) {
             console.error('Error al eliminar archivos:', error.message);
         }
     }
 
-    deleteFilesDownloaded(){
+    async deleteFilesDownloaded() {
         try {
             if (fs.existsSync(this.dirPath)) {
-                fs.readdir(this.dirPath, (err, files) => {
-                    if (err) {throw err;}
-
-                    files.forEach(file => {
-                        const filePath = path.join(this.dirPath, file);
-                        fs.unlinkSync(filePath, err => {
-                            if (err) throw err;
-                            console.log(`Archivo ${file} eliminado`);
-                        });
-                    });
+                const files = await fs.promises.readdir(this.dirPath);
+                const unlinkPromises = files.map(async file => {
+                    const filePath = path.join(this.dirPath, file);
+                    await fs.promises.unlink(filePath);
+                    console.log(`Archivo ${file} eliminado`);
                 });
+                await Promise.all(unlinkPromises); // Espera a que todas las promesas de eliminación se completen
             }
         } catch (error) {
             console.error('Error al eliminar archivos:', error);
+            throw error; // Re-lanza el error para que la función que llama sepa que algo falló
         }
     }
-
-    deleteDirectory(){
+    
+    async deleteDirectory() {
         try {
-            const files = fs.readdirSync(this.dirPath);
-            if (files.length > 0) {
-                throw new Error('El directorio no está vacío');
+            if (fs.existsSync(this.dirPath)) {
+                const files = await fs.promises.readdir(this.dirPath);
+                if (files.length > 0) {
+                    throw new Error('El directorio no está vacío');
+                }
+                await fs.promises.rmdir(this.dirPath);
+                console.log(`Directorio eliminado: ${this.dirPath}`);
             }
-            
-            fs.rmdirSync(this.dirPath);
-            console.log(`Directorio eliminado: ${this.dirPath}`);
         } catch (error) {
             console.error(`No se pudo eliminar el directorio ${this.dirPath}:`, error.message);
             throw error;

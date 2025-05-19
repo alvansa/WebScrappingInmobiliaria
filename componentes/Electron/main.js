@@ -15,9 +15,10 @@ const Caso = require('../caso/caso.js')
 const ConsultaCausaPjud = require('../pjud/consultaCausaPjud.js');
 const PjudPdfData = require('../pjud/PjudPdfData.js');
 const config = require('../../config.js');
-const { fakeDelay } = require('../../utils/delay.js');
 const {testTexto,testTextoArgs} = require('../economico/testEconomico.js');
 const {downloadPdfFromUrl,checkUserAgent} = require('../pjud/downloadPDF.js');
+const { fakeDelay, delay } = require('../../utils/delay.js');
+const {tribunalesPorCorte} = require('../../utils/corteJuzgado.js');
 
 
 const isDevMode = process.argv.includes('--dev');
@@ -128,7 +129,7 @@ class MainApp{
 
         ipcMain.handle('testEconomico', async (event,args) => {
             try{
-                await this.testEconomico(args)
+                await this.testEconomico(event,args)
 
             }catch(error){
                 console.error('Error al obtener resultados:', error);
@@ -164,6 +165,10 @@ class MainApp{
             }
         });
 
+        ipcMain.handle('obtainTribunalesJuzgado', async (event) => {
+            return tribunalesPorCorte;
+        })
+
         ipcMain.handle('search-case', async (event, corte, tribunal,juzgado, rol, year) => {
             try{
                 let filePath = null;
@@ -181,7 +186,7 @@ class MainApp{
                 if(result){
                     // Write the case in excel.
                     const downloadPath = path.join(os.homedir(), "Documents", "infoRemates");
-                    const createOneExcelFile = new createExcel(downloadPath,null,null,false,true);
+                    const createOneExcelFile = new createExcel(downloadPath,null,null,false,"one");
                     filePath = await createOneExcelFile.writeData(caso);
                     console.log("Caso guardado en: ", filePath);
                     
@@ -408,9 +413,8 @@ class MainApp{
         }
     }
 
-    async testEconomico(args){
+    async testEconomico(event,args){
         await this.launchPuppeteer_inElectron();
-        // console.log("Esta vivo args: ",args);
         const arg = args[0];
         let result;
         if (arg === 'imbeddedText') {
@@ -418,36 +422,133 @@ class MainApp{
             console.log("Resultados del texto hardCodded: ",result);
         }else if(arg === 'uploadedText'){
             result = testTextoArgs(args[1]);
-            // console.log("Resultados del texto introducido: ",result);
         }else if(arg === 'downloadPDF'){
             console.log("Descargando PDF ubicado en: ",args[1]);  
             result = await downloadPdfFromUrl(this.browser,args[1]);
             console.log("Resultados del texto introducido: ",result);
 
         }else if(arg === 'testConsultaCausa'){
-
             const caso = crearCasoPrueba();
             result = await consultaCausa(caso);
             console.log("Resultados del caso de prueba en pjud: ",result.toObject());
         }else if(arg === 'readPdf'){
             console.log("Leyendo PDF ubicado en: ",args[1]);
             const caso = crearCasoPrueba();
-            const downloadPath = path.join(os.homedir(), "Documents", "infoRemates/pdfDownload");
-            const pdfPath = path.join(downloadPath, args[1]);
-            console.log("Leyendo PDF ubicado en: ",pdfPath);
-            result = await ProcesarBoletin.convertPdfToText2(pdfPath);
+            console.log("Leyendo PDF ubicado en: ",args[1]);
+            result = await ProcesarBoletin.convertPdfToText2(args[1]);
             const processPDF = new PjudPdfData(caso);
             processPDF.processInfo(result);
-
             console.log("Resultados del texto introducido: ",caso.toObject());
+        }else if(arg === 'consultaMultipleCases'){
+
+            console.log("Consultando multiples casos"); 
+
+            const casos = [];
+            const caso1 = new Caso("2025/11/30");
+            caso1.causa = "C-2822-2021";
+            caso1.juzgado = "8º JUZGADO CIVIL DE SANTIAGO";
+            casos.push(caso1);
+            const caso2 = new Caso("2025/11/30");
+            caso2.causa = "C-10793-2023";
+            caso2.juzgado = "12º JUZGADO CIVIL DE SANTIAGO";
+            casos.push(caso2);
+            this.obtainCorteJuzgadoNumbers(casos);
+            const result = await this.obtainDataFromCases(casos,event);
+            console.log("Resultados de los casos en la funcion de llamada: ",casos.length);
+            const downloadPath = path.join(os.homedir(), "Documents", "infoRemates");
+            const excel = new createExcel(downloadPath,null,null,false,"oneDay");
+            await excel.writeData(casos,"Test");
         }
     }
+
+    async obtainDataFromCases(casos,event){
+        const mainWindow = BrowserWindow.fromWebContents(event.sender);
+        let counter = 0;
+        for(let caso of casos){
+            counter++;
+            const result = await consultaCausa(caso);
+            if(result){
+                console.log("Resultados del caso de prueba en pjud: ",caso.toObject());
+            }
+            if(counter < casos.length){
+                const awaitTime = Math.random() * (90 - 30) + 30; // Genera un número aleatorio entre 5 y 10
+                mainWindow.webContents.send('aviso-espera', awaitTime);
+                console.log(`Esperando ${awaitTime} segundos para la siguiente consulta`);
+                await delay(awaitTime * 1000); 
+            } 
+        }
+    }
+    
+    async searchCasesByDay(){
+        const startDate = "16/05/2025";
+        const endDate = "17/05/2025";
+        const window = new BrowserWindow({ show: true });
+        const url = 'https://oficinajudicialvirtual.pjud.cl/indexN.php';
+        await window.loadURL(url);
+        const page = await pie.getPage(this.browser, window);
+        const pjud = new Pjud(this.browser, page, startDate, endDate);
+        const casos = await pjud.datosFromPjud();
+        this.obtainCorteJuzgadoNumbers(casos);
+        window.destroy();
+        return casos;
+
+    }
+
+    obtainCorteJuzgadoNumbers(casos){
+        console.log("Obteniendo los numeros de juzgado y corte de ", casos.length, " casos");
+        for(let caso of casos){
+            const juzgado = caso.juzgado.toLowerCase();
+            console.log("Buscando : ",juzgado);
+            const result = this.searchTribunalPorNombre(juzgado);
+            if(result){
+                caso.corte = result.corte;
+                caso.numeroJuzgado = result.value;
+                console.log("Caso: ", caso.causa, "Juzgado: ", caso.juzgado, "\nResultado: ", result);
+            }
+        }
+        console.log("Finalizado la revision de casos");
+    }
+    searchTribunalPorNombre(nombreTribunal) {
+        const tribunalesPorCorteNormalized = this.normalizeTribunalesPorCorte(tribunalesPorCorte);
+        for (const corte in tribunalesPorCorteNormalized) {
+          if (tribunalesPorCorteNormalized.hasOwnProperty(corte)) {
+            const tribunales = tribunalesPorCorteNormalized[corte];
+            for (let i = 0; i < tribunales.length; i++) {
+              if (tribunales[i].nombre.toLowerCase() === nombreTribunal) {
+                return {
+                  corte: corte,
+                  value: tribunales[i].value,
+                  index: i
+                };
+              }
+            }
+          }
+        }
+        return null; // Si no se encuentra el tribunal
+      }
+
+    normalizeTribunalesPorCorte(tribunalesPorCorte) {
+        const normalized = {};
+        for (const corte in tribunalesPorCorte) {
+          if (tribunalesPorCorte.hasOwnProperty(corte)) {
+            normalized[corte] = tribunalesPorCorte[corte].map(tribunal => ({
+              ...tribunal,
+              nombre: tribunal.nombre
+              .toLowerCase()
+              .normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
+              .replace(/gar\./i,"garantia "),
+            }));
+          }
+        }
+        return normalized;
+      }
 }
 
 async function consultaCausa(caso){
     const browser = await pie.connect(app, puppeteer);
     let window;
-    window = openWindow(window,true);
+    window = openWindow(window,false);
     const consultaCausa = new ConsultaCausaPjud(browser,window,caso);
     const result = await consultaCausa.getConsulta()
 
@@ -466,7 +567,6 @@ function crearCasoPrueba(){
 function openWindow(window, useProxy){
     const proxyData = JSON.parse(process.env.PROXY_DATA);
     const randomIndex = Math.floor(Math.random() * proxyData.length); 
-    console.log("Se probo la conexion con el proxy numero: ",proxyData[randomIndex].server);
     if(useProxy){
         console.log("Se lanza el navegador con proxy");
         window = new BrowserWindow({

@@ -8,12 +8,12 @@ const { create } = require('domain');
 
 
 class createExcel {
-    constructor(saveFile, startDate, endDate,emptyMode,isOne) {
+    constructor(saveFile, startDate, endDate,emptyMode,type) {
         this.saveFile = saveFile;
         this.startDate = startDate;
         this.endDate = endDate;
         this.emptyMode = emptyMode;
-        this.isOne = isOne;
+        this.type = type;
 
     }
     crearBase() {
@@ -74,7 +74,7 @@ class createExcel {
     }
 
 
-    async writeData(casos) {
+    async writeData(casos,name="") {
         let filePath = path.join(this.saveFile, 'Remates.xlsx');
         // Revisa si el archivo base ya existe
         if (!fs.existsSync(path.join(this.saveFile, 'Remates.xlsx'))) {
@@ -87,10 +87,14 @@ class createExcel {
         this.cambiarAnchoColumnas(ws);
         
         try {
-            if(this.isOne){
+            if(this.type === "one"){
                 const lastRow = this.fillWithOne(ws,casos);
                 ws['!ref'] = 'A5:AH' + lastRow;
                 filePath = path.join(this.saveFile, 'Caso_'+casos.causa+casos.juzgado+'.xlsx');
+            }else if(this.type === "oneDay"){
+                let lastRow = this.insertCasos(casos,ws) - 1;
+                ws['!ref'] = 'A5:AH' + lastRow;
+                filePath = path.join(this.saveFile,name+'.xlsx');
             }else{
                 let lastRow = await this.insertarCasosExcel(casos, ws) - 1;
                 ws['!ref'] = 'A5:AH' + lastRow;
@@ -105,6 +109,15 @@ class createExcel {
             return null;
         }
 
+    }
+
+    insertCasos(casos,ws){
+        let currentRow = 6;
+        for(let caso of casos){
+            this.insertarCasoIntoWorksheet(caso,ws,currentRow);
+            currentRow = currentRow + 1;
+        }
+        return currentRow;
     }
 
 

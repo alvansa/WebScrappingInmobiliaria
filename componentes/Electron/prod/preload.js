@@ -4,6 +4,8 @@ const nodePath = require('path');
 
 
 contextBridge.exposeInMainWorld('api', {
+  // Funcino del proceso principal que obtiene los remates publicas en las fuentes seleccionadas
+  // entre las fechas seleccionadas.
   startProcess: async (startDate, endDate, saveFile, checkedBoxes) => {
     try {
       if (!startDate && !endDate) {
@@ -31,24 +33,37 @@ contextBridge.exposeInMainWorld('api', {
     }
   },
 
-  printConsole: (message) => {
-    console.log(message);
-    // test();
-    console.log(nodePath.join(__dirname, './Controller/datosRemate.js'));
+  // Funcion para que el main le pueda entregar al renderer el listado de cortes y juzgados.
+  obtainTribunalesJuzgado: async () => {
+    const result = await ipcRenderer.invoke('obtainTribunalesJuzgado');
+    return result;
   },
 
+  // Selecciona la carpeta donde se guardara el archivo de resultados.
   selectFolder: async () => ipcRenderer.invoke('select-folder-btn'),
 
+  // Funcion de test principal para realizar pruebas unicas de funcionamientos especificos.
   testEconomico : async (args) => {
     const results = await ipcRenderer.invoke('testEconomico', args)
     console.log("resultados en preload: ", results);
   },
+  // Funcion para abrir un dialogo de seleccion de archivos locales
+  // Pensado para seleccionar un archivo pdf que se procesara
   openFileLocal: () => ipcRenderer.invoke('open-dialog-local'),
+
+  //Procesa un archivo pdf seleccionado con el algoritmo del boletin
   processFile: (filePath) => ipcRenderer.invoke('process-file', filePath),
+
+  // Busca un caso a partir de sus datos en la pagina del pjud, busca, descarga y procesa los pdf.
   searchCase: async (corte, tribunal,juzgado, rol, year) => {
     result = ipcRenderer.invoke('search-case', corte, tribunal,juzgado, rol, year)
     return result;
   },
+
+  // Funcion para mostrar en pantalla el tiempo de espera.
+  onWaitingNotification: (callback) => {
+    ipcRenderer.on('aviso-espera', (_, seconds) => callback(seconds));
+  }
 });
 
 
