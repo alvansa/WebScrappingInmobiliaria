@@ -63,15 +63,18 @@ document.getElementById('consultaMultipleCases').addEventListener('click', async
   showWaitingModal(false);
 });
 
-window.api.onWaitingNotification((totalSeconds) => {
-  showWaitingModal(true, `Esperando (${totalSeconds}s)...`);
+window.api.onWaitingNotification((args) => {
+  const totalSeconds = args[0];
+  const actualCase = args[1];
+  const totalCases = args[2];
+  showWaitingModal(true, `Esperando (${totalSeconds}s)... Caso ${actualCase} de ${totalCases}`);
   
   let remaining = totalSeconds;
-  updateCountdown(remaining);
+  updateCountdown([remaining,actualCase,totalCases]);
   
   countdownInterval = setInterval(() => {
     remaining--;
-    updateCountdown(remaining);
+    updateCountdown([remaining,actualCase,totalCases]);
     
     if (remaining <= 0) {
       console.log("Se acabo el tiempo");
@@ -80,10 +83,13 @@ window.api.onWaitingNotification((totalSeconds) => {
   }, 1000);
 });
 
-function updateCountdown(seconds) {
+function updateCountdown(data) {
+  const seconds = data[0];
+  const actualCase = data[1];
+  const totalCases = data[2];
   // document.getElementById('seconds').textContent = Math.floor(seconds);
   document.getElementById('waitingMessage').textContent = 
-    `Esperando (${Math.floor(seconds)}s) segundos para procesar el siguiente caso...`;
+    `Esperando (${Math.floor(seconds)}s) segundos para procesar el caso ${actualCase} de ${totalCases}...`;
 }
 
 function showWaitingModal(show) {

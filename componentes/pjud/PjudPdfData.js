@@ -46,7 +46,12 @@ class PjudPdfData{
         if(!this.caso.direccion){
             const direccion = this.obtainDireccion(normalizeInfo);
             console.log("Direccion identificada: ", direccion);
-            this.caso.direccion = direccion ? direccion : this.caso.direccion;
+            if(direccion){
+                if (!direccion.tipo.includes("estacionamiento")) {
+                    this.caso.direccion = direccion.direccion;
+                }
+            }
+
         }
 
 
@@ -66,19 +71,25 @@ class PjudPdfData{
     }
 
     obtainCivilStatus(info){
+        const validInfo = info;
+        // console.log("info en estado civil: ", validInfo);
+        if(!info.includes("conservador") && !info.includes("dominio")){
+            return null;
+
+        }
         const regexDivorced = /divorciad[o|a]/i;
         const regexMarried = /casad[o|a]/i;
         const regexSingle = /solter[o|a]/i;
         const regexWidowed = /viud[o|a]/i;
 
-        if(info.match(regexDivorced)) {
+        if(validInfo.match(regexDivorced)) {
             return "Divorciado";
-        }else if(info.match(regexMarried)) {
-            const tipo = this.findTipeMarriage(info);
+        }else if(validInfo.match(regexMarried)) {
+            const tipo = this.findTipeMarriage(validInfo);
             return "Casado " + tipo;
-        }else if(info.match(regexSingle)) {
+        }else if(validInfo.match(regexSingle)) {
             return "Soltero";
-        }else if(info.match(regexWidowed)) {
+        }else if(validInfo.match(regexWidowed)) {
             return "Viudo";
         }
 
@@ -97,18 +108,11 @@ class PjudPdfData{
         }else if(info.match(regexComunidad)) {
             this.caso.tipoMatrimonio = "Comunidad";
         }
+        return '';
     }
 
     obtainRolPropiedad(info){
-        let avaluoType = '';
-        const regexTipo = /destino\sdel\sbien\sraiz:\s(\w{1,20})/g;
-        let tipoBien = info.match(regexTipo);
-        if(tipoBien){
-            avaluoType = tipoBien[0];
-        }
-        else{
-            return null;
-        }
+        let avaluoType = this.obtainTipo(info) ? this.obtainTipo(info) : '';
         const regexAvaluo = /rol\sde\savaluo\s*(?:numero|:)\s*(\d{1,5}\s*-\s*\d{1,7})/i;
         const match = info.match(regexAvaluo);
         if (match) {
@@ -123,15 +127,7 @@ class PjudPdfData{
     }
 
     obtainAvaluoPropiedad(info){
-        let avaluoType = '';
-        const regexTipo = /destino\sdel\sbien\sraiz:\s(\w{1,20})/g;
-        let tipoBien = info.match(regexTipo);
-        if(tipoBien){
-            avaluoType = tipoBien[0];
-        }
-        else{
-            return null;
-        }
+        let avaluoType = this.obtainTipo(info) ? this.obtainTipo(info) : '';
         const regexAvaluo = /avaluo\stotal\s*:\$(\d{1,3}.?)*/g;
         const avaluoMatch = info.match(regexAvaluo);
         if(avaluoMatch){
@@ -144,6 +140,18 @@ class PjudPdfData{
         }else{
             return null;
         }
+    }
+
+    obtainTipo(info){
+        const regexTipo = /destino\sdel\sbien\sraiz:\s(\w{1,20})/g;
+        let tipoBien = info.match(regexTipo);
+        if(tipoBien){
+            return tipoBien[0];
+        }
+        else{
+            return null;
+        }
+
     }
 
     obtainComuna(info){
@@ -172,7 +180,7 @@ class PjudPdfData{
             return null;
         }
         const comuna = modifiedInfo.substring(startText.length, endIndex).trim();
-        console.log("comuna by index: ", comuna);
+        // console.log("comuna by index: ", comuna);
         return comuna;
 
     }
@@ -187,7 +195,8 @@ class PjudPdfData{
         return null;
     }
     obtainDireccion(info){
-        console.log("info en direccion: ", info);
+        // console.log("info en direccion: ", info);
+        let avaluoType = this.obtainTipo(info) ? this.obtainTipo(info) : '';
         let startText = "direccion o nombre del bien raiz:";
         let startIndex = info.indexOf(startText);
         if(startIndex === -1) {
@@ -200,7 +209,11 @@ class PjudPdfData{
             return null;
         }
         startIndex += startText.length;
-        return info.substring(startIndex,endIndex)
+        const direccion = info.substring(startIndex, endIndex).trim();
+        return {
+            "direccion": direccion,
+            "tipo": avaluoType
+        }
       }
 
     //This function will check if the case is complete, if it is the process end

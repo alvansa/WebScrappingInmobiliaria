@@ -129,21 +129,20 @@ class ConsultaCausaPjud{
     }
 
     // Obtiene las partes del remate.
-    async getPartesCaso(caso){
+    async getPartesCaso(){
         let partes = null;
         try{
             partes = await this.page.$eval('#dtaTableDetalle tbody tr:first-child', (row) => {
                 const cells = row.querySelectorAll('td');
                 const caratulado= cells[3] ? cells[3].innerText.trim() : '';
-                const original =  cells[3].innerText;    
-                return {"parte" :  caratulado, "original": original}; 
+                return caratulado; 
             });
         }catch(error){
             console.error('Error al obtener las partes :', error);
             return false;
         }
         console.log('Partes del caso:', partes);
-        this.caso.partes = partes.parte;
+        this.caso.partes = partes;
         return true;
     }
 

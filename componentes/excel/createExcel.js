@@ -116,7 +116,7 @@ class createExcel {
     insertCasos(casos,ws){
         let currentRow = 6;
         for(let caso of casos){
-            this.insertarCasoIntoWorksheet(caso,ws,currentRow);
+            this.insertarCasoIntoWorksheet(caso.toObject(),ws,currentRow);
             currentRow = currentRow + 1;
         }
         return currentRow;

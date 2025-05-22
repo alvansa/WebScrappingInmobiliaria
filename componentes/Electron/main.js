@@ -423,8 +423,10 @@ class MainApp{
         if (arg === 'imbeddedText') {
             result = testTexto();
             console.log("Resultados del texto hardCodded: ",result);
+
         }else if(arg === 'uploadedText'){
             result = testTextoArgs(args[1]);
+
         }else if(arg === 'downloadPDF'){
             console.log("Descargando PDF ubicado en: ",args[1]);  
             result = await downloadPdfFromUrl(this.browser,args[1]);
@@ -434,6 +436,7 @@ class MainApp{
             const caso = crearCasoPrueba();
             result = await consultaCausa(caso);
             console.log("Resultados del caso de prueba en pjud: ",result.toObject());
+
         }else if(arg === 'readPdf'){
             console.log("Leyendo PDF ubicado en: ",args[1]);
             const caso = crearCasoPrueba();
@@ -442,19 +445,46 @@ class MainApp{
             const processPDF = new PjudPdfData(caso);
             processPDF.processInfo(result);
             console.log("Resultados del texto introducido: ",caso.toObject());
+
         }else if(arg === 'consultaMultipleCases'){
-
             console.log("Consultando multiples casos"); 
+            const casos = [];
+            const caso1 = this.createCaso("C-572-2023","JUZGADO DE LETRAS Y GARANTIA DE RIO BUENO");
+            casos.push(caso1);
+            const caso2 = this.createCaso("C-676-2024","JUZGADO DE LETRAS Y GARANTIA DE RIO BUENO");
+            casos.push(caso2);
+            // const caso3 = this.createCaso("C-3054-2024","2º JUZGADO DE LETRAS DE OSORNO");
+            // casos.push(caso3);
+            const caso4 = this.createCaso("C-72-2025","JUZGADO DE LETRAS Y GARANTIA DE PUERTO AYSEN");
+            casos.push(caso4);
+            // const caso5 = this.createCaso("C-4733-2024","3º JUZGADO DE LETRAS DE LA SERENA");
+            // casos.push(caso5);
+            this.obtainCorteJuzgadoNumbers(casos);
+            const result = await this.obtainDataFromCases(casos,event);
+            console.log("Resultados de los casos en la funcion de llamada: ",casos.length);
+            const downloadPath = path.join(os.homedir(), "Documents", "infoRemates");
+            const excel = new createExcel(downloadPath,null,null,false,"oneDay");
+            await excel.writeData(casos,"TestCasosStandard");
 
+        }else if(arg === 'consultaDia'){
+            console.log("Consultando casos por dia 30 de mayo");
             const casos = await this.searchCasesByDay();
             console.log("Resultados de los casos en la funcion de llamada: ",casos.length);
-            
             const result = await this.obtainDataFromCases(casos,event);
             console.log("Resultados de los casos en la funcion de llamada: ",casos.length);
             const downloadPath = path.join(os.homedir(), "Documents", "infoRemates");
             const excel = new createExcel(downloadPath,null,null,false,"oneDay");
             await excel.writeData(casos,"TestDia16-05");
+
         }
+    }
+
+    createCaso(causa,juzado){
+        const caso = new Caso("2025/11/30");
+        caso.juzgado = juzado;
+        caso.causa = causa;
+        caso.origen = 2;
+        return caso;
     }
 
     async obtainDataFromCases(casos,event){
@@ -469,8 +499,8 @@ class MainApp{
             }
             if(counter < casos.length){
                 const awaitTime = Math.random() * (90 - 30) + 30; // Genera un número aleatorio entre 5 y 10
-                mainWindow.webContents.send('aviso-espera', awaitTime);
-                console.log(`Esperando ${awaitTime} segundos para la siguiente consulta`);
+                mainWindow.webContents.send('aviso-espera', [awaitTime,counter + 1,casos.length]);
+                console.log(`Esperando ${awaitTime} segundos para consulta numero ${counter + 1} de ${casos.length}`);
                 await delay(awaitTime * 1000); 
             } 
         }
@@ -497,7 +527,11 @@ class MainApp{
         for(let caso of casos){
             const juzgado = caso.juzgado
             .toLowerCase()
-            .replace(/3er/,"3º");
+            .replace(/3er/,"3º")
+            .replace(/en\s+lo/,"")
+            .replace(/\s+/g," ")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
             console.log("Buscando : ",juzgado);
             const result = this.searchTribunalPorNombre(juzgado);
             if(result){
@@ -537,7 +571,8 @@ class MainApp{
               .toLowerCase()
               .normalize("NFD")
               .replace(/[\u0300-\u036f]/g, "")
-              .replace(/gar\./i,"garantia "),
+              .replace(/gar\./i,"garantia ")
+              .replace(/pto\./i,"puerto "),
             }));
           }
         }
