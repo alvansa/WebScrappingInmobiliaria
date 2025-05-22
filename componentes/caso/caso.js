@@ -35,7 +35,7 @@ class Caso{
     #corte;
     #numeroJuzgado;
 
-    constructor(fechaObtencion,fechaPublicacion='N/A',link='N/A',origen='N/A' ){    
+    constructor(fechaObtencion, fechaPublicacion = 'N/A',link = 'N/A',origen = null ){    
         this.#fechaPublicacion = fechaPublicacion;
         this.#fechaObtencion = fechaObtencion;
         this.#origen = origen;
@@ -236,6 +236,14 @@ class Caso{
         }
         return String(this.#numeroJuzgado);
     }
+    get origen(){
+        if(this.#origen === null){
+            return null;
+        }
+        return Number(this.#origen);
+    }
+
+
   
 
     toObject() {

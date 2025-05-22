@@ -6,6 +6,8 @@ const Causas = require('../../model/Causas.js');
 const config = require("../../config.js");
 const { create } = require('domain');
 
+const PJUD = 2;
+
 
 class createExcel {
     constructor(saveFile, startDate, endDate,emptyMode,type) {
@@ -173,20 +175,26 @@ class createExcel {
             currentCase.juzgado = currentCase.juzgado.replace(/º/g,'°');
         }
         
+        // Si el caso ya existe en la cache, no se guarda
         for (let auction of cacheAuctions) {
             if (auction.causa === currentCase.causa && auction.juzgado === currentCase.juzgado) {
                 return true;
             }
         }
+        // Si la fecha de remate es menor a la fecha de inicio, no se guarda
         if (currentCase.fechaRemate < this.endDate) {
             return true;
         }
+        // No se escriben casos de juez partidor
         if (currentCase.juzgado === "Juez Partidor") {
             return true;
         }
-        for (let savedAuction of auctionsDB) {
-            if (savedAuction.causa === currentCase.causa && savedAuction.juzgado === currentCase.juzgado && savedAuction.fecha < formatDateToSQLite(startDateSQL)) {
-                return true;
+        if(currentCase.origen === PJUD){ // Solo si es caso es del pjud revisamos si ya existe en la base de datos
+            // Si el caso ya existe en la base de datos, no se guarda
+            for (let savedAuction of auctionsDB) {
+                if (savedAuction.causa === currentCase.causa && savedAuction.juzgado === currentCase.juzgado && savedAuction.fecha < formatDateToSQLite(startDateSQL)) {
+                    return true;
+                }
             }
         }
         // if (currentCase.tipoPropiedad === "Estacionamiento") {

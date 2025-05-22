@@ -14,6 +14,7 @@ const PjudPdfData = require('./PjudPdfData.js');
 
 const ERROR = 0;
 const EXITO = 1;
+const DELAY_RANGE = {"min": 2, "max" : 5}
 
 class ConsultaCausaPjud{
     constructor(browser,window,caso){
@@ -37,6 +38,10 @@ class ConsultaCausaPjud{
 
         try{
             result = await this.procesarCaso(this.caso, 1 , lineaAnterior)
+            if(!result){
+                console.log('No se pudo procesar el caso');
+                return false;
+            }
             await this.window.destroy();
             await this.cleanFilesDownloaded();
         }catch(error){
@@ -76,7 +81,7 @@ class ConsultaCausaPjud{
                     throw new Error(`No se pudo cargar la página después de ${maxRetries} intentos`);
                 }
             }
-            await fakeDelay(2,5);
+            await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
         }
     }
 
@@ -86,11 +91,11 @@ class ConsultaCausaPjud{
             const valorInicial = await this.setValoresIncialesBusquedaCausa();
             if (!valorInicial) {
                 console.log('No se pudieron setear los valores iniciales');
-                return lineaAnterior; // Salta al siguiente caso
+                return false; // Salta al siguiente caso
             }
         } catch (error) {
             console.error('Error al setear los valores iniciales:', error);
-            return lineaAnterior; // Salta al siguiente caso
+            return false; // Salta al siguiente caso
         }
 
         try {
@@ -103,7 +108,7 @@ class ConsultaCausaPjud{
         try {
             if (!cambioPagina) {
                 console.log('No se cambio el resultado. Saltando caso.');
-                return lineaAnterior; // Salta al siguiente caso
+                return false // Salta al siguiente caso
             }
             await this.getPartesCaso();
         } catch (error) {
@@ -112,7 +117,12 @@ class ConsultaCausaPjud{
         }
 
         console.log('Test Pjud activado');
-        await this.buscarGP();
+        const isValid = await this.buscarGP();
+        if(!isValid){
+            console.log('Fallo al buscar GP');
+            return false;
+        }
+        
 
         const lineaActual = this.getPrimeraLinea();
         return lineaActual;
@@ -141,7 +151,7 @@ class ConsultaCausaPjud{
         try {
             await this.page.waitForSelector('#btnConConsulta');
             await this.page.click('#btnConConsulta');
-            await fakeDelay(2,5);
+            await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
             await this.page.waitForSelector('#dtaTableDetalle tbody tr:first-child', { timeout: 1000 });
             // el waitForFunction espera a que la tabla se actualice
             // sus parametros son una función que se ejecuta en el contexto de la página
@@ -149,10 +159,12 @@ class ConsultaCausaPjud{
             // variables adicionales que se quieran utilizar en la funcion de pagina.
             await this.page.waitForFunction(
                 async (lineaAnterior) => {
+                    //Selecciona la primera fila de la tabla
                     const lineaActual = document.querySelector('#dtaTableDetalle tbody tr:first-child'); 
                     if(lineaActual){
                         const cells = lineaActual.querySelectorAll('td');
                         const newContent = Array.from(cells).map(cell => cell.innerText.trim()).join(' ');
+                        // Verifica la tabla contiene parte del texto que indica que no se encontró el caso
                         if(newContent.includes('No se han encontrado')){
                             console.log('La tabla presenta que no se encontro el caso.',cells[0].innerText);
                             return false;
@@ -164,12 +176,10 @@ class ConsultaCausaPjud{
                 {timeout:5000}, // Opciones para waitForFunction
                 lineaAnterior // Pasar la línea anterior como argumento
             );
-
             return true;
         } catch (error) {
             return false; // Salta al siguiente caso
         }
-
     }
 
     async getPrimeraLinea(){
@@ -235,11 +245,14 @@ class ConsultaCausaPjud{
 
         const selectedCuaderno = await this.selectCuaderno();
 
-        if(!selectedCuaderno){ return false; }
+        if(!selectedCuaderno){ 
+            console.log("no se encontro el cuaderno");
+            return false; }
 
         // await fakeDelay(4, 10);
 
         await this.getAvaluoTablaCausa();
+        return true;
     }
 
     async findAndProcessLinkGP(){
@@ -253,7 +266,7 @@ class ConsultaCausaPjud{
                 console.log("Enlace no econtrado");
                 return false
             }
-            await fakeDelay(2,5);
+            await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
             await link.click(); // Simula un clic en el enlace
             return true;
         }catch(error){
@@ -264,7 +277,7 @@ class ConsultaCausaPjud{
 
     async selectCuaderno() {
         const selectorCuaderno = '#selCuaderno';
-        const targetOptionText = '2 - Apremio Ejecutivo Obligación de Dar';
+        const targetOptionText = 'Apremio';
         // Espera a que se carguen las opciones de Historia Causa Cuaderno
         await this.page.waitForSelector(selectorCuaderno);
 
@@ -279,14 +292,15 @@ class ConsultaCausaPjud{
         });
 
         // Buscar la opción que contiene "2 - Apremio Ejecutivo Obligación de Dar"
-        const optionToSelect = options.find(option => option.text.includes('Apremio Ejecutivo'));
+        const optionToSelect = options.find(option => option.text.includes(targetOptionText));
 
         if (optionToSelect) {
-            await fakeDelay(2,5);
+            await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
             // Seleccionar la opción encontrada
             await this.page.select('#selCuaderno', optionToSelect.value);
         } else {
             console.log('La opción deseada no se encuentra en el select.');
+            return false
             
         }
         const cuadernoValue = await this.page.$eval('#selCuaderno', el => el.value);
@@ -335,10 +349,10 @@ class ConsultaCausaPjud{
         ]);
         if(dirHasLink){
             console.log(`El numero ${number} tiene directorio se hace click`);
-            await fakeDelay(2, 5);
+            await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
             const linkToDir = await row.$('td:nth-child(3) a');
             linkToDir.click();
-            await fakeDelay(2, 5);
+            await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
 
             const downloaded = await this.obtainLinkOfPdf();
             if(downloaded){
@@ -346,7 +360,7 @@ class ConsultaCausaPjud{
             }
 
             const xSelector = '#modalAnexoSolicitudCivil > div > div > div.modal-header > button';
-            await fakeDelay(2, 5);
+            await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
             await this.page.waitForSelector(xSelector, { visible: true });
             await this.page.click(xSelector);
             return false;
@@ -371,7 +385,7 @@ class ConsultaCausaPjud{
                 ]);
                 //Donwload pdf and save it in a specific folder
                 const linkToPdf = "https://oficinajudicialvirtual.pjud.cl/ADIR_871/civil/documentos/anexoDocCivil.php?dtaDoc=" + valuePdf
-                await fakeDelay(2, 5);
+                await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
                 isDone = await this.downloadPdfFromUrl(linkToPdf);
                 if(isDone){
                     return true;
@@ -408,7 +422,7 @@ class ConsultaCausaPjud{
             });
     
             await pdfPage.goto(url);
-            await fakeDelay(2,5);
+            await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
             //Leer el pdf descargado
             resultado = await ProcesarBoletin.convertPdfToText2(this.pdfPath);
             const resultOfProcess = this.PjudData.processInfo(resultado);
@@ -459,7 +473,7 @@ class ConsultaCausaPjud{
                 const conCorte = document.querySelector('#conCorte');
                 return conCorte && conCorte.options.length > 1; // Verifica que haya más de una opción disponible
             });
-            await fakeDelay(2,5);
+            await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
             return true;
         }catch(error){
             console.log('Error al configurar la competencia:', error);
@@ -483,7 +497,7 @@ class ConsultaCausaPjud{
                 const conTribunal = document.querySelector('#conTribunal');
                 return conTribunal && conTribunal.options.length > 1;
             });
-            await fakeDelay(2,5);
+            await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
             return true;
         }catch(error){
             console.log('Error al configurar la corte:', error);
@@ -513,7 +527,7 @@ class ConsultaCausaPjud{
                 const conTipoCausa = document.querySelector('#conTipoCausa');
                 return conTipoCausa && conTipoCausa.options.length > 1;
             });
-            await fakeDelay(2,5);
+            await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
             return true;
         }catch(error){
             console.log('Error al configurar el tribunal:', error);
@@ -537,7 +551,7 @@ class ConsultaCausaPjud{
                 const conTribunal = document.querySelector('#conTribunal');
                 return conTribunal && conTribunal.options.length > 1;
             });
-            await fakeDelay(2,5);
+            await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
             return true;
         }catch(error){
             console.log('Error al configurar la corte:', error);
@@ -558,7 +572,7 @@ class ConsultaCausaPjud{
                 console.log('No se seleccionó el rol:', valorCausa);
                 return false;
             }
-            await fakeDelay(2,5);
+            await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
             return true;
         }catch(error){
             console.log('Error al configurar la causa:', error);
@@ -576,7 +590,7 @@ class ConsultaCausaPjud{
                 console.log('No se seleccionó el año:', valorAnno);
                 return false;
             }
-            await fakeDelay(2,5);
+            await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
             return true;
         }catch(error){
             console.log('Error al configurar el año:', error);

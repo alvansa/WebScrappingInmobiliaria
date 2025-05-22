@@ -189,10 +189,12 @@ class MainApp{
                     const createOneExcelFile = new createExcel(downloadPath,null,null,false,"one");
                     filePath = await createOneExcelFile.writeData(caso);
                     console.log("Caso guardado en: ", filePath);
-                    
+                    console.log("Retornando Caso: ", filePath);
+                    return filePath;
+                }else{
+                    console.log("No se logro procesar el caso");
+                    return false;
                 }
-                console.log("Retornando Caso: ", filePath);
-                return filePath;
             }catch(error){
                 console.error('Error al buscar el caso:', error.message);
                 return null;
@@ -389,6 +391,7 @@ class MainApp{
         }
         return;
     }
+
     cleanupBeforeExit(isCrash = false) {
         try{
             console.log('Limpieza antes de salir...');
@@ -443,21 +446,14 @@ class MainApp{
 
             console.log("Consultando multiples casos"); 
 
-            const casos = [];
-            const caso1 = new Caso("2025/11/30");
-            caso1.causa = "C-2822-2021";
-            caso1.juzgado = "8º JUZGADO CIVIL DE SANTIAGO";
-            casos.push(caso1);
-            const caso2 = new Caso("2025/11/30");
-            caso2.causa = "C-10793-2023";
-            caso2.juzgado = "12º JUZGADO CIVIL DE SANTIAGO";
-            casos.push(caso2);
-            this.obtainCorteJuzgadoNumbers(casos);
+            const casos = await this.searchCasesByDay();
+            console.log("Resultados de los casos en la funcion de llamada: ",casos.length);
+            
             const result = await this.obtainDataFromCases(casos,event);
             console.log("Resultados de los casos en la funcion de llamada: ",casos.length);
             const downloadPath = path.join(os.homedir(), "Documents", "infoRemates");
             const excel = new createExcel(downloadPath,null,null,false,"oneDay");
-            await excel.writeData(casos,"Test");
+            await excel.writeData(casos,"TestDia16-05");
         }
     }
 
@@ -466,6 +462,7 @@ class MainApp{
         let counter = 0;
         for(let caso of casos){
             counter++;
+            console.log(`Caso a investigar ${caso.causa} ${caso.juzgado} caso numero ${counter} de ${casos.length}`);
             const result = await consultaCausa(caso);
             if(result){
                 console.log("Resultados del caso de prueba en pjud: ",caso.toObject());
@@ -479,9 +476,10 @@ class MainApp{
         }
     }
     
+    //Funcion para obtener los casos del pjud por dia.
     async searchCasesByDay(){
-        const startDate = "16/05/2025";
-        const endDate = "17/05/2025";
+        const startDate = "30/05/2025";
+        const endDate = "31/05/2025";
         const window = new BrowserWindow({ show: true });
         const url = 'https://oficinajudicialvirtual.pjud.cl/indexN.php';
         await window.loadURL(url);
@@ -497,7 +495,9 @@ class MainApp{
     obtainCorteJuzgadoNumbers(casos){
         console.log("Obteniendo los numeros de juzgado y corte de ", casos.length, " casos");
         for(let caso of casos){
-            const juzgado = caso.juzgado.toLowerCase();
+            const juzgado = caso.juzgado
+            .toLowerCase()
+            .replace(/3er/,"3º");
             console.log("Buscando : ",juzgado);
             const result = this.searchTribunalPorNombre(juzgado);
             if(result){

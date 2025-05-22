@@ -147,7 +147,7 @@ class PjudPdfData{
     }
 
     obtainComuna(info){
-        console.log("info en comuna: ", info);
+        // console.log("info en comuna: ", info);
         let comuna = this.obtainComunaByIndex(info);
         if(comuna){
             return comuna;
@@ -187,9 +187,14 @@ class PjudPdfData{
         return null;
     }
     obtainDireccion(info){
-        const startText = "direccion o nombre del bien raiz:";
-        const endText = "destino del bien raiz:";
+        console.log("info en direccion: ", info);
+        let startText = "direccion o nombre del bien raiz:";
         let startIndex = info.indexOf(startText);
+        if(startIndex === -1) {
+            startText = "direccion:";
+            startIndex = info.indexOf(startText);
+        }
+        const endText = "destino del bien raiz:";
         const endIndex = info.indexOf(endText);
         if(startIndex === -1 || endIndex === -1) {
             return null;

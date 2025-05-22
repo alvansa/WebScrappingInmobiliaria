@@ -196,9 +196,9 @@ function getJuzgado(data) {
             const numero = parseInt(numeroMatch[0]);
             const ordinalForm = convertirANombre(numero);
 
-            if(tribunal.includes("")){
-                console.log("Variaciones: ",ordinalForm, "Tipo : ",typeof ordinalForm);   
-            }
+            // if(tribunal.includes("")){
+            //     console.log("Variaciones: ",ordinalForm, "Tipo : ",typeof ordinalForm);   
+            // }
 
             const simbolosOrdinales = ['°', 'º', ''];
 
