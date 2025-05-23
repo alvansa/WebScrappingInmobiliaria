@@ -4,6 +4,7 @@ const puppeteer = require('puppeteer-core');
 const pie = require('puppeteer-in-electron');
 const os = require('os');
 
+const Economico = require('../economico/Economico.js');
 const {getDatosRemate,emptyCaseEconomico} = require('../economico/datosRemateEmol.js');
 const {PreRemates} = require('../preremates/obtenerPublicaciones.js');
 const MapasSII = require('../mapasSII/MapasSII.js');
@@ -449,14 +450,14 @@ class MainApp{
         }else if(arg === 'consultaMultipleCases'){
             console.log("Consultando multiples casos"); 
             const casos = [];
-            const caso1 = this.createCaso("C-572-2023","JUZGADO DE LETRAS Y GARANTIA DE RIO BUENO");
+            const caso1 = this.createCaso("C-3178-2022","4º JUZGADO DE LETRAS EN LO CIVIL DE ANTOFAGASTA");
             casos.push(caso1);
-            const caso2 = this.createCaso("C-676-2024","JUZGADO DE LETRAS Y GARANTIA DE RIO BUENO");
+            const caso2 = this.createCaso("C-126-2025","JUZGADO DE LETRAS DE LOS LAGOS");
             casos.push(caso2);
             // const caso3 = this.createCaso("C-3054-2024","2º JUZGADO DE LETRAS DE OSORNO");
             // casos.push(caso3);
-            const caso4 = this.createCaso("C-72-2025","JUZGADO DE LETRAS Y GARANTIA DE PUERTO AYSEN");
-            casos.push(caso4);
+            // const caso4 = this.createCaso("C-72-2025","JUZGADO DE LETRAS Y GARANTIA DE PUERTO AYSEN");
+            // casos.push(caso4);
             // const caso5 = this.createCaso("C-4733-2024","3º JUZGADO DE LETRAS DE LA SERENA");
             // casos.push(caso5);
             this.obtainCorteJuzgadoNumbers(casos);
@@ -464,7 +465,7 @@ class MainApp{
             console.log("Resultados de los casos en la funcion de llamada: ",casos.length);
             const downloadPath = path.join(os.homedir(), "Documents", "infoRemates");
             const excel = new createExcel(downloadPath,null,null,false,"oneDay");
-            await excel.writeData(casos,"TestCasosStandard");
+            await excel.writeData(casos,`${caso1.causa}-${caso2.causa}`);
 
         }else if(arg === 'consultaDia'){
             console.log("Consultando casos por dia 30 de mayo");
@@ -474,9 +475,16 @@ class MainApp{
             console.log("Resultados de los casos en la funcion de llamada: ",casos.length);
             const downloadPath = path.join(os.homedir(), "Documents", "infoRemates");
             const excel = new createExcel(downloadPath,null,null,false,"oneDay");
-            await excel.writeData(casos,"TestDia16-05");
+            await excel.writeData(casos,"Remates-02-junio");
 
+        }else if(arg === 'testEconomicoPuppeteer'){
+            const fechaInicio = new Date("2025/05/22");
+            const fechaFin = new Date("2025/05/23");
+            const economico = new Economico(this.browser, fechaInicio, fechaFin);
+            const casos = await economico.getCases();
+            console.log(casos)
         }
+
     }
 
     createCaso(causa,juzado){
@@ -508,8 +516,8 @@ class MainApp{
     
     //Funcion para obtener los casos del pjud por dia.
     async searchCasesByDay(){
-        const startDate = "30/05/2025";
-        const endDate = "31/05/2025";
+        const startDate = "02/06/2025";
+        const endDate = "03/06/2025";
         const window = new BrowserWindow({ show: true });
         const url = 'https://oficinajudicialvirtual.pjud.cl/indexN.php';
         await window.loadURL(url);
@@ -529,6 +537,7 @@ class MainApp{
             .toLowerCase()
             .replace(/3er/,"3º")
             .replace(/en\s+lo/,"")
+            .replace(/de\s+\los\s+lagos/ig,"los lagos")
             .replace(/\s+/g," ")
             .normalize("NFD")
             .replace(/[\u0300-\u036f]/g, "");

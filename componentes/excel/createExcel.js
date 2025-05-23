@@ -182,7 +182,7 @@ class createExcel {
             }
         }
         // Si la fecha de remate es menor a la fecha de inicio, no se guarda
-        if (currentCase.fechaRemate < this.endDate) {
+        if (currentCase.fechaRemate < this.startDate) {
             return true;
         }
         // No se escriben casos de juez partidor

@@ -41,6 +41,14 @@ document.getElementById('testConsultaCausa').addEventListener('click', ()=>{
   const result = window.api.testEconomico(["testConsultaCausa"]);
 })
 
+document.getElementById('consultaDia').addEventListener('click', ()=>{
+  const result = window.api.testEconomico(["consultaDia"]);
+})
+
+document.getElementById('testEconomicoPuppeteer').addEventListener('click', ()=>{
+  const result = window.api.testEconomico(["testEconomicoPuppeteer"]);
+})
+
 selectFileBtn.addEventListener('click', async () => {
   try {
     const filePath = await window.api.openFileLocal();
