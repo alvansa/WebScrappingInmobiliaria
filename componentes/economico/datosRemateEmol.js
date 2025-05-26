@@ -28,7 +28,7 @@ async function getDatosRemate(fechaHoy, fechaInicioStr, fechaFinStr, maxRetries)
         return casos;
     }
     catch (error) {
-        console.error('Error al obtener resultados en el controlador:', error);
+        console.error('Error al obtener resultados en el controlador:', error.message);
     }
 }
 
@@ -247,7 +247,7 @@ function getJuzgado2(data) {
         .replace(/\s+/, ' ')
 
     let tribunaleAceptado = null;
-    console.log("Data normalizada en getJuzgado: ", normalizedData);
+    // console.log("Data normalizada en getJuzgado: ", normalizedData);
     if (!cacheInitialized) {
         cacheTribunales = new CacheTribunales();
         cacheTribunales.initializePersistentCache();
@@ -278,6 +278,7 @@ function getJuezPartidor(data) {
     }
 }
 function getPorcentaje(data) {
+    // console.log("Data en getPorcentaje: ", data);
     const regexMinimos = [
         /\d{1,3}\s*%\s*(?:del\s+)?(?:mínimo|valor|precio)+/i,
         /(garantía|Garantía)\s+(suficiente\s+)?(de\s+)?(\$\s*)?(\d{1,3}(?:\.\d{3})*,?\d*)/i,

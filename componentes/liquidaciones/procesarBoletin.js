@@ -297,8 +297,8 @@ class ProcesarBoletin {
             const data = await pdf(dataBuffer);
             return data.text;
         } catch (error) {
-            console.error('Error al procesar PDF:', error);
-            throw error;
+            console.error('Error al procesar PDF:', error.message);
+            return null;
         }
     }
 

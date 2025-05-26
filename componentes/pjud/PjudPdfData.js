@@ -1,3 +1,4 @@
+const {getMontoMinimo, getFormatoEntrega, getPorcentaje, getAnno} = require('../economico/datosRemateEmol');
 
 class PjudPdfData{
     constructor(caso){
@@ -51,11 +52,27 @@ class PjudPdfData{
                     this.caso.direccion = direccion.direccion;
                 }
             }
-
         }
 
+        if(!this.caso.montoMinimo){
+            const montoMinimo = getMontoMinimo(normalizeInfo);
+            this.caso.montoMinimo = montoMinimo ? montoMinimo : null;
+        }
 
+        if(!this.caso.formatoEntrega){
+            const formatoEntrega = getFormatoEntrega(item);
+            this.caso.formatoEntrega = formatoEntrega ? formatoEntrega[0] : null;
+        }
 
+        if(!this.caso.porcentaje){
+            const percentage = this.getAndProcessPercentage(item);
+            this.caso.porcentaje = percentage ? percentage : null;
+        }
+
+        if(!this.caso.anno){
+            const anno = getAnno(normalizeInfo);
+            this.caso.anno = anno ? anno : null;
+        }
         return false;
     }
 
@@ -70,6 +87,20 @@ class PjudPdfData{
         return processItem;
     }
 
+    getAndProcessPercentage(info){
+        const percentage = getPorcentaje(info);
+        console.log("Porcentaje identificado: ", percentage);
+        if (!percentage) {
+            return null;
+        }
+        const numericPercentage = percentage[0].match(/\d{1,2}/g);
+        if (!numericPercentage) {
+            return null
+        }
+        return numericPercentage[0];
+    }
+
+    
     obtainCivilStatus(info){
         const validInfo = info;
         // console.log("info en estado civil: ", validInfo);

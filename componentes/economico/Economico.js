@@ -3,6 +3,7 @@ const Caso = require('../caso/caso')
 const {BrowserWindow} = require('electron');
 const {delay,fakeDelay} = require('../../utils/delay');
 const { log } = require('electron-builder');
+const {procesarDatosRemate} = require('./datosRemateEmol');
 
 const SELECTORS = 
 {
@@ -16,8 +17,7 @@ class Economico{
         this.page = null;
         this.window = null;
         this.casosARevisar = [];
-        this.maxRetries = 5; // Número máximo de reintentos
-        this.attempt = 0; // Contador de intentos
+        this.maxRetries = 3; // Número máximo de reintentos
         this.urlBase = "https://www.economicos.cl";
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
@@ -27,23 +27,28 @@ class Economico{
         try{
             console.log("Iniciando la búsqueda de casos en Economicos.cl desde ", this.fechaInicio, " hasta ", this.fechaFin);
             await this.createWindow('https://www.economicos.cl/todo_chile/remates_de_propiedades_el_mercurio');
-            // await this.page.goto('https://www.economicos.cl/remates/clasificados-remates-cod48015209.html', { waitUntil: 'networkidle2', timeout: 30000 });
             const result = await this.extractInfoPage();
             console.log("Casos encontrados: ", this.casosARevisar);
             await delay(2000);
+            for(let caso of this.casosARevisar){
+                const description = await this.getInfoFromSingularPage(caso);
+                if(description){
+                    caso.texto = description;
+                }else{
+                    console.log("No se pudo obtener la descripción para el caso: ", caso);
+                }
+            }
+            for(let caso of this.casosARevisar){
+                console.log("Procesando caso: ", caso.link);
+                procesarDatosRemate(caso);
+            }
 
 
         }catch(e){
             console.log("Error en getCases: ", e);
-            this.attempt++;
-            if (this.attempt < this.maxRetries) {
-                console.log(`Reintentando (${this.attempt}/${this.maxRetries})...`);
-                await delay(2000);
-                return this.getCases();
-            } else {
-                console.log("Número máximo de reintentos alcanzado.");
-            }
+            return [];
         }finally{
+            console.log("Cerrando la ventana de Economicos.cl");
             if(!this.window.isDestroyed()){
                 this.window.destroy();
             }
@@ -69,12 +74,11 @@ class Economico{
 
 async extractInfoPage() {
     let attempt = 0;
-    const maxRetries = 3;
     let stopFlag = false;
     let url = 'https://www.economicos.cl/todo_chile/remates_de_propiedades_el_mercurio';
     const fechaHoy = new Date();
 
-    while (attempt < maxRetries) {
+    while (attempt < this.maxRetries) {
         try {
             await this.navigateToPage(url);
 
@@ -86,6 +90,7 @@ async extractInfoPage() {
                 const nextPage = document.querySelector(NEXT_PAGE_SELECTOR);
                 return nextPage ? nextPage.parentElement.getAttribute('href') : null;
             }, SELECTORS.NEXT_PAGE_SELECTOR);
+
 
             const processCases = await this.processPage(this.fechaInicio, this.fechaFin, SELECTORS);
 
@@ -114,6 +119,41 @@ async extractInfoPage() {
             } else {
                 console.error('Error en el modelo:', error.message);
                 throw error; // Relanzar error para manejarlo fuera
+            }
+        }
+    }
+}
+
+
+async getInfoFromSingularPage(caso){
+    let attemp = 1;
+    while (attemp < this.maxRetries) {
+        try {
+            // Navegar a la página
+            await this.page.goto(caso.link, {
+                waitUntil: 'networkidle2',
+                timeout: 30000
+            });
+
+            // Esperar a que el elemento esté disponible
+            await this.page.waitForSelector('div#description p', { timeout: 5000 });
+
+            // Extraer el texto
+            const description = await this.page.$eval('div#description p', el => el.textContent);
+            // console.log("Description: ", description);
+            caso.description = description;
+
+            return description;
+        } catch (error) {
+            if(error.response && error.response.status === 503){
+                console.error('Error 503:', error.message);
+                const delayTime = 2 ** attemp * 1000; // Backoff exponencial
+                console.log(`Esperando ${delayTime / 1000} segundos antes de reintentar...`);
+                await delay(delayTime);
+                attemp++; // Incrementar el contador de intentos
+            } else {
+                console.error('Error al obtener información de la página:', error.message);
+                return null;
             }
         }
     }

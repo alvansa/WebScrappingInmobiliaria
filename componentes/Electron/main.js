@@ -242,9 +242,17 @@ class MainApp{
             return [];
         }
 
+        const fechaInicio = new Date(fechaInicioStr);
+        const fechaFin = new Date(fechaFinStr);
+
         let casos = [];
         try {
-            casos = await getDatosRemate(fechaHoy, fechaInicioStr, fechaFinStr, maxRetries) || [];
+            // Funcion antigua para obtener los datos de emol que funciona con axios y cheerio
+            // casos = await getDatosRemate(fechaHoy, fechaInicioStr, fechaFinStr, maxRetries) || [];
+            // Funcion nueva para obtener los datos de emol que funciona con puppeteer
+            const economico = new Economico(this.browser, fechaInicio, fechaFin);
+            casos = await economico.getCases() || [];
+            
         } catch (error) {
             console.error('Error al obtener resultados en emol:', error);
         }
@@ -445,7 +453,7 @@ class MainApp{
             result = await ProcesarBoletin.convertPdfToText2(args[1]);
             const processPDF = new PjudPdfData(caso);
             processPDF.processInfo(result);
-            console.log("Resultados del texto introducido: ",caso.toObject());
+            console.debug("Resultados del texto introducido: ",caso.toObject());
 
         }else if(arg === 'consultaMultipleCases'){
             console.log("Consultando multiples casos"); 
@@ -475,14 +483,21 @@ class MainApp{
             console.log("Resultados de los casos en la funcion de llamada: ",casos.length);
             const downloadPath = path.join(os.homedir(), "Documents", "infoRemates");
             const excel = new createExcel(downloadPath,null,null,false,"oneDay");
-            await excel.writeData(casos,"Remates-02-junio");
+            await excel.writeData(casos,"Remates-24-dic-2024");
 
         }else if(arg === 'testEconomicoPuppeteer'){
             const fechaInicio = new Date("2025/05/22");
             const fechaFin = new Date("2025/05/23");
             const economico = new Economico(this.browser, fechaInicio, fechaFin);
             const casos = await economico.getCases();
-            console.log(casos)
+            // for(let caso of casos){
+            //     const result = await economico.getInfoFromSingularPage(caso);
+            //     await fakeDelay(1,3);
+            //     if(result){
+            //         console.log("Resultados del caso de prueba en pjud: ", caso.toObject());
+            //     }
+            // }
+            console.log(casos.map(caso => caso.toObject()));
         }
 
     }
@@ -505,7 +520,8 @@ class MainApp{
             if(result){
                 console.log("Resultados del caso de prueba en pjud: ",caso.toObject());
             }
-            if(counter < casos.length){
+            
+            if(counter  < casos.length){
                 const awaitTime = Math.random() * (90 - 30) + 30; // Genera un número aleatorio entre 5 y 10
                 mainWindow.webContents.send('aviso-espera', [awaitTime,counter + 1,casos.length]);
                 console.log(`Esperando ${awaitTime} segundos para consulta numero ${counter + 1} de ${casos.length}`);
@@ -516,8 +532,8 @@ class MainApp{
     
     //Funcion para obtener los casos del pjud por dia.
     async searchCasesByDay(){
-        const startDate = "02/06/2025";
-        const endDate = "03/06/2025";
+        const startDate = "24/12/2024";
+        const endDate = "25/12/2024";
         const window = new BrowserWindow({ show: true });
         const url = 'https://oficinajudicialvirtual.pjud.cl/indexN.php';
         await window.loadURL(url);
@@ -551,6 +567,7 @@ class MainApp{
         }
         console.log("Finalizado la revision de casos");
     }
+
     searchTribunalPorNombre(nombreTribunal) {
         const tribunalesPorCorteNormalized = this.normalizeTribunalesPorCorte(tribunalesPorCorte);
         for (const corte in tribunalesPorCorteNormalized) {
@@ -611,10 +628,11 @@ function crearCasoPrueba(){
 function openWindow(window, useProxy){
     const proxyData = JSON.parse(process.env.PROXY_DATA);
     const randomIndex = Math.floor(Math.random() * proxyData.length); 
+    const isVisible = true;
     if(useProxy){
         console.log("Se lanza el navegador con proxy");
         window = new BrowserWindow({
-            show: true,// Ocultar ventana para procesos en background
+            show: isVisible,// Ocultar ventana para procesos en background
             proxy :{
                 username: proxyData[randomIndex].username,
                 password: proxyData[randomIndex].password,
@@ -623,7 +641,7 @@ function openWindow(window, useProxy){
         });
     }else{
         window = new BrowserWindow({
-            show: true,// Ocultar ventana para procesos en background
+            show: isVisible,// Ocultar ventana para procesos en background
         });
     }
     return window;

@@ -45,7 +45,7 @@ class ConsultaCausaPjud{
             await this.window.destroy();
             await this.cleanFilesDownloaded();
         }catch(error){
-            console.error('Error en la función getEspecificDataFromPjud:', error);
+            console.error('Error en la función getEspecificDataFromPjud:', error.message);
             await this.browser.close();
             return false;
         }finally{
@@ -76,7 +76,7 @@ class ConsultaCausaPjud{
                 console.log(`Página cargada exitosamente en el intento ${attempt}`);
                 return; // Salir de la función si se carga correctamente
             } catch (error) {
-                console.warn(`Error al cargar la página (intento ${attempt}):`, error);
+                console.error(`Error al cargar la página (intento ${attempt}):`, error.message);
                 if (attempt === maxRetries) {
                     throw new Error(`No se pudo cargar la página después de ${maxRetries} intentos`);
                 }
@@ -94,14 +94,14 @@ class ConsultaCausaPjud{
                 return false; // Salta al siguiente caso
             }
         } catch (error) {
-            console.error('Error al setear los valores iniciales:', error);
+            console.error('Error al setear los valores iniciales:', error.message);
             return false; // Salta al siguiente caso
         }
 
         try {
             cambioPagina = await this.revisarPrimeraLinea(lineaAnterior);
         } catch (error) {
-            console.error('Error al verificar o procesar la primera línea del caso:', error);
+            console.error('Error al verificar o procesar la primera línea del caso:', error.message);
             return lineaAnterior; // Salta al siguiente caso
         }
 
@@ -112,7 +112,7 @@ class ConsultaCausaPjud{
             }
             await this.getPartesCaso();
         } catch (error) {
-            console.error('Error al obtener la primera línea del caso:', error);
+            console.error('Error al obtener la primera línea del caso:', error.message);
             return lineaAnterior; // Salta al siguiente caso
         }
 
@@ -138,7 +138,7 @@ class ConsultaCausaPjud{
                 return caratulado; 
             });
         }catch(error){
-            console.error('Error al obtener las partes :', error);
+            console.error('Error al obtener las partes :', error.message);
             return false;
         }
         console.log('Partes del caso:', partes);
@@ -269,7 +269,7 @@ class ConsultaCausaPjud{
             await link.click(); // Simula un clic en el enlace
             return true;
         }catch(error){
-            console.log('Enlace al buscar y presionar el enlace: ',error.message)
+            console.error('Enlace al buscar y presionar el enlace: ',error.message)
             return false;
         }
     }
@@ -330,7 +330,7 @@ class ConsultaCausaPjud{
                 }
             }
         } catch (error) {
-            console.error('Error en la función getDatosTablaRemate:', error);
+            console.error('Error en la función getDatosTablaRemate:', error.message);
             return false;
         }
     }
@@ -346,28 +346,31 @@ class ConsultaCausaPjud{
             row.$eval('td:nth-child(6)', el => el.textContent.trim()),
             row.$eval('td:nth-child(7)', el => el.textContent.trim()),
         ]);
-        if(dirHasLink){
-            console.log(`El numero ${number} tiene directorio se hace click`);
-            await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
-            const linkToDir = await row.$('td:nth-child(3) a');
-            linkToDir.click();
-            await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
+        try{
+            if (dirHasLink) {
+                console.log(`El numero ${number} tiene directorio se hace click`);
+                await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
+                const linkToDir = await row.$('td:nth-child(3) a');
+                linkToDir.click();
+                await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
 
-            const downloaded = await this.obtainLinkOfPdf();
-            if(downloaded){
-                return true;
+                const downloaded = await this.obtainLinkOfPdf();
+                if (downloaded) {
+                    return true;
+                }
+
+                const xSelector = '#modalAnexoSolicitudCivil > div > div > div.modal-header > button';
+                await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
+                await this.page.waitForSelector(xSelector, { visible: true });
+                await this.page.click(xSelector);
+                return false;
             }
-
-            const xSelector = '#modalAnexoSolicitudCivil > div > div > div.modal-header > button';
-            await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
-            await this.page.waitForSelector(xSelector, { visible: true });
-            await this.page.click(xSelector);
-            return false;
-            }
-
-        console.log('Fila:',number,uselessFile,directory,stage, tramite, descripcion, fecha);
-
-        return ERROR;
+            console.log('Fila:', number, uselessFile, directory, stage, tramite, descripcion, fecha);
+            return ERROR;
+        } catch (error) {
+            console.error('Error al obtener los datos de la fila:', error.message);
+            return ERROR;
+        }
     }
 
     async obtainLinkOfPdf(){
@@ -392,13 +395,14 @@ class ConsultaCausaPjud{
             }
             return false;
         }catch(error){
-            console.error('Error al obtener el link del PDF:', error);
+            console.error('Error al obtener el link del PDF:', error.message);
             return false;
         }
     }
 
     async downloadPdfFromUrl(url) {
         let resultado = '';
+        let resultOfProcess = false;
         const pdfWindow = new BrowserWindow({ show: true });
         await pdfWindow.loadURL(url);
         const pdfPage = await pie.getPage(this.browser, pdfWindow);
@@ -424,7 +428,11 @@ class ConsultaCausaPjud{
             await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
             //Leer el pdf descargado
             resultado = await ProcesarBoletin.convertPdfToText2(this.pdfPath);
-            const resultOfProcess = this.PjudData.processInfo(resultado);
+            if(resultado){
+                resultOfProcess = this.PjudData.processInfo(resultado);
+            }else{
+                return false;
+            }
             pdfWindow.destroy();
             if(resultOfProcess){
                 console.log('Caso completo');
@@ -475,7 +483,7 @@ class ConsultaCausaPjud{
             await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
             return true;
         }catch(error){
-            console.log('Error al configurar la competencia:', error);
+            console.error('Error al configurar la competencia:', error.message);
             return false;
         }
     }
@@ -499,7 +507,7 @@ class ConsultaCausaPjud{
             await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
             return true;
         }catch(error){
-            console.log('Error al configurar la corte:', error);
+            console.error('Error al configurar la corte:', error.message);
             return false;
         }
     }
@@ -529,7 +537,7 @@ class ConsultaCausaPjud{
             await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
             return true;
         }catch(error){
-            console.log('Error al configurar el tribunal:', error);
+            console.error('Error al configurar el tribunal:', error.message);
             return false;
         }
     }
@@ -553,7 +561,7 @@ class ConsultaCausaPjud{
             await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
             return true;
         }catch(error){
-            console.log('Error al configurar la corte:', error);
+            console.error('Error al configurar la corte:', error.message);
             return false;
         }
     }
@@ -574,7 +582,7 @@ class ConsultaCausaPjud{
             await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
             return true;
         }catch(error){
-            console.log('Error al configurar la causa:', error);
+            console.error('Error al configurar la causa:', error.message);
             return false;
         }
     }
@@ -592,7 +600,7 @@ class ConsultaCausaPjud{
             await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
             return true;
         }catch(error){
-            console.log('Error al configurar el año:', error);
+            console.error('Error al configurar el año:', error.message);
             return false;
         }
 
@@ -620,7 +628,7 @@ class ConsultaCausaPjud{
                 await Promise.all(unlinkPromises); // Espera a que todas las promesas de eliminación se completen
             }
         } catch (error) {
-            console.error('Error al eliminar archivos:', error);
+            console.error('Error al eliminar archivos:', error.message);
             throw error; // Re-lanza el error para que la función que llama sepa que algo falló
         }
     }
