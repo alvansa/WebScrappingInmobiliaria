@@ -404,7 +404,8 @@ function getComuna(data) {
         const listaPreFrases = ["comuna de ", "comuna ", "comuna y provincia de ", "conservador de bienes raíces de ", "conservador bienes raíces ", "registro de propiedad de ", "registro propiedad ", "registro propiedad cbr "];
         for (let preFrase of listaPreFrases) {
             const comunaPreFrase = preFrase + comuna;
-            if (dataNormalizada.includes(comunaPreFrase)) {
+            const comunaSinEspacio = comunaPreFrase.replace(/\s*/g, '');
+            if (dataNormalizada.includes(comunaPreFrase) || dataNormalizada.includes(comunaSinEspacio)) {
                 return comuna;
             }
         }
@@ -582,13 +583,13 @@ function obtainFinalPercentage(foreclosures) {
 }
 function getAnno(data) {
     // Busca el año con dependencia de las fojas, "fojas xxxx del año xxxx"
-    const regexFojasDependiente = /(?:fojas|fs\.?|fjs)(\s*[°º0-9a-zA-ZáéíóúñÑ,.-]+){1,12}\s*(?:del?|año)\s*(\b\d{1}(?:\.\d{3})?\b|\d{1,4})/i;
+    const regexFojasDependiente = /(?:fojas|fs\.?|fjs).*?(?:del?|a[n|ñ]o)\s*(\b\d{1}(?:\.\d{3})?\b|\d{1,4})/i;
     const fojasDependiente = data.match(regexFojasDependiente);
     if (fojasDependiente != null) {
-        return fojasDependiente[2];
+        return fojasDependiente[1];
     }
-    // Busca el año con dependencia del registro de propiedad con regex "registro de propiedad xxxx"
-    const registroRegex = /registro\s*(?:de)?\s*propiedad\s*(?:de\s*)?(\d{4})/i;
+    // Busca el año con dependencia del registro de propiedad con regex "registro de propiedad del? ano? xxxx"
+    const registroRegex = /registro\s*(?:de)?\s*propiedad\s*(?:del?\s*)?(?:a[n|ñ]o\s*)?(\d{4})/i;
     let registro = data.match(registroRegex);
     if (registro != null) {
         return registro[1];
@@ -607,7 +608,7 @@ function getAnno(data) {
     }
     const dataRegistro = dataNormalized.substring(registroFecha);
     let registroFin = dataRegistro.indexOf('.');
-    // console.log("Registro fin: ",registroFin);
+    console.log("Registro fin: ",registroFin);
     if (registroFin == -1) {
         registroFin = dataRegistro.indexOf(',');
     }
@@ -621,6 +622,7 @@ function getAnno(data) {
     if (annoRegistro != null) {
         return annoRegistro[0];
     }
+    console.log("No se encontro el año en el registro de propiedad");
     return null;
 }
 

@@ -240,13 +240,17 @@ class ConsultaCausaPjud{
     async buscarGP(){
         const findLink = await this.findAndProcessLinkGP();
 
-        if(!findLink){ return false;}
+        if(!findLink){
+            console.error("No se pudo encontrar el enlace del GP"); 
+            return false;
+        }
 
         const selectedCuaderno = await this.selectCuaderno();
 
         if(!selectedCuaderno){ 
             console.log("no se encontro el cuaderno");
-            return false; }
+            return false; 
+        }
 
         // await fakeDelay(4, 10);
 
@@ -278,36 +282,39 @@ class ConsultaCausaPjud{
         const selectorCuaderno = '#selCuaderno';
         const targetOptionText = 'Apremio';
         // Espera a que se carguen las opciones de Historia Causa Cuaderno
-        await this.page.waitForSelector(selectorCuaderno);
+        try{
+            await this.page.waitForSelector(selectorCuaderno);
 
-        // const options = await this.page
+            // Obtener todas las opciones del <select>
+            const options = await this.page.$$eval('#selCuaderno option', (opts) => {
+                return opts.map(option => ({
+                    text: option.textContent.trim(),
+                    value: option.value
+                }));
+            });
 
-        // Obtener todas las opciones del <select>
-        const options = await this.page.$$eval('#selCuaderno option', (opts) => {
-            return opts.map(option => ({
-                text: option.textContent.trim(),
-                value: option.value
-            }));
-        });
+            // Buscar la opción que contiene "2 - Apremio Ejecutivo Obligación de Dar"
+            const optionToSelect = options.find(option => option.text.includes(targetOptionText));
 
-        // Buscar la opción que contiene "2 - Apremio Ejecutivo Obligación de Dar"
-        const optionToSelect = options.find(option => option.text.includes(targetOptionText));
+            if (optionToSelect) {
+                await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
+                // Seleccionar la opción encontrada
+                await this.page.select('#selCuaderno', optionToSelect.value);
+            } else {
+                console.log('La opción deseada no se encuentra en el select.');
+                return false
 
-        if (optionToSelect) {
-            await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
-            // Seleccionar la opción encontrada
-            await this.page.select('#selCuaderno', optionToSelect.value);
-        } else {
-            console.log('La opción deseada no se encuentra en el select.');
-            return false
-            
-        }
-        const cuadernoValue = await this.page.$eval('#selCuaderno', el => el.value);
-        if(cuadernoValue !== optionToSelect.value){
-            console.log('No se seleccionó el cuaderno:',optionToSelect.text);
+            }
+            const cuadernoValue = await this.page.$eval('#selCuaderno', el => el.value);
+            if (cuadernoValue !== optionToSelect.value) {
+                console.log('No se seleccionó el cuaderno:', optionToSelect.text);
+                return false;
+            }
+            return true;
+        } catch (error) {
+            console.error('Error al esperar el selector de cuaderno:', error.message);
             return false;
         }
-        return true;
 
     }
 
@@ -388,6 +395,8 @@ class ConsultaCausaPjud{
                 //Donwload pdf and save it in a specific folder
                 const linkToPdf = "https://oficinajudicialvirtual.pjud.cl/ADIR_871/civil/documentos/anexoDocCivil.php?dtaDoc=" + valuePdf
                 await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
+                console.log("-------------------------------");
+                console.log("Trabajando en el documento: ",doc," referencia :", reference);
                 isDone = await this.downloadPdfFromUrl(linkToPdf);
                 if(isDone){
                     return true;
@@ -403,16 +412,17 @@ class ConsultaCausaPjud{
     async downloadPdfFromUrl(url) {
         let resultado = '';
         let resultOfProcess = false;
-        const pdfWindow = new BrowserWindow({ show: true });
-        await pdfWindow.loadURL(url);
-        const pdfPage = await pie.getPage(this.browser, pdfWindow);
-        
-        const nameDir = `${this.caso.causa}_${this.caso.juzgado}`;
-        const pdfName = `boletin_${Date.now()}.pdf`;
-        this.dirPath = path.join(this.downloadPath, nameDir);
-        this.pdfPath = path.join(this.dirPath, pdfName);
-     
+        let pdfWindow = null;
         try{
+            pdfWindow = new BrowserWindow({ show: true });
+            await pdfWindow.loadURL(url);
+            const pdfPage = await pie.getPage(this.browser, pdfWindow);
+
+            const nameDir = `${this.caso.causa}_${this.caso.juzgado}`;
+            const pdfName = `boletin_${Date.now()}.pdf`;
+            this.dirPath = path.join(this.downloadPath, nameDir);
+            this.pdfPath = path.join(this.dirPath, pdfName);
+     
             if(!fs.existsSync(this.dirPath)){
                 fs.mkdirSync(this.dirPath, { recursive: true });
             }
@@ -443,7 +453,7 @@ class ConsultaCausaPjud{
             console.error('Error al hacer la petición:', error.message);
             return false;
         }finally{
-            if(!pdfWindow.isDestroyed()){
+            if(pdfWindow && !pdfWindow.isDestroyed()){
                 pdfWindow.destroy();
             }
         }

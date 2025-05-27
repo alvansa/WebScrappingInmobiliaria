@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const Causas = require('../../model/Causas.js');
 const config = require("../../config.js");
+const {cleanInitialZeros} = require('../../utils/cleanStrings.js');
 const { create } = require('domain');
 
 const PJUD = 2;
@@ -205,6 +206,7 @@ class createExcel {
 
 
     insertarCasoIntoWorksheet(caso, ws, currentRow) {
+        let newRol = caso.rolPropiedad;
         console.log("Fecha de obtenion : ", caso.fechaObtencion, "Tipo :", typeof caso.fechaObtencion);
         this.writeLine(ws,'C',currentRow, caso.fechaObtencion, 'd');
         this.writeLine(ws,'D',currentRow, caso.link, 's');
@@ -230,7 +232,13 @@ class createExcel {
         // ws['T'+ currentRow ] = {v: caso.rolPropiedad, t: 's'};
         // ws['U'+ currentRow ] = {v: 'deuda 2 ', t: 's'};
         // ws['V'+ currentRow ] = {v: 'deuda 3 ', t: 's'};
-        this.writeLine(ws, "W",currentRow, caso.rolPropiedad,"s");
+        console.log("Rol estacionamiento: ", caso.rolEstacionamiento);
+        if(caso.rolEstacionamiento){
+            newRol = this.adaptRol(this.cleanRol(caso.rolPropiedad), this.cleanRol(caso.rolEstacionamiento));
+            console.log("Rol adaptado a escribir: ", newRol);
+            this.writeLine(ws, 'W', currentRow, newRol, 's');
+        }
+        this.writeLine(ws, "W", currentRow, newRol, "s");
         // ws['X'+ currentRow ] = {v: 'notif ', t: 's'};
         // Formato de monto minimo segun el tipo de moneda
         if (caso.moneda === 'UF') {
@@ -248,6 +256,32 @@ class createExcel {
         // ws['AG' + currentRow ] = {v: 'año compr ant ', t: 's'};
         // ws['AH' + currentRow ] = {v: 'precio venta nos ', t: 's'};
     }
+    adaptRol(rolPropiedad, rolEstacionamiento) {
+        if (!rolPropiedad.includes("-") || !rolEstacionamiento.includes("-")) {
+            rolPropiedad = rolPropiedad.replace(/\s*/g, "");
+            return rolPropiedad;
+        }
+        const arrayRolPropiedad = rolPropiedad.split("-");
+        const arrayRolEstacionamiento = rolEstacionamiento.split("-");
+        if (arrayRolPropiedad[0] === arrayRolEstacionamiento[0]) {
+            rolPropiedad += "-" + arrayRolEstacionamiento[1];
+        }
+        rolPropiedad = rolPropiedad.replace(/\s*/g, "");
+        return rolPropiedad;
+    }
+
+    cleanRol(rol) {
+        if (!rol.includes("-")) {
+            return rol;
+        }
+        const parts = rol.split("-");
+        const newFirst = cleanInitialZeros(parts[0]);
+        const newSecond = cleanInitialZeros(parts[1]);
+        console.log(parts)
+        console.log(newFirst, newSecond)
+        return newFirst + "-" + newSecond;
+    }
+
 
     writeLine(ws,row,col,value,type){
         if(value != null){

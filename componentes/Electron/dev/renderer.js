@@ -87,6 +87,7 @@ window.api.onWaitingNotification((args) => {
     if (remaining <= 0) {
       console.log("Se acabo el tiempo");
       clearInterval(countdownInterval);
+      showWaitingModal(false);
     }
   }, 1000);
 });

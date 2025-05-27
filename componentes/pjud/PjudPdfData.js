@@ -1,4 +1,4 @@
-const {getMontoMinimo, getFormatoEntrega, getPorcentaje, getAnno} = require('../economico/datosRemateEmol');
+const {getMontoMinimo, getFormatoEntrega, getPorcentaje, getAnno, getComuna} = require('../economico/datosRemateEmol');
 
 class PjudPdfData{
     constructor(caso){
@@ -6,74 +6,99 @@ class PjudPdfData{
     }
 
     processInfo(item){
-        const normalizeInfo = this.normalizeInfo(item);
-        // Check if all the posible variables that can be obtain by pdf's is already donde
+        let normalizeInfo = this.normalizeInfo(item);
         if (this.isCaseComplete()) {
             console.log("Caso completo");
             return true;
         }
 
+        this.processCivilStatus(normalizeInfo);
+        this.processPropertyRoles(normalizeInfo);
+        this.processPropertyInfo(normalizeInfo);
+        this.processAuctionInfo(normalizeInfo);
+
+        return false;
+    }
+
+    processCivilStatus(info){
         if(!this.caso.estadoCivil){
-            const civilStatus = this.obtainCivilStatus(normalizeInfo);
-            console.log("Estado civil identificado: ", civilStatus);
+            const civilStatus = this.obtainCivilStatus(info);
             this.caso.estadoCivil = civilStatus;
         }
+    }
 
+    processPropertyRoles(info){
+        // Revision de rol de propiedad
         if(!this.caso.rolPropiedad){
-            const rolPropiedad = this.obtainRolPropiedad(normalizeInfo);
-            console.log("Rol propiedad identificado: ", rolPropiedad);
-            if(rolPropiedad){
-                if (!rolPropiedad.tipo.includes("estacionamiento")) {
-                    this.caso.rolPropiedad = rolPropiedad.rol;
-                }
+            const rolPropiedad = this.obtainRolPropiedad(info);
+            if (!rolPropiedad?.tipo.includes("estacionamiento")) {
+                this.caso.rolPropiedad = rolPropiedad.rol;
+            }       
+        }
+        // Revision de rol de estacionamiento
+        if(!this.caso.rolEstacionamiento){
+            const rolEstacionamiento = this.obtainRolPropiedad(info);
+            if (rolEstacionamiento?.tipo.includes("estacionamiento")) {
+                this.caso.rolEstacionamiento = rolEstacionamiento.rol;
             }
         }
-        
+    }
+
+    processPropertyInfo(info,normalizedInfo){
         if(!this.caso.avaluoPropiedad){
-            const avaluoPropiedad = this.obtainAvaluoPropiedad(normalizeInfo);
-            if(avaluoPropiedad){
-                if (!avaluoPropiedad.tipo.includes("estacionamiento")) {
-                    this.caso.avaluoPropiedad = avaluoPropiedad.avaluo;
-                }
+            const avaluoPropiedad = this.obtainAvaluoPropiedad(normalizedInfo);
+            if (!avaluoPropiedad?.tipo.includes("estacionamiento")) {
+                this.caso.avaluoPropiedad = avaluoPropiedad.avaluo;
             }
+        }
+
+        if(!this.caso.avaluoEstacionamiento){
+            const avaluoEstacionamiento = this.obtainAvaluoPropiedad(normalizedInfo);
+            if (avaluoEstacionamiento?.tipo.includes("estacionamiento")) {
+                this.caso.avaluoEstacionamiento = avaluoPropiedad.avaluo;
+            }
+
         }
 
         if(!this.caso.comuna){
-            const comuna = this.obtainComuna(normalizeInfo);
-            console.log("Comuna identificada: ", comuna);
+            let comuna = this.obtainComuna(normalizedInfo);
+            if(!comuna){
+                comuna = getComuna(info)
+            }
             this.caso.comuna = comuna ? comuna : this.caso.comuna;
         }
 
         if(!this.caso.direccion){
-            const direccion = this.obtainDireccion(normalizeInfo);
-            console.log("Direccion identificada: ", direccion);
-            if(direccion){
-                if (!direccion.tipo.includes("estacionamiento")) {
-                    this.caso.direccion = direccion.direccion;
-                }
+            const direccion = this.obtainDireccion(normalizedInfo);
+            if (!direccion?.tipo.includes("estacionamiento")) {
+                this.caso.direccion = direccion.direccion;
             }
         }
 
+        if(!this.caso.anno){
+            const GPnormalizedInfo = this.adaptTextIfGP(normalizedInfo);
+            const anno = getAnno(GPnormalizedInfo);
+            if(anno){
+                this.caso.anno = anno ? anno : null;
+            }
+        }
+    }
+    
+    processAuctionInfo(info,normalizedInfo){
         if(!this.caso.montoMinimo){
-            const montoMinimo = getMontoMinimo(normalizeInfo);
+            const montoMinimo = getMontoMinimo(normalizedInfo);
             this.caso.montoMinimo = montoMinimo ? montoMinimo : null;
         }
 
         if(!this.caso.formatoEntrega){
-            const formatoEntrega = getFormatoEntrega(item);
+            const formatoEntrega = getFormatoEntrega(info);
             this.caso.formatoEntrega = formatoEntrega ? formatoEntrega[0] : null;
         }
 
         if(!this.caso.porcentaje){
-            const percentage = this.getAndProcessPercentage(item);
+            const percentage = this.getAndProcessPercentage(info);
             this.caso.porcentaje = percentage ? percentage : null;
         }
-
-        if(!this.caso.anno){
-            const anno = getAnno(normalizeInfo);
-            this.caso.anno = anno ? anno : null;
-        }
-        return false;
     }
 
     normalizeInfo(item) {
@@ -195,6 +220,7 @@ class PjudPdfData{
         if(comuna){
             return comuna;
         }
+        return null;
     }
 
     obtainComunaByIndex(info){
@@ -246,6 +272,14 @@ class PjudPdfData{
             "tipo": avaluoType
         }
       }
+    adaptTextIfGP(texto) {
+        const endIndex = texto.search(/registro\s*de\s*hipotecas/);
+        if (endIndex === -1) {
+            return texto;
+        }
+        const newText = texto.substring(0, endIndex);
+        return newText;
+    }
 
     //This function will check if the case is complete, if it is the process end
     isCaseComplete(){
@@ -254,6 +288,9 @@ class PjudPdfData{
             && this.caso.direccion
             && this.caso.comuna
             && this.caso.avaluoPropiedad
+            && this.caso.rolEstacionamiento
+            && this.caso.anno
+        
             ){
                 return true;
             }

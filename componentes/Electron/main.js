@@ -521,7 +521,7 @@ class MainApp{
                 console.log("Resultados del caso de prueba en pjud: ",caso.toObject());
             }
             
-            if(counter  < casos.length){
+            if((counter + 1)  < casos.length){
                 const awaitTime = Math.random() * (90 - 30) + 30; // Genera un número aleatorio entre 5 y 10
                 mainWindow.webContents.send('aviso-espera', [awaitTime,counter + 1,casos.length]);
                 console.log(`Esperando ${awaitTime} segundos para consulta numero ${counter + 1} de ${casos.length}`);
