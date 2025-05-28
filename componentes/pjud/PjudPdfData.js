@@ -14,8 +14,8 @@ class PjudPdfData{
 
         this.processCivilStatus(normalizeInfo);
         this.processPropertyRoles(normalizeInfo);
-        this.processPropertyInfo(normalizeInfo);
-        this.processAuctionInfo(normalizeInfo);
+        this.processPropertyInfo(item,normalizeInfo);
+        this.processAuctionInfo(item,normalizeInfo);
 
         return false;
     }
@@ -31,14 +31,16 @@ class PjudPdfData{
         // Revision de rol de propiedad
         if(!this.caso.rolPropiedad){
             const rolPropiedad = this.obtainRolPropiedad(info);
-            if (!rolPropiedad?.tipo.includes("estacionamiento")) {
-                this.caso.rolPropiedad = rolPropiedad.rol;
-            }       
+            if(rolPropiedad){
+                if (!rolPropiedad.tipo.includes("estacionamiento")) {
+                    this.caso.rolPropiedad = rolPropiedad.rol;
+                }       
+            }
         }
         // Revision de rol de estacionamiento
         if(!this.caso.rolEstacionamiento){
             const rolEstacionamiento = this.obtainRolPropiedad(info);
-            if (rolEstacionamiento?.tipo.includes("estacionamiento")) {
+            if (rolEstacionamiento && rolEstacionamiento.tipo.includes("estacionamiento")) {
                 this.caso.rolEstacionamiento = rolEstacionamiento.rol;
             }
         }
@@ -47,17 +49,16 @@ class PjudPdfData{
     processPropertyInfo(info,normalizedInfo){
         if(!this.caso.avaluoPropiedad){
             const avaluoPropiedad = this.obtainAvaluoPropiedad(normalizedInfo);
-            if (!avaluoPropiedad?.tipo.includes("estacionamiento")) {
+            if (avaluoPropiedad && !avaluoPropiedad.tipo.includes("estacionamiento")) {
                 this.caso.avaluoPropiedad = avaluoPropiedad.avaluo;
             }
         }
 
         if(!this.caso.avaluoEstacionamiento){
             const avaluoEstacionamiento = this.obtainAvaluoPropiedad(normalizedInfo);
-            if (avaluoEstacionamiento?.tipo.includes("estacionamiento")) {
+            if (avaluoEstacionamiento && avaluoEstacionamiento.tipo.includes("estacionamiento")) {
                 this.caso.avaluoEstacionamiento = avaluoPropiedad.avaluo;
             }
-
         }
 
         if(!this.caso.comuna){
@@ -70,7 +71,7 @@ class PjudPdfData{
 
         if(!this.caso.direccion){
             const direccion = this.obtainDireccion(normalizedInfo);
-            if (!direccion?.tipo.includes("estacionamiento")) {
+            if (direccion && !direccion.tipo.includes("estacionamiento")) {
                 this.caso.direccion = direccion.direccion;
             }
         }
@@ -85,19 +86,30 @@ class PjudPdfData{
     }
     
     processAuctionInfo(info,normalizedInfo){
+        const spanishNormalization = info
+            .toLowerCase()
+            .replace(/[\n\r]/g, " ")
+            .replace(/\s+/g, " ");
+
         if(!this.caso.montoMinimo){
             const montoMinimo = getMontoMinimo(normalizedInfo);
-            this.caso.montoMinimo = montoMinimo ? montoMinimo : null;
+            if(montoMinimo){
+                this.caso.montoMinimo = montoMinimo ? montoMinimo : null;
+            }
         }
 
         if(!this.caso.formatoEntrega){
             const formatoEntrega = getFormatoEntrega(info);
-            this.caso.formatoEntrega = formatoEntrega ? formatoEntrega[0] : null;
+            if(formatoEntrega){
+                this.caso.formatoEntrega = formatoEntrega ? formatoEntrega[0] : null;
+            }
         }
 
         if(!this.caso.porcentaje){
             const percentage = this.getAndProcessPercentage(info);
-            this.caso.porcentaje = percentage ? percentage : null;
+            if(percentage){
+                this.caso.porcentaje = percentage ? percentage : null;
+            }
         }
     }
 

@@ -393,10 +393,16 @@ class ConsultaCausaPjud{
                     row.$eval('td:nth-child(1) form input[name="dtaDoc"', input => input.value),
                 ]);
                 //Donwload pdf and save it in a specific folder
-                const linkToPdf = "https://oficinajudicialvirtual.pjud.cl/ADIR_871/civil/documentos/anexoDocCivil.php?dtaDoc=" + valuePdf
-                await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
                 console.log("-------------------------------");
-                console.log("Trabajando en el documento: ",doc," referencia :", reference);
+                // console.log("Trabajando en el documento: ",doc," referencia :", reference);
+                if(this.shouldSkipDoc(reference)){
+                    console.log("Saltando el documento: ", reference);
+                    continue; // Salta la revision de documento si es un documento que no intersa por ahora.
+                }
+                console.log("revisando si crashea aca");
+                await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
+                console.log("Procesando el documento: ", reference);
+                const linkToPdf = "https://oficinajudicialvirtual.pjud.cl/ADIR_871/civil/documentos/anexoDocCivil.php?dtaDoc=" + valuePdf
                 isDone = await this.downloadPdfFromUrl(linkToPdf);
                 if(isDone){
                     return true;
@@ -409,11 +415,52 @@ class ConsultaCausaPjud{
         }
     }
 
+    shouldSkipDoc(reference) {
+        const normalizedReference = reference.toLowerCase().trim();
+        // Lista de referencias que se deben omitir
+        const skipReferences = [
+            'factura',
+            'consignac',
+            'vv',
+            'ci',
+            'mercurio',
+            'hipotecario',
+            'liquidac',
+            'desarrollo',
+            'identidad',
+            'vale',
+            'gastos',
+            'correo',
+            'publicac',
+            'diario',
+            'tasaci',
+            'comprobante',
+            'timbrado',
+            'pagar',
+            'ebook',
+            'arancel',
+            'garantia',
+            'rut',
+            'v.v.',
+            'cedula'
+
+        ];
+
+        // Dividir el texto en palabras individuales
+        const words = normalizedReference.split(/\s+/);
+
+        // Verificar si alguna palabra comienza con alguno de los términos
+        return skipReferences.some(ref =>
+            words.some(word => word.startsWith(ref))
+        );
+    }
+
     async downloadPdfFromUrl(url) {
         let resultado = '';
         let resultOfProcess = false;
         let pdfWindow = null;
         try{
+            console.log("O si crashea por aca");
             pdfWindow = new BrowserWindow({ show: true });
             await pdfWindow.loadURL(url);
             const pdfPage = await pie.getPage(this.browser, pdfWindow);
@@ -453,7 +500,7 @@ class ConsultaCausaPjud{
             console.error('Error al hacer la petición:', error.message);
             return false;
         }finally{
-            if(pdfWindow && !pdfWindow.isDestroyed()){
+            if(!pdfWindow?.isDestroyed()){
                 pdfWindow.destroy();
             }
         }

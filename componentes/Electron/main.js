@@ -476,14 +476,14 @@ class MainApp{
             await excel.writeData(casos,`${caso1.causa}-${caso2.causa}`);
 
         }else if(arg === 'consultaDia'){
-            console.log("Consultando casos por dia 30 de mayo");
+            console.log("Consultando casos por dia 5 de junio");
             const casos = await this.searchCasesByDay();
             console.log("Resultados de los casos en la funcion de llamada: ",casos.length);
             const result = await this.obtainDataFromCases(casos,event);
             console.log("Resultados de los casos en la funcion de llamada: ",casos.length);
             const downloadPath = path.join(os.homedir(), "Documents", "infoRemates");
             const excel = new createExcel(downloadPath,null,null,false,"oneDay");
-            await excel.writeData(casos,"Remates-24-dic-2024");
+            await excel.writeData(casos,"Remates-5-junio");
 
         }else if(arg === 'testEconomicoPuppeteer'){
             const fechaInicio = new Date("2025/05/22");
@@ -532,8 +532,8 @@ class MainApp{
     
     //Funcion para obtener los casos del pjud por dia.
     async searchCasesByDay(){
-        const startDate = "24/12/2024";
-        const endDate = "25/12/2024";
+        const startDate = "05/06/2025";
+        const endDate = "06/06/2025";
         const window = new BrowserWindow({ show: true });
         const url = 'https://oficinajudicialvirtual.pjud.cl/indexN.php';
         await window.loadURL(url);
