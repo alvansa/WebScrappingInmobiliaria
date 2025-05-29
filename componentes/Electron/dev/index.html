@@ -3,43 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../../../css/styles.css">
+    <link rel="stylesheet" href="./style.css">
     <title>Developer Mode</title>
+    
 </head>
 <body>
 
     <h1>Developer Mode</h1>
-    <p>This is the developer mode for the Electron application.</p>
-    <p>Use this mode to test and debug your application.</p>
-
-    <p><button id="imbeddedText"> Test code with text imbedded</button></p>
-    <p> 
-        <input type="text" id="textInput" placeholder="Enter auction description">
-        <button id="uploadedText"> Test code with uploaded text</button>
-    </p>
-    <p>
-        <input type="text" id="PDFLink" placeholder="Enter PDF link">
-        <button id="downloadPDF">Download And Read PDF</button>
-    </p>
-    <p>
-        <button id="readPdf">Leer pdf con algoritmo pjud</button>
-        <div id="fileInfoPjud"></div>
-    </p>
-    <button id="testConsultaCausa" >Test consulta causa al pjud</button> 
-    
-    <p> 
-        <button id="selectFileBtn">Seleccionar Archivo para prueba boletin</button>
-        <div id="fileInfo"></div>
-    </p>
-    <p>
-        <button id="consultaMultipleCases"> Test para casos multiples</button>
-    </p>
-    <p>
-        <button id="consultaDia">Test consulta para un dia</button>
-    </p>
-    <p>
-        <button id="testEconomicoPuppeteer">Test Economico Puppeteer</button>
-    </p>
+    <h2>This is the developer mode for the Electron application.</h2>
+        <p>Use this mode to test and debug your application.</p>
+    <div class="paragraph-container">
+        <p><button id="imbeddedText"> Test code with text imbedded</button></p>
+        <p> 
+            <input type="text" id="textInput" placeholder="Enter auction description">
+            <button id="uploadedText"> Test code with uploaded text</button>
+        </p>
+        <p>
+            <input type="text" id="PDFLink" placeholder="Enter PDF link">
+            <button id="downloadPDF">Download And Read PDF</button>
+        </p>
+        <p>
+            <button id="readPdf">Leer pdf con algoritmo pjud</button>
+            <div id="fileInfoPjud"></div>
+        </p>
+        <p> 
+            <button id="selectFileBtn">Seleccionar Archivo para prueba boletin</button>
+            <div id="fileInfo"></div>
+        </p>
+        <p>
+            <button id="consultaMultipleCases"> Test para casos multiples</button>
+        </p>
+        <p>
+            <button id="consultaDia">Test consulta para un dia</button>
+        </p>
+        <p>
+            <button id="testEconomicoPuppeteer">Test Economico Puppeteer</button>
+        </p>
+        <p>
+            <button id="testConsultaCausa">Test consulta causa al pjud</button>
+        </p>
+        <p>
+            <button id="consultaCausaDB">Test consulta causa multiple al pjud</button>
+            <input type="text" id="textConsultaCausaDB" placeholder="Ingrese causa de la forma C-xxxx-xxxx">
+        </p>
+    </div>
 
 
     <div id="waitingModal" class="view">
@@ -50,13 +57,12 @@
           </div>
           <p id="countdown"><span id="seconds"></span></p>
         </div>
-      </div>
+    </div>
 
     <script>
-        // Add your JavaScript code here
         console.log("Developer mode is active.");
     </script>
     
-</body>
     <script src="./renderer.js"></script>
+</body>
 </html>

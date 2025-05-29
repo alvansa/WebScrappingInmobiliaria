@@ -232,13 +232,11 @@ class createExcel {
         // ws['T'+ currentRow ] = {v: caso.rolPropiedad, t: 's'};
         // ws['U'+ currentRow ] = {v: 'deuda 2 ', t: 's'};
         // ws['V'+ currentRow ] = {v: 'deuda 3 ', t: 's'};
-        console.log("Rol estacionamiento: ", caso.rolEstacionamiento);
-        if(caso.rolEstacionamiento){
-            newRol = this.adaptRol(this.cleanRol(caso.rolPropiedad), this.cleanRol(caso.rolEstacionamiento));
-            console.log("Rol adaptado a escribir: ", newRol);
-            this.writeLine(ws, 'W', currentRow, newRol, 's');
-        }
-        this.writeLine(ws, "W", currentRow, newRol, "s");
+
+        // Union de roles de propiedad, estacionamiento y bodega
+        newRol = this.adaptRol(caso.rolPropiedad, caso.rolEstacionamiento, caso.rolBodega);
+        this.writeLine(ws, 'W', currentRow, newRol, 's');
+
         // ws['X'+ currentRow ] = {v: 'notif ', t: 's'};
         // Formato de monto minimo segun el tipo de moneda
         if (caso.moneda === 'UF') {
@@ -256,31 +254,72 @@ class createExcel {
         // ws['AG' + currentRow ] = {v: 'año compr ant ', t: 's'};
         // ws['AH' + currentRow ] = {v: 'precio venta nos ', t: 's'};
     }
-    adaptRol(rolPropiedad, rolEstacionamiento) {
-        if (!rolPropiedad.includes("-") || !rolEstacionamiento.includes("-")) {
-            rolPropiedad = rolPropiedad.replace(/\s*/g, "");
+    // Adaptador de roles para combinar propiedad, estacionamiento y bodega
+    adaptRol(rolPropiedad, rolEstacionamiento, rolBodega) {
+        rolPropiedad = this.cleanRol(rolPropiedad);
+        rolEstacionamiento = this.cleanRol(rolEstacionamiento);
+        rolBodega = this.cleanRol(rolBodega);
+        if (!rolPropiedad) {
+            return null;
+        } else if (rolEstacionamiento && rolBodega) {
+            return this.mergeThreeRoles(rolPropiedad, rolEstacionamiento, rolBodega);
+        } else if (rolEstacionamiento) {
+            return this.mergeTwoRoles(rolPropiedad, rolEstacionamiento);
+        } else if (rolBodega) {
+            console.log("Rol propiedad: ", rolPropiedad, " Rol bodega: ", rolBodega);
+            return this.mergeTwoRoles(rolPropiedad, rolBodega);
+        } else {
             return rolPropiedad;
         }
-        const arrayRolPropiedad = rolPropiedad.split("-");
-        const arrayRolEstacionamiento = rolEstacionamiento.split("-");
-        if (arrayRolPropiedad[0] === arrayRolEstacionamiento[0]) {
-            rolPropiedad += "-" + arrayRolEstacionamiento[1];
-        }
-        rolPropiedad = rolPropiedad.replace(/\s*/g, "");
-        return rolPropiedad;
     }
 
+    // Funciones para unir dos roles
+    mergeTwoRoles(rolOne, rolTwo) {
+        if (!rolOne.includes("-") || !rolTwo.includes("-")) {
+            return null;
+        }
+        const arrayRolOne = rolOne.split("-");
+        const arrayRolTwo = rolTwo.split("-");
+        if (arrayRolOne[0] === arrayRolTwo[0]) {
+            rolOne += "-" + arrayRolTwo[1];
+        }
+        rolOne = rolOne.replace(/\s*/g, "");
+        return rolOne;
+    }
+
+    // Función para unir tres roles
+    mergeThreeRoles(rolOne, rolTwo, rolThree) {
+        let twoRoles = this.mergeTwoRoles(rolOne, rolTwo);
+        if (!twoRoles || !twoRoles.includes("-") || !rolThree.includes("-")) {
+            if (twoRoles && twoRoles.includes("-")) {
+                return twoRoles;
+            } else if (rolOne.includes("-") && rolThree.includes("-")) {
+                return this.mergeTwoRoles(rolOne, rolThree);
+            }
+            return null;
+        }
+        const arrayTwoRoles = twoRoles.split("-");
+        const arrayRolThree = rolThree.split("-");
+        if (arrayTwoRoles[0] == arrayRolThree[0]) {
+            twoRoles += "-" + arrayRolThree[1];
+        }
+        return twoRoles
+    }
+
+    //Función para limpiar los roles de espacios de sobre, guiones largos y ceros iniciales
     cleanRol(rol) {
+        if (!rol) {
+            return null;
+        }
+        rol = rol.replace("−", "-");
         if (!rol.includes("-")) {
             return rol;
         }
         const parts = rol.split("-");
         const newFirst = cleanInitialZeros(parts[0]);
         const newSecond = cleanInitialZeros(parts[1]);
-        console.log(parts)
-        console.log(newFirst, newSecond)
         return newFirst + "-" + newSecond;
-    }
+}
 
 
     writeLine(ws,row,col,value,type){

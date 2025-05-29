@@ -71,6 +71,17 @@ document.getElementById('consultaMultipleCases').addEventListener('click', async
   showWaitingModal(false);
 });
 
+document.getElementById('consultaCausaDB').addEventListener('click', async () => {
+  const query = document.getElementById('textConsultaCausaDB').value;
+  try {
+    const result = await window.api.consultaDB(query);
+    alert("Consulta realizada con éxito\n" + JSON.stringify(result, null, 2));
+    console.log("Resultados de la consulta:", result);
+  } catch (error) {
+    console.error('Error al consultar la base de datos:', error);
+  }
+});
+
 window.api.onWaitingNotification((args) => {
   const totalSeconds = args[0];
   const actualCase = args[1];

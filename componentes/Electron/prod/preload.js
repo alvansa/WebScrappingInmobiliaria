@@ -63,7 +63,13 @@ contextBridge.exposeInMainWorld('api', {
   // Funcion para mostrar en pantalla el tiempo de espera.
   onWaitingNotification: (callback) => {
     ipcRenderer.on('aviso-espera', (_, seconds) => callback(seconds));
-  }
+  },
+
+  consultaDB : async (query) => {
+    const result = await ipcRenderer.invoke('consultaDB', query);
+    console.log("Resultados de la consulta en el preload :", result);
+    return result;
+  },
 });
 
 

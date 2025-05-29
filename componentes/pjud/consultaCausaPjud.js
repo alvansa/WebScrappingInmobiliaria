@@ -41,6 +41,8 @@ class ConsultaCausaPjud{
             if(!result){
                 console.log('No se pudo procesar el caso');
                 return false;
+            }else{
+                console.log('Caso procesado correctamente');
             }
             await this.window.destroy();
             await this.cleanFilesDownloaded();
@@ -121,11 +123,10 @@ class ConsultaCausaPjud{
         if(!isValid){
             console.log('Fallo al buscar GP');
             return false;
+        }else{
+            console.log("Datos posibles del caso obtenidos correctamente");
+            return true;
         }
-        
-
-        const lineaActual = this.getPrimeraLinea();
-        return lineaActual;
     }
 
     // Obtiene las partes del remate.
@@ -215,7 +216,6 @@ class ConsultaCausaPjud{
         return true;
     }
 
-
     async seleccionarTribunal(nombreTribunal) {
         // Obtenemos el valor del tribunal correspondiente por su nombre
         const value = await this.page.evaluate((nombreTribunal) => {
@@ -238,12 +238,21 @@ class ConsultaCausaPjud{
     }
 
     async buscarGP(){
+        let caseIsFinished = false;
         const findLink = await this.findAndProcessLinkGP();
 
         if(!findLink){
             console.error("No se pudo encontrar el enlace del GP"); 
             return false;
         }
+
+        const estadoCaso = await this.checkIfCaseIsConcluded();
+        console.log("Estado actual del caso: ", estadoCaso)
+        // return true;
+        // if(this.checkIfCaseIsConcluded()){
+        //     console.log("El caso ya esta concluido, no es necesario continuar.");
+        //     return true; // Si el caso ya está concluido, no es necesario continuar
+        // }
 
         const selectedCuaderno = await this.selectCuaderno();
 
@@ -254,8 +263,39 @@ class ConsultaCausaPjud{
 
         // await fakeDelay(4, 10);
 
-        await this.getAvaluoTablaCausa();
+        caseIsFinished = await this.getAvaluoTablaCausa();
+        if(caseIsFinished){
+            return true;
+        }
         return true;
+    }
+
+    async checkIfCaseIsConcluded() {
+        try {
+            // Esperar a que la tabla esté presente
+            await this.page.waitForSelector('.table-titulos', { timeout: 5000 });
+
+            const estado = await this.page.evaluate(() => {
+                const getEstado = () => {
+                    const rows = document.querySelectorAll('.table-titulos tr');
+                    for (const row of rows) {
+                        const cells = row.querySelectorAll('td');
+                        for (const cell of cells) {
+                            if (cell.textContent.includes('Estado Proc.:')) {
+                                return cell.textContent.split('Estado Proc.:')[1].trim();
+                            }
+                        }
+                    }
+                    return null;
+                };
+                return getEstado();
+            });
+
+            return estado;
+        } catch (error) {
+            console.error('Error al verificar si el caso está concluido:', error.message);
+            return false; // Si ocurre un error, asumimos que el caso no está concluido
+        }
     }
 
     async findAndProcessLinkGP(){
@@ -319,7 +359,7 @@ class ConsultaCausaPjud{
     }
 
     async getAvaluoTablaCausa() {
-        let isDone = false;
+        let caseIsFinished = false;
         try {
             await this.page.waitForSelector("#historiaCiv", { timeout: 10000 });
             // Get all rows from the table
@@ -327,10 +367,10 @@ class ConsultaCausaPjud{
             for (const row of rows) {
                 // Track if the row is processed successfull
                 try {
-                    if (isDone === true) {
-                        break;
+                    if (caseIsFinished === true) {
+                        return true; // Si ya se obtuvo todo lo necesario del caso, salimos del bucle
                     }
-                    isDone = await this.searchForDirectory(row);
+                    caseIsFinished = await this.searchForDirectory(row);
                 } catch (error) {
                     console.error(`Error processing row on attempt : ${error.message}`);
                     isDone = false;
@@ -361,8 +401,8 @@ class ConsultaCausaPjud{
                 linkToDir.click();
                 await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
 
-                const downloaded = await this.obtainLinkOfPdf();
-                if (downloaded) {
+                const caseIsFinished = await this.obtainLinkOfPdf();
+                if (caseIsFinished) {
                     return true;
                 }
 
@@ -442,7 +482,10 @@ class ConsultaCausaPjud{
             'garantia',
             'rut',
             'v.v.',
-            'cedula'
+            'cedula',
+            'mostrador',
+            'declaraci',
+            'boleta',
 
         ];
 

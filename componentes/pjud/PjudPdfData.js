@@ -32,7 +32,7 @@ class PjudPdfData{
         if(!this.caso.rolPropiedad){
             const rolPropiedad = this.obtainRolPropiedad(info);
             if(rolPropiedad){
-                if (!rolPropiedad.tipo.includes("estacionamiento")) {
+                if (!rolPropiedad.tipo.includes("estacionamiento") && !rolPropiedad.tipo.includes("bodega")) {
                     this.caso.rolPropiedad = rolPropiedad.rol;
                 }       
             }
@@ -44,12 +44,18 @@ class PjudPdfData{
                 this.caso.rolEstacionamiento = rolEstacionamiento.rol;
             }
         }
+        if(!this.caso.rolBodega){
+            const rolBodega = this.obtainRolPropiedad(info);
+            if (rolBodega && rolBodega.tipo.includes("bodega")) {
+                this.caso.rolBodega = rolBodega.rol;
+            }
+        }
     }
 
     processPropertyInfo(info,normalizedInfo){
         if(!this.caso.avaluoPropiedad){
             const avaluoPropiedad = this.obtainAvaluoPropiedad(normalizedInfo);
-            if (avaluoPropiedad && !avaluoPropiedad.tipo.includes("estacionamiento")) {
+            if (avaluoPropiedad && !avaluoPropiedad.tipo.includes("estacionamiento") && !avaluoPropiedad.tipo.includes("bodega")) {
                 this.caso.avaluoPropiedad = avaluoPropiedad.avaluo;
             }
         }
@@ -63,10 +69,10 @@ class PjudPdfData{
 
         if(!this.caso.comuna){
             let comuna = this.obtainComuna(normalizedInfo);
-            if(!comuna){
-                comuna = getComuna(info)
+            if(comuna){
+                // comuna = getComuna(info)
+                this.caso.comuna = comuna ? comuna : this.caso.comuna;
             }
-            this.caso.comuna = comuna ? comuna : this.caso.comuna;
         }
 
         if(!this.caso.direccion){
@@ -228,7 +234,7 @@ class PjudPdfData{
         if(comuna){
             return comuna;
         }
-        comuna = this.obtainComunaByregex(info);
+        comuna = getComuna(info);
         if(comuna){
             return comuna;
         }

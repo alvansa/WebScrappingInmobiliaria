@@ -36,6 +36,8 @@ class Caso{
     #numeroJuzgado;
     #rolEstacionamiento;
     #avaluoEstacionamiento;
+    #rolBodega;
+    #avaluoBodega;
 
     constructor(fechaObtencion, fechaPublicacion = 'N/A',link = 'N/A',origen = null ){    
         this.#fechaPublicacion = fechaPublicacion;
@@ -69,6 +71,8 @@ class Caso{
         this.#numeroJuzgado = null;
         this.#rolEstacionamiento = null;
         this.#avaluoEstacionamiento = null;
+        this.#rolBodega = null;
+        this.#avaluoBodega = null;
     }
 
     darfechaPublicacion(fechaPublicacion){
@@ -184,6 +188,9 @@ class Caso{
     set avaluoEstacionamiento(avaluoEstacionamiento){
         this.#avaluoEstacionamiento = avaluoEstacionamiento;
     }
+    set rolBodega(rolBodega){
+        this.#rolBodega = rolBodega;
+    }
 
     
     get link(){ 
@@ -264,6 +271,12 @@ class Caso{
         }
         return Number(this.#avaluoEstacionamiento);
     }
+    get rolBodega(){
+        if(this.#rolBodega === null){
+            return null;
+        }
+        return String(this.#rolBodega);
+    }
 
   
 
@@ -313,6 +326,7 @@ class Caso{
             corte : this.#corte,
             numeroJuzgado : this.#numeroJuzgado,
             rolEstacionamiento : this.#rolEstacionamiento, 
+            rolBodega : this.#rolBodega,
         };
     } 
 
