@@ -158,6 +158,83 @@ document.getElementById('searchCaseBtn').addEventListener('click', async () => {
   }
 });
 
+// obtener y procesar casos del pjud con sus pdf
+document.getElementById('processPdfsBtn').addEventListener('click', async () => {
+  const startDate = document.getElementById('pdfStartDate').value;
+  const endDate = document.getElementById('pdfEndDate').value;
+  const saveFile = document.getElementById('pdf-folder-input').value;
+
+  if (!startDate || !endDate || !saveFile) {
+    alert('Por favor complete todos los campos');
+    return;
+  }
+
+  try {
+    alert(`Procesando PDFs desde ${startDate} hasta ${endDate} y guardando en: ${saveFile} tipo de la fecha ${typeof startDate} y ${typeof endDate}`);
+    const result = await window.api.getInfoFromPdfPjud(saveFile, startDate, endDate);
+    if (result) {
+      alert(`PDFs procesados y guardados en: ${result}`);
+    } else {
+      alert('No se encontraron PDFs para procesar');
+    }
+  } catch (error) {
+    console.error('Error al procesar PDFs:', error);
+    alert('Ocurrió un error al procesar los PDFs');
+  }
+});
+
+document.getElementById('select-pdf-folder-btn').addEventListener('click', async () => {
+  // Llama al proceso principal para abrir el selector de carpetas
+  const folderPath = await window.api.selectFolder();
+  console.log("Path escogido: ", folderPath);
+  const folderInput = document.getElementById('pdf-folder-input'); // Obtén el input
+
+  if (folderPath) {
+    console.log('Carpeta seleccionada:', folderPath);
+    folderInput.value = folderPath;
+  } else {
+    console.log('Selección cancelada.');
+    folderInput.value = 'No se seleccionó ninguna carpeta.';
+  }
+});
+
+// Manejo de notificaciones de espera con Modal
+window.api.onWaitingNotification((args) => {
+  const totalSeconds = args[0];
+  const actualCase = args[1];
+  const totalCases = args[2];
+  showWaitingModal(true, `Esperando (${totalSeconds}s)... Caso ${actualCase} de ${totalCases}`);
+  
+  let remaining = totalSeconds;
+  updateCountdown([remaining,actualCase,totalCases]);
+  
+  countdownInterval = setInterval(() => {
+    remaining--;
+    updateCountdown([remaining,actualCase,totalCases]);
+    
+    if (remaining <= 0) {
+      console.log("Se acabo el tiempo");
+      clearInterval(countdownInterval);
+      showWaitingModal(false);
+    }
+  }, 1000);
+});
+
+function updateCountdown(data) {
+  const seconds = data[0];
+  const actualCase = data[1];
+  const totalCases = data[2];
+  // document.getElementById('seconds').textContent = Math.floor(seconds);
+  document.getElementById('waitingMessage').textContent = 
+    `Esperando (${Math.floor(seconds)}s) segundos para procesar el caso ${actualCase} de ${totalCases}...`;
+}
+
+function showWaitingModal(show) {
+  const modal = document.getElementById('waitingModal');
+  modal.style.display = show ? 'flex' : 'none';
+  if (!show && countdownInterval) clearInterval(countdownInterval);
+}
+
 
 loadTribunales();
 

@@ -70,6 +70,17 @@ contextBridge.exposeInMainWorld('api', {
     console.log("Resultados de la consulta en el preload :", result);
     return result;
   },
+
+  getInfoFromPdfPjud: async(filePath, startDate, endDate) => {
+    try {
+      const result = await ipcRenderer.invoke('getInfoFromPdfPjud', filePath, startDate, endDate);
+      console.log("Resultados de la consulta en el preload :", result);
+      return result;
+    } catch (error) {
+      console.error('Error al obtener información del Pjud:', error);
+      throw error; // Re-lanzar el error para manejarlo en el lugar donde se llama
+    }
+  }
 });
 
 

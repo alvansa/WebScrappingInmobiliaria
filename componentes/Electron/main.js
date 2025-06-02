@@ -129,6 +129,17 @@ class MainApp{
             };
         });
 
+        ipcMain.handle('getInfoFromPdfPjud', async (event, filePath,startDate, endDate) => {
+            try{
+                const filePathPdf = await this.obtainDataPdfPjud(event,filePath,startDate,endDate);
+                return filePathPdf;
+
+            }catch(error){
+                console.error('Error al obtener información del PDF:', error);
+                return null;
+            }
+        });
+
         ipcMain.handle('testEconomico', async (event,args) => {
             try{
                 await this.testEconomico(event,args)
@@ -202,6 +213,7 @@ class MainApp{
                 return null;
             }
         })
+
         ipcMain.handle('consultaDB', async (event, args) => {
            const resultado = await this.testDB(args);
            return resultado;
@@ -507,6 +519,28 @@ class MainApp{
         }
     }
 
+    async obtainDataPdfPjud(event,filePath,startDateOrigin,endDateOrigin){
+
+        console.time("obtainDataPdfPjud");
+        await this.launchPuppeteer_inElectron();
+        const startDate = dateToPjud(stringToDate(startDateOrigin));
+        const endDate = dateToPjud(stringToDate(endDateOrigin));
+        console.log("Consultando casos desde ",startDate, " hasta ", endDate);
+
+        const casos = await this.searchCasesByDay(startDate,endDate);
+        console.log("Resultados de los casos en la funcion de llamada: ", casos.length);
+        const result = await this.obtainDataFromCases(casos, event);
+        console.log("Resultados de los casos en la funcion de llamada: ", casos.length);
+        // const downloadPath = path.join(os.homedir(), "Documents", "infoRemates");
+        const excel = new createExcel(filePath, null, null, false, "oneDay");
+        const nombre = `Remates-${startDateOrigin}-${endDateOrigin}`;
+        const finalPath = await excel.writeData(casos, nombre);
+        console.timeEnd("obtainDataPdfPjud");
+        return finalPath;
+        // return filePath
+
+    }
+
     async testDB(causa){
         
         const db = new Causas();
@@ -537,9 +571,9 @@ class MainApp{
     }
     
     //Funcion para obtener los casos del pjud por dia.
-    async searchCasesByDay(){
-        const startDate = "06/06/2025";
-        const endDate = "07/06/2025";
+    async searchCasesByDay(startDate, endDate) {
+        // const startDate = "06/06/2025";
+        // const endDate = "07/06/2025";
         const window = new BrowserWindow({ show: true });
         const url = 'https://oficinajudicialvirtual.pjud.cl/indexN.php';
         await window.loadURL(url);

@@ -36,8 +36,11 @@ class Caso{
     #numeroJuzgado;
     #rolEstacionamiento;
     #avaluoEstacionamiento;
+    #direccionEstacionamiento;
+    #hasEstacionamiento;
     #rolBodega;
     #avaluoBodega;
+    #hasBodega;
 
     constructor(fechaObtencion, fechaPublicacion = 'N/A',link = 'N/A',origen = null ){    
         this.#fechaPublicacion = fechaPublicacion;
@@ -71,8 +74,11 @@ class Caso{
         this.#numeroJuzgado = null;
         this.#rolEstacionamiento = null;
         this.#avaluoEstacionamiento = null;
+        this.#direccionEstacionamiento = null;
         this.#rolBodega = null;
         this.#avaluoBodega = null;
+        this.#hasEstacionamiento = false;
+        this.#hasBodega = false;
     }
 
     darfechaPublicacion(fechaPublicacion){
@@ -188,8 +194,20 @@ class Caso{
     set avaluoEstacionamiento(avaluoEstacionamiento){
         this.#avaluoEstacionamiento = avaluoEstacionamiento;
     }
+    set direccionEstacionamiento(direccionEstacionamiento){
+        this.#direccionEstacionamiento = direccionEstacionamiento;
+    }
+    set hasEstacionamiento(hasEstacionamiento){
+        this.#hasEstacionamiento = hasEstacionamiento;
+    }
     set rolBodega(rolBodega){
         this.#rolBodega = rolBodega;
+    }
+    set avaluoBodega(avaluoBodega){
+        this.#avaluoBodega = avaluoBodega;
+    }
+    set hasBodega(hasBodega){
+        this.#hasBodega = hasBodega;
     }
 
     
@@ -271,11 +289,29 @@ class Caso{
         }
         return Number(this.#avaluoEstacionamiento);
     }
+    get direccionEstacionamiento(){
+        if(this.#direccionEstacionamiento === null){
+            return null;
+        }
+        return String(this.#direccionEstacionamiento);
+    }
     get rolBodega(){
         if(this.#rolBodega === null){
             return null;
         }
         return String(this.#rolBodega);
+    }
+    get avaluoBodega(){
+        if(this.#avaluoBodega === null){
+            return null;
+        }
+        return Number(this.#avaluoBodega);
+    }
+    get hasEstacionamiento(){
+        return Boolean(this.#hasEstacionamiento);
+    }
+    get hasBodega(){
+        return Boolean(this.#hasBodega);
     }
 
   
@@ -326,7 +362,12 @@ class Caso{
             corte : this.#corte,
             numeroJuzgado : this.#numeroJuzgado,
             rolEstacionamiento : this.#rolEstacionamiento, 
+            avaluoEstacionamiento : Number(this.#avaluoEstacionamiento) !=0 ? Number(this.#avaluoEstacionamiento) : null,
+            direccionEstacionamiento : this.#direccionEstacionamiento,
             rolBodega : this.#rolBodega,
+            avaluoBodega : Number(this.#avaluoBodega) !=0 ? Number(this.#avaluoBodega) : null,
+            hasEstacionamiento : this.#hasEstacionamiento,
+            hasBodega : this.#hasBodega,
         };
     } 
 

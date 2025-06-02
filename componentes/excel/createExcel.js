@@ -207,7 +207,7 @@ class createExcel {
 
     insertarCasoIntoWorksheet(caso, ws, currentRow) {
         let newRol = caso.rolPropiedad;
-        console.log("Fecha de obtenion : ", caso.fechaObtencion, "Tipo :", typeof caso.fechaObtencion);
+        // console.log("Fecha de obtenion : ", caso.fechaObtencion, "Tipo :", typeof caso.fechaObtencion);
         this.writeLine(ws,'C',currentRow, caso.fechaObtencion, 'd');
         this.writeLine(ws,'D',currentRow, caso.link, 's');
         // ws['E'+ currentRow ] = {v: 'notas ', t: 's'};
@@ -217,7 +217,10 @@ class createExcel {
             this.writeLine(ws, 'F', currentRow,adjustedAuctionDate, 'd');
         }
         this.writeLine(ws,'G',currentRow, caso.martillero, 's');
-        this.writeLine(ws,'H',currentRow, caso.direccion, 's');
+        // Revisamos si el caso tiene estacionamiento o bodega, y adaptamos la direccion
+        const newDireccion = this.checkEstacionamientoBodega(caso)
+        this.writeLine(ws,'H',currentRow, newDireccion, 's');
+
         this.writeLine(ws,'I',currentRow, caso.causa, 's');
         this.writeLine(ws,'J',currentRow, caso.juzgado, 's');
         this.writeLine(ws,'K',currentRow, getComunaJuzgado(caso.juzgado), 's');
@@ -247,12 +250,72 @@ class createExcel {
         }
         this.writeLine(ws,'Z',currentRow, caso.moneda, 's');
         if(caso.avaluoPropiedad != null){
-            ws['AC' + currentRow] = { v: caso.avaluoPropiedad, t: 'n', z: '#,##0' };
+            const sumAvaluo = this.sumAvaluo(caso.avaluoPropiedad, caso.avaluoEstacionamiento, caso.avaluoBodega);
+            ws['AC' + currentRow] = { v: sumAvaluo , t: 'n', z: '#,##0' };
         }
         this.writeLine(ws, "AE",currentRow, caso.estadoCivil,"s");
         // ws['AF' + currentRow ] = {v: 'Px $ compra ant ', t: 's'};
         // ws['AG' + currentRow ] = {v: 'año compr ant ', t: 's'};
         // ws['AH' + currentRow ] = {v: 'precio venta nos ', t: 's'};
+    }
+
+    checkEstacionamientoBodega(caso) {
+        console.log("Revisando estacionamiento y bodega para el caso: ", caso.hasEstacionamiento, caso.hasBodega,caso.direccionEstacionamiento);
+        if(!caso.direccion){
+            return null;
+        }
+        if (caso.hasEstacionamiento && caso.hasBodega) {
+            console.log("Tiene estacionamiento y bodega");
+            const mergeDirections = this.mergeDirections(caso.direccion, caso.direccionEstacionamiento);
+            return mergeDirections + " BOD";
+        }else if (caso.hasEstacionamiento) {
+            console.log("Tiene estacionamiento");
+            return this.mergeDirections(caso.direccion, caso.direccionEstacionamiento);
+        }else if (caso.hasBodega) {
+            console.log("Tiene bodega");
+            return caso.direccion + " BOD";
+        }else{
+            console.log("No tiene estacionamiento ni bodega");
+            return caso.direccion;
+        }
+    }
+
+    mergeDirections(dir1, dir2) {
+        // Normalizar espacios y convertir a arrays de palabras
+        const palabras1 = dir1.trim().toLowerCase().split(/\s+/);
+        const palabras2 = dir2.trim().toLowerCase().split(/\s+/);
+
+        // Encontrar el punto donde divergen
+        let indiceDivergencia = 0;
+        while (indiceDivergencia < palabras1.length &&
+            indiceDivergencia < palabras2.length &&
+            palabras1[indiceDivergencia] === palabras2[indiceDivergencia]) {
+            indiceDivergencia++;
+        }
+
+        // Tomar la primera dirección completa y añadir las partes únicas de la segunda
+        const direccionCombinada = [
+            ...palabras1,
+            "Est", // Añadimos "Est" para indicar estacionamiento
+            ...palabras2.slice(indiceDivergencia)
+        ].join(' ');
+
+        return direccionCombinada;
+    }
+    
+    //Funcion que dado un string con el avaluo de la propiedad, estacionamiento y bodega, los suma
+    // Si alguno de los strings es null o undefined, se considera como 0
+    sumAvaluo(avaluoPropiedadString, avaluoEstacionamientoString, avaluoBodegaString) {
+        if (!avaluoPropiedadString && !avaluoEstacionamientoString && !avaluoBodegaString) {
+            return null;
+        }
+        const avaluoPropiedad = avaluoPropiedadString ? parseInt(avaluoPropiedadString) : 0;
+        const avaluoEstacionamiento = avaluoEstacionamientoString ? parseInt(avaluoEstacionamientoString) : 0;
+        const avaluoBodega = avaluoBodegaString ? parseInt(avaluoBodegaString) : 0;
+
+
+        return avaluoPropiedad + avaluoEstacionamiento + avaluoBodega;
+
     }
     // Adaptador de roles para combinar propiedad, estacionamiento y bodega
     adaptRol(rolPropiedad, rolEstacionamiento, rolBodega) {
@@ -266,7 +329,6 @@ class createExcel {
         } else if (rolEstacionamiento) {
             return this.mergeTwoRoles(rolPropiedad, rolEstacionamiento);
         } else if (rolBodega) {
-            console.log("Rol propiedad: ", rolPropiedad, " Rol bodega: ", rolBodega);
             return this.mergeTwoRoles(rolPropiedad, rolBodega);
         } else {
             return rolPropiedad;

@@ -439,13 +439,15 @@ class ConsultaCausaPjud{
                     console.log("Saltando el documento: ", reference);
                     continue; // Salta la revision de documento si es un documento que no intersa por ahora.
                 }
-                console.log("revisando si crashea aca");
+                console.log("revisando si crashea aca con el valuePdf: ", valuePdf);
                 await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
                 console.log("Procesando el documento: ", reference);
-                const linkToPdf = "https://oficinajudicialvirtual.pjud.cl/ADIR_871/civil/documentos/anexoDocCivil.php?dtaDoc=" + valuePdf
-                isDone = await this.downloadPdfFromUrl(linkToPdf);
-                if(isDone){
-                    return true;
+                if(valuePdf && valuePdf !== ''){
+                    const linkToPdf = "https://oficinajudicialvirtual.pjud.cl/ADIR_871/civil/documentos/anexoDocCivil.php?dtaDoc=" + valuePdf
+                    isDone = await this.downloadPdfFromUrl(linkToPdf);
+                    if (isDone) {
+                        return true;
+                    }
                 }
             }
             return false;

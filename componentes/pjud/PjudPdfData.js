@@ -1,4 +1,5 @@
-const {getMontoMinimo, getFormatoEntrega, getPorcentaje, getAnno, getComuna} = require('../economico/datosRemateEmol');
+const { setDefaultScreenshotOptions } = require('puppeteer-core');
+const {getMontoMinimo, getFormatoEntrega, getPorcentaje, getAnno, getComuna, getTipoDerecho} = require('../economico/datosRemateEmol');
 
 class PjudPdfData{
     constructor(caso){
@@ -41,6 +42,7 @@ class PjudPdfData{
         if(!this.caso.rolEstacionamiento){
             const rolEstacionamiento = this.obtainRolPropiedad(info);
             if (rolEstacionamiento && rolEstacionamiento.tipo.includes("estacionamiento")) {
+
                 this.caso.rolEstacionamiento = rolEstacionamiento.rol;
             }
         }
@@ -63,7 +65,17 @@ class PjudPdfData{
         if(!this.caso.avaluoEstacionamiento){
             const avaluoEstacionamiento = this.obtainAvaluoPropiedad(normalizedInfo);
             if (avaluoEstacionamiento && avaluoEstacionamiento.tipo.includes("estacionamiento")) {
-                this.caso.avaluoEstacionamiento = avaluoPropiedad.avaluo;
+                console.log("\n-----------------------------\nLa propiedad tiene estacionamiento\n----------------------------- ");
+                this.caso.hasEstacionamiento = true;
+                this.caso.avaluoEstacionamiento = avaluoEstacionamiento.avaluo;
+            }
+        }
+
+        if(!this.caso.avaluoBodega){
+            const avaluoBodega = this.obtainAvaluoPropiedad(normalizedInfo);
+            if (avaluoBodega && avaluoBodega.tipo.includes("bodega")) {
+                this.caso.hasBodega = true;
+                this.caso.avaluoBodega = avaluoBodega.avaluo;
             }
         }
 
@@ -79,6 +91,14 @@ class PjudPdfData{
             const direccion = this.obtainDireccion(normalizedInfo);
             if (direccion && !direccion.tipo.includes("estacionamiento")) {
                 this.caso.direccion = direccion.direccion;
+            }
+        }
+
+        if(!this.caso.direccionEstacionamiento){
+            const direccionEstacionamiento = this.obtainDireccion(normalizedInfo);
+            if (direccionEstacionamiento && direccionEstacionamiento.tipo.includes("estacionamiento")) {
+
+                this.caso.direccionEstacionamiento = direccionEstacionamiento.direccion;
             }
         }
 
@@ -115,6 +135,13 @@ class PjudPdfData{
             const percentage = this.getAndProcessPercentage(info);
             if(percentage){
                 this.caso.porcentaje = percentage ? percentage : null;
+            }
+        }
+
+        if(!this.caso.tipoDerecho){
+            const tipoDerecho = getTipoDerecho(normalizedInfo);
+            if(tipoDerecho){
+                this.caso.tipoDerecho = tipoDerecho ? tipoDerecho : null;
             }
         }
     }
