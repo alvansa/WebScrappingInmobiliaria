@@ -242,10 +242,12 @@ class createExcel {
 
         // ws['X'+ currentRow ] = {v: 'notif ', t: 's'};
         // Formato de monto minimo segun el tipo de moneda
+        console.log("Leyendo monto minimo: ", caso.montoMinimo, " con moneda: ", caso.moneda);
         if (caso.moneda === 'UF') {
             ws['Y' + currentRow] = { v: parseFloat(caso.montoMinimo), t: 'n', z: '#,##0.0000' };
         }
         else if (caso.moneda == 'Pesos') {
+            console.log("leyo que la moneda es pesos", caso.moneda);
             ws['Y' + currentRow] = { v: parseFloat(caso.montoMinimo), t: 'n', z: '#,##0' };
         }
         this.writeLine(ws,'Z',currentRow, caso.moneda, 's');

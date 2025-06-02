@@ -321,7 +321,7 @@ function getFechaRemate(data) {
 //Obtiene el monto minimo por el cual iniciara el remate.
 function getMontoMinimo(data) {
     // console.log(data);
-    const regexPatronBase = "(?:subasta|m[íi]nim[oa]|rematar|propiedad)\\s*[.,a-zA-ZáéíóúÑñ:º0-9\\s]*\\s+";
+    const regexPatronBase = "(?:subasta|m[íi]nim[oa]|rematar|propiedad)\\s*[,a-zA-ZáéíóúÑñ:º0-9\\s]*\\s+";
 
     const regexMontoMinimo = [
         `${regexPatronBase}(\\d{1,12}(?:\\.\\d{1,3})*(?:,\\d{1,10})?)\\s*\\.?-?\\s*(?:Unidades de Fomento|UF|U\\.F\\.)`,
@@ -525,7 +525,7 @@ function getTipoDerecho(data) {
     // de manera mas simple.
     const regexForeclosure = /(?:posesión|usufructo|nuda propiedad|bien familiar)/i;
     const tipoDerecho = normalizedData.match(regexForeclosure);
-    if (tipoDerecho) {
+    if (tipoDerecho && checkBienFamiliar(data,tipoDerecho[0])) {
         return tipoDerecho[0];
     }
     // Si no encuentra nada, busca con una lista de posibles maneras de escribir derecho.
@@ -557,6 +557,28 @@ function getTipoDerecho(data) {
         }
     }
     return null;
+}
+
+function checkBienFamiliar(text,tipoDerecho){
+    if(!tipoDerecho.includes("bien familiar")){
+        return true;
+    }
+    console.log("Texto: ",text);
+
+    const regex1BienFamiliar = /bien\s*familia.*no\s*registra\s*anotaciones/i;
+    let notBienFamiliar = text.match(regex1BienFamiliar);
+    if (notBienFamiliar) {
+        console.log("El texto de bien familiar esta como no registra anotaciones ");
+        return false;
+    }
+    const regex2BienFamiliar = /no\shay\sconstancia\sde\shaberse\sdeclarado\sbien\sfamiliar/gi;
+    notBienFamiliar = text.match(regex2BienFamiliar);
+    if (notBienFamiliar) {
+        console.log("El texto de bien familiar esta como no hay constancia de haberse declarado bien familiar");
+        return false;
+    }
+    return true;
+    
 }
 
 function obtainFinalPercentage(foreclosures) {

@@ -313,6 +313,12 @@ class Caso{
     get hasBodega(){
         return Boolean(this.#hasBodega);
     }
+    get montoMinimo(){
+        if(this.#montoMinimo == "N/A" || this.#montoMinimo == null){
+            return null;
+        }
+        return this.#montoMinimo;
+    }
 
   
 

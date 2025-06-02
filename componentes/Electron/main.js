@@ -77,6 +77,7 @@ class MainApp{
     //Funcion para crear la ventana principal
       createMainWindow(){
         this.mainWindow = new BrowserWindow({
+            resizable: false,
             width: 700,
             height: 500,
             webPreferences: {
@@ -476,9 +477,9 @@ class MainApp{
         }else if(arg === 'consultaMultipleCases'){
             console.log("Consultando multiples casos"); 
             const casos = [];
-            const caso1 = this.createCaso("C-3178-2022","4º JUZGADO DE LETRAS EN LO CIVIL DE ANTOFAGASTA");
+            const caso1 = this.createCaso("C-321-2024","1º JUZGADO DE LETRAS DE ANGOL");
             casos.push(caso1);
-            const caso2 = this.createCaso("C-126-2025","JUZGADO DE LETRAS DE LOS LAGOS");
+            const caso2 = this.createCaso("C-1597-2016","JUZGADO DE LETRAS DE SAN VICENTE");
             casos.push(caso2);
             // const caso3 = this.createCaso("C-3054-2024","2º JUZGADO DE LETRAS DE OSORNO");
             // casos.push(caso3);
@@ -491,7 +492,7 @@ class MainApp{
             console.log("Resultados de los casos en la funcion de llamada: ",casos.length);
             const downloadPath = path.join(os.homedir(), "Documents", "infoRemates");
             const excel = new createExcel(downloadPath,null,null,false,"oneDay");
-            await excel.writeData(casos,`${caso1.causa}-${caso2.causa}`);
+            await excel.writeData(casos,`${casos[0].causa}`);
 
         }else if(arg === 'consultaDia'){
             console.log("Consultando casos por dia 6 de junio");
@@ -594,6 +595,10 @@ class MainApp{
             .replace(/3er/,"3º")
             .replace(/en\s+lo/,"")
             .replace(/de\s+\los\s+lagos/ig,"los lagos")
+            .replace(/de\scalera/ig,"de la calera")
+            .replace(/de\ssan\svicente/ig,"de san vicente de tagua tagua")
+            .replace(/1º juzgado\sde\sletras\sde\spuerto\svaras/ig,"juzgado de letras de puerto varas")
+            .replace(/1º juzgado\sde\sletras\sde\sangol/gi,"juzgado de letras de angol")
             .replace(/\s+/g," ")
             .normalize("NFD")
             .replace(/[\u0300-\u036f]/g, "");
