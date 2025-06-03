@@ -51,6 +51,8 @@ contextBridge.exposeInMainWorld('api', {
   // Pensado para seleccionar un archivo pdf que se procesara
   openFileLocal: () => ipcRenderer.invoke('open-dialog-local'),
 
+  openFilesLocal: () => ipcRenderer.invoke('open-dialog-local-multiple'),
+
   //Procesa un archivo pdf seleccionado con el algoritmo del boletin
   processFile: (filePath) => ipcRenderer.invoke('process-file', filePath),
 

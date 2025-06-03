@@ -160,6 +160,19 @@ class MainApp{
             return result.filePaths[0] || null;
         });
 
+        ipcMain.handle('open-dialog-local-multiple', async () => {
+
+            const { canceled, filePaths } = await dialog.showOpenDialog({
+                properties: ['openFile', 'multiSelections'],
+                filters: [
+                    { name: 'PDF Files', extensions: ['pdf'] },
+                    { name: 'All Files', extensions: ['*'] }
+                ]
+            });
+
+            return canceled ? [] : filePaths;
+        });
+
         ipcMain.handle('process-file', async (event, filePath) => {
             try {
                 // Aquí puedes procesar el archivo seleccionado
@@ -466,13 +479,21 @@ class MainApp{
             console.log("Resultados del caso de prueba en pjud: ",result.toObject());
 
         }else if(arg === 'readPdf'){
-            console.log("Leyendo PDF ubicado en: ",args[1]);
+            const newExcel = args[2];
             const caso = crearCasoPrueba();
-            console.log("Leyendo PDF ubicado en: ",args[1]);
-            result = await ProcesarBoletin.convertPdfToText2(args[1]);
             const processPDF = new PjudPdfData(caso);
-            processPDF.processInfo(result);
-            console.debug("Resultados del texto introducido: ",caso.toObject());
+            for(let pdf of args[1]){
+                console.log("Leyendo PDF ubicado en: ",pdf);
+                result = await ProcesarBoletin.convertPdfToText2(pdf);
+                processPDF.processInfo(result);
+            }
+            if(newExcel){
+                const downloadPath = path.join(os.homedir(), "Documents", "infoRemates");
+                const excel = new createExcel(downloadPath,null,null,false,"one");
+                await excel.writeData(caso,`PDF-${caso.causa}`);
+            }
+
+            console.debug("Resultados del texto introducido: ", caso.toObject());
 
         }else if(arg === 'consultaMultipleCases'){
             console.log("Consultando multiples casos"); 

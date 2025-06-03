@@ -523,10 +523,12 @@ function getTipoDerecho(data) {
     const normalizedData = data.toLowerCase();
     // Primero revisa si hay una propiedad con derecho de usufructo, nuda propiedad o bien familiar
     // de manera mas simple.
-    const regexForeclosure = /(?:posesión|usufructo|nuda propiedad|bien familiar)/i;
+    const regexForeclosure = /(?:posesión|usufructo|nuda propiedad|bien\s*familiar)/i;
     const tipoDerecho = normalizedData.match(regexForeclosure);
-    if (tipoDerecho && checkBienFamiliar(data,tipoDerecho[0])) {
-        return tipoDerecho[0];
+    console.log("Tipo derecho: ", data);
+    const bienFamiliar = checkBienFamiliar(data, tipoDerecho[0]);
+    if (tipoDerecho && bienFamiliar.isBienFamiliar) {
+        return bienFamiliar.text;
     }
     // Si no encuentra nada, busca con una lista de posibles maneras de escribir derecho.
     const multipleRegexForeclosures = [
@@ -560,24 +562,37 @@ function getTipoDerecho(data) {
 }
 
 function checkBienFamiliar(text,tipoDerecho){
-    if(!tipoDerecho.includes("bien familiar")){
-        return true;
+    if(!tipoDerecho.includes("bien familiar") && !tipoDerecho.includes("bienfamiliar")) {
+        console.log("El tipo de derecho no es bien familiar: ", tipoDerecho);
+        return {
+            text:  tipoDerecho,
+            isBienFamiliar: true
+        };
     }
     console.log("Texto: ",text);
 
-    const regex1BienFamiliar = /bien\s*familia.*no\s*registra\s*anotaciones/i;
+    const regex1BienFamiliar = /bien\s*familia.*no\s*registra\s*anotacione?s?/i;
     let notBienFamiliar = text.match(regex1BienFamiliar);
     if (notBienFamiliar) {
         console.log("El texto de bien familiar esta como no registra anotaciones ");
-        return false;
+        return {
+            text:  tipoDerecho,
+            isBienFamiliar: false
+        };
     }
     const regex2BienFamiliar = /no\shay\sconstancia\sde\shaberse\sdeclarado\sbien\sfamiliar/gi;
     notBienFamiliar = text.match(regex2BienFamiliar);
     if (notBienFamiliar) {
         console.log("El texto de bien familiar esta como no hay constancia de haberse declarado bien familiar");
-        return false;
+        return {
+            text:  tipoDerecho,
+            isBienFamiliar: false
+        };
     }
-    return true;
+        return {
+            text:  "bien familiar",
+            isBienFamiliar: true
+        };
     
 }
 

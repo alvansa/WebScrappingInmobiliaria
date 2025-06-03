@@ -22,13 +22,14 @@ document.getElementById('downloadPDF').addEventListener('click', () => {
 
 document.getElementById('readPdf').addEventListener('click', async () => {
   try {
-    const filePath = await window.api.openFileLocal();
+    const filePath = await window.api.openFilesLocal();
+    const createExcel = document.getElementById('createExcel').checked;
     
     if (filePath) {
       fileInfoPjud.textContent = `Archivo seleccionado: ${filePath}`;
       
       // Llama a tu función que procesa el archivo
-      window.api.testEconomico(['readPdf',filePath]);
+      window.api.testEconomico(['readPdf',filePath, createExcel]);
     }
   } catch (error) {
     console.error('Error al seleccionar archivo:', error);

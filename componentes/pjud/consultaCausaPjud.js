@@ -119,14 +119,14 @@ class ConsultaCausaPjud{
         }
 
         console.log('Test Pjud activado');
-        // const isValid = await this.buscarGP();
-        // if(!isValid){
-        //     console.log('Fallo al buscar GP');
-        //     return false;
-        // }else{
-        //     console.log("Datos posibles del caso obtenidos correctamente");
-        //     return true;
-        // }
+        const isValid = await this.buscarGP();
+        if(!isValid){
+            console.log('Fallo al buscar GP');
+            return false;
+        }else{
+            console.log("Datos posibles del caso obtenidos correctamente");
+            return true;
+        }
     }
 
     // Obtiene las partes del remate.

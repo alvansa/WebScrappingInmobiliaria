@@ -728,7 +728,12 @@ class Caso{
         if(this.#formatoEntrega == "vale a la vista"){
             return "vale vista";
         }
-        return this.#formatoEntrega;
+        const formato = this.#formatoEntrega
+        .toLowerCase()
+        .replace(/(\s+)/g, ' ') // Reemplazar espacios y comas por un solo espacio;
+        .replace(/\n/g, ' ')
+        .trim(); // Reemplazar saltos de línea por espacios
+        return formato;
     }
     normalizarCausa() {
         const valorOriginal = this.#causa;
