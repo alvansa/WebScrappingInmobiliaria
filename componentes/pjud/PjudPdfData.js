@@ -7,15 +7,20 @@ class PjudPdfData{
     }
 
     processInfo(item){
+        // console.log("Procesando item: ", item);
         let normalizeInfo = this.normalizeInfo(item);
         if (this.isCaseComplete()) {
             console.log("Caso completo");
             return true;
         }
+        const spanishNormalization = item
+            .toLowerCase()
+            .replace(/[\n\r]/g, " ")
+            .replace(/\s+/g, " ");
 
         this.processCivilStatus(normalizeInfo);
         this.processPropertyRoles(normalizeInfo);
-        this.processPropertyInfo(item,normalizeInfo);
+        this.processPropertyInfo(spanishNormalization,normalizeInfo);
         this.processAuctionInfo(item,normalizeInfo);
 
         return false;
@@ -80,7 +85,7 @@ class PjudPdfData{
         }
 
         if(!this.caso.comuna){
-            let comuna = this.obtainComuna(normalizedInfo);
+            let comuna = this.obtainComuna(normalizedInfo,info);
             if(comuna){
                 // comuna = getComuna(info)
                 this.caso.comuna = comuna ? comuna : this.caso.comuna;
@@ -109,14 +114,68 @@ class PjudPdfData{
                 this.caso.anno = anno ? anno : null;
             }
         }
+
+        this.checkIfIsDerecho(normalizedInfo);
+
     }
+
+    checkIfIsDerecho(info){
+        const buyers = this.obtainBuyers(info);
+        console.log("------------\nbuyers: ", buyers, "\n------------");
+    }
+
+    obtainBuyers(texto) {
+        // Normalizar el texto para búsqueda insensible a mayúsculas
+        const textoNormalizado = texto.toLowerCase();
+        const regex = /de\s*propiedad\s*de/gi;
+        let matches;
+        let lastIndex = 0
+        const indicesValidos = [];
+
+        // Buscar todas las coincidencias de "de propiedad de"
+        while ((matches = regex.exec(textoNormalizado)) !== null) {
+            const startIndex = matches.index;
+            const textoPrevio = texto.slice(lastIndex, startIndex).toLowerCase();
+            // Verificar que no tenga "registro" antes
+            if (!textoPrevio.includes("registro")) {
+                indicesValidos.push(startIndex);
+            }
+            lastIndex = startIndex;
+        }
+        // Si no hay coincidencias válidas, retornar null
+        if (indicesValidos.length === 0) {
+            return null;
+        }
+        // Usar el ÚLTIMO índice válido (para el segundo "de propiedad de")
+        const startIndexText = indicesValidos[indicesValidos.length - 1];
+
+        // Extraer el texto después de "de propiedad de"
+        const textoPosterior = texto.slice(startIndexText);
+        const matchPropietario = textoPosterior.match(regex);
+        if (!matchPropietario) {
+            return null;
+        }
+
+        const updatedText = textoPosterior.substring(matchPropietario[0].length);
+        const endText = updatedText.indexOf(".");
+        if (endText === -1) {
+            return null;
+        }
+
+        const propietarioText = updatedText.substring(0, endText).trim();
+
+        // Dividir por comas si es necesario
+        if (propietarioText.includes(",")) {
+            return propietarioText.split(",").map(part => part.trim());
+        }
+
+        return [propietarioText];
+    }
+ 
     
     processAuctionInfo(info,normalizedInfo){
-        const spanishNormalization = info
-            .toLowerCase()
-            .replace(/[\n\r]/g, " ")
-            .replace(/\s+/g, " ");
 
+        // console.log("info en processAuctionInfo: ", normalizedInfo);
         if(!this.caso.montoMinimo){
             const montoMinimo = getMontoMinimo(normalizedInfo);
             if(montoMinimo){
@@ -255,9 +314,10 @@ class PjudPdfData{
 
     }
 
-    obtainComuna(info){
+    obtainComuna(infoNormalized,info){
         // console.log("info en comuna: ", info);
-        let comuna = this.obtainComunaByIndex(info);
+        let comuna = this.obtainComunaByIndex(infoNormalized);
+        // console.log("comuna by index: ", comuna);
         if(comuna){
             return comuna;
         }

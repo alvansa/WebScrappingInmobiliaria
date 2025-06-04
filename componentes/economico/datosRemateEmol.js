@@ -398,14 +398,28 @@ function getMultiples(data) {
 // Obtiene la comuna del remate a base de una lista de comunas.
 function getComuna(data) {
     const dataNormalizada = data.toLowerCase();
-    // console.log("Data normalizada: ",dataNormalizada);
+    // console.log("Data normalizada en getComuna: ",dataNormalizada);
     for (let comuna of comunas) {
         comuna = comuna.toLowerCase();
-        const listaPreFrases = ["comuna de ", "comuna ", "comuna y provincia de ", "conservador de bienes raíces de ", "conservador bienes raíces ", "registro de propiedad de ", "registro propiedad ", "registro propiedad cbr "];
+        const listaPreFrases = [
+            "comuna de ",
+            "comuna ",
+            "comuna y provincia de ",
+            "conservador de bienes raíces de ", 
+            "conservador bienes raíces ", 
+            "registro de propiedad de ", 
+            "registro propiedad ",
+            "registro propiedad cbr ",
+            "Registro de Propiedad del CBR de "
+        ];
         for (let preFrase of listaPreFrases) {
             const comunaPreFrase = preFrase + comuna;
+            const regexComuna = new RegExp(`${preFrase}${comuna}\\b`, 'i');
+            if(comuna === 'talcahuano'){
+                console.log("Comuna encontrada: ",regexComuna);
+            }
             const comunaSinEspacio = comunaPreFrase.replace(/\s*/g, '');
-            if (dataNormalizada.includes(comunaPreFrase) || dataNormalizada.includes(comunaSinEspacio)) {
+            if (regexComuna.test(dataNormalizada) || dataNormalizada.includes(comunaSinEspacio)) {
                 return comuna;
             }
         }
@@ -525,8 +539,8 @@ function getTipoDerecho(data) {
     // de manera mas simple.
     const regexForeclosure = /(?:posesión|usufructo|nuda propiedad|bien\s*familiar)/i;
     const tipoDerecho = normalizedData.match(regexForeclosure);
-    console.log("Tipo derecho: ", data);
-    const bienFamiliar = checkBienFamiliar(data, tipoDerecho[0]);
+    // console.log("Tipo derecho: ", data);
+    const bienFamiliar = checkBienFamiliar(data, tipoDerecho);
     if (tipoDerecho && bienFamiliar.isBienFamiliar) {
         return bienFamiliar.text;
     }
@@ -562,19 +576,22 @@ function getTipoDerecho(data) {
 }
 
 function checkBienFamiliar(text,tipoDerecho){
-    if(!tipoDerecho.includes("bien familiar") && !tipoDerecho.includes("bienfamiliar")) {
-        console.log("El tipo de derecho no es bien familiar: ", tipoDerecho);
+    if(!tipoDerecho) {
         return {
-            text:  tipoDerecho,
+            text: tipoDerecho,
             isBienFamiliar: true
         };
     }
-    console.log("Texto: ",text);
+    if(!tipoDerecho.includes("bien familiar") && !tipoDerecho.includes("bienfamiliar")) {
+        return {
+            text:  tipoDerecho[0],
+            isBienFamiliar: true
+        };
+    }
 
     const regex1BienFamiliar = /bien\s*familia.*no\s*registra\s*anotacione?s?/i;
     let notBienFamiliar = text.match(regex1BienFamiliar);
     if (notBienFamiliar) {
-        console.log("El texto de bien familiar esta como no registra anotaciones ");
         return {
             text:  tipoDerecho,
             isBienFamiliar: false
@@ -583,7 +600,6 @@ function checkBienFamiliar(text,tipoDerecho){
     const regex2BienFamiliar = /no\shay\sconstancia\sde\shaberse\sdeclarado\sbien\sfamiliar/gi;
     notBienFamiliar = text.match(regex2BienFamiliar);
     if (notBienFamiliar) {
-        console.log("El texto de bien familiar esta como no hay constancia de haberse declarado bien familiar");
         return {
             text:  tipoDerecho,
             isBienFamiliar: false

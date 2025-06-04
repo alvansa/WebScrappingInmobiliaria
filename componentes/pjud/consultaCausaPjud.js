@@ -118,7 +118,6 @@ class ConsultaCausaPjud{
             return lineaAnterior; // Salta al siguiente caso
         }
 
-        console.log('Test Pjud activado');
         const isValid = await this.buscarGP();
         if(!isValid){
             console.log('Fallo al buscar GP');
@@ -238,6 +237,7 @@ class ConsultaCausaPjud{
     }
 
     async buscarGP(){
+        console.log('Se esta buscando los datos del cuaderno');
         let caseIsFinished = false;
         const findLink = await this.findAndProcessLinkGP();
 
@@ -254,20 +254,47 @@ class ConsultaCausaPjud{
         //     return true; // Si el caso ya está concluido, no es necesario continuar
         // }
 
-        const selectedCuaderno = await this.selectCuaderno();
 
-        if(!selectedCuaderno){ 
-            console.log("no se encontro el cuaderno");
-            return false; 
+        // const selectedCuaderno = await this.selectCuaderno();
+
+        // if(!selectedCuaderno){ 
+        //     console.log("no se encontro el cuaderno");
+        //     return false; 
+        // }
+
+        // // await fakeDelay(4, 10);
+
+        // caseIsFinished = await this.getAvaluoTablaCausa();
+        // Aqui falta agregar que solo se descargue la demanda en caso de que se hayan encontrado los datos de los propietarios.
+        if(this.caso.owners){
+            console.log("Caso con propietarios, se procede a descargar demanda.");
         }
-
-        // await fakeDelay(4, 10);
-
-        caseIsFinished = await this.getAvaluoTablaCausa();
+        // Descargar el texto de la demanda.
+        await this.downloadDemanda();
         if(caseIsFinished){
             return true;
         }
         return true;
+    }
+
+    async downloadDemanda() {
+        const linkBaseDemanda = 'https://oficinajudicialvirtual.pjud.cl/ADIR_871/civil/documentos/docu.php?valorEncTxtDmda=';
+        try {
+            // Espera a que el modal y el input estén presentes
+            await this.page.waitForSelector('#modalDetalleCivil > div > div > div.modal-body > div > div:nth-child(1) > table:nth-child(2) > tbody > tr > td:nth-child(1) > form > input[type="hidden"]');
+
+            // Obtén el valor del input
+            const value = await this.page.$eval(
+                '#modalDetalleCivil > div > div > div.modal-body > div > div:nth-child(1) > table:nth-child(2) > tbody > tr > td:nth-child(1) > form > input[type="hidden"]',
+                (input) => input.value
+            );
+
+            const linkToDownload = linkBaseDemanda + value;
+            console.log('Valor obtenido:', value); // Muestra el valor JWT
+        }catch (error) {
+            console.error('Error al descargar la demanda:', error.message);
+            return false;
+        }
     }
 
     async checkIfCaseIsConcluded() {

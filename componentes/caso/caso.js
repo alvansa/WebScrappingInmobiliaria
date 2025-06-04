@@ -41,6 +41,7 @@ class Caso{
     #rolBodega;
     #avaluoBodega;
     #hasBodega;
+    #owners;
 
     constructor(fechaObtencion, fechaPublicacion = 'N/A',link = 'N/A',origen = null ){    
         this.#fechaPublicacion = fechaPublicacion;
@@ -79,6 +80,7 @@ class Caso{
         this.#avaluoBodega = null;
         this.#hasEstacionamiento = false;
         this.#hasBodega = false;
+        this.#owners = [];
     }
 
     darfechaPublicacion(fechaPublicacion){
@@ -209,6 +211,13 @@ class Caso{
     set hasBodega(hasBodega){
         this.#hasBodega = hasBodega;
     }
+    set owners(owners){
+        if(Array.isArray(owners)){
+            this.#owners = owners;
+        }else{
+            throw new Error("Los owners deben ser un array");
+        }
+    }
 
     
     get link(){ 
@@ -318,6 +327,9 @@ class Caso{
             return null;
         }
         return this.#montoMinimo;
+    }
+    get owners(){
+        return this.#owners;
     }
 
   

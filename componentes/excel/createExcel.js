@@ -244,6 +244,7 @@ class createExcel {
 
         // Union de roles de propiedad, estacionamiento y bodega
         newRol = this.adaptRol(caso.rolPropiedad, caso.rolEstacionamiento, caso.rolBodega);
+        console.log("Rol adaptado: ", newRol);
         this.writeLine(ws, 'W', currentRow, newRol, 's');
 
         // ws['X'+ currentRow ] = {v: 'notif ', t: 's'};
@@ -400,6 +401,7 @@ checkTwoHalfs(rolOne, rolTwo){
 
 mergeRol(rol1,rol2,rol3,areSame){
   let final;
+  console.log("Roles a unir: ",rol1,rol2,rol3, "Resultado de la comparacion: ", areSame);
   switch(areSame){
     case THREE_SAME:
       console.log("3 iguales");
@@ -408,18 +410,19 @@ mergeRol(rol1,rol2,rol3,areSame){
       
     case ONE_TWO:
       console.log("1 y 2 iguales");
-      final = this.mergeDiffRoles(mergeTwoRoles(rol1,rol2),rol3)
+      final = this.mergeDiffRoles(this.mergeTwoRoles(rol1,rol2),rol3);
+      console.log("Rol final cuando 1 y 2 son iguales: ", final);
       break;
     
     case ONE_THREE:
       console.log("1 y 3 iguales");
 
-      final = this.mergeDiffRoles(mergeTwoRoles(rol1,rol3),rol2)
+      final = this.mergeDiffRoles(this.mergeTwoRoles(rol1,rol3),rol2)
       break;
       
     case TWO_THREE:
       console.log("2 y 3 iguales");  
-      final = this.mergeDiffRoles(mergeTwoRoles(rol2,rol3),rol1)
+      final = this.mergeDiffRoles(this.mergeTwoRoles(rol2,rol3),rol1)
       break;
     case THREE_DIFF:
       console.log("3 diferentes");
@@ -430,10 +433,12 @@ mergeRol(rol1,rol2,rol3,areSame){
       final = null;
         
   }
+  console.log("Rol final: ", final);
   return final;
 }
 
 mergeDiffRoles(rol1=null,rol2=null,rol3=null){
+    console.log("Unir roles al final: ",rol1,rol2,rol3);
   if(rol1 && rol2 && rol3){
     return rol1 + "//" + rol2 + "//" + rol3;
   }else if(rol1 && rol2){
@@ -442,6 +447,8 @@ mergeDiffRoles(rol1=null,rol2=null,rol3=null){
     return rol1 + "//" + rol3;
   }else if(rol2 && rol3){
     return rol2 + "//" + rol3;
+  }else if(rol1){
+    return rol1;
   }
 }
 
