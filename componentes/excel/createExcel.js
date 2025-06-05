@@ -263,7 +263,7 @@ class createExcel {
             ws['AC' + currentRow] = { v: sumAvaluo , t: 'n', z: '#,##0' };
         }
         this.writeLine(ws, "AE",currentRow, caso.estadoCivil,"s");
-        // ws['AF' + currentRow ] = {v: 'Px $ compra ant ', t: 's'};
+        ws['AF' + currentRow ] = {v:caso.montoCompra.monto, t: 'n'};
         // ws['AG' + currentRow ] = {v: 'año compr ant ', t: 's'};
         // ws['AH' + currentRow ] = {v: 'precio venta nos ', t: 's'};
     }

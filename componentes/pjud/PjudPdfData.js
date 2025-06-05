@@ -1,5 +1,6 @@
 const { setDefaultScreenshotOptions } = require('puppeteer-core');
 const {getMontoMinimo, getFormatoEntrega, getPorcentaje, getAnno, getComuna, getTipoDerecho} = require('../economico/datosRemateEmol');
+const convertWordToNumbers = require('../../utils/convertWordToNumbers');
 
 class PjudPdfData{
     constructor(caso){
@@ -117,7 +118,136 @@ class PjudPdfData{
 
         this.checkIfIsDerecho(normalizedInfo);
 
+        if(!this.caso.montoCompra){
+            const montoCompra = this.obtainMontoCompra(normalizedInfo);
+            console.log("-----------------\nmontoCompra: ", montoCompra, "\n-----------------");
+            if(montoCompra){
+                this.caso.montoCompra = montoCompra;
+                console.log("montoCompra: ", montoCompra.monto, "moneda: ", montoCompra.moneda);  
+            }
+        }
+
     }
+
+    obtainMontoCompra(text) {
+        let monto = this.searchByPorCompra(text);
+        if (monto) {
+            return this.processMonto(monto);
+        }
+        monto = this.searchByCompraVenta(text)
+        if (monto) {
+            return this.processMonto(monto);
+        }
+
+        return null;
+    }
+
+    processMonto(monto) {
+        let total;
+        const regexNumber = /\d{1,}(?:[\.|,]\d{1,3})*/;
+        const ufRegex = /(unidades\s*de\s*fomento|u\.?f\.?)/i;
+        const pesosRegex = /(\$|pesos)/i;
+
+        if (!monto) {
+            return {
+                monto: null,
+                moneda: null
+            }
+        }
+
+        const match = ufRegex.exec(monto)
+        if (match) {
+            const montoWithoutType = monto.substring(0, match.index);
+            if (montoWithoutType.includes("coma")) {
+                const parts = montoWithoutType.split("coma");
+                const intPart = convertWordToNumbers(parts[0]);
+                let decimalPart = convertWordToNumbers(parts[1]);
+                if(decimalPart === 1){
+                    decimalPart = 0.1;
+                }else{
+                    decimalPart *= 1 / 10 ** Math.ceil(Math.log10(decimalPart))
+                }
+                console.log("intPart: ", intPart, "decimalPart: ", decimalPart);
+                total = intPart + decimalPart;
+                return {
+                    monto: total,
+                    moneda: "UF"
+                }
+            }
+            const matchedNumber = regexNumber.exec(montoWithoutType);
+            if (matchedNumber) {
+                console.log(matchedNumber)
+                return {
+                    monto: parseInt(matchedNumber[0]),
+                    moneda: "UF"
+                }
+            }else {
+                total = convertWordToNumbers(montoWithoutType);
+                console.log(montoWithoutType)
+                return {
+                    monto: total,
+                    moneda: "UF"
+                }
+            }
+        }else if (pesosRegex.exec(monto)) {
+            const matchedNumber = regexNumber.exec(monto);
+            const pesosMatch = pesosRegex.exec(monto);
+            const montoWithoutType = monto.substring(0, pesosMatch.index);
+            if (matchedNumber) {
+                return {
+                    monto: parseInt(matchedNumber[0]),
+                    moneda: "Pesos"
+                }
+            }else {
+                total = convertWordToNumbers(montoWithoutType);
+                return {
+                    monto: total,
+                    moneda: "Pesos"
+                }
+            }
+        }
+    }
+
+searchByPorCompra(text){
+  const startIndexRegex = /por\s*compra\s*a\s*/i;
+  const startMatch = startIndexRegex.exec(text);
+  if(!startMatch){
+    return null;  
+  }
+  const startIndex = startMatch.index
+  const newText = text.substring(startIndex);
+  console.log(newText)
+  const indexPrice = /por\s*el\s*precio\s*de/i;
+  const priceMatch = indexPrice.exec(newText);
+  if(!priceMatch){
+    return null;
+  }
+
+  let priceText = newText.substring(priceMatch.index + priceMatch[0].length + 1);
+  const end1 = priceText.indexOf(",");
+  priceText = priceText.substring(0,end1);
+  
+  
+  return priceText;
+}
+
+searchByCompraVenta(text){
+  const startRegex = /precio\s*de\s*compraventa/i;
+  const startMatch = startRegex.exec(text);
+  if(!startMatch){
+    return null;
+  }
+  let newText = text.substring(startMatch.index);
+  
+  let endFomentoRegex = /fomento/i;
+  let endMatch = endFomentoRegex.exec(newText);
+  if(!endMatch){
+    return null;
+  }
+  newText = newText.substring(0,endMatch.index + endMatch[0].length);
+  return newText;
+}
+
 
     checkIfIsDerecho(info){
         const buyers = this.obtainBuyers(info);
@@ -257,7 +387,7 @@ class PjudPdfData{
     }
 
     findTipeMarriage(info){
-        const regexSeparacion = /separacion\sde\sbienes/i;
+        const regexSeparacion = /(separacion\sde\sbienes|separado\s*totalmente\s*de\s*bienes)/i;
         const regexConyugal = /matrimonio\s(?:conyugal|por\sregimen\spatrimonial\sdiferente\sa\slos\sgenerales)/i;
         const regexComunidad = /matrimonio\s(?:comunidad|por\sregimen\scomun)/i;
 
@@ -315,6 +445,10 @@ class PjudPdfData{
     }
 
     obtainComuna(infoNormalized,info){
+
+        if(infoNormalized.includes("inscripcion")){
+            return null;
+        }
         // console.log("info en comuna: ", info);
         let comuna = this.obtainComunaByIndex(infoNormalized);
         // console.log("comuna by index: ", comuna);

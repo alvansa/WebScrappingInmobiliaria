@@ -248,23 +248,23 @@ class ConsultaCausaPjud{
 
         const estadoCaso = await this.checkIfCaseIsConcluded();
         console.log("Estado actual del caso: ", estadoCaso)
-        // return true;
+
         // if(this.checkIfCaseIsConcluded()){
         //     console.log("El caso ya esta concluido, no es necesario continuar.");
         //     return true; // Si el caso ya está concluido, no es necesario continuar
         // }
 
 
-        // const selectedCuaderno = await this.selectCuaderno();
+        const selectedCuaderno = await this.selectCuaderno();
 
-        // if(!selectedCuaderno){ 
-        //     console.log("no se encontro el cuaderno");
-        //     return false; 
-        // }
+        if(!selectedCuaderno){ 
+            console.log("no se encontro el cuaderno");
+            return false; 
+        }
 
-        // // await fakeDelay(4, 10);
+        // await fakeDelay(4, 10);
 
-        // caseIsFinished = await this.getAvaluoTablaCausa();
+        caseIsFinished = await this.getAvaluoTablaCausa();
         // Aqui falta agregar que solo se descargue la demanda en caso de que se hayan encontrado los datos de los propietarios.
         if(this.caso.owners){
             console.log("Caso con propietarios, se procede a descargar demanda.");
@@ -517,7 +517,10 @@ class ConsultaCausaPjud{
             'boleta',
             'deposito',
             'cupon',
-            'imagen'
+            'imagen',
+            'c.i',
+            'tgr'
+
 
         ];
 

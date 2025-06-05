@@ -42,6 +42,7 @@ class Caso{
     #avaluoBodega;
     #hasBodega;
     #owners;
+    #montoCompra;
 
     constructor(fechaObtencion, fechaPublicacion = 'N/A',link = 'N/A',origen = null ){    
         this.#fechaPublicacion = fechaPublicacion;
@@ -81,6 +82,7 @@ class Caso{
         this.#hasEstacionamiento = false;
         this.#hasBodega = false;
         this.#owners = [];
+        this.#montoCompra = null;   
     }
 
     darfechaPublicacion(fechaPublicacion){
@@ -218,6 +220,9 @@ class Caso{
             throw new Error("Los owners deben ser un array");
         }
     }
+    set montoCompra(montoCompra){
+        this.#montoCompra = montoCompra;
+    }
 
     
     get link(){ 
@@ -331,6 +336,12 @@ class Caso{
     get owners(){
         return this.#owners;
     }
+    get montoCompra(){
+        if(this.#montoMinimo == "N/A" || this.#montoMinimo == null){
+            return null;
+        }
+        return this.#montoCompra;
+    }
 
   
 
@@ -386,6 +397,7 @@ class Caso{
             avaluoBodega : Number(this.#avaluoBodega) !=0 ? Number(this.#avaluoBodega) : null,
             hasEstacionamiento : this.#hasEstacionamiento,
             hasBodega : this.#hasBodega,
+            montoCompra: this.#montoCompra,
         };
     } 
 
