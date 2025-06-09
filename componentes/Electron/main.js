@@ -3,6 +3,9 @@ const path = require('node:path');
 const puppeteer = require('puppeteer-core');
 const pie = require('puppeteer-in-electron');
 const os = require('os');
+const axios = require('axios');
+const FormData = require('form-data');
+const fs = require('fs');
 
 const Economico = require('../economico/Economico.js');
 const {getDatosRemate,emptyCaseEconomico} = require('../economico/datosRemateEmol.js');
@@ -233,8 +236,8 @@ class MainApp{
            return resultado;
         });
 
-
     }
+
 
     async insertarDatos(startDate,endDate,saveFile, checkedBoxes) {
         let casos = [];
@@ -480,11 +483,13 @@ class MainApp{
 
         }else if(arg === 'readPdf'){
             const newExcel = args[2];
+            console.time("readPdf");
             const caso = crearCasoPrueba();
             const processPDF = new PjudPdfData(caso);
             for(let pdf of args[1]){
                 console.log("Leyendo PDF ubicado en: ",pdf);
                 result = await ProcesarBoletin.convertPdfToText2(pdf);
+                console.log("Resultados del texto introducido: ",result);
                 processPDF.processInfo(result);
             }
             if(newExcel){
@@ -494,6 +499,7 @@ class MainApp{
             }
 
             console.debug("Resultados del texto introducido: ", caso.toObject());
+                console.timeEnd("readPdf"); 
 
         }else if(arg === 'consultaMultipleCases'){
             console.log("Consultando multiples casos"); 
@@ -538,7 +544,56 @@ class MainApp{
             //     }
             // }
             console.log(casos.map(caso => caso.toObject()));
+        }else if(arg === 'testPdfTesseract'){
+            console.time("testPdfTesseract");
+            const convertData = await this.processTeseract(args[1]);
+            console.log("Resultados del texto introducido: ", convertData);
+            const caso = this.createCaso("C-321-2024","1º JUZGADO DE LETRAS DE ANGOL");
+            const processPDF = new PjudPdfData(caso);
+            console.log("Procesnado el caso leido con Tesseract: ");
+            processPDF.processInfo(convertData);
+            console.log("Resultados del caso procesado: ", caso.toObject());
+            console.timeEnd("testPdfTesseract");
         }
+    }
+
+    async processTeseract(filePath) {
+        try{
+            console.log("Procesando archivo con Tesseract:", filePath[0]);
+            const form = new FormData();
+
+            form.append('file', fs.createReadStream(filePath[0]));
+
+            // configurate Headers
+            const headers = {
+                ...form.getHeaders(),
+            };
+
+            const respone = await axios.post('http://localhost:8000/processPDF', form, {
+                headers: headers,
+                responseType: 'json',
+            });
+
+            const normalizedData = this.normalizeData(respone.data);
+            return normalizedData;
+
+        }catch(error){
+            console.error('Error al procesar el archivo con Tesseract:', error);
+            return null;
+        }
+    }
+
+    normalizeData(data) {
+        let finalText = "";
+        for(let page of data['pages']){
+            const text = page.text
+            .replace(/(\r\n|\n|\r)/gm, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+
+            finalText += text + " ";
+        }
+        return finalText.trim();
     }
 
     async obtainDataPdfPjud(event,filePath,startDateOrigin,endDateOrigin){
@@ -559,7 +614,6 @@ class MainApp{
         const finalPath = await excel.writeData(casos, nombre);
         console.timeEnd("obtainDataPdfPjud");
         return finalPath;
-        // return filePath
 
     }
 

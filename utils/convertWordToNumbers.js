@@ -97,23 +97,19 @@ function convertWordToNumbers(stringNumber) {
   let total = 0;
   let currentValue = 0;
   const parts = normalized.split(/\s+|y/); // Separar por espacios o "y"
-  console.log("partes: ", parts)
   let i = 0;
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i];
-    console.log(part)
     
     // 1. Procesar unidades especiales (16-29)
     if (numberMap.specialTens[part]) {
       currentValue += numberMap.specialTens[part];
-      console.log("specialTen: ",currentValue)
       continue;
     }
     
     // 2. Procesar unidades simples (0-15)
     if (numberMap.units[part]) {
       currentValue += numberMap.units[part];
-      console.log("units : ",currentValue)
       continue;
     }
     
@@ -123,6 +119,7 @@ function convertWordToNumbers(stringNumber) {
       continue;
     }
     
+    // Creo que este if es inutil y nunca deberia entrar, aun asi quiero revisarlo antes de borrarlo, y menos un viernes.
     // 4. Procesar "y" en decenas (ej. "cuarenta y dos")
     if (part === 'y' && i > 0 && i < parts.length - 1) {
       console.log("aqui no deberia entrar nunca")
@@ -139,14 +136,12 @@ function convertWordToNumbers(stringNumber) {
     // 5. Procesar cientos
     if (numberMap.hundreds[part]) {
       currentValue += numberMap.hundreds[part];
-      console.log("Hundreds : ",currentValue)
       continue;
     }
     
     // 6. Procesar miles
     if (part === 'mil') {
       total += (currentValue || 1) * 1000;
-      console.log("En miles: ",total)
       currentValue = 0;
       continue;
     }
@@ -154,7 +149,6 @@ function convertWordToNumbers(stringNumber) {
     // 7. Procesar millones (si los tuvieras)
     if (part === 'millones') {
       total += (currentValue || 1) * 1000000;
-      console.log("Total momentaneo: ",total)
       currentValue = 0;
       continue;
     }
@@ -232,7 +226,6 @@ function convertWordToNumber(stringNumber){
         checked.thousands = true;
         total += thousands[part];
       }  
-      console.log(thousands[part])
     }
     if(!checked.hundreds){
       if(hundreds[part]){

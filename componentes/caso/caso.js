@@ -342,6 +342,12 @@ class Caso{
         }
         return this.#montoCompra;
     }
+    get anno(){
+        if(this.#anno == null || this.#anno == 0 || this.#anno == "No especifica"){  
+            return null;
+        }
+        return String(this.#anno);
+    }
 
   
 

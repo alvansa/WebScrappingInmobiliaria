@@ -4,8 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const Causas = require('../../model/Causas.js');
 const config = require("../../config.js");
-const {cleanInitialZeros} = require('../../utils/cleanStrings.js');
-const { create } = require('domain');
+const { cleanInitialZeros } = require('../../utils/cleanStrings.js');
 
 const PJUD = 2;
 const THREE_SAME = 0;
@@ -17,7 +16,7 @@ const THREE_DIFF = 4;
 
 
 class createExcel {
-    constructor(saveFile, startDate, endDate,emptyMode,type) {
+    constructor(saveFile, startDate, endDate, emptyMode, type) {
         this.saveFile = saveFile;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -83,7 +82,7 @@ class createExcel {
     }
 
 
-    async writeData(casos,name="") {
+    async writeData(casos, name = "") {
         let filePath = path.join(this.saveFile, 'Remates.xlsx');
         // Revisa si el archivo base ya existe
         if (!fs.existsSync(path.join(this.saveFile, 'Remates.xlsx'))) {
@@ -94,17 +93,17 @@ class createExcel {
         const wb = XLSX.readFile(path.join(this.saveFile, 'Remates.xlsx'));
         const ws = wb.Sheets['Remates'];
         this.cambiarAnchoColumnas(ws);
-        
+
         try {
-            if(this.type === "one"){
-                const lastRow = this.fillWithOne(ws,casos);
+            if (this.type === "one") {
+                const lastRow = this.fillWithOne(ws, casos);
                 ws['!ref'] = 'A5:AH' + lastRow;
-                filePath = path.join(this.saveFile, 'Caso_'+casos.causa+casos.juzgado+'.xlsx');
-            }else if(this.type === "oneDay"){
-                let lastRow = this.insertCasos(casos,ws) - 1;
+                filePath = path.join(this.saveFile, 'Caso_' + casos.causa + casos.juzgado + '.xlsx');
+            } else if (this.type === "oneDay") {
+                let lastRow = this.insertCasos(casos, ws) - 1;
                 ws['!ref'] = 'A5:AH' + lastRow;
-                filePath = path.join(this.saveFile,name+'.xlsx');
-            }else{
+                filePath = path.join(this.saveFile, name + '.xlsx');
+            } else {
                 let lastRow = await this.insertarCasosExcel(casos, ws) - 1;
                 ws['!ref'] = 'A5:AH' + lastRow;
                 const fechaInicioDMA = cambiarFormatoFecha(this.startDate);
@@ -120,17 +119,17 @@ class createExcel {
 
     }
 
-    insertCasos(casos,ws){
+    insertCasos(casos, ws) {
         let currentRow = 6;
-        for(let caso of casos){
-            this.insertarCasoIntoWorksheet(caso.toObject(),ws,currentRow);
+        for (let caso of casos) {
+            this.insertarCasoIntoWorksheet(caso.toObject(), ws, currentRow);
             currentRow = currentRow + 1;
         }
         return currentRow;
     }
 
 
-    fillWithOne(ws, casos){
+    fillWithOne(ws, casos) {
         const caso = casos.toObject();
 
         let currentRow = 6;
@@ -140,13 +139,13 @@ class createExcel {
     }
 
     async insertarCasosExcel(casos, ws) {
-        const startDateSQL = stringToDate(this.startDate); 
+        const startDateSQL = stringToDate(this.startDate);
         let remates = new Set();
         let currentRow = 6;
         const causaDB = new Causas();
         const rematesDB = causaDB.getCausas(formatDateToSQLite(startDateSQL));
-        for(let remateDB of rematesDB){
-            if(remateDB.juzgado){
+        for (let remateDB of rematesDB) {
+            if (remateDB.juzgado) {
                 remateDB.juzgado = remateDB.juzgado.replace(/º/g, '°');
             }
         }
@@ -160,11 +159,11 @@ class createExcel {
             if (caso.fechaPublicacion === "N/A" || caso.fechaPublicacion == null) {
                 caso.fechaPublicacion = fechaMenosUno(this.endDate);
             }
-            if(this.shouldSkip(caso,remates,rematesDB,startDateSQL)){
+            if (this.shouldSkip(caso, remates, rematesDB, startDateSQL)) {
                 continue;
             }
 
-            if(!this.emptyMode){
+            if (!this.emptyMode) {
                 remates.add({ causa: caso.causa, juzgado: caso.juzgado, fecha: formatDateToSQLite(caso.fechaPublicacion) });
             }
             this.insertarCasoIntoWorksheet(caso, ws, currentRow);
@@ -177,11 +176,11 @@ class createExcel {
         return currentRow;
     }
 
-    shouldSkip(currentCase, cacheAuctions, auctionsDB,startDateSQL) {
-        if(currentCase.juzgado){
-            currentCase.juzgado = currentCase.juzgado.replace(/º/g,'°');
+    shouldSkip(currentCase, cacheAuctions, auctionsDB, startDateSQL) {
+        if (currentCase.juzgado) {
+            currentCase.juzgado = currentCase.juzgado.replace(/º/g, '°');
         }
-        
+
         // Si el caso ya existe en la cache, no se guarda
         for (let auction of cacheAuctions) {
             if (auction.causa === currentCase.causa && auction.juzgado === currentCase.juzgado) {
@@ -196,7 +195,7 @@ class createExcel {
         if (currentCase.juzgado === "Juez Partidor") {
             return true;
         }
-        if(currentCase.origen === PJUD){ // Solo si es caso es del pjud revisamos si ya existe en la base de datos
+        if (currentCase.origen === PJUD) { // Solo si es caso es del pjud revisamos si ya existe en la base de datos
             // Si el caso ya existe en la base de datos, no se guarda
             for (let savedAuction of auctionsDB) {
                 if (savedAuction.causa === currentCase.causa && savedAuction.juzgado === currentCase.juzgado && savedAuction.fecha < formatDateToSQLite(startDateSQL)) {
@@ -214,30 +213,33 @@ class createExcel {
     insertarCasoIntoWorksheet(caso, ws, currentRow) {
         let newRol = caso.rolPropiedad;
         // console.log("Fecha de obtenion : ", caso.fechaObtencion, "Tipo :", typeof caso.fechaObtencion);
-        this.writeLine(ws,'C',currentRow, caso.fechaObtencion, 'd');
-        this.writeLine(ws,'D',currentRow, caso.link, 's');
+        this.writeLine(ws, 'C', currentRow, caso.fechaObtencion, 'd');
+        this.writeLine(ws, 'D', currentRow, caso.link, 's');
         // ws['E'+ currentRow ] = {v: 'notas ', t: 's'};
         if (caso.fechaRemate !== null) {
-            const adjustedAuctionDate = new Date(caso.fechaRemate);
-            adjustedAuctionDate.setHours(adjustedAuctionDate.getHours() + 6);
-            this.writeLine(ws, 'F', currentRow,adjustedAuctionDate, 'd');
+            const adjustedAuctionDate = caso.fechaRemate;
+            // adjustedAuctionDate.setHours(adjustedAuctionDate.getHours() + 1);
+            if(adjustedAuctionDate){
+                ws['F' + currentRow] = { v: adjustedAuctionDate, t: 'd', z: 'dd/mm/yyyy' };
+            }
+            // this.writeLine(ws, 'F', currentRow, adjustedAuctionDate, 'd');
         }
-        this.writeLine(ws,'G',currentRow, caso.martillero, 's');
+        this.writeLine(ws, 'G', currentRow, caso.martillero, 's');
         // Revisamos si el caso tiene estacionamiento o bodega, y adaptamos la direccion
         const newDireccion = this.checkEstacionamientoBodega(caso)
-        this.writeLine(ws,'H',currentRow, newDireccion, 's');
+        this.writeLine(ws, 'H', currentRow, newDireccion, 's');
 
-        this.writeLine(ws,'I',currentRow, caso.causa, 's');
-        this.writeLine(ws,'J',currentRow, caso.juzgado, 's');
-        this.writeLine(ws,'K',currentRow, getComunaJuzgado(caso.juzgado), 's');
-        this.writeLine(ws,'L',currentRow, caso.comuna, 's');
-        this.writeLine(ws,'M',currentRow, caso.anno, 's');
-        this.writeLine(ws,'N',currentRow, caso.partes, 's');
+        this.writeLine(ws, 'I', currentRow, caso.causa, 's');
+        this.writeLine(ws, 'J', currentRow, caso.juzgado, 's');
+        this.writeLine(ws, 'K', currentRow, getComunaJuzgado(caso.juzgado), 's');
+        this.writeLine(ws, 'L', currentRow, caso.comuna, 's');
+        this.writeLine(ws, 'M', currentRow, caso.anno, 's');
+        this.writeLine(ws, 'N', currentRow, caso.partes, 's');
         // ws['O'+ currentRow ] = {v: 'dato ', t: 's'};
-        this.writeLine(ws,'P',currentRow, caso.formatoEntrega, 's');
-        this.writeLine(ws,'Q',currentRow, caso.porcentaje, 's');
-        this.writeLine(ws,'R',currentRow, caso.diaEntrega, 's');
-        this.writeLine(ws,'S',currentRow, caso.tipoDerecho, 's');
+        this.writeLine(ws, 'P', currentRow, caso.formatoEntrega, 's');
+        this.writeLine(ws, 'Q', currentRow, caso.porcentaje, 's');
+        this.writeLine(ws, 'R', currentRow, caso.diaEntrega, 's');
+        this.writeLine(ws, 'S', currentRow, caso.tipoDerecho, 's');
         // ws['T'+ currentRow ] = {v: caso.rolPropiedad, t: 's'};
         // ws['U'+ currentRow ] = {v: 'deuda 2 ', t: 's'};
         // ws['V'+ currentRow ] = {v: 'deuda 3 ', t: 's'};
@@ -257,33 +259,35 @@ class createExcel {
             console.log("leyo que la moneda es pesos", caso.moneda);
             ws['Y' + currentRow] = { v: parseFloat(caso.montoMinimo), t: 'n', z: '#,##0' };
         }
-        this.writeLine(ws,'Z',currentRow, caso.moneda, 's');
-        if(caso.avaluoPropiedad != null){
+        this.writeLine(ws, 'Z', currentRow, caso.moneda, 's');
+        if (caso.avaluoPropiedad != null) {
             const sumAvaluo = this.sumAvaluo(caso.avaluoPropiedad, caso.avaluoEstacionamiento, caso.avaluoBodega);
-            ws['AC' + currentRow] = { v: sumAvaluo , t: 'n', z: '#,##0' };
+            ws['AC' + currentRow] = { v: sumAvaluo, t: 'n', z: '#,##0' };
         }
-        this.writeLine(ws, "AE",currentRow, caso.estadoCivil,"s");
-        ws['AF' + currentRow ] = {v:caso.montoCompra.monto, t: 'n'};
+        this.writeLine(ws, "AE", currentRow, caso.estadoCivil, "s");
+        if (caso.montoCompra && caso.montoCompra.monto) {
+            ws['AF' + currentRow] = { v: caso.montoCompra.monto, t: 'n' };
+        }
         // ws['AG' + currentRow ] = {v: 'año compr ant ', t: 's'};
         // ws['AH' + currentRow ] = {v: 'precio venta nos ', t: 's'};
     }
 
     checkEstacionamientoBodega(caso) {
-        console.log("Revisando estacionamiento y bodega para el caso: ", caso.hasEstacionamiento, caso.hasBodega,caso.direccionEstacionamiento);
-        if(!caso.direccion){
+        console.log("Revisando estacionamiento y bodega para el caso: ", caso.hasEstacionamiento, caso.hasBodega, caso.direccionEstacionamiento);
+        if (!caso.direccion) {
             return null;
         }
         if (caso.hasEstacionamiento && caso.hasBodega) {
             console.log("Tiene estacionamiento y bodega");
             const mergeDirections = this.mergeDirections(caso.direccion, caso.direccionEstacionamiento);
             return mergeDirections + " BOD";
-        }else if (caso.hasEstacionamiento) {
+        } else if (caso.hasEstacionamiento) {
             console.log("Tiene estacionamiento");
             return this.mergeDirections(caso.direccion, caso.direccionEstacionamiento);
-        }else if (caso.hasBodega) {
+        } else if (caso.hasBodega) {
             console.log("Tiene bodega");
             return caso.direccion + " BOD";
-        }else{
+        } else {
             console.log("No tiene estacionamiento ni bodega");
             return caso.direccion;
         }
@@ -291,6 +295,7 @@ class createExcel {
 
     mergeDirections(dir1, dir2) {
         // Normalizar espacios y convertir a arrays de palabras
+
         const palabras1 = dir1.trim().toLowerCase().split(/\s+/);
         const palabras2 = dir2.trim().toLowerCase().split(/\s+/);
 
@@ -311,7 +316,7 @@ class createExcel {
 
         return direccionCombinada;
     }
-    
+
     //Funcion que dado un string con el avaluo de la propiedad, estacionamiento y bodega, los suma
     // Si alguno de los strings es null o undefined, se considera como 0
     sumAvaluo(avaluoPropiedadString, avaluoEstacionamientoString, avaluoBodegaString) {
@@ -324,133 +329,133 @@ class createExcel {
 
 
         return avaluoPropiedad + avaluoEstacionamiento + avaluoBodega;
-}
+    }
 
-// Adaptador de roles para combinar propiedad, estacionamiento y bodega
-adaptRol(rolPropiedad, rolEstacionamiento, rolBodega) {
-    let rol1, rol2, rol3;
-  if(!rolPropiedad && !rolEstacionamiento && !rolBodega){
-    return null;
-  }  
-  // Limpiar y validar roles
-  const cleanedRoles = [
-    this.cleanRol(rolPropiedad),
-    this.cleanRol(rolEstacionamiento),
-    this.cleanRol(rolBodega)
-  ].filter(rol => rol !== null && rol !== undefined);
-  
-  // Si solo queda un rol válido, retornarlo directamente
-  if(cleanedRoles.length === 1) {
-    return cleanedRoles[0];
-  }
-  [rol1, rol2, rol3] = cleanedRoles;     
-  console.log("Roles limpios: ",rol1,rol2,rol3);
-  const comparisonResult = this.checkFirstHalves(rol1,rol2,rol3);
-  const finalRol = this.mergeRol(rol1,rol2,rol3,comparisonResult);
-  return finalRol;
-}
+    // Adaptador de roles para combinar propiedad, estacionamiento y bodega
+    adaptRol(rolPropiedad, rolEstacionamiento, rolBodega) {
+        let rol1, rol2, rol3;
+        if (!rolPropiedad && !rolEstacionamiento && !rolBodega) {
+            return null;
+        }
+        // Limpiar y validar roles
+        const cleanedRoles = [
+            this.cleanRol(rolPropiedad),
+            this.cleanRol(rolEstacionamiento),
+            this.cleanRol(rolBodega)
+        ].filter(rol => rol !== null && rol !== undefined);
 
-checkFirstHalves(rolOne,rolTwo,rolThree){
-  let result;
-  if(rolOne && rolTwo && rolThree){
-    result = this.checkThreeHalfs(rolOne, rolTwo, rolThree);
-  }else if(rolOne && rolTwo){
-    result = this.checkTwoHalfs(rolOne, rolTwo)? ONE_TWO : THREE_DIFF;
-  }else if(rolOne && rolThree){
-    result = this.checkTwoHalfs(rolOne,rolThree)? ONE_THREE : THREE_DIFF;
-  }else if(rolTwo && rolThree){
-    result = this.checkTwoHalfs(rolTwo,rolThree)? TWO_THREE: THREE_DIFF;
-  }else{
-    return null;
-  }
-  return result;
-}
+        // Si solo queda un rol válido, retornarlo directamente
+        if (cleanedRoles.length === 1) {
+            return cleanedRoles[0];
+        }
+        [rol1, rol2, rol3] = cleanedRoles;
+        console.log("Roles limpios: ", rol1, rol2, rol3);
+        const comparisonResult = this.checkFirstHalves(rol1, rol2, rol3);
+        const finalRol = this.mergeRol(rol1, rol2, rol3, comparisonResult);
+        return finalRol;
+    }
 
-checkThreeHalfs(rolOne,rolTwo,rolThree){
-  const halfOne = rolOne.split("-")[0];
-  const halfTwo = rolTwo.split("-")[0];
-  const halfThree = rolThree.split("-")[0];
-  console.log("Roles: ",halfOne,halfTwo, halfThree);
-  if(halfOne == halfTwo && halfTwo == halfThree){
-    return THREE_SAME;
-  }else if(halfOne == halfTwo){
-    return ONE_TWO;
-  }else if(halfOne == halfThree){
-    return ONE_THREE;
-  }else if(halfTwo == halfThree){
-    return TWO_THREE;
-  }else if(halfOne != halfTwo && halfOne != halfThree && halfTwo != halfThree){
-    return THREE_DIFF;
-  }else{
-    return null;
-  }
-}
+    checkFirstHalves(rolOne, rolTwo, rolThree) {
+        let result;
+        if (rolOne && rolTwo && rolThree) {
+            result = this.checkThreeHalfs(rolOne, rolTwo, rolThree);
+        } else if (rolOne && rolTwo) {
+            result = this.checkTwoHalfs(rolOne, rolTwo) ? ONE_TWO : THREE_DIFF;
+        } else if (rolOne && rolThree) {
+            result = this.checkTwoHalfs(rolOne, rolThree) ? ONE_THREE : THREE_DIFF;
+        } else if (rolTwo && rolThree) {
+            result = this.checkTwoHalfs(rolTwo, rolThree) ? TWO_THREE : THREE_DIFF;
+        } else {
+            return null;
+        }
+        return result;
+    }
 
-checkTwoHalfs(rolOne, rolTwo){
-  const halfOne = rolOne.split("-")[0];
-  const halfTwo = rolTwo.split("-")[0];
-  
-  if(halfOne == halfTwo){
-    return true;
-  }else if(halfOne != halfTwo){
-    return false;
-  }else{
-    return null;
-  }
-}
+    checkThreeHalfs(rolOne, rolTwo, rolThree) {
+        const halfOne = rolOne.split("-")[0];
+        const halfTwo = rolTwo.split("-")[0];
+        const halfThree = rolThree.split("-")[0];
+        console.log("Roles: ", halfOne, halfTwo, halfThree);
+        if (halfOne == halfTwo && halfTwo == halfThree) {
+            return THREE_SAME;
+        } else if (halfOne == halfTwo) {
+            return ONE_TWO;
+        } else if (halfOne == halfThree) {
+            return ONE_THREE;
+        } else if (halfTwo == halfThree) {
+            return TWO_THREE;
+        } else if (halfOne != halfTwo && halfOne != halfThree && halfTwo != halfThree) {
+            return THREE_DIFF;
+        } else {
+            return null;
+        }
+    }
 
-mergeRol(rol1,rol2,rol3,areSame){
-  let final;
-  console.log("Roles a unir: ",rol1,rol2,rol3, "Resultado de la comparacion: ", areSame);
-  switch(areSame){
-    case THREE_SAME:
-      console.log("3 iguales");
-      final = this.mergeThreeRoles(rol1,rol2,rol3);
-      break;
-      
-    case ONE_TWO:
-      console.log("1 y 2 iguales");
-      final = this.mergeDiffRoles(this.mergeTwoRoles(rol1,rol2),rol3);
-      console.log("Rol final cuando 1 y 2 son iguales: ", final);
-      break;
-    
-    case ONE_THREE:
-      console.log("1 y 3 iguales");
+    checkTwoHalfs(rolOne, rolTwo) {
+        const halfOne = rolOne.split("-")[0];
+        const halfTwo = rolTwo.split("-")[0];
 
-      final = this.mergeDiffRoles(this.mergeTwoRoles(rol1,rol3),rol2)
-      break;
-      
-    case TWO_THREE:
-      console.log("2 y 3 iguales");  
-      final = this.mergeDiffRoles(this.mergeTwoRoles(rol2,rol3),rol1)
-      break;
-    case THREE_DIFF:
-      console.log("3 diferentes");
-      final = this.mergeDiffRoles(rol1,rol2,rol3)
-      
-      break;
-    default:
-      final = null;
-        
-  }
-  console.log("Rol final: ", final);
-  return final;
-}
+        if (halfOne == halfTwo) {
+            return true;
+        } else if (halfOne != halfTwo) {
+            return false;
+        } else {
+            return null;
+        }
+    }
 
-mergeDiffRoles(rol1=null,rol2=null,rol3=null){
-    console.log("Unir roles al final: ",rol1,rol2,rol3);
-  if(rol1 && rol2 && rol3){
-    return rol1 + "//" + rol2 + "//" + rol3;
-  }else if(rol1 && rol2){
-    return rol1 + "//" + rol2;
-  }else if(rol1 && rol3){
-    return rol1 + "//" + rol3;
-  }else if(rol2 && rol3){
-    return rol2 + "//" + rol3;
-  }else if(rol1){
-    return rol1;
-  }
-}
+    mergeRol(rol1, rol2, rol3, areSame) {
+        let final;
+        console.log("Roles a unir: ", rol1, rol2, rol3, "Resultado de la comparacion: ", areSame);
+        switch (areSame) {
+            case THREE_SAME:
+                console.log("3 iguales");
+                final = this.mergeThreeRoles(rol1, rol2, rol3);
+                break;
+
+            case ONE_TWO:
+                console.log("1 y 2 iguales");
+                final = this.mergeDiffRoles(this.mergeTwoRoles(rol1, rol2), rol3);
+                console.log("Rol final cuando 1 y 2 son iguales: ", final);
+                break;
+
+            case ONE_THREE:
+                console.log("1 y 3 iguales");
+
+                final = this.mergeDiffRoles(this.mergeTwoRoles(rol1, rol3), rol2)
+                break;
+
+            case TWO_THREE:
+                console.log("2 y 3 iguales");
+                final = this.mergeDiffRoles(this.mergeTwoRoles(rol2, rol3), rol1)
+                break;
+            case THREE_DIFF:
+                console.log("3 diferentes");
+                final = this.mergeDiffRoles(rol1, rol2, rol3)
+
+                break;
+            default:
+                final = null;
+
+        }
+        console.log("Rol final: ", final);
+        return final;
+    }
+
+    mergeDiffRoles(rol1 = null, rol2 = null, rol3 = null) {
+        console.log("Unir roles al final: ", rol1, rol2, rol3);
+        if (rol1 && rol2 && rol3) {
+            return rol1 + "//" + rol2 + "//" + rol3;
+        } else if (rol1 && rol2) {
+            return rol1 + "//" + rol2;
+        } else if (rol1 && rol3) {
+            return rol1 + "//" + rol3;
+        } else if (rol2 && rol3) {
+            return rol2 + "//" + rol3;
+        } else if (rol1) {
+            return rol1;
+        }
+    }
 
     // Funciones para unir dos roles
     mergeTwoRoles(rolOne, rolTwo) {
@@ -485,7 +490,7 @@ mergeDiffRoles(rol1=null,rol2=null,rol3=null){
         return twoRoles
     }
 
-//Función para limpiar los roles de espacios de sobre, guiones largos y ceros iniciales
+    //Función para limpiar los roles de espacios de sobre, guiones largos y ceros iniciales
     cleanRol(rol) {
         if (!rol) {
             return null;
@@ -498,11 +503,11 @@ mergeDiffRoles(rol1=null,rol2=null,rol3=null){
         const newFirst = cleanInitialZeros(parts[0]);
         const newSecond = cleanInitialZeros(parts[1]);
         return newFirst + "-" + newSecond;
-}
+    }
 
 
-    writeLine(ws,row,col,value,type){
-        if(value != null){
+    writeLine(ws, row, col, value, type) {
+        if (value != null) {
             ws[row + col] = { v: value, t: type };
         }
     }
@@ -556,36 +561,6 @@ function stringToDate(fecha) {
     const [año, mes, día] = partes; // Desestructuramos las partes
     return new Date(`${año}/${mes}/${día}`);
 }
-
-// Dado un objeto Date, devuelve un string con el formato dd/mm/yyyy
-function dateToPjud(date) {
-    const dia = String(date.getDate()).padStart(2, '0');  // Asegura que el día tenga dos dígitos
-    const mes = String(date.getMonth() + 1).padStart(2, '0');  // Meses son 0-indexados, por lo que sumamos 1
-    const año = date.getFullYear();
-
-    return `${dia}/${mes}/${año}`;
-}
-
-// Dado la fecha y la cantidad de dias a sumar, cambia la fecha de inicio para el pjud
-function cambiarFechaInicio(fecha, dias) {
-    const partes = fecha.split("-"); // Dividimos la fecha en partes [año, mes, día]
-    const [año, mes, día] = partes; // Desestructuramos las partes
-    let fechaFinal = new Date(`${año}/${mes}/${día}`);
-    fechaFinal.setDate(fechaFinal.getDate() + dias);
-    const fechaFinalPjud = dateToPjud(fechaFinal);
-    return fechaFinalPjud;
-}
-
-// Cambia la fecha final de obtencion de datos para el pjud
-function cambiarFechaFin(fecha) {
-    const partes = fecha.split("-"); // Dividimos la fecha en partes [año, mes, día]
-    const [año, mes, día] = partes; // Desestructuramos las partes
-    let fechaFinal = new Date(`${año}/${mes}/${día}`);
-    fechaFinal.setMonth(fechaFinal.getMonth() + 1);
-    const fechaFinalPjud = dateToPjud(fechaFinal);
-    return fechaFinalPjud;
-}
-
 // Dado un juzgado, obtiene la comuna del juzgado
 function getComunaJuzgado(juzgado) {
     if (juzgado == null) {

@@ -83,6 +83,17 @@ document.getElementById('consultaCausaDB').addEventListener('click', async () =>
   }
 });
 
+document.getElementById('selectFileTesse').addEventListener('click', async () => {
+
+  const filePath = await window.api.openFilesLocal();
+  if (filePath) {
+    fileInfo.textContent = `Archivo seleccionado: ${filePath}`;
+    
+    // Llama a tu función que procesa el archivo
+    window.api.testEconomico(['testPdfTesseract', filePath]);
+  }
+});
+
 window.api.onWaitingNotification((args) => {
   const totalSeconds = args[0];
   const actualCase = args[1];

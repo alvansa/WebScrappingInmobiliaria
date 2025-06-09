@@ -460,13 +460,13 @@ class ConsultaCausaPjud{
                     row.$eval('td:nth-child(1) form input[name="dtaDoc"', input => input.value),
                 ]);
                 //Donwload pdf and save it in a specific folder
-                console.log("-------------------------------");
+                console.log("**********************************************************");
                 // console.log("Trabajando en el documento: ",doc," referencia :", reference);
                 if(this.shouldSkipDoc(reference)){
                     console.log("Saltando el documento: ", reference);
                     continue; // Salta la revision de documento si es un documento que no intersa por ahora.
                 }
-                console.log("revisando si crashea aca con el valuePdf: ", valuePdf);
+                // console.log("revisando si crashea aca con el valuePdf: ", valuePdf);
                 await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
                 console.log("Procesando el documento: ", reference);
                 if(valuePdf && valuePdf !== ''){
@@ -519,9 +519,8 @@ class ConsultaCausaPjud{
             'cupon',
             'imagen',
             'c.i',
-            'tgr'
-
-
+            'tgr',
+            'personer'
         ];
 
         // Dividir el texto en palabras individuales
@@ -562,6 +561,7 @@ class ConsultaCausaPjud{
             await pdfPage.goto(url);
             await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
             //Leer el pdf descargado
+            // Aca es donde se deberia realizar el cambio para leer con tesseract
             resultado = await ProcesarBoletin.convertPdfToText2(this.pdfPath);
             if(resultado){
                 resultOfProcess = this.PjudData.processInfo(resultado);
