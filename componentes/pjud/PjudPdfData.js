@@ -35,6 +35,7 @@ class PjudPdfData {
     checkIfValidDoc(item) {
         const docNotValid = [/tabla\s*de\s*contenidos/i,
             /solicitud\s*copias\s*y\s*certificados/i,
+            /mutuo\s*hipotecario/i
         ];
         for (const doc of docNotValid) {
             if (doc.test(item)) {
@@ -108,11 +109,16 @@ class PjudPdfData {
         }
 
         if (!this.caso.comuna) {
-            let comuna = this.obtainComuna(normalizedInfo, info);
+            let comuna = this.findValue(info, normalizedInfo, this.obtainComuna);
             if (comuna) {
-                console.log(`\n-----------------------------\nAvaluo ${comuna}\n----------------------------- `);
+                console.log(`\n-----------------------------\nComuna ${comuna}\n----------------------------- `);
                 this.caso.comuna = comuna;
             }
+            // let comuna = this.obtainComuna(info,normalizedInfo);
+            // if (comuna) {
+            //     console.log(`\n-----------------------------\nComuna ${comuna}\n----------------------------- `);
+            //     this.caso.comuna = comuna;
+            // }
         }
 
         if (!this.caso.direccion) {
@@ -154,6 +160,7 @@ class PjudPdfData {
 
     obtainMontoCompra(text) {
         if (!text.includes("inscripcion")) {
+            console.log("No se puede obtener el monto de compra, no contiene inscripcion");
             return null;
         }
         let monto = this.searchByPorCompra(text);
@@ -164,11 +171,17 @@ class PjudPdfData {
         if (monto) {
             return this.processMonto(monto);
         }
+        // Este hay que siempre dejarlo al final, ya que es el "peor" porque es un aporte de una sociedad
+        monto = this.searchByEstimacion(text);
+        if (monto) {
+            return this.processMonto(monto);
+        }
 
         return null;
     }
 
     processMonto(monto) {
+        // console.log("Buscando con monto: ", monto);
         let total;
         const regexNumber = /\d{1,}(?:[\.|,]\d{1,3})*/;
         const ufRegex = /(unidades\s*de\s*fomento|u\.?f\.?)/i;
@@ -202,23 +215,23 @@ class PjudPdfData {
             }
             const matchedNumber = regexNumber.exec(montoWithoutType);
             if (matchedNumber) {
-                console.log(matchedNumber)
+                // console.log(matchedNumber)
                 return {
                     monto: parseInt(matchedNumber[0]),
                     moneda: "UF"
                 }
             } else {
                 total = convertWordToNumbers(montoWithoutType);
-                console.log(montoWithoutType)
+                // console.log(montoWithoutType)
                 return {
                     monto: total,
                     moneda: "UF"
                 }
             }
         } else if (pesosRegex.exec(monto)) {
-            const matchedNumber = regexNumber.exec(monto);
             const pesosMatch = pesosRegex.exec(monto);
             const montoWithoutType = monto.substring(0, pesosMatch.index);
+            const matchedNumber = regexNumber.exec(montoWithoutType);
             if (matchedNumber) {
                 return {
                     monto: parseInt(matchedNumber[0]),
@@ -272,6 +285,23 @@ class PjudPdfData {
         }
         newText = newText.substring(0, endMatch.index + endMatch[0].length);
         return newText;
+
+    }
+
+    searchByEstimacion(text) {
+
+        const indexPrice = /se\s*estiman(?:\s*en)/i;
+        const priceMatch = indexPrice.exec(text);
+        if (!priceMatch) {
+            return null;
+        }
+
+        let priceText = text.substring(priceMatch.index + priceMatch[0].length + 1);
+        const end1 = priceText.indexOf(",");
+        priceText = priceText.substring(0, end1);
+
+
+        return priceText;
     }
 
 
@@ -330,12 +360,20 @@ class PjudPdfData {
 
 
     processAuctionInfo(info, normalizedInfo) {
-
         // console.log("info en processAuctionInfo: ", normalizedInfo);
         if (!this.caso.montoMinimo) {
-            const montoMinimo = getMontoMinimo(normalizedInfo);
-            if (montoMinimo) {
-                this.caso.montoMinimo = montoMinimo ? montoMinimo : null;
+            // console.log("info en monto minimo: ", normalizedInfo);
+            const textoRemate = this.getTextRemate(normalizedInfo);
+            for (const text of textoRemate) {
+                if(!text.includes(this.caso.causa)) {
+                    continue;
+                }
+                const montoMinimo = getMontoMinimo(text);
+                if (montoMinimo) {
+                    console.log(`-----------------\nmontoMinimo: ${montoMinimo}\n-----------------`);
+                    this.caso.montoMinimo = montoMinimo ? montoMinimo : null;
+                    break; // Salir del bucle si se encuentra un monto mínimo
+                }
             }
         }
 
@@ -354,12 +392,47 @@ class PjudPdfData {
         }
 
         if (!this.caso.tipoDerecho) {
-            const tipoDerecho = getTipoDerecho(normalizedInfo);
-            if (tipoDerecho) {
-                console.log(`-----------------\ntipoDerecho: ${tipoDerecho}\n-----------------`);
-                this.caso.tipoDerecho = tipoDerecho ? tipoDerecho : null;
+            console.log("info en tipoDerecho: ", normalizedInfo.includes("diario"));
+            const textoRemate = this.getTextRemate(normalizedInfo);
+            for (const text of textoRemate) {
+                if(!text.includes(this.caso.causa.toLowerCase())) {
+                    continue;
+                }
+                console.log("Buscando el tipo de derecho");
+                const tipoDerecho = getTipoDerecho(text);
+
+                if (tipoDerecho) {
+                    console.log(`-----------------\ntipoDerecho: ${tipoDerecho}\n-----------------`);
+                    this.caso.tipoDerecho = tipoDerecho ? tipoDerecho : null;
+                }
             }
         }
+
+
+    }
+
+    findValue(info, normalizedInfo, lambda){
+        const textRemate = this.getTextRemate(normalizedInfo);
+        if (textRemate.length === 0) {
+            console.log("Buscando en singular")
+            const value = lambda(info,normalizedInfo);
+            if (value) {
+                return value;
+            }
+        }else{
+            console.log("Buscando en plural")
+            for (const text of textRemate) {
+                if (!text.includes(this.caso.causa.toLowerCase()) && this.caso.causa) {
+                    continue;
+                }
+                const value = lambda(text, text);
+                if (value) {
+                    return value;
+                }
+            }
+
+        }
+        
     }
 
     normalizeInfo(item) {
@@ -371,6 +444,26 @@ class PjudPdfData {
             .replace(/[\u0300-\u036f]/g, "")
             .replace(/−/g, "-");
         return processItem;
+    }
+
+    getTextRemate(info) {
+        const regexMonto = /remate\s*judicial/gi;
+        let matchedRemate;
+        let lastStart = 0;
+        const textoFinal = [];
+        if(!regexMonto.test(info)) {
+            // console.log("No se encontro remate judicial en el texto: ", info);
+            return [];
+        }
+        while ((matchedRemate = regexMonto.exec(info)) != null) {
+            // console.log(matchedRemate, matchedRemate.index)
+            const textoRemate = info.substring(lastStart, matchedRemate.index)
+            textoFinal.push(textoRemate);
+            lastStart = matchedRemate.index;
+        }
+        const lastText = info.substring(lastStart);
+        textoFinal.push(lastText);
+        return textoFinal;
     }
 
     getAndProcessPercentage(info) {
@@ -452,7 +545,7 @@ class PjudPdfData {
         const avaluoMatch = info.match(regexAvaluo);
         if (avaluoMatch) {
             const avaluo = avaluoMatch[0].match(/(\d{1,3}.?)+/);
-            const avaluoNumber = avaluo[0].replace(/\./g, '');
+            const avaluoNumber = avaluo[0].replace(/\./g, '/.');
             return {
                 "tipo": avaluoType,
                 "avaluo": avaluoNumber
@@ -474,52 +567,26 @@ class PjudPdfData {
 
     }
 
-    obtainComuna(infoNormalized, info) {
-
-        if (infoNormalized.includes("inscripcion")) {
+    obtainComuna(info, infoNormalized) {
+        const regexRegistro = /registro\s*de\s*propiedad/gi;
+        if (regexRegistro.test(info)) {
+            console.log("Incluye inscripcion, no se puede obtener la comuna");
             return null;
         }
         // console.log("info en comuna: ", info);
-        let comuna = this.obtainComunaByIndex(infoNormalized);
+        let comuna = obtainComunaByIndex(infoNormalized);
         // console.log("comuna by index: ", comuna);
         if (comuna) {
             return comuna;
         }
         comuna = getComuna(info);
+
         if (comuna) {
             return comuna;
         }
         return null;
     }
 
-    obtainComunaByIndex(info) {
-        const startText = "comuna:";
-        const startIndex = info.indexOf(startText);
-        if (startIndex === -1) {
-            return null;
-        }
-        const modifiedInfo = info.substring(startIndex);
-        const endText = "numero de rol de avaluo";
-        const endIndex = modifiedInfo.indexOf(endText);
-
-        if (endIndex === -1) {
-            return null;
-        }
-        const comuna = modifiedInfo.substring(startText.length, endIndex).trim();
-        // console.log("comuna by index: ", comuna);
-        return comuna;
-
-    }
-
-    obtainComunaByregex(info) {
-        const regexComuna = /comuna\s*:\s*(\w{4,15})/g;
-        const matchComuna = info.match(regexComuna);
-        if (matchComuna) {
-            const comuna = matchComuna[0].split(" ")[1];
-            return comuna;
-        }
-        return null;
-    }
     obtainDireccion(info) {
         // console.log("info en direccion: ", info);
         let avaluoType = this.obtainTipo(info) ? this.obtainTipo(info) : '';
@@ -567,6 +634,35 @@ class PjudPdfData {
     }
 }
 
+    function obtainComunaByIndex(info) {
+        console.log("info) en obtainComunaByIndex :) ");
+        const startText = "comuna:";
+        const startIndex = info.indexOf(startText);
+        if (startIndex === -1) {
+            return null;
+        }
+        const modifiedInfo = info.substring(startIndex);
+        const endText = "numero de rol de avaluo";
+        const endIndex = modifiedInfo.indexOf(endText);
+
+        if (endIndex === -1) {
+            return null;
+        }
+        const comuna = modifiedInfo.substring(startText.length, endIndex).trim();
+        // console.log("comuna by index: ", comuna);
+        return comuna;
+
+    }
+
+    function obtainComunaByregex(info) {
+        const regexComuna = /comuna\s*:\s*(\w{4,15})/g;
+        const matchComuna = info.match(regexComuna);
+        if (matchComuna) {
+            const comuna = matchComuna[0].split(" ")[1];
+            return comuna;
+        }
+        return null;
+    }
 module.exports = PjudPdfData;
 // && this.caso.isBienFamiliar
 // && this.caso.anno

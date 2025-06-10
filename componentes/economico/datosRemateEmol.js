@@ -397,6 +397,7 @@ function getMultiples(data) {
 
 // Obtiene la comuna del remate a base de una lista de comunas.
 function getComuna(data) {
+    console.log("Data en getComuna:  :)");
     const dataNormalizada = data.toLowerCase();
     // console.log("Data normalizada en getComuna: ",dataNormalizada);
     for (let comuna of comunas) {
@@ -537,9 +538,8 @@ function getTipoDerecho(data) {
     const normalizedData = data.toLowerCase();
     // Primero revisa si hay una propiedad con derecho de usufructo, nuda propiedad o bien familiar
     // de manera mas simple.
-    const regexForeclosure = /(?:posesión|usufructo|nuda propiedad|bien\s*familiar)/i;
+    const regexForeclosure = /(?:posesión|\busufructo\b|nuda propiedad|bien\s*familiar)/i;
     const tipoDerecho = normalizedData.match(regexForeclosure);
-    // console.log("Tipo derecho: ", data);
     const bienFamiliar = checkBienFamiliar(data, tipoDerecho);
     if (tipoDerecho && bienFamiliar.isBienFamiliar) {
         return bienFamiliar.text;
@@ -576,10 +576,18 @@ function getTipoDerecho(data) {
 }
 
 function checkBienFamiliar(text,tipoDerecho){
+    // console.log("Texto en el tipo de derecho: ", text); 
     if(!tipoDerecho) {
         return {
             text: tipoDerecho,
             isBienFamiliar: true
+        };
+    }
+    const regexNotValidDerecho = /las\s*partes\s*declaran\s*que\s*a\s*la\s*fecha\s*de\s*esta\s*escritura,\s*no\s*existe\s*ni\s*conocen\s*que\s*actualmente\s*se\s*encuentre\s*entramitacion\s*o\s*en\s*proceso\s*de\s*inscripcion,\s*ningun\s* gravamen\s*o\s*derecho\s*real\s*de\s*usufructo/gi;
+    if (text.match(regexNotValidDerecho)) {
+        return {
+            text: tipoDerecho,
+            isBienFamiliar: false
         };
     }
     if(!tipoDerecho.includes("bien familiar") && !tipoDerecho.includes("bienfamiliar")) {
@@ -589,26 +597,43 @@ function checkBienFamiliar(text,tipoDerecho){
         };
     }
 
-    const regex1BienFamiliar = /bien\s*familia.*no\s*registra\s*anotacione?s?/i;
-    let notBienFamiliar = text.match(regex1BienFamiliar);
-    if (notBienFamiliar) {
-        return {
-            text:  tipoDerecho,
-            isBienFamiliar: false
-        };
+    const regexNotBienFamiliar = [
+        /bien\s*familia.*no\s*registra\s*anotacione?s?/i,
+        /no\shay\sconstancia\sde\shaberse\sdeclarado\sbien\sfamiliar/gi,
+        /no\s*se\s*encuentra\s*afecto\s*a\s(?:la\s*)*declaracion\s*de\s*bien\s*familiar/i,
+        /no\s*hay\s*constancia\s*de\s*haberse\s*anotado\s*declaracion\s*de\s*bien\s*familiar/i
+    ];
+    for(let regex of regexNotBienFamiliar) {
+        const bienFamiliar = text.match(regex);
+        if (bienFamiliar) {
+            return {
+                text:  tipoDerecho,
+                isBienFamiliar: false
+            };
+        }
     }
-    const regex2BienFamiliar = /no\shay\sconstancia\sde\shaberse\sdeclarado\sbien\sfamiliar/gi;
-    notBienFamiliar = text.match(regex2BienFamiliar);
-    if (notBienFamiliar) {
-        return {
-            text:  tipoDerecho,
-            isBienFamiliar: false
-        };
+    const regexBienFamiliar = [
+        /esta\s*declarado\s*bien\s*familiar/gi,
+        /declaracion\s*de\s*bien\s*familiar/gi,
+        /le\s*afecta\s*bien\s*familiar/gi,
+        /bien\s*familiar\s*declarado/gi,
+        /bien\s*familiar.*declaracion\s*:\s*definitiva/gi,
+    ];
+    for(let regex of regexBienFamiliar) {
+        const bienFamiliar = text.match(regex);
+        if (bienFamiliar) {
+            return {
+                text:  "bien familiar",
+                isBienFamiliar: true
+            };
+        }
     }
-        return {
-            text:  "bien familiar",
-            isBienFamiliar: true
-        };
+
+
+    return {
+        text: "bien familiar",
+        isBienFamiliar: false
+    };
     
 }
 
@@ -636,10 +661,13 @@ function obtainFinalPercentage(foreclosures) {
 }
 function getAnno(data) {
     // Busca el año con dependencia de las fojas, "fojas xxxx del año xxxx"
-    const regexFojasDependiente = /(?:fojas|fs\.?|fjs).*?(?:del?|a[n|ñ]o)\s*(\b\d{1}(?:\.\d{3})?\b|\d{1,4})/i;
+    // console.log("Data en getAnno: ", data);
+    const regexFojasDependiente = /(?:fojas|fs\.?|fjs).*?(?:del|a[n|ñ]o)\s*(\b\d{1}(?:\.\d{3})?\b|\d{1,4})/i;
     const fojasDependiente = data.match(regexFojasDependiente);
     if (fojasDependiente != null) {
-        return fojasDependiente[1];
+        if(fojasDependiente[1] > 1700) {
+            return fojasDependiente[1];
+        }
     }
     // Busca el año con dependencia del registro de propiedad con regex "registro de propiedad del? ano? xxxx"
     const registroRegex = /registro\s*(?:de)?\s*propiedad\s*(?:del?\s*)?(?:a[n|ñ]o\s*)?(\d{4})/i;

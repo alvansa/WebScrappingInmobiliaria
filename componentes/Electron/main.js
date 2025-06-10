@@ -474,7 +474,6 @@ class MainApp{
         }else if(arg === 'downloadPDF'){
             console.log("Descargando PDF ubicado en: ",args[1]);  
             result = await downloadPdfFromUrl(this.browser,args[1]);
-            console.log("Resultados del texto introducido: ",result);
 
         }else if(arg === 'testConsultaCausa'){
             const caso = crearCasoPrueba();
@@ -489,7 +488,7 @@ class MainApp{
             for(let pdf of args[1]){
                 console.log("Leyendo PDF ubicado en: ",pdf);
                 result = await ProcesarBoletin.convertPdfToText2(pdf);
-                console.log("Resultados del texto introducido: ",result);
+                // console.log("Resultados del texto introducido: ",result);
                 processPDF.processInfo(result);
             }
             if(newExcel){
@@ -747,7 +746,7 @@ async function consultaCausa(caso){
 function crearCasoPrueba(){
     const caso = new Caso("2025/11/30");
     caso.juzgado = "8º JUZGADO CIVIL DE SANTIAGO";
-    caso.causa = "C-2822-2021";
+    caso.causa = "C-2484-2023";
     caso.fechaRemate = "02/12/2024 15:30";
 
     return caso;

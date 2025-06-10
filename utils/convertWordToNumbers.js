@@ -97,9 +97,9 @@ function convertWordToNumbers(stringNumber) {
   let total = 0;
   let currentValue = 0;
   const parts = normalized.split(/\s+|y/); // Separar por espacios o "y"
-  let i = 0;
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i];
+    console.log("part: ", part)
     
     // 1. Procesar unidades especiales (16-29)
     if (numberMap.specialTens[part]) {
@@ -149,6 +149,7 @@ function convertWordToNumbers(stringNumber) {
     // 7. Procesar millones (si los tuvieras)
     if (part === 'millones') {
       total += (currentValue || 1) * 1000000;
+      console.log("aqui deberia entrar y el total es: ", total)
       currentValue = 0;
       continue;
     }

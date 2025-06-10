@@ -520,7 +520,10 @@ class ConsultaCausaPjud{
             'imagen',
             'c.i',
             'tgr',
-            'personer'
+            'personer',
+            'vigencia',
+            'pg',
+            'sentencia'
         ];
 
         // Dividir el texto en palabras individuales
