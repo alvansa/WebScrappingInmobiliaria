@@ -68,14 +68,14 @@ class PjudPdfData {
         if (!this.caso.rolEstacionamiento) {
             const rolEstacionamiento = this.obtainRolPropiedad(info);
             if (rolEstacionamiento && rolEstacionamiento.tipo.includes("estacionamiento")) {
-                console.log(`\n-----------------------------\nRol de la propieadad obtenido con ${rolEstacionamiento}\n---------------------------- `);
+                console.log(`\n-----------------------------\nRol de la estacionamiento obtenido con ${rolEstacionamiento}\n---------------------------- `);
                 this.caso.rolEstacionamiento = rolEstacionamiento.rol;
             }
         }
         if (!this.caso.rolBodega) {
             const rolBodega = this.obtainRolPropiedad(info);
             if (rolBodega && rolBodega.tipo.includes("bodega")) {
-                console.log(`\n-----------------------------\nRol de la propieadad obtenido con ${rolBodega}\n---------------------------- `);
+                console.log(`\n-----------------------------\nRol de la bodega obtenido con ${rolBodega}\n---------------------------- `);
                 this.caso.rolBodega = rolBodega.rol;
             }
         }
@@ -85,7 +85,7 @@ class PjudPdfData {
         if (!this.caso.avaluoPropiedad) {
             const avaluoPropiedad = this.obtainAvaluoPropiedad(normalizedInfo);
             if (avaluoPropiedad && !avaluoPropiedad.tipo.includes("estacionamiento") && !avaluoPropiedad.tipo.includes("bodega")) {
-                console.log(`\n-----------------------------\nAvaluo ${avaluoPropiedad}\n----------------------------- `);
+                console.log(`\n-----------------------------\nAvaluo propiedad ${avaluoPropiedad.avaluo} y ${avaluoPropiedad.tipo}\n----------------------------- `);
                 this.caso.avaluoPropiedad = avaluoPropiedad.avaluo;
             }
         }
@@ -93,7 +93,7 @@ class PjudPdfData {
         if (!this.caso.avaluoEstacionamiento) {
             const avaluoEstacionamiento = this.obtainAvaluoPropiedad(normalizedInfo);
             if (avaluoEstacionamiento && avaluoEstacionamiento.tipo.includes("estacionamiento")) {
-                console.log(`\n-----------------------------\nAvaluo ${avaluoEstacionamiento}\n----------------------------- `);
+                console.log(`\n-----------------------------\nAvaluo estacionamiento ${avaluoEstacionamiento.avaluo} y ${avaluoEstacionamiento.tipo}\n----------------------------- `);
                 this.caso.hasEstacionamiento = true;
                 this.caso.avaluoEstacionamiento = avaluoEstacionamiento.avaluo;
             }
@@ -102,7 +102,7 @@ class PjudPdfData {
         if (!this.caso.avaluoBodega) {
             const avaluoBodega = this.obtainAvaluoPropiedad(normalizedInfo);
             if (avaluoBodega && avaluoBodega.tipo.includes("bodega")) {
-                console.log(`\n-----------------------------\nAvaluo ${avaluoBodega}\n----------------------------- `);
+                console.log(`\n-----------------------------\nAvaluo bodega ${avaluoBodega}\n----------------------------- `);
                 this.caso.hasBodega = true;
                 this.caso.avaluoBodega = avaluoBodega.avaluo;
             }
@@ -138,6 +138,10 @@ class PjudPdfData {
 
         if (!this.caso.anno) {
             const GPnormalizedInfo = this.adaptTextIfGP(normalizedInfo);
+            if(!GPnormalizedInfo) {
+                console.log("No se obtiene el ano del GP");
+                return;
+            }
             const anno = getAnno(GPnormalizedInfo);
             if (anno) {
                 console.log(`-----------------\nanno: ${anno}\n-----------------`);
@@ -545,7 +549,7 @@ class PjudPdfData {
         const avaluoMatch = info.match(regexAvaluo);
         if (avaluoMatch) {
             const avaluo = avaluoMatch[0].match(/(\d{1,3}.?)+/);
-            const avaluoNumber = avaluo[0].replace(/\./g, '/.');
+            const avaluoNumber = avaluo[0].replace(/\./g, '');
             return {
                 "tipo": avaluoType,
                 "avaluo": avaluoNumber
@@ -609,6 +613,10 @@ class PjudPdfData {
         }
     }
     adaptTextIfGP(texto) {
+        const regexGP = /certificado\s*de\s*hipotecas/gi;
+        if (regexGP.test(texto)) {
+            return null;
+        }
         const endIndex = texto.search(/registro\s*de\s*hipotecas/);
         if (endIndex === -1) {
             return texto;

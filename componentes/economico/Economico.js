@@ -5,6 +5,8 @@ const {delay,fakeDelay} = require('../../utils/delay');
 const { log } = require('electron-builder');
 const {procesarDatosRemate} = require('./datosRemateEmol');
 
+require('dotenv').config();
+
 const SELECTORS = 
 {
     'NEXT_PAGE_SELECTOR': 'span.pag_bt_result_left.pag_bt_resul_green.pag_bt_pad_r.pag_color_bt_green',
@@ -32,6 +34,7 @@ class Economico{
             await delay(2000);
             for(let caso of this.casosARevisar){
                 const description = await this.getInfoFromSingularPage(caso);
+                await fakeDelay(2, 4);
                 if(description){
                     caso.texto = description;
                 }else{
@@ -73,6 +76,9 @@ class Economico{
     }
 
 async extractInfoPage() {
+    const userAgents = JSON.parse(process.env.USER_AGENTS);
+    const randomIndex = Math.floor(Math.random() * userAgents.length);
+    let customUA;
     let attempt = 0;
     let stopFlag = false;
     let url = 'https://www.economicos.cl/todo_chile/remates_de_propiedades_el_mercurio';
@@ -80,6 +86,8 @@ async extractInfoPage() {
 
     while (attempt < this.maxRetries) {
         try {
+            customUA  = userAgents[randomIndex].userAgent;
+            await this.page.setUserAgent(customUA);
             await this.navigateToPage(url);
 
             if (await this.check503()) {
@@ -107,7 +115,7 @@ async extractInfoPage() {
             // Preparar siguiente página
             url = this.urlBase + urlNextPage;
             attempt = 0; // Resetear intentos si la página cargó correctamente
-            await fakeDelay(2, 5);
+            await fakeDelay(4, 7);
 
         } catch (error) {
             if (error.message.includes('503') || error.message.includes('Service Unavailable')) {

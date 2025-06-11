@@ -5,7 +5,7 @@ const pie = require('puppeteer-in-electron');
 const os = require('os');
 const axios = require('axios');
 const FormData = require('form-data');
-const fs = require('fs');
+const fs = require('fs')
 
 const Economico = require('../economico/Economico.js');
 const {getDatosRemate,emptyCaseEconomico} = require('../economico/datosRemateEmol.js');
