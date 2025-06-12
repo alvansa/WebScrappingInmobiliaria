@@ -36,10 +36,10 @@ class MapasSII {
             await this.completarComuna(comuna);
             console.log("Rellenando manzana");
             await this.page.waitForSelector(selectorManzana);
-            await this.page.type(selectorManzana, manzana);
+            await this.page.type(selectorManzana, manzana,{ delay: Math.random() * 45 });
             console.log("Rellenando predio");
             await this.page.waitForSelector(selectorPredio);
-            await this.page.type(selectorPredio, predio);
+            await this.page.type(selectorPredio, predio, { delay: Math.random() * 45 });
             await this.page.click('button[data-ng-click="validaBusqueda()"]');
             console.log("Se hizo click Buscando");
             await this.obtainTotalValue(caso);

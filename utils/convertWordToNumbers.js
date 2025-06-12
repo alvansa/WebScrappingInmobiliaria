@@ -22,6 +22,7 @@ function convertWordToNumbers(stringNumber) {
     },
     specialTens: {
       "dieciséis": 16,
+      "dieciseis": 16,
       "diecisiete": 17,
       "dieciocho": 18,
       "diecinueve": 19,

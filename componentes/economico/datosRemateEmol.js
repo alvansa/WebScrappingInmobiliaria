@@ -396,8 +396,8 @@ function getMultiples(data) {
 }
 
 // Obtiene la comuna del remate a base de una lista de comunas.
-function getComuna(data) {
-    console.log("Data en getComuna:  :)");
+function getComuna(data, isPjud = false) {
+    console.log("Data en getComuna:  :)", data);
     const dataNormalizada = data.toLowerCase();
     // console.log("Data normalizada en getComuna: ",dataNormalizada);
     for (let comuna of comunas) {
@@ -406,17 +406,24 @@ function getComuna(data) {
             "comuna de ",
             "comuna ",
             "comuna y provincia de ",
+            "comuna: "
+        ];
+        if( !isPjud) {
+            const listaExtra = [
             "conservador de bienes raíces de ", 
             "conservador bienes raíces ", 
             "registro de propiedad de ", 
             "registro propiedad ",
             "registro propiedad cbr ",
-            "Registro de Propiedad del CBR de "
-        ];
+            "Registro de Propiedad del CBR de ",
+            ]
+            listaPreFrases.push(...listaExtra);
+
+        }
         for (let preFrase of listaPreFrases) {
             const comunaPreFrase = preFrase + comuna;
             const regexComuna = new RegExp(`${preFrase}${comuna}\\b`, 'i');
-            if(comuna === 'talcahuano'){
+            if(comuna === 'peñaflor'){
                 console.log("Comuna encontrada: ",regexComuna);
             }
             const comunaSinEspacio = comunaPreFrase.replace(/\s*/g, '');

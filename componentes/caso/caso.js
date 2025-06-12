@@ -43,6 +43,7 @@ class Caso{
     #hasBodega;
     #owners;
     #montoCompra;
+    #isPaid;
 
     constructor(fechaObtencion, fechaPublicacion = 'N/A',link = 'N/A',origen = null ){    
         this.#fechaPublicacion = fechaPublicacion;
@@ -83,6 +84,7 @@ class Caso{
         this.#hasBodega = false;
         this.#owners = [];
         this.#montoCompra = null;   
+        this.#isPaid = false;
     }
 
     darfechaPublicacion(fechaPublicacion){
@@ -223,6 +225,9 @@ class Caso{
     set montoCompra(montoCompra){
         this.#montoCompra = montoCompra;
     }
+    set isPaid(isPaid){
+        this.#isPaid = isPaid;
+    }
 
     
     get link(){ 
@@ -337,7 +342,7 @@ class Caso{
         return this.#owners;
     }
     get montoCompra(){
-        if(this.#montoMinimo == "N/A" || this.#montoMinimo == null){
+        if(this.#montoCompra == "N/A" || this.#montoCompra == null){
             return null;
         }
         return this.#montoCompra;
@@ -347,6 +352,9 @@ class Caso{
             return null;
         }
         return String(this.#anno);
+    }
+    get isPaid(){
+        return Boolean(this.#isPaid);
     }
 
   
@@ -404,6 +412,7 @@ class Caso{
             hasEstacionamiento : this.#hasEstacionamiento,
             hasBodega : this.#hasBodega,
             montoCompra: this.#montoCompra,
+            isPaid: this.#isPaid,
         };
     } 
 
@@ -738,6 +747,9 @@ class Caso{
     normalizarAnno(){
         if(this.#anno == 0 || this.#anno == "N/A" || this.#anno == null || this.#anno == "No especifica"){
             return null;
+        }
+        if(typeof this.#anno === "number"){
+            return this.#anno;
         }
         const anno = this.#anno.replaceAll(".","");
         return anno;

@@ -225,6 +225,9 @@ class createExcel {
             // this.writeLine(ws, 'F', currentRow, adjustedAuctionDate, 'd');
         }
         this.writeLine(ws, 'G', currentRow, caso.martillero, 's');
+        if(caso.isPaid){
+            this.writeLine(ws, 'G', currentRow, "(Pagado)", 's');
+        }
         // Revisamos si el caso tiene estacionamiento o bodega, y adaptamos la direccion
         const newDireccion = this.checkEstacionamientoBodega(caso)
         this.writeLine(ws, 'H', currentRow, newDireccion, 's');

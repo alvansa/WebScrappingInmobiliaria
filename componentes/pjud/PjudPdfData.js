@@ -142,7 +142,7 @@ class PjudPdfData {
                 console.log("No se obtiene el ano del GP");
                 return;
             }
-            const anno = getAnno(GPnormalizedInfo);
+            const anno = this.obtainBuyYear(GPnormalizedInfo);
             if (anno) {
                 console.log(`-----------------\nanno: ${anno}\n-----------------`);
                 this.caso.anno = anno ? anno : null;
@@ -161,9 +161,79 @@ class PjudPdfData {
         }
 
     }
+    obtainBuyYear(texto) {
+        console.log("Texto para obtener el anno: ", texto);
+        let anno = this.obtainYearForm1(texto);
+        if(anno) {
+            return anno;
+        }
+        anno = this.obtainYearnForm2(texto);
+        if(anno) {
+            return anno;
+        }
+    }
+
+    obtainYearForm1(text) {
+        const regexStartBuy = /(adquirio\s*por\s*compra)|(adquiried\s*por\s*compra)/i;
+        const startText = regexStartBuy.exec(text);
+        if (!startText) {
+           return null; 
+        }
+        let newText = text.substring(startText.index);
+        console.log("Primera busqueda",newText)
+        
+        const newStart = /del\s*ano/i;
+        let startAno = newStart.exec(newText);
+        if (!startAno) {
+            const newStart2 = /del\s*afio/i;
+            startAno = newStart2.exec(newText);
+            if (!startAno) {
+                console.log("No se encontro el anno");
+                return null;
+            }
+        }
+    
+        newText = newText.substring(startAno.index);
+        console.log("despues de busqueda el anno",newText)
+  
+        const regexEndBuy = /,\s*otorgada/i;
+        const endText = regexEndBuy.exec(newText);
+        if (!endText) {
+           return null; 
+        }
+        const endIndex = endText.index;
+        newText = newText.substring(0, endIndex)
+        console.log(newText)
+        const anno = convertWordToNumbers(newText);
+        console.log("anno: ", anno);
+        return anno;
+    }
+
+    obtainYearnForm2(text) {
+        let newText;
+        const startRegex = /con\s*fecha/i;
+        const startWord = startRegex.exec(text);
+        if (!startWord) {
+            return null;
+        }
+        newText = text.substring(startWord.index);
+
+        const endRegex = /,\s*repertorio/i;
+        const endWord = endRegex.exec(newText);
+        if (!endWord) {
+            return null;
+        }
+        newText = newText.substring(0, endWord.index);
+        console.log(newText)
+        const annoRegex = /\d{4}/i;
+        const anno = newText.match(annoRegex);
+        if (anno) {
+            return anno[0];
+        }
+    }
 
     obtainMontoCompra(text) {
-        if (!text.includes("inscripcion")) {
+        if (!text.includes("inscripci")) {
             console.log("No se puede obtener el monto de compra, no contiene inscripcion");
             return null;
         }
@@ -572,9 +642,9 @@ class PjudPdfData {
     }
 
     obtainComuna(info, infoNormalized) {
-        const regexRegistro = /registro\s*de\s*propiedad/gi;
+        const regexRegistro = /dominio\s*con\s*vigencia/gi;
         if (regexRegistro.test(info)) {
-            console.log("Incluye inscripcion, no se puede obtener la comuna");
+            console.log("Incluye registro de propiedad, no se puede obtener la comuna");
             return null;
         }
         // console.log("info en comuna: ", info);
@@ -583,7 +653,7 @@ class PjudPdfData {
         if (comuna) {
             return comuna;
         }
-        comuna = getComuna(info);
+        comuna = getComuna(info, true);
 
         if (comuna) {
             return comuna;
@@ -647,6 +717,7 @@ class PjudPdfData {
         const startText = "comuna:";
         const startIndex = info.indexOf(startText);
         if (startIndex === -1) {
+            // console.log("No se encontro la comuna por index startIndex");
             return null;
         }
         const modifiedInfo = info.substring(startIndex);
@@ -654,6 +725,7 @@ class PjudPdfData {
         const endIndex = modifiedInfo.indexOf(endText);
 
         if (endIndex === -1) {
+            // console.log("No se encontro el final de la comuna por index endIndex");
             return null;
         }
         const comuna = modifiedInfo.substring(startText.length, endIndex).trim();

@@ -15,6 +15,7 @@ const PjudPdfData = require('./PjudPdfData.js');
 const ERROR = 0;
 const EXITO = 1;
 const DELAY_RANGE = {"min": 2, "max" : 5}
+const PAGADO = {daCuenta: false, pagadoCredito: false}
 
 class ConsultaCausaPjud{
     constructor(browser,window,caso){
@@ -37,7 +38,7 @@ class ConsultaCausaPjud{
         await this.loadPageWithRetries();
 
         try{
-            result = await this.procesarCaso(this.caso, 1 , lineaAnterior)
+            result = await this.procesarCaso(lineaAnterior)
             if(!result){
                 console.log('No se pudo procesar el caso');
                 return false;
@@ -348,6 +349,7 @@ class ConsultaCausaPjud{
     async selectCuaderno() {
         const selectorCuaderno = '#selCuaderno';
         const targetOptionText = 'Apremio';
+        let secondOption = null;
         // Espera a que se carguen las opciones de Historia Causa Cuaderno
         try{
             await this.page.waitForSelector(selectorCuaderno);
@@ -360,7 +362,7 @@ class ConsultaCausaPjud{
                 }));
             });
 
-            // Buscar la opción que contiene "2 - Apremio Ejecutivo Obligación de Dar"
+            // Buscar la opción que contiene "Apremio"
             const optionToSelect = options.find(option => option.text.includes(targetOptionText));
 
             if (optionToSelect) {
@@ -369,13 +371,29 @@ class ConsultaCausaPjud{
                 await this.page.select('#selCuaderno', optionToSelect.value);
             } else {
                 console.log('La opción deseada no se encuentra en el select.');
-                return false
-
+                secondOption = options.find(option => option.text.includes('Principal'));
+                if (secondOption) {
+                    console.log('La opción "Principal" se seleccionará en su lugar.', secondOption);
+                    console.log(secondOption.text, secondOption.value);
+                    await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
+                    // Seleccionar la segunda opción si "Apremio" no está disponible
+                    await this.page.select('#selCuaderno', secondOption.value);
+                }else{
+                    return false
+                }
             }
+
+            //Revisar que se haya seleccionado correctamente el cuaderno
             const cuadernoValue = await this.page.$eval('#selCuaderno', el => el.value);
-            if (cuadernoValue !== optionToSelect.value) {
-                console.log('No se seleccionó el cuaderno:', optionToSelect.text);
-                return false;
+            if(optionToSelect){
+                if (cuadernoValue !== optionToSelect.value) {
+                    console.log('No se seleccionó el cuaderno:', optionToSelect.text);
+                }
+            }else if(secondOption){
+                if (cuadernoValue !== secondOption.value) {
+                    console.log('Tampoco se selecciono la opcion de Principal', secondOption.text);
+                    return false;
+                }
             }
             return true;
         } catch (error) {
@@ -440,6 +458,20 @@ class ConsultaCausaPjud{
                 return false;
             }
             console.log('Fila:', number, uselessFile, directory, stage, tramite, descripcion, fecha);
+            if(descripcion.toLowerCase().includes("da cuenta de pago")){
+                console.log("el caso tiene pago, se procede a marcarlo como pagado con: ", descripcion);
+                PAGADO.daCuenta = true;
+            }
+            if(descripcion.toLowerCase().includes("tiene por pagado el crédito") && descripcion.toLowerCase().includes("Término por Avenimiento")){
+                console.log("el caso tiene por pagado el credito con: ", descripcion);
+                PAGADO.pagadoCredito = true;
+            }
+            if(PAGADO.daCuenta && PAGADO.pagadoCredito){
+                this.caso.isPaid = true;
+            }
+
+
+
             return ERROR;
         } catch (error) {
             console.error('Error al obtener los datos de la fila:', error.message);
