@@ -147,16 +147,27 @@ function getCausa(data) {
     if (causa != null) {
         return causa;
     }
+    // causa con "Rol" y sin "C"
     const causaRegexSinC = /Rol\s*[-]*\s*\d{1,7}(?:\.\d{3})*\s*[-/]\s*\d{1,4}(?:\.\d{3})*/i;
     const causaSinC = data.match(causaRegexSinC);
     if (causaSinC != null) {
         return causaSinC;
     }
-    const regexCausaRolN = /rol\s*n\.?(?:º|°)\s*\d{1,7}(?:\.\d{3})*\s*[-/]\s*\d{1,4}(?:\.\d{3})*/i;
+    // causa con "rol"
+    const regexCausaRolN = /rol\s*n?\.?(?:ºº||°)?\s*\d{1,7}(?:\.\d{3})*\s*[-/]\s*\d{1,4}(?:\.\d{3})*/i;
     const causaRolN = data.match(regexCausaRolN);
     if (causaRolN != null) {
         return causaRolN;
     }
+
+    //causa sin rol ni C pero que dice causa
+    const regexConCausa = /\bcausa\s*\d{1,7}(?:\.\d{3})*\s*[-/]\s*\d{1,4}(?:\.\d{3})*/i;
+
+    const causaConCausa = data.match(regexConCausa);
+    if (causaConCausa != null) {
+        return causaConCausa;
+    }
+    
 
     return null;
 }
@@ -171,34 +182,35 @@ function getCausaVoluntaria(data) {
 function getJuzgado(data) {
     const normalizedData = data
         .toLowerCase()
-        .replace(/[,.\n]/g, ' ')
+        .replace(/J\.L\.C/i,"juzgado civil")
+        .replace(/jugado/i,"juzgado")
+        .replace(/[.\n]/g, ' ')
+        .replace(/,/g,'')
         .replace(/de\s*/g, '')
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
         .replace(/\bstgo\b/g, "santiago")
         .replace(/\s+/, ' ')
 
+    // console.log("Data normalizada en juzgado: ", normalizedData);
+
     let tribunalAceptado = null;
-    // console.log("Data normalizada en getJuzgado: ", normalizedData);
 
     for (let tribunal of tribunales2) {
         const tribunalNormalized = tribunal
             .toLowerCase()
-            .replace(/de\s+/, '')
+            .replace(/de\s+/g, '')
             .normalize("NFD")
+            .replace(/,/g,"")
             .replace(/[\u0300-\u036f]/g, "");
 
         const tribunalSinDe = tribunalNormalized.replaceAll("de ", '');
-        const variaciones = [tribunalNormalized, tribunalSinDe];
+        let variaciones = [tribunalNormalized, tribunalSinDe];
 
         const numeroMatch = tribunal.match(/\d{1,2}/);
         if (numeroMatch) {
             const numero = parseInt(numeroMatch[0]);
             const ordinalForm = convertirANombre(numero);
-
-            // if(tribunal.includes("")){
-            //     console.log("Variaciones: ",ordinalForm, "Tipo : ",typeof ordinalForm);   
-            // }
 
             const simbolosOrdinales = ['°', 'º', ''];
 
@@ -214,10 +226,23 @@ function getJuzgado(data) {
                         variaciones.push(base.replace(/\d{1,2}°/, `${form}${simbolo}`)); // 3°
                         variaciones.push(base.replace(/\d{1,2}°/, `${form}`)); // tercero
                         variaciones.push(base.replace(/\d{1,2}°/, `${form} ${simbolo}`)); // 3 °
+                        variaciones.push(base.replace(/\d{1,2}°\s*/, `${form}${simbolo}`)); // 3°juzgado
                     });
                     variaciones.push(base.replace(/\s+/g, '')); // 3°juzgado
                 });
             }
+
+            // Incluye variaciones donde en un juzgado de letras no se haya escrito la palabra "letras"
+            variaciones = variaciones.flatMap(variation => {
+                if(variation.includes("letras ")) {
+                    return [variation,variation.replace("letras ", "").trim()];
+                }
+                return variation;
+            })
+
+            // if(tribunal.includes("1° JUZGADO CIVIL DE PUENTE ALTO")) {
+            //     console.log("Tribunal encontrado: ", variaciones);
+            // }
 
             if (tribunalNormalized.includes("en lo civil")) {
                 variaciones.push(...variaciones.map(variation => variation.replace("en lo civil ", "")));
@@ -228,10 +253,7 @@ function getJuzgado(data) {
         }
 
     }
-    // Devolver el último tribunal aceptado o null si no hay coincidencias
-    // console.log("Tribunales aceptados: ", tribunalAceptado);
     return tribunalAceptado;
-
 }
 
 function getJuzgado2(data) {
@@ -308,6 +330,8 @@ function getFechaRemate(data) {
     const regexs = [
         /(\d{1,2})\s*(de\s+)?(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)[\s]*((de|del)\s+)?(año\s+)?(\d{4})/i,
         /(lunes|martes|miércoles|jueves|viernes|sábado|domingo)?\s*([a-zA-Záéíóú]*\s+)(de\s+)?(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)(\s+de)\s+(dos mil (veinticuatro|veinticinco|veintiseis|veintisiete|veintiocho|veintinueve|treinta|treinta y uno)?)?/i,
+        /(?:rematar[a|á])?\s*el\s*(?:d[i|í]a\s*)?(\d{1,2}\/\d{1,2}\/\d{4})/i,
+        /(\d{1,2}-\d{1,2}-\d{4})\s*a\s*las\s*\d{1,2}:\d{1,2}/i
     ];
     for (let regex of regexs) {
         const fechaRemate = data.match(regex);
@@ -397,7 +421,7 @@ function getMultiples(data) {
 
 // Obtiene la comuna del remate a base de una lista de comunas.
 function getComuna(data, isPjud = false) {
-    console.log("Data en getComuna:  :)", data);
+    // console.log("Data en getComuna:  :)", data);
     const dataNormalizada = data.toLowerCase();
     // console.log("Data normalizada en getComuna: ",dataNormalizada);
     for (let comuna of comunas) {
@@ -423,9 +447,9 @@ function getComuna(data, isPjud = false) {
         for (let preFrase of listaPreFrases) {
             const comunaPreFrase = preFrase + comuna;
             const regexComuna = new RegExp(`${preFrase}${comuna}\\b`, 'i');
-            if(comuna === 'peñaflor'){
-                console.log("Comuna encontrada: ",regexComuna);
-            }
+            // if(comuna === 'peñaflor'){
+            //     console.log("Comuna encontrada: ",regexComuna);
+            // }
             const comunaSinEspacio = comunaPreFrase.replace(/\s*/g, '');
             if (regexComuna.test(dataNormalizada) || dataNormalizada.includes(comunaSinEspacio)) {
                 return comuna;
@@ -668,8 +692,8 @@ function obtainFinalPercentage(foreclosures) {
 }
 function getAnno(data) {
     // Busca el año con dependencia de las fojas, "fojas xxxx del año xxxx"
-    // console.log("Data en getAnno: ", data);
-    const regexFojasDependiente = /(?:fojas|fs\.?|fjs).*?(?:del|a[n|ñ]o)\s*(\b\d{1}(?:\.\d{3})?\b|\d{1,4})/i;
+    console.log("Data en getAnno: ", data);
+    const regexFojasDependiente = /(?:fojas?|fs\.?|fjs).*?(?:del?|a[n|ñ]o)\s*(\b\d{1}(?:\.\d{3})?\b|\d{1,4})/i;
     const fojasDependiente = data.match(regexFojasDependiente);
     if (fojasDependiente != null) {
         if(fojasDependiente[1] > 1700) {

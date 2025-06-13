@@ -15,6 +15,59 @@ if(!fs.existsSync(BDPath)){
 }
 
 function createDB(db){
+
+    // create Corte table
+    const createCorteTable = `
+    CREATE TABLE IF NOT EXISTS Corte (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nombre TEXT NOT NULL,
+        numero INTEGER NOT NULL
+    )`;
+    db.prepare(createCorteTable).run();
+
+    // create Juzgado table
+    const createJuzgadoTable = `
+    CREATE TABLE IF NOT EXISTS Juzgado (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nombre TEXT NOT NULL,
+        numero INTEGER NOT NULL,
+        FOREIGN KEY (idCorte) REFERENCES Corte(id)
+    )`;
+    db.prepare(createJuzgadoTable).run();
+
+    // create Causa table
+    const queryCreateCausa = `
+    CREATE TABLE IF NOT EXISTS Causa (
+        causa TEXT,
+        FOREIGN KEY (idJuzgado) REFERENCES Juzgado(id),
+        ano INTEGER,
+        FOREIGN KEY (idComuna) REFERENCES Comuna(id),
+        fechaRemate TEXT,
+        horaRemate TEXT,
+        tipoParticipacion TEXT,
+        minimoPostura INTEGER,
+        minimoParticipacion INTEGER,
+        FOREIGN KEY (idTipoPropiedad) REFERENCES TipoPropiedad(id),
+        direccion TEXT,
+        rolManzana INTEGER,
+        rolPredio INTEGER,
+        partes TEXT,
+        avaluoFiscal INTEGER,
+        FOREIGN KEY (idEstado) REFERENCES Estado(id),
+        montoCompra INTEGER,
+        FOREIGN KEY (idSeguimiento) REFERENCES Seguimiento(id),
+        FOREIGN KEY (idEstadoRemate) REFERENCES EstadoRemate(id),
+        FOREIGN KEY (idDeudaCausa) REFERENCES IDDeudaCausa(idCausa),
+        precioVenta INTEGER,
+        porcetajeIda INTEGER,
+        maximoPostura INTEGER,
+
+        PRIMARY KEY (causa, idJuzgado)
+    )`;
+    db.prepare(queryCreateCausa).run();
+}
+
+function createDBOriginal(db){
     const query = `
     CREATE TABLE IF NOT EXISTS Causa (
         causa TEXT,

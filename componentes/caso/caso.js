@@ -372,6 +372,7 @@ class Caso{
         const diaEntregaNormalizado = this.normalizarDiaEntrega();
         const comunaNormalizada = this.normalizarComuna();
         const tipoDerechoNormalizado = this.normalizarTipoDerecho();
+        const fechaRemateNormalizada = this.normalizarFecha();
 
         return {
             fechaObtencion: fechaObtencionNormalizada,
@@ -381,7 +382,7 @@ class Caso{
             juzgado: juzgadoNormalizado,
             porcentaje: porcentajeNormalizado,
             formatoEntrega: formatoEntregaNormalizado,
-            fechaRemate: this.transformarFecha(),
+            fechaRemate: fechaRemateNormalizada, 
             // montoMinimo: this.#montoMinimo,
             montoMinimo: montoMoneda["monto"],
             moneda : montoMoneda["moneda"],
@@ -417,7 +418,7 @@ class Caso{
     } 
 
     // Transforma la fecha de la publicación de estar escrita en palabras a un objeto Date
-    transformarFecha(){
+    normalizarFecha(){
         if(this.#fechaRemate == "N/A" || this.#fechaRemate == null){ 
             return null;
         }
@@ -438,6 +439,28 @@ class Caso{
         if(typeof(this.#fechaRemate) == Date){
             return this.#fechaRemate;
         }
+        if(this.#fechaRemate.includes("/")){
+            const regexFecha = /(\d{1,2})\/(\d{1,2})\/(\d{4})/;
+            const partesFecha = this.#fechaRemate.match(regexFecha);
+            if(partesFecha){
+                const dia = parseInt(partesFecha[1], 10);
+                const mes = parseInt(partesFecha[2], 10) - 1; // Los meses en JavaScript son 0-indexados
+                const anno = parseInt(partesFecha[3], 10);
+                return new Date(anno, mes, dia);
+            }
+        }
+        if(this.#fechaRemate.includes("-")){
+            const regexFecha = /(\d{1,2})-(\d{1,2})-(\d{4})/;
+            const partesFecha = this.#fechaRemate.match(regexFecha);
+            if(partesFecha){
+                const dia = parseInt(partesFecha[1], 10);
+                const mes = parseInt(partesFecha[2], 10) - 1; // Los meses en JavaScript son 0-indexados
+                const anno = parseInt(partesFecha[3], 10);
+                return new Date(anno, mes, dia);
+            }
+        }
+
+
         // Si el origen es Emol, puede venir con formato de palabras
         const dia = this.getDia();
         const mes = this.getMes();
@@ -778,13 +801,23 @@ class Caso{
         return formato;
     }
     normalizarCausa() {
+        let causa;
         const valorOriginal = this.#causa;
         
         if (valorOriginal === "N/A" || valorOriginal === null) {
             return null;
         }
+        if(valorOriginal.includes("causa")){
+            causa = valorOriginal
+                .replace(/causa/gi, 'C-') // Reemplazar "causa" por "C-"
+                .toLowerCase()
+                .replace(/[.\n ]/g, '') // Eliminar puntos, newlines y espacios
 
-        let causa = valorOriginal
+            return causa.toUpperCase();
+
+        }
+
+        causa = valorOriginal
             .toLowerCase()
             .replace(/[.\n ]/g, '') // Eliminar puntos, newlines y espacios
             .replace("nº", "")  // Eliminar primera ocurrencia de nº

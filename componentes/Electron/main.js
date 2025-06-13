@@ -24,6 +24,8 @@ const {downloadPdfFromUrl,checkUserAgent} = require('../pjud/downloadPDF.js');
 const { fakeDelay, delay } = require('../../utils/delay.js');
 const {tribunalesPorCorte} = require('../../utils/corteJuzgado.js');
 const Causas = require('../../model/Causas.js');
+const { type } = require('node:os');
+const { start } = require('node:repl');
 
 
 const isDevMode = process.argv.includes('--dev');
@@ -89,7 +91,6 @@ class MainApp{
                 webPreferences : {devTools : isDevMode}
             },
         })
-    
 
         if(isDevMode){
             this.mainWindow.loadFile('componentes/Electron/dev/index.html')
@@ -122,6 +123,7 @@ class MainApp{
             return result.canceled ? null : result.filePaths[0];
         });
 
+        // Funcion para iniciar el proceso principal de busqueda
         ipcMain.handle("start-proccess", async (event,startDate,endDate,saveFile, checkedBoxes) => {
             console.log("handle start-proccess starDate: ", startDate, " endDate: ", endDate, " saveFile: ", saveFile, " checkedBoxes: ", checkedBoxes);
             try{
@@ -133,6 +135,7 @@ class MainApp{
             };
         });
 
+        // Funcion para buscar la informacion del pjud en pdf en base a una fecha de inicio y final.
         ipcMain.handle('getInfoFromPdfPjud', async (event, filePath,startDate, endDate) => {
             try{
                 const filePathPdf = await this.obtainDataPdfPjud(event,filePath,startDate,endDate);
@@ -144,6 +147,7 @@ class MainApp{
             }
         });
 
+        // Funcion utilizada para crear varias pruebas.
         ipcMain.handle('testEconomico', async (event,args) => {
             try{
                 await this.testEconomico(event,args)
@@ -153,6 +157,7 @@ class MainApp{
             }
         });
 
+        // Funcion que habre una ventana para seleccionar un archivo pdf
         ipcMain.handle('open-dialog-local', async () =>{
             const result = await dialog.showOpenDialog(this.mainWindow, {
                 properties: ['openFile'],
@@ -163,6 +168,7 @@ class MainApp{
             return result.filePaths[0] || null;
         });
 
+        // Funcion que abre la ventana que permite seleccionar varios archivos pdf para su procesamiento
         ipcMain.handle('open-dialog-local-multiple', async () => {
 
             const { canceled, filePaths } = await dialog.showOpenDialog({
@@ -176,6 +182,7 @@ class MainApp{
             return canceled ? [] : filePaths;
         });
 
+        // funcion que dado un archivo pdf lo procesa con la funcion del boletin.
         ipcMain.handle('process-file', async (event, filePath) => {
             try {
                 // Aquí puedes procesar el archivo seleccionado
@@ -189,16 +196,17 @@ class MainApp{
                 const result = await ProcesarBoletin.convertPdfToText2(filePath);
                 pdfProcess.obtainDataRematesPdf(result, caso);
                 console.log("Caso procesado: ", caso.toObject());
-                // await processFile(filePath);
             } catch (error) {
                 console.error('Error al procesar el archivo:', error);
             }
         });
 
+        // Funcion para obtener todos los tribunales, cortes y sus respectivos numeros para su busqueda en pjud.
         ipcMain.handle('obtainTribunalesJuzgado', async (event) => {
             return tribunalesPorCorte;
         })
 
+        // Funcion para buscar un caso de pjud especificamente dada su causa y tribunal
         ipcMain.handle('search-case', async (event, corte, tribunal,juzgado, rol, year) => {
             try{
                 let filePath = null;
@@ -210,16 +218,15 @@ class MainApp{
                 caso.juzgado = juzgado;
                 caso.numeroJuzgado = tribunal;
                 caso.link = "Lgr";
-                console.log("Caso: ",caso.toObject()); 
+                console.log("Buscando caso: ",caso.toObject()); 
                 const result = await consultaCausa(caso);
                 console.log("Resultados del caso de prueba en pjud: ", caso.toObject());
                 if(result){
-                    // Write the case in excel.
+                    // Escribe los casos en excel.
                     const downloadPath = path.join(os.homedir(), "Documents", "infoRemates");
                     const createOneExcelFile = new createExcel(downloadPath,null,null,false,"one");
                     filePath = await createOneExcelFile.writeData(caso);
                     console.log("Caso guardado en: ", filePath);
-                    console.log("Retornando Caso: ", filePath);
                     return filePath;
                 }else{
                     console.log("No se logro procesar el caso");
@@ -231,28 +238,40 @@ class MainApp{
             }
         })
 
+        // Funcion para buscar una causa en la BD
         ipcMain.handle('consultaDB', async (event, args) => {
            const resultado = await this.testDB(args);
            return resultado;
         });
-
     }
 
 
     async insertarDatos(startDate,endDate,saveFile, checkedBoxes) {
         let casos = [];
+        let casosEconomico = [];
+        let casosPreremates = [];
+        let casosBoletin = [];
+        let casosPYL = [];
+        let casosPJUD = [];
         const fechaHoy = new Date();
         await this.launchPuppeteer_inElectron();
+        console.log(`Iniciando la inserción de datos desde ${startDate} hasta ${endDate} y tipos ${typeof startDate} y ${typeof endDate}`);
         if(emptyMode){
            casos = emptyCaseEconomico(); 
         }else{
-            const [casosEconomico, casosPreremates, casosBoletin, casosPYL, casosPJUD] = await Promise.all([
-                this.getCasosEconomico(fechaHoy, startDate, endDate, 3, checkedBoxes.economico),
-                this.getCasosPreremates(checkedBoxes.preremates),
-                this.getCasosBoletin(startDate, endDate, fechaHoy, checkedBoxes.liquidaciones),
-                this.getPublicosYLegales(startDate, endDate, fechaHoy, checkedBoxes.PYL),
-                this.getDatosPjud(startDate, endDate, checkedBoxes.pjud)
-            ]);
+            casosEconomico = await this.getCasosEconomico(fechaHoy, startDate, endDate, 3, checkedBoxes.economico);
+            // casosPreremates = await this.getCasosPreremates(checkedBoxes.preremates),
+            casosBoletin = await this.getCasosBoletin(startDate, endDate, fechaHoy, checkedBoxes.liquidaciones),
+            casosPYL = await this.getPublicosYLegales(startDate, endDate, fechaHoy, checkedBoxes.PYL),
+            // casosPJUD = await this.getDatosPjud(startDate, endDate, checkedBoxes.pjud)
+
+            // const [casosEconomico, casosPreremates, casosBoletin, casosPYL, casosPJUD] = await Promise.all([
+            //     this.getCasosEconomico(fechaHoy, startDate, endDate, 3, checkedBoxes.economico),
+            //     this.getCasosPreremates(checkedBoxes.preremates),
+            //     this.getCasosBoletin(startDate, endDate, fechaHoy, checkedBoxes.liquidaciones),
+            //     this.getPublicosYLegales(startDate, endDate, fechaHoy, checkedBoxes.PYL),
+            //     this.getDatosPjud(startDate, endDate, checkedBoxes.pjud)
+            // ]);
 
             casos = [...casosEconomico, ...casosPreremates, ...casosBoletin, ...casosPYL, ...casosPJUD];
             await this.obtainMapasSIIInfo(casos);
@@ -277,14 +296,17 @@ class MainApp{
             return [];
         }
 
-        const fechaInicio = new Date(fechaInicioStr);
-        const fechaFin = new Date(fechaFinStr);
+        let fechaInicio = stringToDate(fechaInicioStr);
+        let fechaFin = stringToDate(fechaInicioStr); 
+
+        fechaInicio.setMonth(fechaInicio.getMonth() - 1);
 
         let casos = [];
         try {
             // Funcion antigua para obtener los datos de emol que funciona con axios y cheerio
             // casos = await getDatosRemate(fechaHoy, fechaInicioStr, fechaFinStr, maxRetries) || [];
             // Funcion nueva para obtener los datos de emol que funciona con puppeteer
+            console.log("Obteniendo casos de economico desde: ", fechaInicio, " hasta: ", fechaFin);
             const economico = new Economico(this.browser, fechaInicio, fechaFin);
             casos = await economico.getCases() || [];
             
@@ -326,8 +348,12 @@ class MainApp{
             return [];
         }
         let casos = [];
-        const startDate = stringToDate(fechaInicioStr);
-        const endDate = stringToDate(fechaFinStr);
+        // const startDate = stringToDate(fechaInicioStr);
+        // const endDate = stringToDate(fechaFinStr);
+        let startDate = stringToDate(fechaInicioStr);
+        let endDate = stringToDate(fechaInicioStr); 
+
+        startDate.setMonth(startDate.getMonth() - 1);
        try{
             const window = new BrowserWindow({ show: true });
             const url = 'https://www.boletinconcursal.cl/boletin/remates';
@@ -351,8 +377,12 @@ class MainApp{
             return [];
         }
         let casos = [];
-        const startDate = stringToDate(fechaInicioStr);
-        const endDate = stringToDate(fechaFinStr);
+        // const startDate = stringToDate(fechaInicioStr);
+        // const endDate = stringToDate(fechaFinStr);
+        let startDate = stringToDate(fechaInicioStr);
+        let endDate = stringToDate(fechaInicioStr); 
+
+        startDate.setMonth(startDate.getMonth() - 1);
         
         try{
             const window = new BrowserWindow({ show: false });
@@ -535,13 +565,6 @@ class MainApp{
             const fechaFin = new Date("2025/05/23");
             const economico = new Economico(this.browser, fechaInicio, fechaFin);
             const casos = await economico.getCases();
-            // for(let caso of casos){
-            //     const result = await economico.getInfoFromSingularPage(caso);
-            //     await fakeDelay(1,3);
-            //     if(result){
-            //         console.log("Resultados del caso de prueba en pjud: ", caso.toObject());
-            //     }
-            // }
             console.log(casos.map(caso => caso.toObject()));
         }else if(arg === 'testPdfTesseract'){
             console.time("testPdfTesseract");
@@ -596,7 +619,6 @@ class MainApp{
     }
 
     async obtainDataPdfPjud(event,filePath,startDateOrigin,endDateOrigin){
-
         console.time("obtainDataPdfPjud");
         await this.launchPuppeteer_inElectron();
         const startDate = dateToPjud(stringToDate(startDateOrigin));

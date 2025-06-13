@@ -33,13 +33,6 @@ class BoletinConcursal {
         if (!fs.existsSync(downloadPath)) {
             fs.mkdirSync(downloadPath, { recursive: true });
         }
-        // Lanza el navegador
-        // const browser = await puppeteer.launch({
-        //     headless: true, // Cambia a true para ocultar el navegador
-        //     defaultViewport: null,
-        // });
-
-        // const page = await browser.newPage();
 
         try {
 
@@ -79,8 +72,8 @@ class BoletinConcursal {
             const rows = await this.page.$$('#tblRematesInmuebles tbody tr');
 
             for (const row of rows) {
-                let success = ERROR; // Track if the row is processed successfully
-                let attempts = 0;    // Count attempts
+                let success = ERROR; // Revisa si la fila se procesó correctamente
+                let attempts = 0;    // Contador de intentos
 
                 while (success != EXITO && attempts < maxRetries) {
                     try {
@@ -93,7 +86,7 @@ class BoletinConcursal {
                         }
                     }
 
-                    // Add a small delay between retries
+                    // Agrega un pequeño retraso entre intentos para evitar sobrecargar el servidor
                     if (success === REINTENTAR) {
                         await delay(200);
                     }
@@ -121,7 +114,6 @@ class BoletinConcursal {
         ]);
 
         const fileDate = new Date(parseDate(dateCell));
-        // console.log(`Processing remate: ${dateCell} (${fileDate}) with name: ${nombreCell}`);
 
         // Revisa el rango
         if (fileDate < fechaInicio) {
@@ -192,12 +184,11 @@ class BoletinConcursal {
                     return;
                 }
 
-                // Encuentra archivos nuevos
-                const newFiles = [...currentFiles].filter(file => !initialFileSet.has(file));
-                // console.log(`Archivos nuevos encontrados: ${newFiles.join(', ')}`);
+                // Encuentra archivos nuevos que no estaban en initialFiles y que no se llamen "DS_Store"
+                const newFiles = [...currentFiles].filter(file => !initialFileSet.has(file) && !file.includes("DS_Store"));
                 if (newFiles.length > 0) {
+                    // Si encuentra un archivo que no termina con ".crdownload", lo considera completo
                     const completeFile = newFiles.find(file => !file.endsWith('.crdownload'));
-                    // console.log(`Archivo completo encontrado: ${completeFile}`);
                     if (completeFile) {
                         clearInterval(interval); // Detén el intervalo
                         resolve(completeFile); // Devuelve el nombre del archivo completo
