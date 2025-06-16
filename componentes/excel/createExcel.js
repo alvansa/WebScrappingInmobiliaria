@@ -5,6 +5,7 @@ const path = require('path');
 const Causas = require('../../model/Causas.js');
 const config = require("../../config.js");
 const { cleanInitialZeros } = require('../../utils/cleanStrings.js');
+const Caso = require('../caso/caso.js');
 
 const PJUD = 2;
 const THREE_SAME = 0;
@@ -140,7 +141,7 @@ class createExcel {
 
     async insertarCasosExcel(casos, ws) {
         const startDateSQL = stringToDate(this.startDate);
-        let remates = new Set();
+        let remates = new Map();
         let currentRow = 6;
         const causaDB = new Causas();
         const rematesDB = causaDB.getCausas(formatDateToSQLite(startDateSQL));
@@ -153,20 +154,27 @@ class createExcel {
             console.log("No se encontraron datos para insertar.");
             return;
         }
-        const casosObj = casos.map(caso => caso.toObject());
 
-        for (let caso of casosObj) {
+        // Primero se leen todos los casos obtenidos y se verifican para agregarlos,
+        // en caso de que ya hayan sido agregados se une la informacion 
+        for(let caso of casos){
             if (caso.fechaPublicacion === "N/A" || caso.fechaPublicacion == null) {
                 caso.fechaPublicacion = fechaMenosUno(this.endDate);
             }
-            if (this.shouldSkip(caso, remates, rematesDB, startDateSQL)) {
-                continue;
+            if(this.getValidAuctions(caso, remates, rematesDB, startDateSQL)){
+                this.addObjectToSet(remates,caso);
             }
+        }
 
-            if (!this.emptyMode) {
-                remates.add({ causa: caso.causa, juzgado: caso.juzgado, fecha: formatDateToSQLite(caso.fechaPublicacion) });
-            }
-            this.insertarCasoIntoWorksheet(caso, ws, currentRow);
+        // Se escriben todos los casos revisados en la hoja, para eso primero se transforman a
+        // objetos para verificar la normalizacion
+        for (let caso of remates) {
+            // if (!this.emptyMode) {
+            //     remates.add({ causa: caso.causa, juzgado: caso.juzgado, fecha: formatDateToSQLite(caso.fechaPublicacion) });
+            // }
+            const casoObj = caso[1].toObject()
+
+            this.insertarCasoIntoWorksheet(casoObj, ws, currentRow);
             currentRow++;
         }
         // Agrega los remates a la base de datos
@@ -176,44 +184,63 @@ class createExcel {
         return currentRow;
     }
 
-    shouldSkip(currentCase, cacheAuctions, auctionsDB, startDateSQL) {
+    addObjectToSet(remates,caso){
+        const key = `${caso.causa}|${caso.juzgado}`;
+        if(!remates.has(key)){
+            remates.set(key, caso);
+            console.log(`Insertando caso con key ${key}`);
+        }
+    }
+
+    getValidAuctions(currentCase, cacheAuctions, auctionsDB, startDateSQL) {
         if (currentCase.juzgado) {
             currentCase.juzgado = currentCase.juzgado.replace(/º/g, '°');
         }
 
         // Si el caso ya existe en la cache, no se guarda
         for (let auction of cacheAuctions) {
-            if (auction.causa === currentCase.causa && auction.juzgado === currentCase.juzgado) {
-                return true;
+            if (auction[1].causa === currentCase.causa && auction[1].juzgado === currentCase.juzgado) {
+                // si el caso ya se habia encontrado rellenar la informacion 
+                const key = `${auction[1].causa}|${auction[1].juzgado}`;
+                const actualCase = cacheAuctions.get(key);
+                console.log(`Obteniendo el caso con key ${key} : ${actualCase} `)
+                console.log(`Obteniendo el caso con key ${key} : ${actualCase.causa}`)
+                if(actualCase){
+                    Caso.fillMissingData(actualCase,currentCase);
+                    console.log(`El caso con key ${key} ya se encontro rellenado info`)
+                }
+                return false;
             }
         }
         // Si la fecha de remate es menor a la fecha de inicio, no se guarda
         if (currentCase.fechaRemate < this.startDate) {
-            return true;
+            return false;
         }
         // No se escriben casos de juez partidor
         if (currentCase.juzgado === "Juez Partidor") {
-            return true;
+            return false;
         }
         if (currentCase.origen === PJUD) { // Solo si es caso es del pjud revisamos si ya existe en la base de datos
             // Si el caso ya existe en la base de datos, no se guarda
             for (let savedAuction of auctionsDB) {
                 if (savedAuction.causa === currentCase.causa && savedAuction.juzgado === currentCase.juzgado && savedAuction.fecha < formatDateToSQLite(startDateSQL)) {
-                    return true;
+                    return false;
                 }
             }
         }
         // if (currentCase.tipoPropiedad === "Estacionamiento") {
         //     return true;
         // }
-        return false;
+        return true;
     }
 
 
     insertarCasoIntoWorksheet(caso, ws, currentRow) {
         let newRol = caso.rolPropiedad;
         // console.log("Fecha de obtenion : ", caso.fechaObtencion, "Tipo :", typeof caso.fechaObtencion);
-        this.writeLine(ws, 'C', currentRow, caso.fechaObtencion, 'd');
+        if(caso.fechaObtencion){
+            ws['C' + currentRow] = { v: caso.fechaObtencion, t: 'd', z: 'dd/mm/yyyy' };
+        }
         this.writeLine(ws, 'D', currentRow, caso.link, 's');
         // ws['E'+ currentRow ] = {v: 'notas ', t: 's'};
         if (caso.fechaRemate !== null) {
@@ -276,22 +303,22 @@ class createExcel {
     }
 
     checkEstacionamientoBodega(caso) {
-        console.log("Revisando estacionamiento y bodega para el caso: ", caso.hasEstacionamiento, caso.hasBodega, caso.direccionEstacionamiento);
+        // console.log("Revisando estacionamiento y bodega para el caso: ", caso.hasEstacionamiento, caso.hasBodega, caso.direccionEstacionamiento);
         if (!caso.direccion) {
             return null;
         }
         if (caso.hasEstacionamiento && caso.hasBodega) {
-            console.log("Tiene estacionamiento y bodega");
+            // console.log("Tiene estacionamiento y bodega");
             const mergeDirections = this.mergeDirections(caso.direccion, caso.direccionEstacionamiento);
             return mergeDirections + " BOD";
         } else if (caso.hasEstacionamiento) {
-            console.log("Tiene estacionamiento");
+            // console.log("Tiene estacionamiento");
             return this.mergeDirections(caso.direccion, caso.direccionEstacionamiento);
         } else if (caso.hasBodega) {
-            console.log("Tiene bodega");
+            // console.log("Tiene bodega");
             return caso.direccion + " BOD";
         } else {
-            console.log("No tiene estacionamiento ni bodega");
+            // console.log("No tiene estacionamiento ni bodega");
             return caso.direccion;
         }
     }

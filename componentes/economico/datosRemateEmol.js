@@ -692,7 +692,7 @@ function obtainFinalPercentage(foreclosures) {
 }
 function getAnno(data) {
     // Busca el año con dependencia de las fojas, "fojas xxxx del año xxxx"
-    console.log("Data en getAnno: ", data);
+    // console.log("Data en getAnno: ", data);
     const regexFojasDependiente = /(?:fojas?|fs\.?|fjs).*?(?:del?|a[n|ñ]o)\s*(\b\d{1}(?:\.\d{3})?\b|\d{1,4})/i;
     const fojasDependiente = data.match(regexFojasDependiente);
     if (fojasDependiente != null) {

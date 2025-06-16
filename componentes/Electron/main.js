@@ -127,7 +127,7 @@ class MainApp{
         ipcMain.handle("start-proccess", async (event,startDate,endDate,saveFile, checkedBoxes) => {
             console.log("handle start-proccess starDate: ", startDate, " endDate: ", endDate, " saveFile: ", saveFile, " checkedBoxes: ", checkedBoxes);
             try{
-                const filePath = await this.insertarDatos(startDate,endDate,saveFile, checkedBoxes);
+                const filePath = await this.insertarDatos(startDate,endDate,saveFile, checkedBoxes,event);
                 return filePath;
 
             }catch(error){
@@ -246,7 +246,7 @@ class MainApp{
     }
 
 
-    async insertarDatos(startDate,endDate,saveFile, checkedBoxes) {
+    async insertarDatos(startDate,endDate,saveFile, checkedBoxes,event) {
         let casos = [];
         let casosEconomico = [];
         let casosPreremates = [];
@@ -263,7 +263,7 @@ class MainApp{
             // casosPreremates = await this.getCasosPreremates(checkedBoxes.preremates),
             casosBoletin = await this.getCasosBoletin(startDate, endDate, fechaHoy, checkedBoxes.liquidaciones),
             casosPYL = await this.getPublicosYLegales(startDate, endDate, fechaHoy, checkedBoxes.PYL),
-            // casosPJUD = await this.getDatosPjud(startDate, endDate, checkedBoxes.pjud)
+            casosPJUD = await this.getDatosPjud(startDate, endDate, checkedBoxes.pjud,event)
 
             // const [casosEconomico, casosPreremates, casosBoletin, casosPYL, casosPJUD] = await Promise.all([
             //     this.getCasosEconomico(fechaHoy, startDate, endDate, 3, checkedBoxes.economico),
@@ -274,7 +274,7 @@ class MainApp{
             // ]);
 
             casos = [...casosEconomico, ...casosPreremates, ...casosBoletin, ...casosPYL, ...casosPJUD];
-            await this.obtainMapasSIIInfo(casos);
+            // await this.obtainMapasSIIInfo(casos);
         }
 
         if(casos.length === 0){
@@ -300,6 +300,10 @@ class MainApp{
         let fechaFin = stringToDate(fechaInicioStr); 
 
         fechaInicio.setMonth(fechaInicio.getMonth() - 1);
+
+        fechaInicio = stringToDate("2025-06-10");
+        fechaFin = stringToDate("2025-06-12"); 
+
 
         let casos = [];
         try {
@@ -402,7 +406,7 @@ class MainApp{
         }
     }
 
-    async getDatosPjud(fechaInicioStr,fechaFinStr,PJUDChecked){
+    async getDatosPjud2(fechaInicioStr,fechaFinStr,PJUDChecked){
         if(!PJUDChecked){
             return [];
         }
@@ -436,6 +440,36 @@ class MainApp{
         }
     }
 
+    async getDatosPjud(startDateOrigin,endDateOrigin,PJUDChecked, event){
+        if(!PJUDChecked){
+            return [];
+        }
+        let casos = [];
+        try{
+            await this.launchPuppeteer_inElectron();
+            const startDate = dateToPjud(stringToDate(startDateOrigin));
+            const endDate = dateToPjud(stringToDate(endDateOrigin));
+            console.log("Consultando casos desde ", startDate, " hasta ", endDate);
+
+            // casos = await this.searchCasesByDay(startDate, endDate);
+
+            console.log("Resultados de los casos en la funcion de llamada: ", casos.length);
+            const caso1 = this.createCaso("C-10200-2024","26º JUZGADO CIVIL DE SANTIAGO");
+            casos.push(caso1);
+            // const caso2 = this.createCaso("C-10417-2024","30º JUZGADO CIVIL DE SANTIAGO");
+            // casos.push(caso2); 
+            this.obtainCorteJuzgadoNumbers(casos);
+            
+            const result = await this.obtainDataFromCases(casos, event);
+            console.log("Resultados de los casos en la funcion de llamada: ", casos.length);
+        }catch(error){
+            console.error("Error :", error.message);
+        }
+
+        return casos;
+
+    }
+
     async obtainMapasSIIInfo(casos) {
         let mapasSII = null;
         let window = null;
@@ -447,7 +481,7 @@ class MainApp{
             const mapasSII = new MapasSII(this.browser, page);
             await mapasSII.init();
             for (let caso of casos) {
-                if (caso.rolPropiedad !== null && caso.comuna !== null) {
+                if (caso.rolPropiedad !== null && caso.comuna !== null && caso.avaluoPropiedad) {
                     console.log(caso.causa, caso.rolPropiedad, caso.comuna, caso.link);
                     await fakeDelay(1, 3);
                     await mapasSII.obtainDataOfCause(caso);

@@ -237,7 +237,11 @@ class Caso{
         return String(this.#texto);
     }
     get juzgado(){
-        return String(this.#juzgado);
+        if(this.#juzgado == null){
+            return null;
+        }
+        const juzgadoNormalizado = this.normalizarJuzgado();
+        return String(juzgadoNormalizado);
     }
     get fechaRemate(){
         if(this.#fechaRemate == "N/A" || this.#fechaRemate == null){
@@ -245,8 +249,15 @@ class Caso{
         }
         return this.#fechaRemate;
     }
+    get fechaPublicacion(){
+        if(this.#fechaPublicacion == null){
+            return null;
+        }
+        return this.#fechaPublicacion;
+    }
     get causa(){
-        return String(this.#causa);
+        const causaNormalizada = this.normalizarCausa();
+        return String(causaNormalizada);
     }
     get comuna(){
         if(this.#comuna == null){
@@ -356,6 +367,7 @@ class Caso{
     get isPaid(){
         return Boolean(this.#isPaid);
     }
+
 
   
 
@@ -734,7 +746,7 @@ class Caso{
     }
 
     normalizarPartes(){
-        if(this.#partes === "N/A" || this.#partes === null){
+        if(this.#partes === "N/A" || this.#partes === null || typeof this.#partes != 'string' || !this.#partes){
             return null;
         }else if(this.#link === "Lgr"){
             return this.#partes;
@@ -873,6 +885,38 @@ class Caso{
             return null;
         }
         return this.#fechaObtencion;
+    }
+
+    static fillMissingData(casoBase, casoRelleno) {
+        casoBase.porcentaje = casoBase.porcentaje ?? casoRelleno.porcentaje;
+        casoBase.formatoEntrega = casoBase.atoEntrega ?? casoRelleno.formatoEntrega;
+        casoBase.fechaRemate = casoBase.fechaRemate ?? casoRelleno.fechaRemate;
+        casoBase.montoMinimo = casoBase.montoMinimo ?? casoRelleno.montoMinimo;
+        casoBase.comuna = casoBase.comuna ?? casoRelleno.comuna;
+        casoBase.foja = casoBase.foja ?? casoRelleno.foja;
+        casoBase.numero = casoBase.numero ?? casoRelleno.numero;
+        casoBase.partes = casoBase.partes ?? casoRelleno.partes;
+        casoBase.tipoPropiedad = casoBase.tipoPropiedad ?? casoRelleno.tipoPropiedad;
+        casoBase.tipoDerecho = casoBase.tipoDerecho ?? casoRelleno.tipoDerecho;
+        casoBase.anno = casoBase.anno ?? casoRelleno.anno;
+        casoBase.martillero = casoBase.martillero ?? casoRelleno.martillero;
+        casoBase.direccion = casoBase.direccion ?? casoRelleno.direccion;
+        casoBase.diaEntrega = casoBase.diaEntrega ?? casoRelleno.diaEntrega;
+        casoBase.rolPropiedad = casoBase.rolPropiedad ?? casoRelleno.rolPropiedad;
+        casoBase.avaluoPropiedad = casoBase.avaluoPropiedad ?? casoRelleno.avaluoPropiedad;
+        casoBase.estadoCivil = casoBase.estadoCivil ?? casoRelleno.estadoCivil;
+        casoBase.corte = casoBase.corte ?? casoRelleno.corte;
+        casoBase.numeroJuzgado = casoBase.numeroJuzgado ?? casoRelleno.numeroJuzgado;
+        casoBase.rolEstacionamiento = casoBase.rolEstacionamiento ?? casoRelleno.rolEstacionamiento;
+        casoBase.avaluoEstacionamiento = casoBase.avaluoEstacionamiento ?? casoRelleno.avaluoEstacionamiento;
+        casoBase.direccionEstacionamiento = casoBase.direccionEstacionamiento ?? casoRelleno.direccionEstacionamiento;
+        casoBase.rolBodega = casoBase.rolBodega ?? casoRelleno.rolBodega;
+        casoBase.avaluoBodega = casoBase.avaluoBodega ?? casoRelleno.avaluoBodega;
+        casoBase.hasEstacionamiento = casoBase.hasEstacionamiento ?? casoRelleno.hasEstacionamiento;
+        casoBase.hasBodega = casoBase.hasBodega ?? casoRelleno.hasBodega;
+        casoBase.owners = casoBase.owners ?? casoRelleno.owners;
+        casoBase.montoCompra = casoBase.montoCompra ?? casoRelleno.montoCompra;
+        casoBase.isPaid = casoBase.isPaid ?? casoRelleno.isPaid;
     }
 }
 
