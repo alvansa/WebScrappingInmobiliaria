@@ -62,11 +62,13 @@ class createExcel {
         ws['AH5'] = { v: 'precio venta nos', t: 's' };
         ws['AE5'] = { v: 'estado civil', t: 's' };
 
+        ws['AP5'] = { v: 'Deuda Hipotecaria', t: 's' };
+
         // Ajusta el ancho de las columnas
         this.cambiarAnchoColumnas(ws);
 
         // Define el rango de la hoja para asegurar que incluya todas las celdas especificadas
-        ws['!ref'] = 'A5:AH5';
+        ws['!ref'] = 'A5:AP5';
 
         // Crea un nuevo libro y agrega la hoja
         const wb = XLSX.utils.book_new();
@@ -84,6 +86,7 @@ class createExcel {
 
 
     async writeData(casos, name = "") {
+        console.log("=====================\nEscibiendo informacion en excel\n==============================");
         let filePath = path.join(this.saveFile, 'Remates.xlsx');
         // Revisa si el archivo base ya existe
         if (!fs.existsSync(path.join(this.saveFile, 'Remates.xlsx'))) {
@@ -98,15 +101,15 @@ class createExcel {
         try {
             if (this.type === "one") {
                 const lastRow = this.fillWithOne(ws, casos);
-                ws['!ref'] = 'A5:AH' + lastRow;
+                ws['!ref'] = 'A5:AP' + lastRow;
                 filePath = path.join(this.saveFile, 'Caso_' + casos.causa + casos.juzgado + '.xlsx');
             } else if (this.type === "oneDay") {
                 let lastRow = this.insertCasos(casos, ws) - 1;
-                ws['!ref'] = 'A5:AH' + lastRow;
+                ws['!ref'] = 'A5:AP' + lastRow;
                 filePath = path.join(this.saveFile, name + '.xlsx');
             } else {
                 let lastRow = await this.insertarCasosExcel(casos, ws) - 1;
-                ws['!ref'] = 'A5:AH' + lastRow;
+                ws['!ref'] = 'A5:AP' + lastRow;
                 const fechaInicioDMA = cambiarFormatoFecha(this.startDate);
                 const fechaFinDMA = cambiarFormatoFecha(this.endDate);
                 filePath = path.join(this.saveFile, 'Remates_' + fechaInicioDMA + '_a_' + fechaFinDMA + '.xlsx');
@@ -154,6 +157,7 @@ class createExcel {
             console.log("No se encontraron datos para insertar.");
             return;
         }
+        console.log("Los casos recibidos son: ", casos.length);
 
         // Primero se leen todos los casos obtenidos y se verifican para agregarlos,
         // en caso de que ya hayan sido agregados se une la informacion 
@@ -165,6 +169,7 @@ class createExcel {
                 this.addObjectToSet(remates,caso);
             }
         }
+        console.log("Total de casos en remates: ", remates.length);
 
         // Se escriben todos los casos revisados en la hoja, para eso primero se transforman a
         // objetos para verificar la normalizacion
@@ -172,6 +177,7 @@ class createExcel {
             // if (!this.emptyMode) {
             //     remates.add({ causa: caso.causa, juzgado: caso.juzgado, fecha: formatDateToSQLite(caso.fechaPublicacion) });
             // }
+            console.log("Escribiendo caso :", caso.causa);
             const casoObj = caso[1].toObject()
 
             this.insertarCasoIntoWorksheet(casoObj, ws, currentRow);
@@ -202,20 +208,18 @@ class createExcel {
             if (auction[1].causa === currentCase.causa && auction[1].juzgado === currentCase.juzgado) {
                 // si el caso ya se habia encontrado rellenar la informacion 
                 const key = `${auction[1].causa}|${auction[1].juzgado}`;
-                const actualCase = cacheAuctions.get(key);
-                console.log(`Obteniendo el caso con key ${key} : ${actualCase} `)
-                console.log(`Obteniendo el caso con key ${key} : ${actualCase.causa}`)
+                let actualCase = cacheAuctions.get(key);
                 if(actualCase){
-                    Caso.fillMissingData(actualCase,currentCase);
                     console.log(`El caso con key ${key} ya se encontro rellenado info`)
+                    actualCase = Caso.fillMissingData(actualCase,currentCase);
                 }
                 return false;
             }
         }
         // Si la fecha de remate es menor a la fecha de inicio, no se guarda
-        if (currentCase.fechaRemate < this.startDate) {
-            return false;
-        }
+        // if (currentCase.fechaRemate < this.startDate || currentCase.fechaRemate > this.endDate) {
+        //     return false;
+        // }
         // No se escriben casos de juez partidor
         if (currentCase.juzgado === "Juez Partidor") {
             return false;
@@ -298,6 +302,7 @@ class createExcel {
         if (caso.montoCompra && caso.montoCompra.monto) {
             ws['AF' + currentRow] = { v: caso.montoCompra.monto, t: 'n' };
         }
+        this.writeLine(ws, "AP", currentRow, caso.deudaHipotecaria, "s");
         // ws['AG' + currentRow ] = {v: 'año compr ant ', t: 's'};
         // ws['AH' + currentRow ] = {v: 'precio venta nos ', t: 's'};
     }
@@ -565,7 +570,7 @@ class createExcel {
             { wch: 30 },  // R
             { wch: 15 },  // S
             { wch: 30 },  // T
-            { wch: 10 }, // U
+            { wch: 10 },  // U
             { wch: 30 },  // V
             { wch: 15 },  // W
             { wch: 15 },  // X
@@ -574,6 +579,19 @@ class createExcel {
             { wch: 15 },  // AA
             { wch: 15 },  // AB
             { wch: 25 },  // AC
+            { wch: 15 },  // AD
+            { wch: 15 },  // AE
+            { wch: 15 },  // AF
+            { wch: 15 },  // AG
+            { wch: 15 },  // AH
+            { wch: 15 },  // AI
+            { wch: 15 },  // AJ
+            { wch: 15 },  // AK
+            { wch: 15 },  // AL
+            { wch: 15 },  // AM
+            { wch: 15 },  // AN
+            { wch: 15 },  // AO
+            { wch: 25 },  // AP
         ];
     }
 }

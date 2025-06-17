@@ -149,7 +149,7 @@ async getInfoFromSingularPage(caso){
             // Extraer el texto
             const description = await this.page.$eval('div#description p', el => el.textContent);
             // console.log("Description: ", description);
-            caso.description = description;
+            // caso.description = description;
 
             return description;
         } catch (error) {

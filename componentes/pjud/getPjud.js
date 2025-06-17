@@ -71,9 +71,9 @@ class Pjud {
         await this.page.waitForSelector('#competencia');
         await this.page.type('#competencia', '1');
         await fakeDelay(1,3);
-        // await this.page.select('#corte', '0');
+        await this.page.select('#corte', '0');
         // solo para santiago corte = 90
-        await this.page.select('#corte', '90');
+        // await this.page.select('#corte', '90');
         await fakeDelay(1,3);
         await this.page.type('#tribunal', '0');
         await fakeDelay(1,3);

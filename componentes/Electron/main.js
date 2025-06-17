@@ -451,14 +451,14 @@ class MainApp{
             const endDate = dateToPjud(stringToDate(endDateOrigin));
             console.log("Consultando casos desde ", startDate, " hasta ", endDate);
 
-            // casos = await this.searchCasesByDay(startDate, endDate);
+            casos = await this.searchCasesByDay(startDate, endDate);
 
-            console.log("Resultados de los casos en la funcion de llamada: ", casos.length);
-            const caso1 = this.createCaso("C-10200-2024","26º JUZGADO CIVIL DE SANTIAGO");
-            casos.push(caso1);
+            // console.log("Resultados de los casos en la funcion de llamada: ", casos.length);
+            // const caso1 = this.createCaso("C-10200-2024","26º JUZGADO CIVIL DE SANTIAGO");
+            // casos.push(caso1);
             // const caso2 = this.createCaso("C-10417-2024","30º JUZGADO CIVIL DE SANTIAGO");
             // casos.push(caso2); 
-            this.obtainCorteJuzgadoNumbers(casos);
+            // this.obtainCorteJuzgadoNumbers(casos);
             
             const result = await this.obtainDataFromCases(casos, event);
             console.log("Resultados de los casos en la funcion de llamada: ", casos.length);

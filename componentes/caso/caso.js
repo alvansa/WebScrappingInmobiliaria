@@ -27,7 +27,6 @@ class Caso{
     #tipoDerecho;
     #martillero;
     #direccion;
-    #origen;
     #diaEntrega;
     #rolPropiedad;
     #avaluoPropiedad;
@@ -44,11 +43,12 @@ class Caso{
     #owners;
     #montoCompra;
     #isPaid;
+    #origen;
+    #deudaHipotecaria;
 
     constructor(fechaObtencion, fechaPublicacion = 'N/A',link = 'N/A',origen = null ){    
         this.#fechaPublicacion = fechaPublicacion;
         this.#fechaObtencion = fechaObtencion;
-        this.#origen = origen;
         this.#texto = null;
         this.#link = link
         this.#causa = null;
@@ -85,6 +85,10 @@ class Caso{
         this.#owners = [];
         this.#montoCompra = null;   
         this.#isPaid = false;
+        this.#deudaHipotecaria = null;
+
+
+        this.#origen = origen;
     }
 
     darfechaPublicacion(fechaPublicacion){
@@ -228,6 +232,9 @@ class Caso{
     set isPaid(isPaid){
         this.#isPaid = isPaid;
     }
+    set deudaHipotecaria(deudaHipotecaria){
+        this.#deudaHipotecaria = deudaHipotecaria;
+    }
 
     
     get link(){ 
@@ -243,6 +250,7 @@ class Caso{
         const juzgadoNormalizado = this.normalizarJuzgado();
         return String(juzgadoNormalizado);
     }
+
     get fechaRemate(){
         if(this.#fechaRemate == "N/A" || this.#fechaRemate == null){
             return null;
@@ -272,7 +280,7 @@ class Caso{
         return String(this.#rolPropiedad);
     }
     get avaluoPropiedad(){
-        if(this.#avaluoPropiedad === null){
+        if(this.#avaluoPropiedad == null){
             return null;
         }
         return Number(this.#avaluoPropiedad);
@@ -367,6 +375,12 @@ class Caso{
     get isPaid(){
         return Boolean(this.#isPaid);
     }
+    get deudaHipotecaria(){
+        if(!this.#deudaHipotecaria){
+            return null;
+        }
+        return this.#deudaHipotecaria;
+    }
 
 
   
@@ -426,6 +440,7 @@ class Caso{
             hasBodega : this.#hasBodega,
             montoCompra: this.#montoCompra,
             isPaid: this.#isPaid,
+            deudaHipotecaria : this.#deudaHipotecaria,
         };
     } 
 
@@ -887,7 +902,23 @@ class Caso{
         return this.#fechaObtencion;
     }
 
+    static completeInfo(caso1,caso2){
+        console.log("Caso base: ",caso1.toObject(), "caso base sin funcion: ", caso1);
+        console.log("Caso rellenar: ",caso2.toObject(), "caso relleno sin funcion: ", caso2);
+        let casoUnificado;
+        if(caso1.origen == PJUD){
+            console.log("el primero es pjud")
+            casoUnificado = Caso.fillMissingData(caso1, caso2);
+        }else{
+            console.log("El segundo es pjud")
+            casoUnificado = Caso.fillMissingData(caso2, caso1);
+        }
+        console.log(casoUnificado.toObject())
+        return casoUnificado
+    } 
+
     static fillMissingData(casoBase, casoRelleno) {
+        console.log(`Vamos a revisar los avaluo del caso 1: ${casoBase.avaluoPropiedad} es igual a null? ${casoBase.avaluoPropiedad == null} y del 2 ${casoRelleno.avaluoPropiedad}es igual a null? ${casoRelleno.avaluoPropiedad == null} `)
         casoBase.porcentaje = casoBase.porcentaje ?? casoRelleno.porcentaje;
         casoBase.formatoEntrega = casoBase.atoEntrega ?? casoRelleno.formatoEntrega;
         casoBase.fechaRemate = casoBase.fechaRemate ?? casoRelleno.fechaRemate;
@@ -917,6 +948,7 @@ class Caso{
         casoBase.owners = casoBase.owners ?? casoRelleno.owners;
         casoBase.montoCompra = casoBase.montoCompra ?? casoRelleno.montoCompra;
         casoBase.isPaid = casoBase.isPaid ?? casoRelleno.isPaid;
+        return casoBase;
     }
 }
 

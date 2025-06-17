@@ -125,6 +125,8 @@ class ConsultaCausaPjud{
             return false;
         }else{
             console.log("Datos posibles del caso obtenidos correctamente");
+            // await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max)
+            // await this.downloadDemanda()
             return true;
         }
     }
@@ -291,6 +293,7 @@ class ConsultaCausaPjud{
             );
 
             const linkToDownload = linkBaseDemanda + value;
+            const isDone = await this.downloadPdfFromUrl(linkToDownload);
             console.log('Valor obtenido:', value); // Muestra el valor JWT
         }catch (error) {
             console.error('Error al descargar la demanda:', error.message);
