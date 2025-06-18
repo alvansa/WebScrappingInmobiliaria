@@ -166,10 +166,13 @@ class createExcel {
                 caso.fechaPublicacion = fechaMenosUno(this.endDate);
             }
             if(this.getValidAuctions(caso, remates, rematesDB, startDateSQL)){
+                console.log("Escribiendo el caso en remates");
+
                 this.addObjectToSet(remates,caso);
             }
         }
         console.log("Total de casos en remates: ", remates.length);
+        console.log("Los remates a escribir son :", remates);
 
         // Se escriben todos los casos revisados en la hoja, para eso primero se transforman a
         // objetos para verificar la normalizacion
@@ -213,28 +216,34 @@ class createExcel {
                     console.log(`El caso con key ${key} ya se encontro rellenado info`)
                     actualCase = Caso.fillMissingData(actualCase,currentCase);
                 }
+                console.log("Enviando false por cachedAuctions :",currentCase.causa);
                 return false;
             }
         }
         // Si la fecha de remate es menor a la fecha de inicio, no se guarda
-        // if (currentCase.fechaRemate < this.startDate || currentCase.fechaRemate > this.endDate) {
-        //     return false;
-        // }
-        // No se escriben casos de juez partidor
-        if (currentCase.juzgado === "Juez Partidor") {
+        console.log("Enviando false por fecha :", currentCase.causa, " fecha remate : ", currentCase.fechaRemate, " fecha inicio: ", this.startDate, " y de fin: ", this.endDate);
+        if (currentCase.fechaRemate < new Date(this.startDate) || currentCase.fechaRemate > new Date(this.endDate)) {
+            console.log("Enviando false por fecha :", currentCase.causa);
             return false;
         }
-        if (currentCase.origen === PJUD) { // Solo si es caso es del pjud revisamos si ya existe en la base de datos
-            // Si el caso ya existe en la base de datos, no se guarda
-            for (let savedAuction of auctionsDB) {
-                if (savedAuction.causa === currentCase.causa && savedAuction.juzgado === currentCase.juzgado && savedAuction.fecha < formatDateToSQLite(startDateSQL)) {
-                    return false;
-                }
-            }
+        // No se escriben casos de juez partidor
+        if (currentCase.juzgado === "Juez Partidor") {
+            console.log("Enviando false por juez partidor :", currentCase.causa);
+            return false;
         }
+        // if (currentCase.origen === PJUD) { // Solo si es caso es del pjud revisamos si ya existe en la base de datos
+        //     // Si el caso ya existe en la base de datos, no se guarda
+        //     for (let savedAuction of auctionsDB) {
+        //         if (savedAuction.causa === currentCase.causa && savedAuction.juzgado === currentCase.juzgado && savedAuction.fecha < formatDateToSQLite(startDateSQL)) {
+        //             console.log(`No guardado porque esta en DB ${currentCase.causa}, ${currentCase.juzgado}`);
+        //             return false;
+        //         }
+        //     }
+        // }
         // if (currentCase.tipoPropiedad === "Estacionamiento") {
         //     return true;
         // }
+        console.log("Enviando true por :", currentCase.causa);
         return true;
     }
 

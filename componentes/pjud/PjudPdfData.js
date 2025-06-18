@@ -145,10 +145,11 @@ class PjudPdfData {
                     console.log("No se obtiene el ano del GP");
                     return;
                 }
+                console.log('======================\nIntentando obtener el anno\n=====================');
                 const anno = this.obtainBuyYear(GPnormalizedInfo);
                 if (anno) {
                     console.log(`-----------------\nanno: ${anno}\n-----------------`);
-                    this.caso.anno = anno ? anno : null;
+                    this.caso.anno = anno;
                 }
             }
         }
@@ -169,10 +170,17 @@ class PjudPdfData {
         // console.log("Texto para obtener el anno: ", texto);
         let anno = this.obtainYearForm1(texto);
         if(anno) {
+            console.log(`Ano obtenido con forma 1`);
             return anno;
         }
         anno = this.obtainYearnForm2(texto);
         if(anno) {
+            console.log(`Ano obtenido con forma 2`);
+            return anno;
+        }
+        anno = this.obtainFromConservador(texto);
+        if(anno){
+            console.log(`Ano obtenido con forma conservador`);
             return anno;
         }
     }
@@ -180,11 +188,12 @@ class PjudPdfData {
     obtainYearForm1(text) {
         const regexStartBuy = /(adquirio\s*por\s*compra)|(adquiried\s*por\s*compra)/i;
         const startText = regexStartBuy.exec(text);
+        let anno;
         if (!startText) {
            return null; 
         }
         let newText = text.substring(startText.index);
-        // console.log("Primera busqueda",newText)
+        console.log("Primera busqueda",newText)
         
         const newStart = /del\s*ano/i;
         let startAno = newStart.exec(newText);
@@ -198,8 +207,18 @@ class PjudPdfData {
         }
     
         newText = newText.substring(startAno.index);
-        // console.log("despues de busqueda el anno",newText)
+        console.log("despues de busqueda el anno",newText)
   
+        // const regexEndTituloAnterior = /el\s*titulo\s*anterior/i;
+        // const endTextAnterior = regexEndTituloAnterior.exec(newText);
+        // if (endTextAnterior) {
+        //     newText = newText.substring(0, endTextAnterior.index);
+        //     console.log(`Texto nuevo sin titulo anterior ${newText}`)
+        //     anno = convertWordToNumbers(newText);     
+        //     return anno;
+        // }
+        
+
         const regexEndBuy = /,\s*otorgada/i;
         const endText = regexEndBuy.exec(newText);
         if (!endText) {
@@ -207,8 +226,8 @@ class PjudPdfData {
         }
         const endIndex = endText.index;
         newText = newText.substring(0, endIndex)
-        // console.log(newText)
-        const anno = convertWordToNumbers(newText);
+        console.log("Ulimo cambio para busar: ",newText)
+        anno = convertWordToNumbers(newText);
         console.log("anno: ", anno);
         return anno;
     }
@@ -234,6 +253,15 @@ class PjudPdfData {
         if (anno) {
             return anno[0];
         }
+    }
+
+    obtainFromConservador(texto){
+        const registroRegex = /registro\s*(?:de)?\s*propiedad\s*(?:del?\s*)?(?:a(?:n|ñ|fi)o\s*)?(\d{4})/i;
+        let registro = texto.match(registroRegex);
+        if (registro != null) {
+            return registro[1];
+        }
+        return null;
     }
 
     obtainMontoCompra(text) {
@@ -515,10 +543,22 @@ class PjudPdfData {
         }
     }
 
+    // Funcion para revisar si el texto actual hara referencia a una deuda hipotecaria o no.
     checkIfTextHasHipoteca(info){
         // console.log(`Buscando si en el texto esta como deuda hipotecaria: ${info}`);
         if(regexMutuoHipotecario.exec(info)){
             return true;
+        }
+        if(info.includes("prestamo")){
+            console.log("No valido para deuda por prestamo");
+            return false;
+        }
+        if(info.includes("hipoteca")){
+            return true;
+        }
+        if(info.includes("pagare")){
+            console.log("no valido para deuda por pagare");
+            return false;
         }
         const regexMeses = /\d{2,}\s*(meses|cuotas\s*mensual)/;
         const matchRegexMeses = info.match(regexMeses);
@@ -542,7 +582,7 @@ class PjudPdfData {
         console.log(newText);
         const regexNumber = "(\\d{1,}|\\d{1,3}(\\.\\d{1,3})*),?(\\d{1,})?"
         const regexUF = "(u\\.?f\\.?|unidades?\\s*de\\s*fomento)"
-        const regexDeudaUF = new RegExp(`(${regexNumber}\\s*${regexUF}|${regexUF}\\s*${regexNumber})`, "gi")
+        const regexDeudaUF = new RegExp(`(${regexNumber}\\s*(-\\s*)?${regexUF}|${regexUF}\\s*${regexNumber})`, "gi")
         const matchNumero = newText.match(regexDeudaUF);
         if(matchNumero){
             deuda = this.checkBiggerDebt(matchNumero)

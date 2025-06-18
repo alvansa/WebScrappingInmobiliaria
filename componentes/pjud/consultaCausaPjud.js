@@ -558,7 +558,9 @@ class ConsultaCausaPjud{
             'personer',
             'vigencia',
             'pg',
-            'sentencia'
+            'sentencia',
+            'mandato',
+            'cartola'
         ];
 
         // Dividir el texto en palabras individuales
@@ -601,6 +603,7 @@ class ConsultaCausaPjud{
             //Leer el pdf descargado
             // Aca es donde se deberia realizar el cambio para leer con tesseract
             resultado = await ProcesarBoletin.convertPdfToText2(this.pdfPath);
+            await delay(1000);
             if(resultado){
                 resultOfProcess = this.PjudData.processInfo(resultado);
             }else{
@@ -782,8 +785,8 @@ class ConsultaCausaPjud{
     async cleanFilesDownloaded(){
         console.log("Iniciando eliminacion de archivos.");
         try {
-            await this.deleteFilesDownloaded();
-            await this.deleteDirectory();
+            // await this.deleteFilesDownloaded();
+            // await this.deleteDirectory();
         } catch (error) {
             console.error('Error al eliminar archivos:', error.message);
         }

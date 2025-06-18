@@ -293,6 +293,11 @@ class ProcesarBoletin {
 
     static async convertPdfToText2(filePath){
         try {
+            // const dataBuffer = fs.readFile(filePath, (err,data) => {
+            //     if(err) reject(err.message);
+            //     console.log(data)
+            // });
+            // console.log("Buffer del pdf: ",dataBuffer);
             const dataBuffer = fs.readFileSync(filePath);
             const data = await pdf(dataBuffer);
             return data.text;

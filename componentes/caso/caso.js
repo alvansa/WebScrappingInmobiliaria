@@ -255,7 +255,7 @@ class Caso{
         if(this.#fechaRemate == "N/A" || this.#fechaRemate == null){
             return null;
         }
-        return this.#fechaRemate;
+        return this.normalizarFechaRemate();
     }
     get fechaPublicacion(){
         if(this.#fechaPublicacion == null){
@@ -398,7 +398,7 @@ class Caso{
         const diaEntregaNormalizado = this.normalizarDiaEntrega();
         const comunaNormalizada = this.normalizarComuna();
         const tipoDerechoNormalizado = this.normalizarTipoDerecho();
-        const fechaRemateNormalizada = this.normalizarFecha();
+        const fechaRemateNormalizada = this.normalizarFechaRemate();
 
         return {
             fechaObtencion: fechaObtencionNormalizada,
@@ -445,9 +445,12 @@ class Caso{
     } 
 
     // Transforma la fecha de la publicación de estar escrita en palabras a un objeto Date
-    normalizarFecha(){
+    normalizarFechaRemate(){
         if(this.#fechaRemate == "N/A" || this.#fechaRemate == null){ 
             return null;
+        }
+        if(typeof(this.#fechaRemate) == Date){
+            return this.#fechaRemate;
         }
 
         // Si el origen es Pjud, viene con formato tipo dd/mm/yyyy HH:mm:ss
@@ -462,9 +465,6 @@ class Caso{
         // Si el origen es Liquidaciones, viene con el formato Date listo
         if(this.#origen == LIQUIDACIONES){
             return new Date(this.#fechaRemate);
-        }
-        if(typeof(this.#fechaRemate) == Date){
-            return this.#fechaRemate;
         }
         if(this.#fechaRemate.includes("/")){
             const regexFecha = /(\d{1,2})\/(\d{1,2})\/(\d{4})/;

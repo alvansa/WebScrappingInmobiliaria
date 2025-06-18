@@ -29,6 +29,7 @@ function convertWordToNumbers(stringNumber) {
       "veinte": 20,
       "veintiuno": 21,
       "veintidós": 22,
+      "veintidos" : 22,
       "veintitrés": 23,
       "veinticuatro": 24,
       "veinticinco": 25,
