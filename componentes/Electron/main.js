@@ -301,8 +301,8 @@ class MainApp{
 
         fechaInicio.setMonth(fechaInicio.getMonth() - 1);
 
-        fechaInicio = stringToDate("2025-06-10");
-        fechaFin = stringToDate("2025-06-12"); 
+        // fechaInicio = stringToDate("2025-06-10");
+        // fechaFin = stringToDate("2025-06-12"); 
 
 
         let casos = [];
@@ -355,7 +355,8 @@ class MainApp{
         // const startDate = stringToDate(fechaInicioStr);
         // const endDate = stringToDate(fechaFinStr);
         let startDate = stringToDate(fechaInicioStr);
-        let endDate = stringToDate(fechaInicioStr); 
+        // let endDate = stringToDate(fechaInicioStr); 
+        let endDate = stringToDate(fechaFinStr); 
 
         startDate.setMonth(startDate.getMonth() - 1);
        try{

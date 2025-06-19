@@ -785,8 +785,8 @@ class ConsultaCausaPjud{
     async cleanFilesDownloaded(){
         console.log("Iniciando eliminacion de archivos.");
         try {
-            // await this.deleteFilesDownloaded();
-            // await this.deleteDirectory();
+            await this.deleteFilesDownloaded();
+            await this.deleteDirectory();
         } catch (error) {
             console.error('Error al eliminar archivos:', error.message);
         }

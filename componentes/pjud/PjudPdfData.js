@@ -27,8 +27,8 @@ class PjudPdfData {
 
         // this.processCivilStatus(normalizeInfo); // No se usara por un rato hasta que se arregle que obtenga el del comprado y no el primero que encuentre.
 
-        this.processPropertyRoles(normalizeInfo);
-        this.processPropertyInfo(spanishNormalization, normalizeInfo);
+        this.processPropertyRoles(normalizeInfo); // Roles propiedad, estacionamiento, bodega.
+        this.processPropertyInfo(spanishNormalization, normalizeInfo); //Avaluos, comuna, direccion, ano
         this.processAuctionInfo(item, normalizeInfo);
 
         return false;
@@ -209,16 +209,6 @@ class PjudPdfData {
         newText = newText.substring(startAno.index);
         console.log("despues de busqueda el anno",newText)
   
-        // const regexEndTituloAnterior = /el\s*titulo\s*anterior/i;
-        // const endTextAnterior = regexEndTituloAnterior.exec(newText);
-        // if (endTextAnterior) {
-        //     newText = newText.substring(0, endTextAnterior.index);
-        //     console.log(`Texto nuevo sin titulo anterior ${newText}`)
-        //     anno = convertWordToNumbers(newText);     
-        //     return anno;
-        // }
-        
-
         const regexEndBuy = /,\s*otorgada/i;
         const endText = regexEndBuy.exec(newText);
         if (!endText) {
@@ -655,9 +645,7 @@ class PjudPdfData {
                     return value;
                 }
             }
-
         }
-        
     }
 
     normalizeInfo(item) {
@@ -703,7 +691,6 @@ class PjudPdfData {
         }
         return numericPercentage[0];
     }
-
 
     obtainCivilStatus(info) {
         const validInfo = info;

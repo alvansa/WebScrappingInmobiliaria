@@ -466,6 +466,9 @@ class Caso{
         if(this.#origen == LIQUIDACIONES){
             return new Date(this.#fechaRemate);
         }
+        console.log("Fecha de remate en normalizacion: ", this.#fechaRemate)
+        try{
+
         if(this.#fechaRemate.includes("/")){
             const regexFecha = /(\d{1,2})\/(\d{1,2})\/(\d{4})/;
             const partesFecha = this.#fechaRemate.match(regexFecha);
@@ -497,6 +500,10 @@ class Caso{
             // Se suma 6 horas ya que la fecha a veces queda si es del 25 de diciembre queda como 
             // 24 de diciembre a las 23:59:59.999, por lo que se suma 6 horas para que quede como 25 de diciembre
             return new Date(fecha.getTime() + 6 * 60 * 60 * 1000); // Sumar 6 horas
+        }
+        }catch(error){
+            console.error("Error normalizando la fecha: ",error.message);
+            return null;
         }
         return null;
     }
