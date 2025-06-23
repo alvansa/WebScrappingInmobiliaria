@@ -10,6 +10,9 @@ class PjudPdfData {
     }
 
     processInfo(item) {
+        if(!item){
+            return false;
+        }
 
         if (this.checkIfValidDoc(item)) {
             return false;
@@ -27,8 +30,8 @@ class PjudPdfData {
 
         // this.processCivilStatus(normalizeInfo); // No se usara por un rato hasta que se arregle que obtenga el del comprado y no el primero que encuentre.
 
-        this.processPropertyRoles(normalizeInfo); // Roles propiedad, estacionamiento, bodega.
-        this.processPropertyInfo(spanishNormalization, normalizeInfo); //Avaluos, comuna, direccion, ano
+        this.processPropertyRoles(normalizeInfo);
+        this.processPropertyInfo(spanishNormalization, normalizeInfo); //Avaluos, 
         this.processAuctionInfo(item, normalizeInfo);
 
         return false;
@@ -261,15 +264,23 @@ class PjudPdfData {
         }
         // console.log("Texto en general: ", text)
         text = this.preProcessText(text);
+        // Funcion que busca: por el precio de
         let monto = this.searchByPorCompra(text);
         if (monto) {
             
             return this.processMonto(monto);
         }
+        // Funcion que busca: precio de compraventa
         monto = this.searchByCompraVenta(text)
         if (monto) {
             return this.processMonto(monto);
         }
+        // Funcion que busca por: Adquirio la propiedad
+        monto = this.searchByAdquirio(text);
+        if(monto){
+            return this.processMonto(monto);
+        }
+
         // Este hay que siempre dejarlo al final, ya que es el "peor" porque es un aporte de una sociedad
         monto = this.searchByEstimacion(text);
         if (monto) {
@@ -396,7 +407,28 @@ class PjudPdfData {
         }
         newText = newText.substring(0, endMatch.index + endMatch[0].length);
         return newText;
+    }
 
+    searchByAdquirio(text){
+
+        console.log("*************************");
+        console.log(text)
+        console.log("*************************");
+
+        const regexAdquirio = /adquirio\s*la\s*propiedad/i;
+        const matchedAdquirio = regexAdquirio.exec(text);
+        if (!matchedAdquirio) {
+            return null;
+        }
+        let newText = text.substring(matchedAdquirio.index);
+        const regexCompraventa = /compraventa/i;
+        const matchedEnd = regexCompraventa.exec(newText);
+        if (!matchedEnd) {
+            return null;
+        }
+        newText = newText.substring(0, matchedEnd.index);
+        console.log(newText);
+        return newText;
     }
 
     searchByEstimacion(text) {

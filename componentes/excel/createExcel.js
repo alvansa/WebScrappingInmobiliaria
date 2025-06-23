@@ -250,6 +250,7 @@ class createExcel {
 
     insertarCasoIntoWorksheet(caso, ws, currentRow) {
         let newRol = caso.rolPropiedad;
+        ws['A' + currentRow] = { v: caso.fechaPublicacion, t: 'd', z: 'dd/mm/yyyy' };
         // console.log("Fecha de obtenion : ", caso.fechaObtencion, "Tipo :", typeof caso.fechaObtencion);
         if(caso.fechaObtencion){
             ws['C' + currentRow] = { v: caso.fechaObtencion, t: 'd', z: 'dd/mm/yyyy' };

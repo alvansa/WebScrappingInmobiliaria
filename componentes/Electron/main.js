@@ -33,6 +33,10 @@ const emptyMode = process.argv.includes('--empty');
 
 let pieInitialized = pie.initialize(app);
 
+const EMOL = 1;
+const PJUD = 2;
+const LIQUIDACIONES = 3;
+
 class MainApp{
     constructor(){
         this.mainWindow = null;
@@ -217,9 +221,12 @@ class MainApp{
                 caso.corte = corte;
                 caso.juzgado = juzgado;
                 caso.numeroJuzgado = tribunal;
+                caso.origen = PJUD;
                 caso.link = "Lgr";
                 console.log("Buscando caso: ",caso.toObject()); 
+                console.time("casoUnico");
                 const result = await consultaCausa(caso);
+                console.timeEnd("casoUnico");
                 console.log("Resultados del caso de prueba en pjud: ", caso.toObject());
                 if(result){
                     // Escribe los casos en excel.
@@ -297,7 +304,7 @@ class MainApp{
         }
 
         let fechaInicio = stringToDate(fechaInicioStr);
-        let fechaFin = stringToDate(fechaInicioStr); 
+        let fechaFin = new Date(); 
 
         fechaInicio.setMonth(fechaInicio.getMonth() - 1);
 
@@ -407,7 +414,7 @@ class MainApp{
         }
     }
 
-    async getDatosPjud2(fechaInicioStr,fechaFinStr,PJUDChecked){
+    async getDatosPjudBasic(fechaInicioStr,fechaFinStr,PJUDChecked){
         if(!PJUDChecked){
             return [];
         }

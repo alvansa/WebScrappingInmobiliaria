@@ -293,7 +293,7 @@ class ConsultaCausaPjud{
             );
 
             const linkToDownload = linkBaseDemanda + value;
-            const isDone = await this.downloadPdfFromUrl(linkToDownload);
+            const isDone = await this.downloadPdfFromUrl2(linkToDownload);
             console.log('Valor obtenido:', value); // Muestra el valor JWT
         }catch (error) {
             console.error('Error al descargar la demanda:', error.message);
@@ -408,6 +408,7 @@ class ConsultaCausaPjud{
 
     async getAvaluoTablaCausa() {
         let caseIsFinished = false;
+        let isDone;
         try {
             await this.page.waitForSelector("#historiaCiv", { timeout: 10000 });
             // Get all rows from the table
@@ -602,7 +603,7 @@ class ConsultaCausaPjud{
             await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
             //Leer el pdf descargado
             // Aca es donde se deberia realizar el cambio para leer con tesseract
-            resultado = await ProcesarBoletin.convertPdfToText2(this.pdfPath);
+            resultado = await ProcesarBoletin.convertPdfToText2(this.pdfPath, 2);
             await delay(1000);
             if(resultado){
                 resultOfProcess = this.PjudData.processInfo(resultado);
@@ -623,7 +624,103 @@ class ConsultaCausaPjud{
                 pdfWindow.destroy();
             }
         }
+    }
 
+    async downloadPdfFromUrl2(url) {
+        let resultado = '';
+        let resultOfProcess = false;
+        let pdfWindow = null;
+        let pdfPage = null;
+
+        try {
+            // Configuración de la ventana para PDF
+            pdfWindow = new BrowserWindow({
+                show: false, // Mejor no mostrar para mejor performance
+                webPreferences: {
+                    plugins: true, // Habilitar plugins para PDF
+                }
+            });
+
+            // Crear directorio si no existe
+            const nameDir = `${this.caso.causa}_${this.caso.juzgado}`;
+            const pdfName = `boletin_${Date.now()}.pdf`;
+            this.dirPath = path.join(this.downloadPath, nameDir);
+            this.pdfPath = path.join(this.dirPath, pdfName);
+
+            if (!fs.existsSync(this.dirPath)) {
+                fs.mkdirSync(this.dirPath, { recursive: true });
+            }
+
+            // Configurar la descarga
+            await pdfWindow.loadURL(url);
+            pdfPage = await pie.getPage(this.browser, pdfWindow);
+
+            // Opción 1: Usar la API de Puppeteer para manejar descargas
+            const client = await pdfPage.target().createCDPSession();
+            await client.send('Page.setDownloadBehavior', {
+                behavior: 'allow',
+                downloadPath: this.dirPath
+            });
+
+            // Navegar a la URL que descarga el PDF
+            await pdfPage.goto(url, { waitUntil: 'networkidle0' });
+
+            // Esperar a que el archivo aparezca en el directorio
+            let downloaded = false;
+            for (let i = 0; i < 30; i++) { // Esperar máximo 30 segundos
+                if (fs.existsSync(this.pdfPath)) {
+                    downloaded = true;
+                    break;
+                }
+                await delay(1000);
+            }
+
+            if (!downloaded) {
+                console.error('El PDF no se descargó correctamente');
+                return false;
+            }
+
+            // Verificar que el PDF no esté corrupto
+            const pdfBuffer = fs.readFileSync(this.pdfPath);
+            if (!this.isValidPdf(pdfBuffer)) {
+                console.error('El PDF descargado está corrupto o incompleto');
+                return false;
+            }
+
+            // Procesar el PDF
+            resultado = await ProcesarBoletin.convertPdfToText2(this.pdfPath, 2);
+
+            if (resultado) {
+                resultOfProcess = this.PjudData.processInfo(resultado);
+            } else {
+                return false;
+            }
+
+            if (resultOfProcess) {
+                console.log('Caso completo');
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error('Error al descargar el PDF:', error.message);
+            return false;
+        } finally {
+            if (pdfPage && !pdfPage.isClosed()) {
+                await pdfPage.close();
+            }
+            if (pdfWindow && !pdfWindow.isDestroyed()) {
+                pdfWindow.destroy();
+            }
+        }
+    }
+
+    // Función para verificar que el PDF sea válido
+    isValidPdf(buffer) {
+        // Los PDFs válidos comienzan con "%PDF" y terminan con "%%EOF"
+        const start = buffer.slice(0, 4).toString();
+        const end = buffer.slice(-5).toString();
+
+        return start === '%PDF' && end.includes('%%EOF');
     }
 
     validateInitialValues(){
@@ -785,8 +882,8 @@ class ConsultaCausaPjud{
     async cleanFilesDownloaded(){
         console.log("Iniciando eliminacion de archivos.");
         try {
-            await this.deleteFilesDownloaded();
-            await this.deleteDirectory();
+            // await this.deleteFilesDownloaded();
+            // await this.deleteDirectory();
         } catch (error) {
             console.error('Error al eliminar archivos:', error.message);
         }

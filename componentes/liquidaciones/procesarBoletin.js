@@ -3,10 +3,15 @@ const path = require('path');
 const PDFParser = require( 'pdf2json' );
 const pdf = require('pdf-parse');
 const os = require('os');
+const FormData = require('form-data');
+const axios = require('axios');
+
 const Caso = require('../caso/caso.js');
 const { comunas, tribunales2 } = require('../caso/datosLocales.js');
 const BoletinConcursal = require('./getBoletinConcursal.js');
 const { delay } = require('../../utils/delay.js');
+
+const PJUD = 2;
 
 
 class ProcesarBoletin {
@@ -291,13 +296,21 @@ class ProcesarBoletin {
         });
     }
 
-    static async convertPdfToText2(filePath){
+    static async convertPdfToText2(filePath, origen){
         try {
+            if(origen == PJUD){
+                const tesseractText = await ProcesarBoletin.processWithTesseract(filePath);
+                console.log("procesado con tesseract :) :");
+
+                return tesseractText;
+            }
+            console.log("leyendo con simple pdf-parse");
             // const dataBuffer = fs.readFile(filePath, (err,data) => {
             //     if(err) reject(err.message);
             //     console.log(data)
             // });
             // console.log("Buffer del pdf: ",dataBuffer);
+            
             const dataBuffer = fs.readFileSync(filePath);
             const data = await pdf(dataBuffer);
             return data.text;
@@ -307,6 +320,43 @@ class ProcesarBoletin {
         }
     }
 
+    static async processWithTesseract(filePath){
+        console.log(filePath);
+        try{
+            const form = new FormData();
+            form.append("file", fs.createReadStream(filePath));
+
+            const headers = {
+                ...form.getHeaders(),
+            }
+
+            const response = await axios.post('http://localhost:8000/processPDF', form, {
+                headers: headers,
+                responseType: 'json',
+            });
+
+            const normalizedResponse = normalizeResponse(response.data);
+            return normalizedResponse;
+        }catch(error){
+            console.error(`Ocurrio un error procesando el pdf con tesseract: ${error.message}`);
+            return null;
+        }
+    }
+
+
+}
+
+function normalizeResponse(data){
+    let finalText = "";
+    for (let page of data['pages']) {
+        const text = page.text
+            .replace(/(\r\n|\n|\r)/gm, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+
+        finalText += text + " ";
+    }
+    return finalText.trim();
 }
 
 module.exports = ProcesarBoletin

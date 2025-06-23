@@ -201,7 +201,7 @@ async processPage(startDate,endDate,SELECTORS){
                 // await logDesdePagina(`fecha actual ${announcementDate} fecha inicio ${fechaInicioDate} y deberia parar ${announcementDate < fechaInicioDate} `);
                 if (announcementDate < fechaInicioDate) {
                     return { casos, stop: true };
-                } else if (announcementDate >= new Date(fechaInicio) && announcementDate <= new Date(fechaFin)) {
+                } else if (announcementDate >= new Date(fechaInicio)) {
                     const linkElement = element.querySelector('div.col2.span6 a');
                     const announcement = linkElement ? linkElement.getAttribute('href') : null;
                     casos.push({
