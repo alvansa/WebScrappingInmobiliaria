@@ -6,6 +6,7 @@ const path = require('path');
 const pie = require('puppeteer-in-electron');
 const os = require('os');
 const https = require('https');
+const axios = require('axios');
 require('dotenv').config();
 
 const {delay,fakeDelay,fakeDelayms} = require('../../utils/delay.js');
@@ -273,7 +274,7 @@ class ConsultaCausaPjud{
             console.log("Caso con propietarios, se procede a descargar demanda.");
         }
         // Descargar el texto de la demanda.
-        await this.downloadDemanda();
+        // await this.downloadDemanda();
         if(caseIsFinished){
             return true;
         }
@@ -293,7 +294,7 @@ class ConsultaCausaPjud{
             );
 
             const linkToDownload = linkBaseDemanda + value;
-            const isDone = await this.downloadPdfFromUrl2(linkToDownload);
+            const isDone = await this.downloadPdfFromUrl(linkToDownload);
             console.log('Valor obtenido:', value); // Muestra el valor JWT
         }catch (error) {
             console.error('Error al descargar la demanda:', error.message);
@@ -507,10 +508,12 @@ class ConsultaCausaPjud{
                 console.log("Procesando el documento: ", reference);
                 if(valuePdf && valuePdf !== ''){
                     const linkToPdf = "https://oficinajudicialvirtual.pjud.cl/ADIR_871/civil/documentos/anexoDocCivil.php?dtaDoc=" + valuePdf
-                    isDone = await this.downloadPdfFromUrl(linkToPdf);
+                    isDone = await this.downloadPdfFromUrl2(linkToPdf);
                     if (isDone) {
                         return true;
                     }
+                    // Ahora se enviara true solo para probar con un puro pdf, elimianr esta linea para produccion
+                    return true;
                 }
             }
             return false;
@@ -599,7 +602,9 @@ class ConsultaCausaPjud{
                 }
             });
     
-            await pdfPage.goto(url);
+            await pdfPage.goto(url, {waitUntil: 'domcontentloaded'});
+
+
             await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
             //Leer el pdf descargado
             // Aca es donde se deberia realizar el cambio para leer con tesseract
@@ -630,85 +635,72 @@ class ConsultaCausaPjud{
         let resultado = '';
         let resultOfProcess = false;
         let pdfWindow = null;
-        let pdfPage = null;
+        try{
+            console.log("O si crashea por aca");
+            pdfWindow = new BrowserWindow({ show: true });
+            await pdfWindow.loadURL(url);
+            const pdfPage = await pie.getPage(this.browser, pdfWindow);
 
-        try {
-            // Configuración de la ventana para PDF
-            pdfWindow = new BrowserWindow({
-                show: false, // Mejor no mostrar para mejor performance
-                webPreferences: {
-                    plugins: true, // Habilitar plugins para PDF
-                }
-            });
-
-            // Crear directorio si no existe
             const nameDir = `${this.caso.causa}_${this.caso.juzgado}`;
             const pdfName = `boletin_${Date.now()}.pdf`;
             this.dirPath = path.join(this.downloadPath, nameDir);
             this.pdfPath = path.join(this.dirPath, pdfName);
-
-            if (!fs.existsSync(this.dirPath)) {
+     
+            if(!fs.existsSync(this.dirPath)){
                 fs.mkdirSync(this.dirPath, { recursive: true });
             }
+            await pdfPage.setRequestInterception(true);
 
-            // Configurar la descarga
-            await pdfWindow.loadURL(url);
-            pdfPage = await pie.getPage(this.browser, pdfWindow);
+            // const client = await pdfPage.target().createCDPSession();
+            // await client.send('Page.setDownloadBehavior', {
+            //     behavior: "allow",
+            //     downloadPath: './downloads'
+            // })
 
-            // Opción 1: Usar la API de Puppeteer para manejar descargas
-            const client = await pdfPage.target().createCDPSession();
-            await client.send('Page.setDownloadBehavior', {
-                behavior: 'allow',
-                downloadPath: this.dirPath
-            });
 
-            // Navegar a la URL que descarga el PDF
-            await pdfPage.goto(url, { waitUntil: 'networkidle0' });
+            // pdfPage.on('request', req => {
+            //     if (req.url() === url) {
+            //         const file = fs.createWriteStream(this.pdfPath);
+            //         https.get(req.url(), response => response.pipe(file));
+            //     }
+            // });
 
-            // Esperar a que el archivo aparezca en el directorio
-            let downloaded = false;
-            for (let i = 0; i < 30; i++) { // Esperar máximo 30 segundos
-                if (fs.existsSync(this.pdfPath)) {
-                    downloaded = true;
-                    break;
+            pdfPage.on('request', interceptedRequest =>{
+                console.log(interceptedRequest.url);
+                if(interceptedRequest.url().endsWith('.pdf')){
+                    console.log("Es PDF");
                 }
-                await delay(1000);
-            }
+                interceptedRequest.continue();
 
-            if (!downloaded) {
-                console.error('El PDF no se descargó correctamente');
-                return false;
-            }
+            })
 
-            // Verificar que el PDF no esté corrupto
-            const pdfBuffer = fs.readFileSync(this.pdfPath);
-            if (!this.isValidPdf(pdfBuffer)) {
-                console.error('El PDF descargado está corrupto o incompleto');
-                return false;
-            }
+    
+            await pdfPage.goto(url);
 
-            // Procesar el PDF
-            resultado = await ProcesarBoletin.convertPdfToText2(this.pdfPath, 2);
+            // await delay(10000);
 
-            if (resultado) {
-                resultOfProcess = this.PjudData.processInfo(resultado);
-            } else {
-                return false;
-            }
+            await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
+            //Leer el pdf descargado
+            // Aca es donde se deberia realizar el cambio para leer con tesseract
 
-            if (resultOfProcess) {
+            // resultado = await ProcesarBoletin.convertPdfToText2(this.pdfPath, 2);
+            // await delay(1000);
+            // if(resultado){
+            //     resultOfProcess = this.PjudData.processInfo(resultado);
+            // }else{
+            //     return false;
+            // }
+            pdfWindow.destroy();
+            if(resultOfProcess){
                 console.log('Caso completo');
                 return true;
             }
+            return false
+        }catch(error){
+            console.error('Error al hacer la petición:', error.message);
             return false;
-        } catch (error) {
-            console.error('Error al descargar el PDF:', error.message);
-            return false;
-        } finally {
-            if (pdfPage && !pdfPage.isClosed()) {
-                await pdfPage.close();
-            }
-            if (pdfWindow && !pdfWindow.isDestroyed()) {
+        }finally{
+            if(!pdfWindow?.isDestroyed()){
                 pdfWindow.destroy();
             }
         }

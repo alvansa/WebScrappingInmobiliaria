@@ -720,7 +720,7 @@ function getAnno(data) {
     }
     const dataRegistro = dataNormalized.substring(registroFecha);
     let registroFin = dataRegistro.indexOf('.');
-    console.log("Registro fin: ",registroFin);
+    // console.log("Registro fin: ",registroFin);
     if (registroFin == -1) {
         registroFin = dataRegistro.indexOf(',');
     }

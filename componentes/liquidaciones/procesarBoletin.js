@@ -296,24 +296,22 @@ class ProcesarBoletin {
         });
     }
 
-    static async convertPdfToText2(filePath, origen){
+    static async convertPdfToText2(filePath, origen=1){
         try {
             if(origen == PJUD){
                 const tesseractText = await ProcesarBoletin.processWithTesseract(filePath);
                 console.log("procesado con tesseract :) :");
 
                 return tesseractText;
+            }else{
+                console.log("leyendo con simple pdf-parse");
+
+                const dataBuffer = fs.readFileSync(filePath);
+                const data = await pdf(dataBuffer);
+                
+                console.log("--------------------\n",data.text,"\n------------------")
+                return data.text;
             }
-            console.log("leyendo con simple pdf-parse");
-            // const dataBuffer = fs.readFile(filePath, (err,data) => {
-            //     if(err) reject(err.message);
-            //     console.log(data)
-            // });
-            // console.log("Buffer del pdf: ",dataBuffer);
-            
-            const dataBuffer = fs.readFileSync(filePath);
-            const data = await pdf(dataBuffer);
-            return data.text;
         } catch (error) {
             console.error('Error al procesar PDF:', error.message);
             return null;

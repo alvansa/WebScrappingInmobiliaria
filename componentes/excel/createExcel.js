@@ -220,12 +220,12 @@ class createExcel {
                 return false;
             }
         }
-        // Si la fecha de remate es menor a la fecha de inicio, no se guarda
+        // Si la fecha de remate es menor a la fecha de inicio, o mayor a la final
         console.log("Enviando false por fecha :", currentCase.causa, " fecha remate : ", currentCase.fechaRemate, " fecha inicio: ", this.startDate, " y de fin: ", this.endDate);
-        // if (currentCase.fechaRemate < new Date(this.startDate) || currentCase.fechaRemate > new Date(this.endDate)) {
-        //     console.log("Enviando false por fecha :", currentCase.causa);
-        //     return false;
-        // }
+        if (currentCase.fechaRemate < new Date(this.startDate) || currentCase.fechaRemate > new Date(this.endDate)) {
+            console.log("Enviando false por fecha :", currentCase.causa, currentCase.fechaRemate, new Date(this.startDate) ,new Date(this.endDate));
+            return false;
+        }
         // No se escriben casos de juez partidor
         if (currentCase.juzgado === "Juez Partidor") {
             console.log("Enviando false por juez partidor :", currentCase.causa);

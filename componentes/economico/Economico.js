@@ -32,8 +32,11 @@ class Economico{
             const result = await this.extractInfoPage();
             console.log("Casos encontrados: ", this.casosARevisar);
             await delay(2000);
+            let counter = 0;
             for(let caso of this.casosARevisar){
+                counter++;
                 const description = await this.getInfoFromSingularPage(caso);
+                console.log(`Obtienedo caso ${counter} de ${this.casosARevisar.length}`);
                 await fakeDelay(2, 4);
                 if(description){
                     caso.texto = description;
@@ -201,7 +204,7 @@ async processPage(startDate,endDate,SELECTORS){
                 // await logDesdePagina(`fecha actual ${announcementDate} fecha inicio ${fechaInicioDate} y deberia parar ${announcementDate < fechaInicioDate} `);
                 if (announcementDate < fechaInicioDate) {
                     return { casos, stop: true };
-                } else if (announcementDate >= new Date(fechaInicio)) {
+                } else if (announcementDate >= new Date(fechaInicio) && announcementDate <= new Date(fechaFin)) {
                     const linkElement = element.querySelector('div.col2.span6 a');
                     const announcement = linkElement ? linkElement.getAttribute('href') : null;
                     casos.push({

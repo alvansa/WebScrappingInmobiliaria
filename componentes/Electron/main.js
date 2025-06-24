@@ -304,12 +304,12 @@ class MainApp{
         }
 
         let fechaInicio = stringToDate(fechaInicioStr);
-        let fechaFin = new Date(); 
+        let fechaFin = new Date(fechaFinStr); 
 
         fechaInicio.setMonth(fechaInicio.getMonth() - 1);
 
-        // fechaInicio = stringToDate("2025-06-10");
-        // fechaFin = stringToDate("2025-06-12"); 
+        // fechaInicio = stringToDate(fechaInicioStr);
+        // fechaFin = stringToDate(fechaFinStr); 
 
 
         let casos = [];
@@ -468,7 +468,7 @@ class MainApp{
             // casos.push(caso2); 
             // this.obtainCorteJuzgadoNumbers(casos);
             
-            const result = await this.obtainDataFromCases(casos, event);
+            // const result = await this.obtainDataFromCases(casos, event);
             console.log("Resultados de los casos en la funcion de llamada: ", casos.length);
         }catch(error){
             console.error("Error :", error.message);
@@ -559,7 +559,7 @@ class MainApp{
             const processPDF = new PjudPdfData(caso);
             for(let pdf of args[1]){
                 console.log("Leyendo PDF ubicado en: ",pdf);
-                result = await ProcesarBoletin.convertPdfToText2(pdf);
+                result = await ProcesarBoletin.convertPdfToText2(pdf,1);
                 // console.log("Resultados del texto introducido: ",result);
                 processPDF.processInfo(result);
             }

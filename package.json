@@ -4,13 +4,15 @@
   "description": "Aplicacion para la busqueda y entrega de resumen de remates",
   "main": "componentes/Electron/main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron .",
     "rebuild": "electron-rebuild -f -w better-sqlite3",
     "make": "electron-builder",
     "postinstall": "electron-rebuild",
     "dev": "electron . --dev",
-    "empty": "electron . --empty"
+    "empty": "electron . --empty",
+    "test": "jest",
+    "test:unit" : "jest tests/unit"
+
   },
   "author": "Alvaro",
   "license": "ISC",

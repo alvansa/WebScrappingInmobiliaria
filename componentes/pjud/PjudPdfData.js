@@ -9,38 +9,40 @@ class PjudPdfData {
         this.caso = caso;
     }
 
-    processInfo(item) {
-        if(!item){
+    processInfo(data) {
+        if(!data){
             return false;
         }
 
-        if (this.checkIfValidDoc(item)) {
+        if (this.checkIfValidDoc(data)) {
             return false;
         }
-        // console.log("Procesando item: ", item);
-        let normalizeInfo = this.normalizeInfo(item);
+
+        let normalizeInfo = this.normalizeInfo(data);
+
         if (this.isCaseComplete()) {
             console.log("Caso completo");
             return true;
         }
-        const spanishNormalization = item
+        const spanishNormalization = data
             .toLowerCase()
             .replace(/[\n\r]/g, " ")
-            .replace(/\s+/g, " ");
+            .replace(/\s+/g, " ")
+            .replace(/−/g, "-");
 
         // this.processCivilStatus(normalizeInfo); // No se usara por un rato hasta que se arregle que obtenga el del comprado y no el primero que encuentre.
 
-        this.processPropertyRoles(normalizeInfo);
+        this.processPropertyRoles(normalizeInfo); // Rol propiedad, estacionamiento, bodega
         this.processPropertyInfo(spanishNormalization, normalizeInfo); //Avaluos, 
-        this.processAuctionInfo(item, normalizeInfo);
+        this.processAuctionInfo(data, normalizeInfo);
 
         return false;
     }
 
     checkIfValidDoc(item) {
-        const docNotValid = [/tabla\s*de\s*contenidos/i,
+        const docNotValid = [
+            /tabla\s*de\s*contenidos/i,
             /solicitud\s*copias\s*y\s*certificados/i,
-            // /mutuo\s*hipotecario/i
         ];
         for (const doc of docNotValid) {
             if (doc.test(item)) {
@@ -114,16 +116,11 @@ class PjudPdfData {
         }
 
         if (!this.caso.comuna) {
-            let comuna = this.findValue(info, normalizedInfo, this.obtainComuna);
+            let comuna = this.findValueGeneric(info, normalizedInfo, this.obtainComuna);
             if (comuna) {
                 console.log(`\n-----------------------------\nComuna ${comuna}\n----------------------------- `);
                 this.caso.comuna = comuna;
             }
-            // let comuna = this.obtainComuna(info,normalizedInfo);
-            // if (comuna) {
-            //     console.log(`\n-----------------------------\nComuna ${comuna}\n----------------------------- `);
-            //     this.caso.comuna = comuna;
-            // }
         }
 
         if (!this.caso.direccion) {
@@ -169,7 +166,78 @@ class PjudPdfData {
         }
 
     }
-    obtainBuyYear(texto) {
+
+    processAuctionInfo(info, normalizedInfo) {
+        // console.log("info en processAuctionInfo: ", normalizedInfo);
+        if (!this.caso.montoMinimo) {
+            const textoRemate = this.splitTextFromPaper(normalizedInfo);
+            for (const text of textoRemate) {
+
+                if(textoRemate.length > 1){
+                    if (!text.includes(this.caso.causa)) {
+                        continue;
+                    }
+                }
+                const montoMinimo = getMontoMinimo(text);
+                if (montoMinimo) {
+                    console.log(`-----------------\nmontoMinimo: ${montoMinimo}\n-----------------`);
+                    this.caso.montoMinimo = montoMinimo ? montoMinimo : null;
+                    break; // Salir del bucle si se encuentra un monto mínimo
+                }
+            }
+        }
+
+        if (!this.caso.formatoEntrega) {
+            const formatoEntrega = getFormatoEntrega(info);
+            if (formatoEntrega) {
+                this.caso.formatoEntrega = formatoEntrega ? formatoEntrega[0] : null;
+            }
+        }
+
+        if (!this.caso.porcentaje) {
+            const percentage = this.getAndProcessPercentage(info);
+            if (percentage) {
+                this.caso.porcentaje = percentage ? percentage : null;
+            }
+        }
+
+        if (!this.caso.tipoDerecho) {
+            console.log("Buscando derecho ")
+            if(regexMutuoHipotecario.exec(normalizedInfo)){
+                // Si el texto es un mutuo hipotecario no se puede obtener claramente si es un derecho o no
+                return;
+            }
+            // En caso de que el texto leido sea un diario primero se debe individualizar cada publicacion
+            const textoRemate = this.splitTextFromPaper(normalizedInfo);
+            for (const text of textoRemate) {
+                if(textoRemate.length > 1){
+                    if (!text.includes(this.caso.causa.toLowerCase())) {
+                        console.log("AaAaaAaaA")
+                        continue;
+                    }
+                }
+                console.log("Buscando el derecho ")
+                const tipoDerecho = getTipoDerecho(text);
+
+                if (tipoDerecho) {
+                    console.log(`-----------------\ntipoDerecho: ${tipoDerecho}\n-----------------`);
+                    this.caso.tipoDerecho = tipoDerecho ? tipoDerecho : null;
+                }
+            }
+        }
+
+        if(!this.caso.deudaHipotecaria){
+            if(this.checkIfTextHasHipoteca(normalizedInfo)){
+                const deuda = this.obtainDeudaHipotecaria(normalizedInfo);
+                if(deuda){
+                    console.log("Deuda encontrada: ", deuda)
+                    this.caso.deudaHipotecaria = deuda;
+                }
+            }
+        }
+    }
+
+    obtainBuyYear(texto){
         // console.log("Texto para obtener el anno: ", texto);
         let anno = this.obtainYearForm1(texto);
         if(anno) {
@@ -502,68 +570,6 @@ class PjudPdfData {
     }
 
 
-    processAuctionInfo(info, normalizedInfo) {
-        // console.log("info en processAuctionInfo: ", normalizedInfo);
-        if (!this.caso.montoMinimo) {
-            // console.log("info en monto minimo: ", normalizedInfo);
-            const textoRemate = this.getTextRemate(normalizedInfo);
-            for (const text of textoRemate) {
-                if(!text.includes(this.caso.causa)) {
-                    continue;
-                }
-                const montoMinimo = getMontoMinimo(text);
-                if (montoMinimo) {
-                    console.log(`-----------------\nmontoMinimo: ${montoMinimo}\n-----------------`);
-                    this.caso.montoMinimo = montoMinimo ? montoMinimo : null;
-                    break; // Salir del bucle si se encuentra un monto mínimo
-                }
-            }
-        }
-
-        if (!this.caso.formatoEntrega) {
-            const formatoEntrega = getFormatoEntrega(info);
-            if (formatoEntrega) {
-                this.caso.formatoEntrega = formatoEntrega ? formatoEntrega[0] : null;
-            }
-        }
-
-        if (!this.caso.porcentaje) {
-            const percentage = this.getAndProcessPercentage(info);
-            if (percentage) {
-                this.caso.porcentaje = percentage ? percentage : null;
-            }
-        }
-
-        if (!this.caso.tipoDerecho) {
-            
-            if(!regexMutuoHipotecario.exec(normalizedInfo)){
-                console.log("info en tipoDerecho: ", normalizedInfo.includes("diario"));
-                const textoRemate = this.getTextRemate(normalizedInfo);
-                for (const text of textoRemate) {
-                    if (!text.includes(this.caso.causa.toLowerCase())) {
-                        continue;
-                    }
-                    console.log("Buscando el tipo de derecho");
-                    const tipoDerecho = getTipoDerecho(text);
-
-                    if (tipoDerecho) {
-                        console.log(`-----------------\ntipoDerecho: ${tipoDerecho}\n-----------------`);
-                        this.caso.tipoDerecho = tipoDerecho ? tipoDerecho : null;
-                    }
-                }
-            }
-        }
-
-        if(!this.caso.deudaHipotecaria){
-            if(this.checkIfTextHasHipoteca(normalizedInfo)){
-                const deuda = this.obtainDeudaHipotecaria(normalizedInfo);
-                if(deuda){
-                    console.log("Deuda encontrada: ", deuda)
-                    this.caso.deudaHipotecaria = deuda;
-                }
-            }
-        }
-    }
 
     // Funcion para revisar si el texto actual hara referencia a una deuda hipotecaria o no.
     checkIfTextHasHipoteca(info){
@@ -603,12 +609,16 @@ class PjudPdfData {
         }
         console.log(newText);
         const regexNumber = "(\\d{1,}|\\d{1,3}(\\.\\d{1,3})*),?(\\d{1,})?"
-        const regexUF = "(u\\.?f\\.?|unidades?\\s*de\\s*fomento)"
+        const regexUF = "(u\\.?[fe]\\.?|unidades?\\s*de\\s*fomento)"
         const regexDeudaUF = new RegExp(`(${regexNumber}\\s*(-\\s*)?${regexUF}|${regexUF}\\s*${regexNumber})`, "gi")
         const matchNumero = newText.match(regexDeudaUF);
         if(matchNumero){
             deuda = this.checkBiggerDebt(matchNumero)
             console.log(matchNumero);
+            console.log("Deuda encontrada en obtain: ", deuda);
+            if(deuda.includes("ue")){
+                deuda = deuda.replace("ue","uf");
+            }
             return deuda;
         }
 
@@ -658,8 +668,8 @@ class PjudPdfData {
 
     
 
-    findValue(info, normalizedInfo, lambda){
-        const textRemate = this.getTextRemate(normalizedInfo);
+    findValueGeneric(info, normalizedInfo, lambda){
+        const textRemate = this.splitTextFromPaper(normalizedInfo);
         if (textRemate.length === 0) {
             console.log("Buscando en singular")
             const value = lambda(info,normalizedInfo);
@@ -691,14 +701,15 @@ class PjudPdfData {
         return processItem;
     }
 
-    getTextRemate(info) {
+    splitTextFromPaper(info) {
         const regexMonto = /remate\s*judicial/gi;
         let matchedRemate;
         let lastStart = 0;
         const textoFinal = [];
         if(!regexMonto.test(info)) {
-            // console.log("No se encontro remate judicial en el texto: ", info);
-            return [];
+            // Si no se encuentra remate judicial se asume que es solo un texto
+            // return [];
+            return [info];
         }
         while ((matchedRemate = regexMonto.exec(info)) != null) {
             // console.log(matchedRemate, matchedRemate.index)
@@ -867,14 +878,19 @@ class PjudPdfData {
 
     //This function will check if the case is complete, if it is the process end
     isCaseComplete() {
-        if (this.caso.estadoCivil
-            && this.caso.rolPropiedad
+        if (
+            this.caso.estadoCivil
             && this.caso.direccion
             && this.caso.comuna
+            && this.caso.rolPropiedad
             && this.caso.avaluoPropiedad
             && this.caso.rolEstacionamiento
+            && this.caso.avaluoEstacionamiento
+            && this.caso.rolBodega
+            && this.caso.avaluoBodega
             && this.caso.anno
-
+            && this.caso.actualDebt
+            && this.caso.montoCompra
         ) {
             return true;
         }
