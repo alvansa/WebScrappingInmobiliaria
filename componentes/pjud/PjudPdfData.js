@@ -19,16 +19,12 @@ class PjudPdfData {
         }
 
         let normalizeInfo = this.normalizeInfo(data);
+        let spanishNormalization = this.normalizeSpanish(data);
 
         if (this.isCaseComplete()) {
             console.log("Caso completo");
             return true;
         }
-        const spanishNormalization = data
-            .toLowerCase()
-            .replace(/[\n\r]/g, " ")
-            .replace(/\s+/g, " ")
-            .replace(/−/g, "-");
 
         // this.processCivilStatus(normalizeInfo); // No se usara por un rato hasta que se arregle que obtenga el del comprado y no el primero que encuentre.
 
@@ -139,19 +135,11 @@ class PjudPdfData {
         }
 
         if (!this.caso.anno) {
-            if(!regexMutuoHipotecario.exec(normalizedInfo)){
-                const GPnormalizedInfo = this.adaptTextIfGP(normalizedInfo);
-                if (!GPnormalizedInfo) {
-                    console.log("No se obtiene el ano del GP");
-                    return;
-                }
-                console.log('======================\nIntentando obtener el anno\n=====================');
-                const anno = this.obtainBuyYear(GPnormalizedInfo);
+            const anno = this.obtainAnno(normalizedInfo)
                 if (anno) {
                     console.log(`-----------------\nanno: ${anno}\n-----------------`);
                     this.caso.anno = anno;
                 }
-            }
         }
 
         this.checkIfIsDerecho(normalizedInfo);
@@ -161,7 +149,6 @@ class PjudPdfData {
             if (montoCompra) {
                 console.log("-----------------\nmontoCompra: ", montoCompra, "\n-----------------");
                 this.caso.montoCompra = montoCompra;
-                console.log("montoCompra: ", montoCompra.monto, "moneda: ", montoCompra.moneda);
             }
         }
 
@@ -170,21 +157,12 @@ class PjudPdfData {
     processAuctionInfo(info, normalizedInfo) {
         // console.log("info en processAuctionInfo: ", normalizedInfo);
         if (!this.caso.montoMinimo) {
-            const textoRemate = this.splitTextFromPaper(normalizedInfo);
-            for (const text of textoRemate) {
-
-                if(textoRemate.length > 1){
-                    if (!text.includes(this.caso.causa)) {
-                        continue;
-                    }
-                }
-                const montoMinimo = getMontoMinimo(text);
-                if (montoMinimo) {
-                    console.log(`-----------------\nmontoMinimo: ${montoMinimo}\n-----------------`);
-                    this.caso.montoMinimo = montoMinimo ? montoMinimo : null;
-                    break; // Salir del bucle si se encuentra un monto mínimo
-                }
+            const montoMinimo = this.obtainMontoMinimo(normalizedInfo);
+            if (montoMinimo) {
+                console.log(`-----------------\nmontoMinimo: ${montoMinimo}\n-----------------`);
+                this.caso.montoMinimo = montoMinimo;
             }
+
         }
 
         if (!this.caso.formatoEntrega) {
@@ -202,27 +180,10 @@ class PjudPdfData {
         }
 
         if (!this.caso.tipoDerecho) {
-            console.log("Buscando derecho ")
-            if(regexMutuoHipotecario.exec(normalizedInfo)){
-                // Si el texto es un mutuo hipotecario no se puede obtener claramente si es un derecho o no
-                return;
-            }
-            // En caso de que el texto leido sea un diario primero se debe individualizar cada publicacion
-            const textoRemate = this.splitTextFromPaper(normalizedInfo);
-            for (const text of textoRemate) {
-                if(textoRemate.length > 1){
-                    if (!text.includes(this.caso.causa.toLowerCase())) {
-                        console.log("AaAaaAaaA")
-                        continue;
-                    }
-                }
-                console.log("Buscando el derecho ")
-                const tipoDerecho = getTipoDerecho(text);
-
-                if (tipoDerecho) {
-                    console.log(`-----------------\ntipoDerecho: ${tipoDerecho}\n-----------------`);
-                    this.caso.tipoDerecho = tipoDerecho ? tipoDerecho : null;
-                }
+            const resultadoDerecho = this.obtainTipoDerecho(normalizedInfo);
+            if(resultadoDerecho){
+                    console.log(`-----------------\ntipoDerecho: ${resultadoDerecho}\n-----------------`);
+                    this.caso.tipoDerecho = resultadoDerecho;
             }
         }
 
@@ -237,23 +198,45 @@ class PjudPdfData {
         }
     }
 
+    obtainTipoDerecho(normalizedInfo){
+        // console.log("Buscando derecho ")
+        if (regexMutuoHipotecario.exec(normalizedInfo)) {
+            // Si el texto es un mutuo hipotecario no se puede obtener claramente si es un derecho o no
+            return;
+        }
+        // En caso de que el texto leido sea un diario primero se debe individualizar cada publicacion
+        const textoRemate = this.splitTextFromPaper(normalizedInfo);
+        for (const text of textoRemate) {
+            if (textoRemate.length > 1) {
+                if (!text.includes(this.caso.causa.toLowerCase())) {
+                    continue;
+                }
+            }
+            const tipoDerecho = getTipoDerecho(text);
+
+            if (tipoDerecho) {
+                return tipoDerecho;
+            }
+        }
+
+        return null;
+    }
+
     obtainBuyYear(texto){
         // console.log("Texto para obtener el anno: ", texto);
         let anno = this.obtainYearForm1(texto);
         if(anno) {
-            console.log(`Ano obtenido con forma 1`);
             return anno;
         }
         anno = this.obtainYearnForm2(texto);
         if(anno) {
-            console.log(`Ano obtenido con forma 2`);
             return anno;
         }
         anno = this.obtainFromConservador(texto);
         if(anno){
-            console.log(`Ano obtenido con forma conservador`);
             return anno;
         }
+        return null;
     }
 
     obtainYearForm1(text) {
@@ -355,6 +338,24 @@ class PjudPdfData {
             return this.processMonto(monto);
         }
 
+        return null;
+    }
+
+    obtainMontoMinimo(info){
+        const textoRemate = this.splitTextFromPaper(info);
+        for (const text of textoRemate) {
+
+            if (textoRemate.length > 1) {
+                if (!text.includes(this.caso.causa.toLowerCase())) {
+                    continue;
+                }
+            }
+            const montoMinimo = getMontoMinimo(text);
+            if (montoMinimo) {
+                console.log(`-----------------\nmontoMinimo: ${montoMinimo}\n-----------------`);
+                return montoMinimo;
+            }
+        }
         return null;
     }
 
@@ -478,11 +479,6 @@ class PjudPdfData {
     }
 
     searchByAdquirio(text){
-
-        console.log("*************************");
-        console.log(text)
-        console.log("*************************");
-
         const regexAdquirio = /adquirio\s*la\s*propiedad/i;
         const matchedAdquirio = regexAdquirio.exec(text);
         if (!matchedAdquirio) {
@@ -670,7 +666,7 @@ class PjudPdfData {
 
     findValueGeneric(info, normalizedInfo, lambda){
         const textRemate = this.splitTextFromPaper(normalizedInfo);
-        if (textRemate.length === 0) {
+        if (textRemate.length === 1) {
             console.log("Buscando en singular")
             const value = lambda(info,normalizedInfo);
             if (value) {
@@ -699,6 +695,14 @@ class PjudPdfData {
             .replace(/[\u0300-\u036f]/g, "")
             .replace(/−/g, "-");
         return processItem;
+    }
+
+    normalizeSpanish(info){
+        return info
+            .toLowerCase()
+            .replace(/[\n\r]/g, " ")
+            .replace(/\s+/g, " ")
+            .replace(/−/g, "-");
     }
 
     splitTextFromPaper(info) {
@@ -777,6 +781,7 @@ class PjudPdfData {
     }
 
     obtainRolPropiedad(info) {
+        if(!info) return null;
         if (info.includes("inscripcion")) {
             return null;
         }
@@ -803,7 +808,7 @@ class PjudPdfData {
             const avaluoNumber = avaluo[0].replace(/\./g, '');
             return {
                 "tipo": avaluoType,
-                "avaluo": avaluoNumber
+                "avaluo": avaluoNumber.trim()
             };
         } else {
             return null;
@@ -863,6 +868,24 @@ class PjudPdfData {
             "tipo": avaluoType
         }
     }
+
+    obtainAnno(info){
+        if(!info) return null;
+
+        if (!regexMutuoHipotecario.exec(info)) {
+            const GPnormalizedInfo = this.adaptTextIfGP(info);
+            if (!GPnormalizedInfo) {
+                console.log("No se obtiene el ano del GP");
+                return null;
+            }
+            const anno = this.obtainBuyYear(GPnormalizedInfo);
+            if (anno) {
+                console.log(`-----------------\nanno: ${anno}\n-----------------`);
+                return anno;
+            }
+        }
+        return null;
+    }
     adaptTextIfGP(texto) {
         const regexGP = /certificado\s*de\s*hipotecas/gi;
         if (regexGP.test(texto)) {
@@ -899,7 +922,6 @@ class PjudPdfData {
 }
 
     function obtainComunaByIndex(info) {
-        console.log("info) en obtainComunaByIndex :) ");
         const startText = "comuna:";
         const startIndex = info.indexOf(startText);
         if (startIndex === -1) {

@@ -368,7 +368,7 @@ class createExcel {
         if (!avaluoPropiedadString && !avaluoEstacionamientoString && !avaluoBodegaString) {
             return null;
         }
-        const avaluoPropiedad = avaluoPropiedadString ? parseInt(avaluoPropiedadString) : 0;
+        const avaluoPropiedad = parseInt(avaluoPropiedadString) ? parseInt(avaluoPropiedadString) : 0;
         const avaluoEstacionamiento = avaluoEstacionamientoString ? parseInt(avaluoEstacionamientoString) : 0;
         const avaluoBodega = avaluoBodegaString ? parseInt(avaluoBodegaString) : 0;
 
