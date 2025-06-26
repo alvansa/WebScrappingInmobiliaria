@@ -30,7 +30,7 @@ class Causas {
         const stmt = this.db.prepare(query);
         for (const caso of casos) {
             try {
-                stmt.run(caso.causa, caso.juzgado,caso.fecha);
+                stmt.run(caso.causa, caso.juzgado, caso.fecha);
             } catch (error) {
                 console.error("Error al insertar caso: ", e);
             }
@@ -49,11 +49,11 @@ class Causas {
         const query = "Select * from Causa WHERE fecha < ?;";
         const causas = this.db.prepare(query).all(fechalimite);
         return causas;
-    }   
-    searchByCausa(causa){
+    }
+    searchByCausa(causa) {
         const query = "Select * from Causa WHERE causa = ?;";
         const causas = this.db.prepare(query).all(causa);
         return causas;
     }
 }
-module.exports =  Causas ;
+module.exports = Causas;

@@ -335,7 +335,17 @@ describe('SumAvaluo', () => {
 
     test('Prueba pasando texto cualquiera', () =>{
         const resSumAvaluo = excelConstructor.sumAvaluo('asd');
-        expect(resSumAvaluo).toBeNull();
+        expect(resSumAvaluo).toEqual(0);
+    });
+
+    test('Prueba pasando texto cualquiera con numero', () =>{
+        const resSumAvaluo = excelConstructor.sumAvaluo('asd','123');
+        expect(resSumAvaluo).toEqual(123);
+    });
+
+    test('Prueba pasando texto cualquiera con 2 numeros', () =>{
+        const resSumAvaluo = excelConstructor.sumAvaluo('asd','123','123');
+        expect(resSumAvaluo).toEqual(246);
     });
 
     test('Prueba con solo avaluo propiedad pasando texto', () =>{

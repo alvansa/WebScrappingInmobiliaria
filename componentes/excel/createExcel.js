@@ -250,7 +250,9 @@ class createExcel {
 
     insertarCasoIntoWorksheet(caso, ws, currentRow) {
         let newRol = caso.rolPropiedad;
-        ws['A' + currentRow] = { v: caso.fechaPublicacion, t: 'd', z: 'dd/mm/yyyy' };
+        if(caso.fechaPublicacion){
+            ws['A' + currentRow] = { v: caso.fechaPublicacion, t: 'd', z: 'dd/mm/yyyy' };
+        }
         // console.log("Fecha de obtenion : ", caso.fechaObtencion, "Tipo :", typeof caso.fechaObtencion);
         if(caso.fechaObtencion){
             ws['C' + currentRow] = { v: caso.fechaObtencion, t: 'd', z: 'dd/mm/yyyy' };
@@ -368,9 +370,12 @@ class createExcel {
         if (!avaluoPropiedadString && !avaluoEstacionamientoString && !avaluoBodegaString) {
             return null;
         }
-        const avaluoPropiedad = parseInt(avaluoPropiedadString) ? parseInt(avaluoPropiedadString) : 0;
-        const avaluoEstacionamiento = avaluoEstacionamientoString ? parseInt(avaluoEstacionamientoString) : 0;
-        const avaluoBodega = avaluoBodegaString ? parseInt(avaluoBodegaString) : 0;
+        const parsedPropiedad = parseInt(avaluoPropiedadString);
+        const parsedEstacionamiento = parseInt(avaluoEstacionamientoString);
+        const parsedBodega = parseInt(avaluoBodegaString);
+        const avaluoPropiedad = (typeof parsedPropiedad === 'number' && !isNaN(parsedPropiedad)) ? parsedPropiedad : 0;
+        const avaluoEstacionamiento = (typeof parsedEstacionamiento === 'number' && !isNaN(parsedEstacionamiento)) ? parsedEstacionamiento : 0;
+        const avaluoBodega = (typeof parsedBodega === 'number' && !isNaN(parsedBodega)) ? parsedBodega : 0;
 
 
         return avaluoPropiedad + avaluoEstacionamiento + avaluoBodega;

@@ -4,6 +4,7 @@ const fs = require("fs");
 const os = require("os");
 
 const BDPath = path.join(os.homedir(),"Documents","infoRemates/BD/Inmobiliaria-casos.db");
+const BD_FK = path.join(os.homedir(),"Documents","infoRemates/BD/BD-FK.db");
 if(!fs.existsSync(BDPath)){
     fs.mkdirSync(path.dirname(BDPath), { recursive: true });
     const db = new Database(BDPath);
@@ -77,3 +78,21 @@ function createDBOriginal(db){
     )`;
     db.prepare(query).run();
 }
+
+function testDBSimple(dbFK){
+    const query = `SELECT * FROM Comuna ;`;
+    const result = dbFK.prepare(query).all();
+    console.log(result);
+
+}
+
+function insertCase(caso){
+    // const query jk
+}
+
+function main(){
+    const dbFK = new Database(BD_FK);
+    testDBSimple(dbFK);
+}
+
+// main();

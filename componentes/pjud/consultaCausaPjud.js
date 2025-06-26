@@ -508,12 +508,12 @@ class ConsultaCausaPjud{
                 console.log("Procesando el documento: ", reference);
                 if(valuePdf && valuePdf !== ''){
                     const linkToPdf = "https://oficinajudicialvirtual.pjud.cl/ADIR_871/civil/documentos/anexoDocCivil.php?dtaDoc=" + valuePdf
-                    isDone = await this.downloadPdfFromUrl2(linkToPdf);
+                    isDone = await this.downloadPdfFromUrl(linkToPdf);
                     if (isDone) {
                         return true;
                     }
-                    // Ahora se enviara true solo para probar con un puro pdf, elimianr esta linea para produccion
-                    return true;
+                    // // Ahora se enviara true solo para probar con un puro pdf, elimianr esta linea para produccion
+                    // return true;
                 }
             }
             return false;
@@ -608,7 +608,7 @@ class ConsultaCausaPjud{
             await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
             //Leer el pdf descargado
             // Aca es donde se deberia realizar el cambio para leer con tesseract
-            resultado = await ProcesarBoletin.convertPdfToText2(this.pdfPath, 2);
+            resultado = await ProcesarBoletin.convertPdfToText2(this.pdfPath, 1);
             await delay(1000);
             if(resultado){
                 resultOfProcess = this.PjudData.processInfo(resultado);
@@ -874,8 +874,8 @@ class ConsultaCausaPjud{
     async cleanFilesDownloaded(){
         console.log("Iniciando eliminacion de archivos.");
         try {
-            // await this.deleteFilesDownloaded();
-            // await this.deleteDirectory();
+            await this.deleteFilesDownloaded();
+            await this.deleteDirectory();
         } catch (error) {
             console.error('Error al eliminar archivos:', error.message);
         }
