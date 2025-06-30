@@ -257,6 +257,13 @@ class Caso{
         }
         return this.normalizarFechaRemate();
     }
+    get fechaRemateSQL(){
+        if(!this.#fechaRemate){
+            return null;
+        }
+        return String(this.#fechaRemate);
+    }
+
     get fechaPublicacion(){
         if(this.#fechaPublicacion == null){
             return null;
@@ -271,7 +278,7 @@ class Caso{
         if(this.#comuna == null){
             return null;
         }
-        return String(this.#comuna);
+        return this.normalizarComuna();
     }
     get rolPropiedad(){
         if(this.#rolPropiedad == null){
@@ -355,7 +362,7 @@ class Caso{
         if(this.#montoMinimo == "N/A" || this.#montoMinimo == null){
             return null;
         }
-        return this.#montoMinimo;
+        return this.normalizarMontoMinimo();
     }
     get owners(){
         return this.#owners;
@@ -381,13 +388,25 @@ class Caso{
         }
         return this.#deudaHipotecaria;
     }
+    get formatoEntrega(){
+        if(!this.#formatoEntrega){
+            return null;
+        }
+        return this.normalizarFormatoEntrega()
+    }
+    get partes(){
+        if(!this.#partes){
+            return null;
+        }
+        return this.normalizarPartes();
+    }
 
 
   
 
     toObject() {
         const fechaObtencionNormalizada = this.normalizarFechaObtencion()
-        const montoMoneda = this.normalizarMonto(); 
+        const montoMoneda = this.normalizarMontoMinimo(); 
         const causaNormalizada = this.normalizarCausa();
         const annoNormalizado = this.normalizarAnno();
         const porcentajeNormalizado = this.normalizarPorcentaje(); 
@@ -669,7 +688,7 @@ class Caso{
         const montoNormalizado = monto.replaceAll('.','').replaceAll(',','.');
         return montoNormalizado;
     }
-    normalizarMonto(){
+    normalizarMontoMinimo(){
         if(this.#montoMinimo == "N/A" || this.#montoMinimo == null){
             return {"monto": null, "moneda": null};
         }
@@ -848,7 +867,6 @@ class Caso{
                 .replace(/[.\n ]/g, '') // Eliminar puntos, newlines y espacios
 
             return causa.toUpperCase();
-
         }
 
         causa = valorOriginal
@@ -956,6 +974,37 @@ class Caso{
         casoBase.montoCompra = casoBase.montoCompra ?? casoRelleno.montoCompra;
         casoBase.isPaid = casoBase.isPaid ?? casoRelleno.isPaid;
         return casoBase;
+    }
+
+    static createMockCase() {
+        const mockCase = new this(
+            '2025/05/19', // fechaObtencion
+            '2023-01-15', // fechaPublicacion
+            'http://example.com/case/123', // link
+            'Supreme Court' // origen
+        );
+
+        // Set additional mock properties
+        mockCase.causa = "C-534-2023";
+        mockCase.juzgado = "1º JUZGADO DE LETRAS DE IQUIQUE";
+        mockCase.porcentaje = 100;
+        mockCase.comuna = "iquique";
+        mockCase.direccion = "rio esena 2370 barcelona";
+        mockCase.avaluoPropiedad = 250000;
+        mockCase.montoMinimo = {monto : 999999, moneda: "Pesos"};
+        mockCase.porcentaje = 10;
+        mockCase.formatoEntrega = "vale vista";
+        mockCase.tipoDerecho = "nuda propiedad";
+        mockCase.anno = 2000;
+        mockCase.rolPropiedad = "3795-302";
+        mockCase.estadoCivil = "soltero";
+        mockCase.corte = 11;
+        mockCase.numeroJuzgado = 9; 
+        mockCase.montoCompra = {monto: 1000, moneda: "UF"};
+        mockCase.deudaHipotecaria = '1200 uf';
+
+
+        return mockCase;
     }
 }
 

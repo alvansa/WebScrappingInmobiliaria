@@ -147,12 +147,17 @@ class createExcel {
         let remates = new Map();
         let currentRow = 6;
         const causaDB = new Causas();
-        const rematesDB = causaDB.getCausas(formatDateToSQLite(startDateSQL));
-        for (let remateDB of rematesDB) {
-            if (remateDB.juzgado) {
-                remateDB.juzgado = remateDB.juzgado.replace(/º/g, '°');
-            }
-        }
+        const comunas = causaDB.obtainComunasFromDB();
+
+        // Hay que ver como hacer esto, nose si es bueno pedir todos los remates pero creo que es la unica opcion
+        // const rematesDB = causaDB.getCausas(formatDateToSQLite(startDateSQL));
+        // for (let remateDB of rematesDB) {
+        //     if (remateDB.juzgado) {
+        //         remateDB.juzgado = remateDB.juzgado.replace(/º/g, '°');
+        //     }
+        // }
+        const rematesDB = null;
+
         if (!Array.isArray(casos) || casos.length === 0) {
             console.log("No se encontraron datos para insertar.");
             return;
@@ -172,14 +177,10 @@ class createExcel {
             }
         }
         console.log("Total de casos en remates: ", remates.length);
-        console.log("Los remates a escribir son :", remates);
 
         // Se escriben todos los casos revisados en la hoja, para eso primero se transforman a
         // objetos para verificar la normalizacion
         for (let caso of remates) {
-            // if (!this.emptyMode) {
-            //     remates.add({ causa: caso.causa, juzgado: caso.juzgado, fecha: formatDateToSQLite(caso.fechaPublicacion) });
-            // }
             console.log("Escribiendo caso :", caso[1].causa);
             const casoObj = caso[1].toObject()
 
@@ -187,9 +188,9 @@ class createExcel {
             currentRow++;
         }
         // Agrega los remates a la base de datos
-        if (!this.emptyMode) {
-            causaDB.insertCaso(remates);
-        }
+        // if (!this.emptyMode) {
+        //     causaDB.insertMultipleCases(remates,comunas);
+        // }
         return currentRow;
     }
 
@@ -298,14 +299,16 @@ class createExcel {
         // ws['X'+ currentRow ] = {v: 'notif ', t: 's'};
         // Formato de monto minimo segun el tipo de moneda
         console.log("Leyendo monto minimo: ", caso.montoMinimo, " con moneda: ", caso.moneda);
-        if (caso.moneda === 'UF') {
-            ws['Y' + currentRow] = { v: parseFloat(caso.montoMinimo), t: 'n', z: '#,##0.0000' };
+        if(caso.montoMinimo > 100){
+            if (caso.moneda === 'UF') {
+                ws['Y' + currentRow] = { v: parseFloat(caso.montoMinimo), t: 'n', z: '#,##0.0000' };
+            }
+            else if (caso.moneda == 'Pesos') {
+                console.log("leyo que la moneda es pesos", caso.moneda);
+                ws['Y' + currentRow] = { v: parseFloat(caso.montoMinimo), t: 'n', z: '#,##0' };
+            }
+            this.writeLine(ws, 'Z', currentRow, caso.moneda, 's');
         }
-        else if (caso.moneda == 'Pesos') {
-            console.log("leyo que la moneda es pesos", caso.moneda);
-            ws['Y' + currentRow] = { v: parseFloat(caso.montoMinimo), t: 'n', z: '#,##0' };
-        }
-        this.writeLine(ws, 'Z', currentRow, caso.moneda, 's');
         if (caso.avaluoPropiedad != null) {
             const sumAvaluo = this.sumAvaluo(caso.avaluoPropiedad, caso.avaluoEstacionamiento, caso.avaluoBodega);
             ws['AC' + currentRow] = { v: sumAvaluo, t: 'n', z: '#,##0' };

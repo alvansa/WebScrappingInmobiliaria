@@ -185,7 +185,7 @@ class BoletinConcursal {
                 }
 
                 // Encuentra archivos nuevos que no estaban en initialFiles y que no se llamen "DS_Store"
-                const newFiles = [...currentFiles].filter(file => !initialFileSet.has(file) && !file.includes("DS_Store"));
+                const newFiles = [...currentFiles].filter(file => !initialFileSet.has(file) && !file.toLowerCase().includes("ds"));
                 if (newFiles.length > 0) {
                     // Si encuentra un archivo que no termina con ".crdownload", lo considera completo
                     const completeFile = newFiles.find(file => !file.endsWith('.crdownload'));

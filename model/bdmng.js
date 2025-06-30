@@ -2,16 +2,17 @@ const Database = require("better-sqlite3");
 const path = require("path");
 const fs = require("fs");
 const os = require("os");
+const caso = require('../componentes/caso/caso');
 
 const BDPath = path.join(os.homedir(),"Documents","infoRemates/BD/Inmobiliaria-casos.db");
 const BD_FK = path.join(os.homedir(),"Documents","infoRemates/BD/BD-FK.db");
 if(!fs.existsSync(BDPath)){
-    fs.mkdirSync(path.dirname(BDPath), { recursive: true });
-    const db = new Database(BDPath);
+    fs.mkdirSync(path.dirname(BD_FK), { recursive: true });
+    const db = new Database(BD_FK);
     createDB(db);
     exports.db = db;
 }else{
-    const db = new Database(BDPath);
+    const db = new Database(BD_FK);
     exports.db = db;
 }
 
@@ -82,17 +83,19 @@ function createDBOriginal(db){
 function testDBSimple(dbFK){
     const query = `SELECT * FROM Comuna ;`;
     const result = dbFK.prepare(query).all();
-    console.log(result);
+    // console.log(result);
 
 }
 
-function insertCase(caso){
-    // const query jk
-}
 
-function main(){
-    const dbFK = new Database(BD_FK);
-    testDBSimple(dbFK);
-}
+
+// function main(){
+//     const dbFK = new Database(BD_FK);
+//     testDBSimple(dbFK);
+//     const comunas = obtainComunasFromDB(dbFK);
+//     console.log(comunas.get('iquique'));
+//     const casoTest = caso.createMockCase();
+//     insertCase(dbFK, casoTest,comunas);
+// }
 
 // main();

@@ -86,7 +86,7 @@ class ProcesarBoletin {
                     console.log("Procesando pdf: ", pdf," con path: ",pdfFile);
                     // Aqui se envian los pdf a el proceso principal para ser convertidos a texto y poder trabajar con ellos.
                     try{
-                        texto = await ProcesarBoletin.convertPdfToText(pdfFile);
+                        texto = await ProcesarBoletin.convertPdfToText2(pdfFile);
                         const caso = this.getCaso(pdf, casos);
                         this.obtainDataRematesPdf(texto, caso);
                     }catch(error){

@@ -270,15 +270,7 @@ class MainApp{
             // casosPreremates = await this.getCasosPreremates(checkedBoxes.preremates),
             casosBoletin = await this.getCasosBoletin(startDate, endDate, fechaHoy, checkedBoxes.liquidaciones),
             casosPYL = await this.getPublicosYLegales(startDate, endDate, fechaHoy, checkedBoxes.PYL),
-            casosPJUD = await this.getDatosPjud(startDate, endDate, checkedBoxes.pjud,event)
-
-            // const [casosEconomico, casosPreremates, casosBoletin, casosPYL, casosPJUD] = await Promise.all([
-            //     this.getCasosEconomico(fechaHoy, startDate, endDate, 3, checkedBoxes.economico),
-            //     this.getCasosPreremates(checkedBoxes.preremates),
-            //     this.getCasosBoletin(startDate, endDate, fechaHoy, checkedBoxes.liquidaciones),
-            //     this.getPublicosYLegales(startDate, endDate, fechaHoy, checkedBoxes.PYL),
-            //     this.getDatosPjud(startDate, endDate, checkedBoxes.pjud)
-            // ]);
+            casosPJUD = await this.getCasosPjud(startDate, endDate, checkedBoxes.pjud,event)
 
             casos = [...casosEconomico, ...casosPreremates, ...casosBoletin, ...casosPYL, ...casosPJUD];
             // await this.obtainMapasSIIInfo(casos);
@@ -361,8 +353,8 @@ class MainApp{
         let casos = [];
         // const startDate = stringToDate(fechaInicioStr);
         // const endDate = stringToDate(fechaFinStr);
-        let startDate = stringToDate(fechaInicioStr);
         // let endDate = stringToDate(fechaInicioStr); 
+        let startDate = stringToDate(fechaInicioStr);
         let endDate = stringToDate(fechaFinStr); 
 
         startDate.setMonth(startDate.getMonth() - 1);
@@ -414,41 +406,41 @@ class MainApp{
         }
     }
 
-    async getDatosPjudBasic(fechaInicioStr,fechaFinStr,PJUDChecked){
-        if(!PJUDChecked){
-            return [];
-        }
-        let casos = [];
-        let startDate;
-        let endDate;
-        if (isDevMode) {
-            startDate = cambiarFechaInicio(fechaInicioStr,0);
-            endDate = cambiarFechaInicio(fechaFinStr,0);
-        } else {
-            const daysDiff = calculateDiffDays(fechaInicioStr, fechaFinStr);
-            startDate = cambiarFechaInicio(fechaInicioStr, daysDiff);
-            endDate = cambiarFechaFin(fechaFinStr);
-        }
-        // const endDate = cambiarFechaInicio(fechaFinStr,3);
-        try{
-            const window = new BrowserWindow({ show: false });
-            const url = 'https://oficinajudicialvirtual.pjud.cl/indexN.php';
-            await window.loadURL(url);
-            const page = await pie.getPage(this.browser, window);
-            const pjud = new Pjud(this.browser,page,startDate,endDate);
-            casos = await pjud.datosFromPjud();
-            window.destroy();
-            return casos;
-        } catch (error) {
-            console.error('Error al obtener resultados en PJUD:', error);
-            if(window){
-                window.destroy();
-            }
-            return casos;
-        }
-    }
+    // async getDatosPjudBasic(fechaInicioStr,fechaFinStr,PJUDChecked){
+    //     if(!PJUDChecked){
+    //         return [];
+    //     }
+    //     let casos = [];
+    //     let startDate;
+    //     let endDate;
+    //     if (isDevMode) {
+    //         startDate = cambiarFechaInicio(fechaInicioStr,0);
+    //         endDate = cambiarFechaInicio(fechaFinStr,0);
+    //     } else {
+    //         const daysDiff = calculateDiffDays(fechaInicioStr, fechaFinStr);
+    //         startDate = cambiarFechaInicio(fechaInicioStr, daysDiff);
+    //         endDate = cambiarFechaFin(fechaFinStr);
+    //     }
+    //     // const endDate = cambiarFechaInicio(fechaFinStr,3);
+    //     try{
+    //         const window = new BrowserWindow({ show: false });
+    //         const url = 'https://oficinajudicialvirtual.pjud.cl/indexN.php';
+    //         await window.loadURL(url);
+    //         const page = await pie.getPage(this.browser, window);
+    //         const pjud = new Pjud(this.browser,page,startDate,endDate);
+    //         casos = await pjud.datosFromPjud();
+    //         window.destroy();
+    //         return casos;
+    //     } catch (error) {
+    //         console.error('Error al obtener resultados en PJUD:', error);
+    //         if(window){
+    //             window.destroy();
+    //         }
+    //         return casos;
+    //     }
+    // }
 
-    async getDatosPjud(startDateOrigin,endDateOrigin,PJUDChecked, event){
+    async getCasosPjud(startDateOrigin,endDateOrigin,PJUDChecked, event){
         if(!PJUDChecked){
             return [];
         }
@@ -468,7 +460,7 @@ class MainApp{
             // casos.push(caso2); 
             // this.obtainCorteJuzgadoNumbers(casos);
             
-            // const result = await this.obtainDataFromCases(casos, event);
+            const result = await this.obtainDataFromCases(casos, event);
             console.log("Resultados de los casos en la funcion de llamada: ", casos.length);
         }catch(error){
             console.error("Error :", error.message);

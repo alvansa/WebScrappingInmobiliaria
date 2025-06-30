@@ -274,7 +274,7 @@ class ConsultaCausaPjud{
             console.log("Caso con propietarios, se procede a descargar demanda.");
         }
         // Descargar el texto de la demanda.
-        // await this.downloadDemanda();
+        await this.downloadDemanda();
         if(caseIsFinished){
             return true;
         }
