@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const PjudPdfData = require('../../componentes/pjud/PjudPdfData');
 const Caso = require('../../componentes/caso/caso');
 const createExcel = require('../../componentes/excel/createExcel')
@@ -5,9 +7,13 @@ const createExcel = require('../../componentes/excel/createExcel')
 
 const {textoEstacionamiento1,textoHabitacional1, textoBodegaMultiple, textoEstacionamientoMultiple, textoHabitacionMultiple} = require('./textos/Avaluo');
 const {textoGP1, textoGP2, textoGP3, textoGP4, textoGP5, texto12Santiago} = require('./textos/GP');
-const {diario2484} = require('./textos/diario');
-const {tx356, tx23039, tx12017, tx1349} = require('./textos/DV');
-const { experiments } = require('webpack');
+const {diario2484, ex1341, diario1341} = require('./textos/diario');
+const {tx356, tx23039, tx12017, tx1349, tx3857, tx13759, tx7140} = require('./textos/DV');
+const {bf2201, bf1341, notBf} = require('./textos/BF');
+const {dm1056, dm1138} = require('./textos/DM');
+
+
+const dm1138File = fs.readFileSync(path.resolve(__dirname,'./textos/textosLargos/dm1138.txt'),'utf8')
 
 const excelConstructor = new createExcel("","","","",false,1);
 const testCaso = createCase("1111-2024", '1º Juzgado de Letras de Buin');
@@ -121,19 +127,42 @@ describe('obtainDerecho', () => {
     });
 
     test('Test nulo "no se encuentra afecto a bien familiar" ', () => {
-
         const info = testPjudPdf.normalizeInfo(textoGP4);
         const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
         expect(tipoDerecho).toBeNull();
     });
 
     test('Test nulo "No registra anotaciones"', () => {
-
         const info = testPjudPdf.normalizeInfo(textoGP5);
         const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
         expect(tipoDerecho).toBeNull();
     });
 
+    test('Texto de bien familiar que dice no consta con', ()=>{
+        const info = testPjudPdf.normalizeInfo(bf2201);
+        const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
+        expect(tipoDerecho).toBeNull();
+    });
+
+    test('Leer diario y deberia ser null ya que el que dice nuda propiedad es otra causa', ()=>{
+        const testCaso1341 = createCase('C-1341-2024','1° JUZGADO DE LETRAS DE TALCA');
+        const testPjud1341 = new PjudPdfData(testCaso1341);
+        const info = testPjud1341.normalizeInfo(diario1341);
+        const tipoDerecho = testPjud1341.obtainTipoDerecho(info);
+        expect(tipoDerecho).toBeNull();
+    });
+
+    test('Test de Bien familiar definitivo', ()=>{
+        const info = testPjudPdf.normalizeInfo(bf1341);
+        const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
+        expect(tipoDerecho).toEqual('bien familiar');
+    });
+
+    test('Test Nulo basico Bien familiar no registra anotaciones', ()=>{
+        const info = testPjudPdf.normalizeInfo(notBf);
+        const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
+        expect(tipoDerecho).toBeNull();
+    });
 
 });
 
@@ -211,6 +240,12 @@ describe('ObtainAnno', () => {
         const resAnno = testPjudPdf.obtainAnno(null);
         expect(resAnno).toBeNull();
     });
+
+    test('Caso donde aparece el ano de inscripcion y el ano de vigencia', ()=>{
+        const info = testPjudPdf.normalizeInfo(tx3857);
+        const anno = testPjudPdf.obtainAnno(info);
+        expect(anno).toEqual('2014');
+    });
 });
 
 describe('ObtainMontoMinimo', () => {
@@ -221,7 +256,16 @@ describe('ObtainMontoMinimo', () => {
             monto: '123.136.853',
             moneda : "Pesos"
         })
+    });
 
+    test('Obtener monto minimo de postura de un extracto',()=>{
+        const info = testPjudPdf.normalizeInfo(ex1341);
+        const montoMinimo = testPjudPdf.obtainMontoMinimo(info);
+        expect(montoMinimo).toEqual({
+            monto: '80.074.227',
+            moneda : "Pesos"
+        })
+        
     });
 });
 
@@ -251,6 +295,38 @@ describe('ObtainMontoCompra', () => {
             monto: 3756,
             moneda: 'UF' 
         });
+    });
+
+    test('Obtener motno de compra por compraventa', ()=>{
+        const normalizeInfo = testPjudPdf.normalizeInfo(tx13759);
+        const monto = testPjudPdf.obtainMontoCompra(normalizeInfo);
+        expect(monto).toEqual({
+            monto: 9744,
+            moneda: 'UF' 
+        })
+    });
+
+    test('Obtener monto de compra pesos por la suma', () =>{
+        const normalizeInfo = testPjudPdf.normalizeInfo(tx7140);
+        const resMontoCompra = testPjudPdf.obtainMontoCompra(normalizeInfo);
+        expect(resMontoCompra).toEqual({
+            monto: 78918749,
+            moneda: 'Pesos' 
+        });
+    });
+});
+
+describe('obtainDeudaHipoteca', ()=>{
+    test('Monto de compra donde dice mutuo y prestamo',()=>{
+        const info = testPjudPdf.normalizeInfo(dm1056);
+        const deuda = testPjudPdf.obtainDeudaHipotecaria(info);
+        expect(deuda).toEqual('uf 1248,2274');
+    });
+
+    test('Monto de compra donde dice mutuo hipotecario',()=>{
+        const info = testPjudPdf.normalizeInfo(dm1138);
+        const deuda = testPjudPdf.obtainDeudaHipotecaria(info);
+        expect(deuda).toEqual('uf 3684,5498');
     });
 });
 

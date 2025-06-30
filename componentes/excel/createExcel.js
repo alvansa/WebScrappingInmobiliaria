@@ -402,7 +402,6 @@ class createExcel {
             return cleanedRoles[0];
         }
         [rol1, rol2, rol3] = cleanedRoles;
-        console.log("Roles limpios: ", rol1, rol2, rol3);
         const comparisonResult = this.checkFirstHalves(rol1, rol2, rol3);
         const finalRol = this.mergeRol(rol1, rol2, rol3, comparisonResult);
         return finalRol;
@@ -428,7 +427,6 @@ class createExcel {
         const halfOne = rolOne.split("-")[0];
         const halfTwo = rolTwo.split("-")[0];
         const halfThree = rolThree.split("-")[0];
-        console.log("Roles: ", halfOne, halfTwo, halfThree);
         if (halfOne == halfTwo && halfTwo == halfThree) {
             return THREE_SAME;
         } else if (halfOne == halfTwo) {
@@ -459,31 +457,23 @@ class createExcel {
 
     mergeRol(rol1, rol2, rol3, areSame) {
         let final;
-        console.log("Roles a unir: ", rol1, rol2, rol3, "Resultado de la comparacion: ", areSame);
         switch (areSame) {
             case THREE_SAME:
-                console.log("3 iguales");
                 final = this.mergeThreeRoles(rol1, rol2, rol3);
                 break;
 
             case ONE_TWO:
-                console.log("1 y 2 iguales");
                 final = this.mergeDiffRoles(this.mergeTwoRoles(rol1, rol2), rol3);
-                console.log("Rol final cuando 1 y 2 son iguales: ", final);
                 break;
 
             case ONE_THREE:
-                console.log("1 y 3 iguales");
-
                 final = this.mergeDiffRoles(this.mergeTwoRoles(rol1, rol3), rol2)
                 break;
 
             case TWO_THREE:
-                console.log("2 y 3 iguales");
                 final = this.mergeDiffRoles(this.mergeTwoRoles(rol2, rol3), rol1)
                 break;
             case THREE_DIFF:
-                console.log("3 diferentes");
                 final = this.mergeDiffRoles(rol1, rol2, rol3)
 
                 break;
@@ -491,12 +481,10 @@ class createExcel {
                 final = null;
 
         }
-        console.log("Rol final: ", final);
         return final;
     }
 
     mergeDiffRoles(rol1 = null, rol2 = null, rol3 = null) {
-        console.log("Unir roles al final: ", rol1, rol2, rol3);
         if (rol1 && rol2 && rol3) {
             return rol1 + "//" + rol2 + "//" + rol3;
         } else if (rol1 && rol2) {

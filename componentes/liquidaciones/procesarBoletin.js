@@ -308,6 +308,7 @@ class ProcesarBoletin {
 
                 const dataBuffer = fs.readFileSync(filePath);
                 const data = await pdf(dataBuffer);
+                console.log(data.text);
                 return data.text;
             }
         } catch (error) {

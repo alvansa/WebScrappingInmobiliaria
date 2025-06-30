@@ -307,6 +307,7 @@ página 3 de 3
 Documento incorpora Firma
 Electronica Avanzada
 Código de Verificación: cpv169fc41-0`;
+
 const tx1349 = `Registro de Propiedad
 Copia con Vigencia
 Carátula 23683186
@@ -411,5 +412,266 @@ Documento incorpora Firma
 Electronica Avanzada
 Código de Verificación: cpv1696072-0`;
 
+const tx3857 = `Conservador de Bienes Raíces de Villarrica
+http://www.cbrvillarrica.cl
+CBRV
+Conservador de Bienes Raíces de Villarrica
+Vicente Reyes 854, Villarrica
+Registro de PROPIEDADES-DV
+PROPIEDAD
+DOMINIO VIGENTE
+El  Conservador  de  Bienes  Raíces  de  Villarrica  CERTIFICA  que  la  inscripción  de  fojas
+3060F      número  2611    correspondiente  al  año  2014  ,  adjunta  al  presente
+documento,  está  conforme  con  su  original  y  se  encuentra  vigente  al  día  10
+de Abril del 2025.-
+Documento   incorpora   firma   electrónica   avanzada   conforme   a   Ley   N
+°19.799.  La  vigencia  de  la  firma  electrónica  en  el  documento,  al  igual  que  la
+integridad   y   autenticidad   del   mismo,   deben   ser   verificados   en
+www.cbrvillarrica.cl,  donde  estará  disponible  por  60  días  contados  desde  la
+fecha  de  su  emisión.  Documento  impreso  es  sólo  una  copia  del  documento
+original.
+Código de Verificación
+07N42BSJRB
+Villarrica,
+10 de Abril del 2025
+Mrs
+07N42BSJRB Página 1 de 3
 
-module.exports = {tx356, tx23039, tx12017, tx1349};
+07N42BSJRB Página 2 de 3
+
+07N42BSJRB Página 3 de 3`;
+
+const tx13759 = `Registro de Propiedad
+Copia con Vigencia
+Carátula 23127208
+Morandé 440
+Santiago
+Teléfono:
+2 2390 0800
+www.conservador.cl
+info@conservador.cl
+El Conservador de Bienes Raíces de Santiago certifica que la inscripción de fojas
+69650 número 99883 correspondiente al Registro de Propiedad del año 2017,
+adjunta al presente documento, está conforme con su original y se encuentra
+vigente al día 31 de diciembre de 2024.
+
+Los derechos registrales correspondientes a esta actuación ascienden a la suma
+de $ 4600.
+asilva
+Santiago, 2 de enero de 2025.
+Código de verificación: cpv160e4a8-0
+Documento incorpora firma electrónica avanzada conforme a Ley N°19.799.
+La vigencia de la firma electrónica en el documento, al igual que la integridad
+y autenticidad del mismo, deben ser verificados en www.conservador.cl,
+donde estará disponible por 90 días contados desde la fecha de su emisión.
+Documento impreso es sólo una copia del documento original.
+www.conservador.cl
+página 1 de 3
+
+Nº99883
+EM/CC/VP
+C: 12464717
+COMPRAVENTA
+INMOBILIARIA
+PORTAL SANTA
+MARÍA S.A.
+A
+MANUEL JESÚS
+VILLAVICENCIO
+RAMIREZ
+REP: 88550
+B: 1804261
+F:
+
+
+Santiago, veintisiete de septiembre del año dos
+mil diecisiete.- Don MANUEL JESÚS VILLAVICENCIO
+RAMIREZ,  C.I.  8.455.077-9,  soltero,  de  este
+domicilio, es dueño de la casa número cincuenta
+y  dos,  ubicada  en  Avenida  Santa  María  número
+catorce  mil  novecientos  sesenta  y  siete  guión
+cincuenta  y  dos,  del  Conjunto  Habitacional
+denominado "Condominio Portal Santa María II",
+que tiene su acceso principal por Avenida Santa
+María número catorce mil novecientos sesenta y
+siete, Comuna de Colina, Región Metropolitana,
+de  acuerdo  al  plano  archivado  con  el  número
+5313; y dueño además de derechos en proporción
+al valor de lo adquirido en unión de los otros
+adquirentes  en  los  bienes  comunes  entre  los
+cuales  se  encuentra  el  terreno,  que  deslinda:
+NORTE,  tramo  dieciocho  guión  diecisiete  de
+ciento  cuarenta  y  cinco  coma  treinta  y  nueve
+metros  y  tramo  diecinueve  guión  veinte  de
+treinta  y uno  coma  setenta  y  cuatro  metros,
+ambos con macrolote ML dieciséis A guión tres;
+SUR,  tramo  quince  guión  dieciséis  de  ciento
+cincuenta y tres coma ochenta y siete metros y
+tramo  trece  guión  catorce  de  treinta  y  cinco
+metros,  ambos  con  macrolote  ML  dieciséis  A
+guión  A  guión  uno;  ORIENTE,  tramo  dieciséis
+guión diecisiete de doscientos trece metros con
+otros  propietarios;  PONIENTE,  en  tramo  trece
+guión  cinco  de  ciento  sesenta  y  cuatro  coma
+noventa  metros;  tramo  cuatro  guión  cinco  de
+siete  coma  cincuenta  y  tres  metros,  ambos  con
+Avenida  Santa  María;  tramo  veintiuno  guión
+cuatro  de  veintidós  coma  cincuenta  y  ocho
+Fojas   69650
+página 2 de 3
+Documento incorpora Firma
+Electronica Avanzada
+Código de Verificación: cpv160e4a8-0
+
+metros con otros propietarios; tramo dieciocho
+guión  diecinueve  de  ocho  coma  treinta  y  tres
+metros con macrolote ML dieciséis A guión tres
+y  tramo  catorce  guión  quince  de  uno  coma
+noventa   y   tres   metros   con   Macrolote   ML
+dieciséis  A  guión  uno;  NORPONIENTE,  tramo
+veintiuno  guión  veinte  de  siete  metros  con
+macrolote  ML  dieciséis  A  guión  tres.-  La
+adquirió por compra a la sociedad INMOBILIARIA
+PORTAL  SANTA  MARÍA  S.A.,  de  este  domicilio,
+según  escrituras  de  fechas  treinta  y  uno  de
+enero  y  treinta  de  junio  del  año  dos  mil
+diecisiete,  otorgadas  en  la  notaría  de  esta
+ciudad, de don René Benavente Cash, Repertorios
+Números  3520  y  24155, respectivamente,  siendo
+la última de rectificación y complementación.-
+El  precio  de  la  compraventa  es  de  NUEVE  MIL
+SETECIENTAS  CUARENTA  Y  CUATRO  UNIDADES  DE
+FOMENTO, que se paga en la forma y condiciones
+establecidas  en  la  escritura.-  El  título
+anterior  está  a  Fojas  16364  Número  24257  del
+año 2015.- Rol de avalúo número 1598-52, Comuna
+de Colina.- Requirente: Banco Santander Chile.-
+LUIS MALDONADO C.
+Fin del Texto`;
+
+const tx7140 = `COPIA DE INSCRIPCION
+REGISTRO DE PROPIEDAD
+El  Conservador  que  suscribe  certifica  que  la  inscripción
+adjunta, y que rola a fojas7723, nº7136, año2018, de
+este  registro,  está  conforme  con  su  original,  y  que  la
+inscripción que consta en ella se encuentra:VIGENTE.-
+San Miguel, 10 de Marzo de 2025.-
+c: 2025035893
+Documento emitido con Firma Electrónica Avanzada.-
+Ley Nº 19.799.- Auto Acordado de la Excma. Corte Suprema de Chile.
+Verifique su validez en www.veridoc.cl.
+Verifique con el código YCU3-1V3WS-42
+
+C/ 40582
+FB/LS/AA.
+COMPRAVENTA
+INMOBILIARIA ECASA
+SANTIAGO S.A.
+A
+VALERIA ALEJANDRA
+AGUILAR SEPULVEDA
+Rep. Nº  9340
+Nº7136
+San Miguel, a tres de Mayo del año dos
+mil   dieciocho.-VALERIA   ALEJANDRA
+AGUILAR  SEPÚLVEDA,  cédula  nacional  de
+identidad    número    siete    millones
+ochocientos   nueve   mil   quinientos
+ochenta  y  dos  guión  dos,  divorciada,
+enfermera,  domiciliada  en  calle  José
+Miguel  Carrera  número  mil  novecientos
+noventa     y     dos,     departamento
+veintitrés,  comuna  de  Macul;  es  dueña
+deldepartamento número mil quinientos
+dos,  del  décimo  quinto  piso,  Rol  de
+Avalúo  N°305-443;  elestacionamiento
+número   E   doscientos   cuatro,   del
+segundo  subterráneo,  Rol  de  Avalúo
+N°305-938; y labodega número B ciento
+noventa  y  nueve,  del  décimo  quinto
+piso,  Rol  de  Avalúo  N°305-744;  todos
+del Condominio Edificio Cicarelli, que
+tiene  su  acceso  por  calle  Diagonal
+Santa  Elena  número  dos  mil  quinientos
+sesenta   y   cinco,   según   plano   de
+subdivisión  número  9670  y  planos  de
+copropiedad    archivados    bajo    los
+números 10123 y 10123 A a la F, de la
+comuna   de   San   Joaquín;   y   dueña,
+además,  de  derechos  en  proporción  al
+valor de lo adquirido en unión de los
+adquirentes  de  los  otros  inmuebles  y
+FS 7723
+Hipoteca a fs.   3878vta-
+3005- 2018. San Miguel,
+03/05/2018
+Prohibición a fs.
+4213vta- 3680- 2018.
+San Miguel, 03/05/2018
+
+de los bienes comunes entre los cuales
+se   encuentra   el   terreno   cuyos
+deslindes  son:  alSurponiente,  en
+tramo  D-E  en  treinta  y  cinco  coma
+treinta metros con otros propietarios;
+alPoniente,  en  tramo  E-N  en  cuarenta
+y  seis  coma  ochenta  y  dos  metros  con
+otros  propietarios;  en  tramo  I-H  en
+veinte  coma  cincuenta  metros  con  Lote
+número  Uno;  y  en  tramo  G-Uno  en  diez
+coma   veinticinco   metros   con   Lote
+número  Uno;  alNorponiente,  en  tramo
+J-I  en  cuarenta  y  siete  coma  veinte
+metros  con  Lote  número  Uno;al  Norte,
+en   tramo   N-M   en   diecisiete   coma
+ochenta y tres metros, en tramo L-K en
+cero coma setenta y cuatro metros y en
+tramo  H-G  en  cincuenta  y  cinco  coma
+sesenta  y  un  metros,  todos  con  Lote
+número  Uno;  alNororiente,  en  tramo
+Uno-Dos  en  veintiocho  coma  cuarenta  y
+cuatro  metros  con  Lote  Dos-B,  de  la
+misma  subdivisión;al  Oriente,  en
+tramo  M-L  en  veinte  coma  dieciocho
+metros  y  en  tramo  J-K  en  nueve  coma
+ochenta  y  ocho  metros,  ambos  con  Lote
+número  Uno;y  al  Suroriente,  en  tramo
+Dos-D  en  ciento  treinta  y  cinco  coma
+quince metros con calle Diagonal Santa
+Elena.  Los  adquirió  por  compra  a
+ FS 7723
+vta
+
+INMOBILIARIA  ECASA  SANTIAGO  S.A.,  con
+domicilio  en  Avenida  Vitacura  número
+dos  mil  novecientos  sesenta  y  nueve,
+piso  trece,  comuna  de  Las  Condes,
+según  consta  de  la  escritura  otorgada
+en  la  Notaría    de  Santiago  de  don
+Patricio  Zaldívar  Mackenna,  con  fecha
+28  de  febrero  de  2018,  repertorio
+número 3123; por la suma de setenta y
+ocho  millones  novecientos  dieciocho
+mil setecientos cuarenta y nueve Pesos
+($78.918.749),  equivalentes  a  dos  mil
+novecientas  treinta  y  una  coma  dos
+Unidades   de   Fomento(U.F.2931,2),
+pagado.-   El   título   anterior   está
+inscrito aFojas  21403, Número  18439
+del  Año    2015.-  Requirente:  BICE
+HIPOTECARIA S.A.-
+FS 7724
+
+Teléfono  : 554 6645             Llano Subercaseaux 2585
+San Miguel            Fax         : 554 5574
+www.conservadorsanmiguel.cl
+secretaria@conservadorsanmiguel.cl
+C.:
+Con las siguientes Notas Marginales  :
+2025035893
+Rep. 26754. 06.12.2022. Medida Precautoria. C -138781.
+Medida Precautoria a fs.  11016-9200-2022.- San Miguel 12/12/2022.-
+Rep.1.944 26/01/2024 Embargo Car.11921.
+Embargo a fs. 535v-528-2024.- San Miguel 31/01/2024.-`
+
+module.exports = {tx356, tx23039, tx12017, tx1349, tx3857, tx13759, tx7140};

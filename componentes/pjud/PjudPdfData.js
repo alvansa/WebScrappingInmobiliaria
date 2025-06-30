@@ -1,4 +1,3 @@
-const { setDefaultScreenshotOptions } = require('puppeteer-core');
 const { getMontoMinimo, getFormatoEntrega, getPorcentaje, getAnno, getComuna, getTipoDerecho } = require('../economico/datosRemateEmol');
 const convertWordToNumbers = require('../../utils/convertWordToNumbers');
 
@@ -17,8 +16,8 @@ class PjudPdfData {
         if (this.checkIfValidDoc(data)) {
             return false;
         }
-
         let normalizeInfo = this.normalizeInfo(data);
+        // console.log(normalizeInfo)
         let spanishNormalization = this.normalizeSpanish(data);
 
         if (this.isCaseComplete()) {
@@ -46,6 +45,10 @@ class PjudPdfData {
                 return true;
             }
         }
+        if(this.checkIfDiario(item)){
+            return true;
+        }
+
         return false;
     }
 
@@ -191,7 +194,6 @@ class PjudPdfData {
             if(this.checkIfTextHasHipoteca(normalizedInfo)){
                 const deuda = this.obtainDeudaHipotecaria(normalizedInfo);
                 if(deuda){
-                    console.log("Deuda encontrada: ", deuda)
                     this.caso.deudaHipotecaria = deuda;
                 }
             }
@@ -236,6 +238,10 @@ class PjudPdfData {
         if(anno){
             return anno;
         }
+        anno = this.obtainYearFromInscripcion(texto);
+        if(anno){
+            return anno;
+        }
         return null;
     }
 
@@ -247,7 +253,6 @@ class PjudPdfData {
            return null; 
         }
         let newText = text.substring(startText.index);
-        console.log("Primera busqueda",newText)
         
         const newStart = /del\s*ano/i;
         let startAno = newStart.exec(newText);
@@ -255,13 +260,11 @@ class PjudPdfData {
             const newStart2 = /del\s*afio/i;
             startAno = newStart2.exec(newText);
             if (!startAno) {
-                console.log("No se encontro el anno");
                 return null;
             }
         }
     
         newText = newText.substring(startAno.index);
-        console.log("despues de busqueda el anno",newText)
   
         const regexEndBuy = /,\s*otorgada/i;
         const endText = regexEndBuy.exec(newText);
@@ -270,9 +273,7 @@ class PjudPdfData {
         }
         const endIndex = endText.index;
         newText = newText.substring(0, endIndex)
-        console.log("Ulimo cambio para busar: ",newText)
         anno = convertWordToNumbers(newText);
-        console.log("anno: ", anno);
         return anno;
     }
 
@@ -308,6 +309,15 @@ class PjudPdfData {
         return null;
     }
 
+    obtainYearFromInscripcion(texto){
+        const regexInscripcion = /inscripcion\s*.*al\s*ano\s*(\d{4})/i;
+        let registro = texto.match(regexInscripcion);
+        if(registro){
+            return registro[1];
+        }
+        return null;
+    }
+
     obtainMontoCompra(text) {
         if (!text.includes("inscripci")) {
             console.log("No se puede obtener el monto de compra, no contiene inscripcion");
@@ -318,7 +328,6 @@ class PjudPdfData {
         // Funcion que busca: por el precio de
         let monto = this.searchByPorCompra(text);
         if (monto) {
-            
             return this.processMonto(monto);
         }
         // Funcion que busca: precio de compraventa
@@ -328,6 +337,12 @@ class PjudPdfData {
         }
         // Funcion que busca por: Adquirio la propiedad
         monto = this.searchByAdquirio(text);
+        if(monto){
+            return this.processMonto(monto);
+        }
+
+        // Funcion que busca por: por la suma
+        monto = this.searchByPorLaSuma(text);
         if(monto){
             return this.processMonto(monto);
         }
@@ -462,7 +477,7 @@ class PjudPdfData {
     }
 
     searchByCompraVenta(text) {
-        const startRegex = /precio\s*de\s*compraventa/i;
+        const startRegex = /precio\s*de(\s*la)?\s*compraventa/i;
         const startMatch = startRegex.exec(text);
         if (!startMatch) {
             return null;
@@ -491,13 +506,30 @@ class PjudPdfData {
             return null;
         }
         newText = newText.substring(0, matchedEnd.index);
+        return newText;
+    }
+
+    searchByPorLaSuma(text){
+        const regexSuma = /por\s*la\s*suma/i;
+        const matchedAdquirio = regexSuma.exec(text);
+        if (!matchedAdquirio) {
+            return null;
+        }
+        let newText = text.substring(matchedAdquirio.index);
+        console.log("Nuevo texto en search By la suma ",newText);
+        const regexCompraventa = /,/i;
+        const matchedEnd = regexCompraventa.exec(newText);
+        if (!matchedEnd) {
+            return null;
+        }
+        newText = newText.substring(0, matchedEnd.index);
         console.log(newText);
         return newText;
     }
 
     searchByEstimacion(text) {
 
-        const indexPrice = /se\s*estiman(?:\s*en)/i;
+        const indexPrice = /se\s*estiman?(?:\s*en)/i;
         const priceMatch = indexPrice.exec(text);
         if (!priceMatch) {
             return null;
@@ -570,18 +602,18 @@ class PjudPdfData {
     // Funcion para revisar si el texto actual hara referencia a una deuda hipotecaria o no.
     checkIfTextHasHipoteca(info){
         // console.log(`Buscando si en el texto esta como deuda hipotecaria: ${info}`);
-        if(regexMutuoHipotecario.exec(info)){
+        if(regexMutuoHipotecario.exec(info) || info.includes('mutuo')){
             return true;
         }
         if(info.includes("prestamo")){
-            console.log("No valido para deuda por prestamo");
+            // console.log("No valido para deuda por prestamo");
             return false;
         }
         if(info.includes("hipoteca")){
             return true;
         }
         if(info.includes("pagare")){
-            console.log("no valido para deuda por pagare");
+            // console.log("no valido para deuda por pagare");
             return false;
         }
         const regexMeses = /\d{2,}\s*(meses|cuotas\s*mensual)/;
@@ -603,15 +635,12 @@ class PjudPdfData {
         if(!newText){
             return null;
         }
-        console.log(newText);
         const regexNumber = "(\\d{1,}|\\d{1,3}(\\.\\d{1,3})*),?(\\d{1,})?"
         const regexUF = "(u\\.?[fe]\\.?|unidades?\\s*de\\s*fomento)"
         const regexDeudaUF = new RegExp(`(${regexNumber}\\s*(-\\s*)?${regexUF}|${regexUF}\\s*${regexNumber})`, "gi")
         const matchNumero = newText.match(regexDeudaUF);
         if(matchNumero){
             deuda = this.checkBiggerDebt(matchNumero)
-            console.log(matchNumero);
-            console.log("Deuda encontrada en obtain: ", deuda);
             if(deuda.includes("ue")){
                 deuda = deuda.replace("ue","uf");
             }
@@ -621,7 +650,6 @@ class PjudPdfData {
         const regexDeudaPesos = new RegExp(`(\\$\\s*${regexNumber}|${regexNumber}\\s*(?:de\\s*)?pesos)`)
         const matchMontoPesos = regexDeudaPesos.exec(newText);
         if(matchMontoPesos){
-            console.log(matchMontoPesos)
             return matchMontoPesos[0];
         }
         return null;
@@ -636,7 +664,6 @@ class PjudPdfData {
         const regexNumber = /(\d{1,}|\d{1,3}(\.\d{1,3})*),?(\d{1,})?/;
         debts.forEach((debt, index) => {
             let stringActualDebt = debt.match(regexNumber)[0].replace(/,/g, ".")
-            console.log(debt, stringActualDebt)
             const actualDebt = Number(stringActualDebt);
             if (actualDebt > biggerDebt) {
                 biggerDebt = actualDebt;
@@ -667,13 +694,13 @@ class PjudPdfData {
     findValueGeneric(info, normalizedInfo, lambda){
         const textRemate = this.splitTextFromPaper(normalizedInfo);
         if (textRemate.length === 1) {
-            console.log("Buscando en singular")
+            // console.log("Buscando en singular")
             const value = lambda(info,normalizedInfo);
             if (value) {
                 return value;
             }
         }else{
-            console.log("Buscando en plural")
+            // console.log("Buscando en plural")
             for (const text of textRemate) {
                 if (!text.includes(this.caso.causa.toLowerCase()) && this.caso.causa) {
                     continue;
@@ -710,6 +737,9 @@ class PjudPdfData {
         let matchedRemate;
         let lastStart = 0;
         const textoFinal = [];
+        if(info.includes("economicos") || info.includes("económicos")){
+            return [];
+        }
         if(!regexMonto.test(info)) {
             // Si no se encuentra remate judicial se asume que es solo un texto
             // return [];
@@ -739,6 +769,8 @@ class PjudPdfData {
         return numericPercentage[0];
     }
 
+    //Busca el estado civil
+    //TODO: aun no esta funcionando porque es necesario averiguar bien el comprador
     obtainCivilStatus(info) {
         const validInfo = info;
         // console.log("info en estado civil: ", validInfo);
@@ -761,10 +793,12 @@ class PjudPdfData {
         } else if (validInfo.match(regexWidowed)) {
             return "Viudo";
         }
-
         return null;
     }
 
+    //Busca si el matrimonio encontrado tiene un explicito
+    //separacion de bienes, conyugal, regimen comuna
+    //TODO: agregar mujer casada con el articulo 150
     findTipeMarriage(info) {
         const regexSeparacion = /(separacion\sde\sbienes|separado\s*totalmente\s*de\s*bienes)/i;
         const regexConyugal = /matrimonio\s(?:conyugal|por\sregimen\spatrimonial\sdiferente\sa\slos\sgenerales)/i;
@@ -780,6 +814,7 @@ class PjudPdfData {
         return '';
     }
 
+    //Obtiene el rol del bien raiz del documento de avaluo fiscal
     obtainRolPropiedad(info) {
         if(!info) return null;
         if (info.includes("inscripcion")) {
@@ -799,6 +834,8 @@ class PjudPdfData {
         }
     }
 
+    //Obtiene el avaluo fiscal del documento avaluo fiscal
+    // se ocupa para obtener el avaluo de habitacion, estacionamineto, bodega
     obtainAvaluoPropiedad(info) {
         let avaluoType = this.obtainTipo(info) ? this.obtainTipo(info) : '';
         const regexAvaluo = /avaluo\stotal\s*:\$(\d{1,3}.?)*/g;
@@ -815,6 +852,7 @@ class PjudPdfData {
         }
     }
 
+    //Obtiene el tipo de bien raiz del documento de avaluo fiscal
     obtainTipo(info) {
         const regexTipo = /destino\sdel\sbien\sraiz:\s(\w{1,20})/g;
         let tipoBien = info.match(regexTipo);
@@ -824,11 +862,12 @@ class PjudPdfData {
         else {
             return null;
         }
-
     }
 
     obtainComuna(info, infoNormalized) {
         const regexRegistro = /dominio\s*con\s*vigencia/gi;
+        //No se obtiene la comuna de la inscripcion porque en esta aparecen varias comunas
+        //Del comprador, vendedor, inmobiliaria, juzgado, etc
         if (regexRegistro.test(info)) {
             console.log("Incluye registro de propiedad, no se puede obtener la comuna");
             return null;
@@ -847,6 +886,8 @@ class PjudPdfData {
         return null;
     }
 
+    //Funcion para obtener la direccion
+    //Esta funcion esta pensada para funcionar con textos de avaluo fiscal
     obtainDireccion(info) {
         // console.log("info en direccion: ", info);
         let avaluoType = this.obtainTipo(info) ? this.obtainTipo(info) : '';
@@ -871,8 +912,7 @@ class PjudPdfData {
 
     obtainAnno(info){
         if(!info) return null;
-
-        if (!regexMutuoHipotecario.exec(info)) {
+        if (!regexMutuoHipotecario.exec(info) ) {
             const GPnormalizedInfo = this.adaptTextIfGP(info);
             if (!GPnormalizedInfo) {
                 console.log("No se obtiene el ano del GP");
@@ -897,6 +937,21 @@ class PjudPdfData {
         }
         const newText = texto.substring(0, endIndex);
         return newText;
+    }
+
+    //Revisa si el texto leido es un diario, esto lo realiza buscando si son publicaciones
+    //de remate y para eso busca si la palabra remate aparece mas de 6 veces.
+    checkIfDiario(info){
+        const regexRemate = /remate/gi;
+        const countRemate = info.match(regexRemate);
+        if(!countRemate){
+            return false;
+        }
+        if(countRemate > 6){
+            return true;
+        }
+        return false;
+
     }
 
     //This function will check if the case is complete, if it is the process end
