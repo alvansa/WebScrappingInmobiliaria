@@ -72,6 +72,10 @@ contextBridge.exposeInMainWorld('api', {
     console.log("Resultados de la consulta en el preload :", result);
     return result;
   },
+  getAllCausas : async() =>{
+    const result = await ipcRenderer.invoke('getAllCausas');
+    return result;
+  },
 
   getInfoFromPdfPjud: async(filePath, startDate, endDate) => {
     try {

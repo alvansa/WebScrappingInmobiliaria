@@ -22,7 +22,7 @@ const config = require('../../config.js');
 const {testTexto,testTextoArgs} = require('../economico/testEconomico.js');
 const {downloadPdfFromUrl,checkUserAgent} = require('../pjud/downloadPDF.js');
 const { fakeDelay, delay } = require('../../utils/delay.js');
-const {tribunalesPorCorte} = require('../../utils/corteJuzgado.js');
+const {tribunalesPorCorte, obtainCorteJuzgadoNumbers} = require('../../utils/corteJuzgado.js');
 const Causas = require('../../model/Causas.js');
 const { type } = require('node:os');
 const { start } = require('node:repl');
@@ -250,6 +250,17 @@ class MainApp{
            const resultado = await this.testDB(args);
            return resultado;
         });
+
+        //Obtener todos los casos de la tabla causa
+        ipcMain.handle('getAllCausas', async (event, args) => {
+            const dbcausa = new Causas();
+            const resultados = dbcausa.getAllCausas();
+            console.log('Resultados de las causas en la DB: ',resultados);
+            console.log("Cantidad de resultados: ", resultados.length);
+            console.log("Buscando si hay un resultado en especifico: ",dbcausa.searchCausa('C-746-2024',96))
+            return resultados;
+        });
+
     }
 
 
@@ -298,7 +309,7 @@ class MainApp{
         let fechaInicio = stringToDate(fechaInicioStr);
         let fechaFin = new Date(fechaFinStr); 
 
-        fechaInicio.setMonth(fechaInicio.getMonth() - 1);
+        // fechaInicio.setMonth(fechaInicio.getMonth() - 1);
 
         // fechaInicio = stringToDate(fechaInicioStr);
         // fechaFin = stringToDate(fechaFinStr); 
@@ -357,7 +368,7 @@ class MainApp{
         let startDate = stringToDate(fechaInicioStr);
         let endDate = stringToDate(fechaFinStr); 
 
-        startDate.setMonth(startDate.getMonth() - 1);
+        // startDate.setMonth(startDate.getMonth() - 1);
        try{
             const window = new BrowserWindow({ show: true });
             const url = 'https://www.boletinconcursal.cl/boletin/remates';
@@ -458,7 +469,7 @@ class MainApp{
             // casos.push(caso1);
             // const caso2 = this.createCaso("C-10417-2024","30º JUZGADO CIVIL DE SANTIAGO");
             // casos.push(caso2); 
-            // this.obtainCorteJuzgadoNumbers(casos);
+            // obtainCorteJuzgadoNumbers(casos);
             
             const result = await this.obtainDataFromCases(casos, event);
             console.log("Resultados de los casos en la funcion de llamada: ", casos.length);
@@ -577,7 +588,7 @@ class MainApp{
             // casos.push(caso4);
             // const caso5 = this.createCaso("C-4733-2024","3º JUZGADO DE LETRAS DE LA SERENA");
             // casos.push(caso5);
-            this.obtainCorteJuzgadoNumbers(casos);
+            obtainCorteJuzgadoNumbers(casos);
             const result = await this.obtainDataFromCases(casos,event);
             console.log("Resultados de los casos en la funcion de llamada: ",casos.length);
             const downloadPath = path.join(os.homedir(), "Documents", "infoRemates");
@@ -711,74 +722,13 @@ class MainApp{
         const page = await pie.getPage(this.browser, window);
         const pjud = new Pjud(this.browser, page, startDate, endDate);
         const casos = await pjud.datosFromPjud();
-        this.obtainCorteJuzgadoNumbers(casos);
+        obtainCorteJuzgadoNumbers(casos);
         window.destroy();
         return casos;
 
     }
 
-    obtainCorteJuzgadoNumbers(casos){
-        console.log("Obteniendo los numeros de juzgado y corte de ", casos.length, " casos");
-        for(let caso of casos){
-            const juzgado = caso.juzgado
-            .toLowerCase()
-            .replace(/3er/,"3º")
-            .replace(/en\s+lo/,"")
-            .replace(/de\s+\los\s+lagos/ig,"los lagos")
-            .replace(/de\scalera/ig,"de la calera")
-            .replace(/de\ssan\svicente/ig,"de san vicente de tagua tagua")
-            .replace(/1º juzgado\sde\sletras\sde\spuerto\svaras/ig,"juzgado de letras de puerto varas")
-            .replace(/1º juzgado\sde\sletras\sde\sangol/gi,"juzgado de letras de angol")
-            .replace(/\s+/g," ")
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "");
-            console.log("Buscando : ",juzgado);
-            const result = this.searchTribunalPorNombre(juzgado);
-            if(result){
-                caso.corte = result.corte;
-                caso.numeroJuzgado = result.value;
-                console.log("Caso: ", caso.causa, "Juzgado: ", caso.juzgado, "\nResultado: ", result);
-            }
-        }
-        console.log("Finalizado la revision de casos");
-    }
 
-    searchTribunalPorNombre(nombreTribunal) {
-        const tribunalesPorCorteNormalized = this.normalizeTribunalesPorCorte(tribunalesPorCorte);
-        for (const corte in tribunalesPorCorteNormalized) {
-          if (tribunalesPorCorteNormalized.hasOwnProperty(corte)) {
-            const tribunales = tribunalesPorCorteNormalized[corte];
-            for (let i = 0; i < tribunales.length; i++) {
-              if (tribunales[i].nombre.toLowerCase() === nombreTribunal) {
-                return {
-                  corte: corte,
-                  value: tribunales[i].value,
-                  index: i
-                };
-              }
-            }
-          }
-        }
-        return null; // Si no se encuentra el tribunal
-      }
-
-    normalizeTribunalesPorCorte(tribunalesPorCorte) {
-        const normalized = {};
-        for (const corte in tribunalesPorCorte) {
-          if (tribunalesPorCorte.hasOwnProperty(corte)) {
-            normalized[corte] = tribunalesPorCorte[corte].map(tribunal => ({
-              ...tribunal,
-              nombre: tribunal.nombre
-              .toLowerCase()
-              .normalize("NFD")
-              .replace(/[\u0300-\u036f]/g, "")
-              .replace(/gar\./i,"garantia ")
-              .replace(/pto\./i,"puerto "),
-            }));
-          }
-        }
-        return normalized;
-      }
 
     createCaso(causa,juzado){
         const caso = new Caso("2025/11/30");
@@ -872,4 +822,7 @@ function dateToPjud(date) {
     return `${dia}/${mes}/${año}`;
 }
 
+
 new MainApp();
+
+

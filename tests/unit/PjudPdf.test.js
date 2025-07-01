@@ -3,7 +3,7 @@ const path = require('path');
 const PjudPdfData = require('../../componentes/pjud/PjudPdfData');
 const Caso = require('../../componentes/caso/caso');
 const createExcel = require('../../componentes/excel/createExcel')
-
+const Causas = require('../../model/Causas');
 
 const {textoEstacionamiento1,textoHabitacional1, textoBodegaMultiple, textoEstacionamientoMultiple, textoHabitacionMultiple} = require('./textos/Avaluo');
 const {textoGP1, textoGP2, textoGP3, textoGP4, textoGP5, texto12Santiago} = require('./textos/GP');
@@ -11,16 +11,21 @@ const {diario2484, ex1341, diario1341} = require('./textos/diario');
 const {tx356, tx23039, tx12017, tx1349, tx3857, tx13759, tx7140} = require('./textos/DV');
 const {bf2201, bf1341, notBf} = require('./textos/BF');
 const {dm1056, dm1138} = require('./textos/DM');
-
+const {obtainCorteJuzgadoNumbers} = require('../../utils/corteJuzgado');
+const { dir } = require('console');
 
 const dm1138File = fs.readFileSync(path.resolve(__dirname,'./textos/textosLargos/dm1138.txt'),'utf8')
 
 const excelConstructor = new createExcel("","","","",false,1);
 const testCaso = createCase("1111-2024", '1º Juzgado de Letras de Buin');
 const caso2484 = createCase("C-2484-2023","3º Juzgado de Letras de Iquique");
+const casoBase = Caso.createMockCase();
 const testPjudPdf = new PjudPdfData(testCaso)
 const pjudPdf2484 = new PjudPdfData(caso2484);
+const causaDB = new Causas();
 
+const EMOL = 1;
+const PJUD = 2;
 
 
 describe('obtainRolPropiedad', () => {
@@ -437,6 +442,132 @@ describe('SumAvaluo', () => {
     test('Prueba con avaluo propiedad, estacionamiento y bodega', () =>{
         const resSumAvaluo = excelConstructor.sumAvaluo(100000,20000,3000);
         expect(resSumAvaluo).toEqual(123000);
+    });
+});
+
+describe('obtainCorteJuzgadoNumbers', ()=>{
+    test('caso nulo', ()=>{
+        const casoNulo = createCase("C-1111-2222",null);
+        const casos = [casoNulo];
+        obtainCorteJuzgadoNumbers(casos);
+        expect(casos[0].numeroJuzgado).toBeNull();
+    });
+    test('caso base de iquique', ()=>{
+        const casoIquique = createCase('C-1111-1111',"3º Juzgado de Letras de Iquique");
+        const casos = [casoIquique];
+        obtainCorteJuzgadoNumbers(casos);
+        expect(casos[0].numeroJuzgado).toEqual('11');
+    });
+    test('caso base de iquique', ()=>{
+        const casoSantiago = createCase('C-1111-1111',"30° JUZGADO CIVIL DE SANTIAGO");
+        const casos = [casoSantiago];
+        obtainCorteJuzgadoNumbers(casos);
+        expect(casos[0].numeroJuzgado).toEqual('288');
+    });
+    test('caso base de iquique', ()=>{
+        const casoSantiago = createCase('C-1111-1111',"30° JUZGADO CIVIL DE SANTIAGO");
+        casoSantiago.numeroJuzgado = "25";
+        const casos = [casoSantiago];
+        obtainCorteJuzgadoNumbers(casos);
+        expect(casos[0].numeroJuzgado).toEqual('25');
+    });
+});
+
+describe('completeInfo',()=>{
+    test('Caso pjud con vacio',()=>{
+       const casoVacio = createCase(null,null);
+       const casoNuevo = Caso.completeInfo(casoBase,casoVacio);
+       expect(casoNuevo.causa).toEqual(casoBase.causa);
+    });
+
+    test('Caso vacio con pjud',()=>{
+       const casoVacio = createCase(null,null);
+       const casoNuevo = Caso.completeInfo(casoVacio, casoBase);
+       expect(casoNuevo.causa).toEqual(casoBase.causa);
+    });
+
+    test('Caso emol con pjud',()=>{
+       const casoEmol = createCase('C-1234-4321','30º Juzgado Civil de Santiago');
+       casoEmol.origen = EMOL;
+       const casoNuevo = Caso.completeInfo(casoEmol,casoBase);
+       expect(casoNuevo.causa).toEqual(casoBase.causa);
+    });
+
+    test('Caso pjud con emol',()=>{
+       const casoEmol = createCase('C-1234-4321','30º Juzgado Civil de Santiago');
+       casoEmol.origen = EMOL;
+       const casoNuevo = Caso.completeInfo(casoBase,casoEmol);
+       expect(casoNuevo.causa).toEqual(casoBase.causa);
+    });
+
+    test('Caso vacio con emol',()=>{
+       const casoEmol = createCase('C-1234-4321','30º Juzgado Civil de Santiago');
+       casoEmol.origen = EMOL;
+       const casoVacio = createCase(null,null);
+       const casoNuevo = Caso.completeInfo(casoVacio,casoEmol);
+       expect(casoNuevo.causa).toEqual(casoEmol.causa);
+    });
+    test('Dos casos vacios',()=>{
+       const casoVacio = createCase(null,null);
+       const casoVacio2 = createCase(null,null)
+       const casoNuevo = Caso.completeInfo(casoVacio,casoVacio2);
+       expect(casoNuevo.causa).toBeNull();
+    });
+});
+
+describe('isCaseInDB', ()=>{
+    test('caso que si deberia estar en DB',()=>{
+        const inDB = excelConstructor.isCaseInDB(casoBase);
+        expect(inDB.causa).toEqual('C-746-2024');
+    });
+
+    test('Caso que busca null', ()=>{
+        const casoVacio = createCase(null,null);
+        const inDB = excelConstructor.isCaseInDB(casoVacio);
+        expect(inDB).toBeNull();
+    });
+});
+
+describe('mergeDirections',()=>{
+    test('Prueba con solo una direccion ',()=>{
+        const dir1 = 'AV LA TIRANA 4155 DP 905 EDIF ALTOS DEL MAR';
+        const result = excelConstructor.mergeDirections(dir1,null);
+        expect(result).toEqual(dir1.toLowerCase());
+    });
+
+    test('Caso con dos direcciones ',()=>{
+        const dir1 = 'AV LA TIRANA 4155 DP 905 EDIF ALTOS DEL MAR';
+        const dir2 = 'AV LA TIRANA 4155 BX 28 EDIF ALTOS DEL MAR';
+        const dirResult = excelConstructor.mergeDirections(dir1,dir2);
+        expect(dirResult).toEqual('av la tirana 4155 dp 905 edif altos del mar Est bx 28 edif altos del mar')
+    });
+});
+
+describe('checkEstacionamientoBodega', ()=>{
+    test('Caso sin estacionamiento ni bodega', ()=>{
+        const casotest = createCase('C-1111-2222','');
+        casotest.direccion = 'AV LA TIRANA 4155 DP 905 EDIF ALTOS DEL MAR';
+        const dirResult = excelConstructor.checkEstacionamientoBodega(casotest);
+        expect(dirResult).toEqual(casotest.direccion);
+    });
+
+    test('Caso con estacionamiento sin Bodega', ()=>{
+        const casotest = createCase('C-1111-2222','');
+        casotest.direccion = 'AV LA TIRANA 4155 DP 905 EDIF ALTOS DEL MAR';
+        casotest.direccionEstacionamiento = 'AV LA TIRANA 4155 BX 28 EDIF ALTOS DEL MAR';
+        casotest.hasEstacionamiento = true;
+        const dirResult = excelConstructor.checkEstacionamientoBodega(casotest);
+        expect(dirResult).toEqual('av la tirana 4155 dp 905 edif altos del mar Est bx 28 edif altos del mar');
+    });
+
+    test('Caso con estacionamiento y Bodega', ()=>{
+        const casotest = createCase('C-1111-2222','');
+        casotest.direccion = 'AV LA TIRANA 4155 DP 905 EDIF ALTOS DEL MAR';
+        casotest.direccionEstacionamiento = 'AV LA TIRANA 4155 BX 28 EDIF ALTOS DEL MAR';
+        casotest.hasEstacionamiento = true;
+        casotest.hasBodega = true;
+        const dirResult = excelConstructor.checkEstacionamientoBodega(casotest);
+        expect(dirResult).toEqual('av la tirana 4155 dp 905 edif altos del mar Est bx 28 edif altos del mar BOD');
     });
 });
 

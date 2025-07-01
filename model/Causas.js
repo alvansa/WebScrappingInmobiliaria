@@ -1,11 +1,17 @@
 const dbmgr = require("./bdmng");
+const {obtainCorteJuzgadoNumbers} = require('../utils/corteJuzgado');
 
 class Causas {
     constructor() {
         this.db = dbmgr.db;
     }
     getAllCausas() {
-        const query = "Select * from Causa;";
+        const query = `SELECT Ca.*,
+                        Ju.nombre AS nombre_juzgado,
+                        Co.nombre AS nombre_comuna
+                        FROM Causa AS Ca
+                        INNER JOIN Juzgado AS Ju ON Ca.idJuzgado = Ju.numero
+                        LEFT JOIN Comuna AS Co ON Ca.idComuna = Co.id`;
         const causas = this.db.prepare(query).all();
         return causas;
     }
@@ -14,6 +20,40 @@ class Causas {
         const tables = this.db.prepare(query).all();
         return tables;
     }
+
+    getByCausa(causa) {
+        try{
+            const query = `SELECT Ca.*,
+                        Ju.nombre AS nombre_juzgado,
+                        Co.nombre AS nombre_comuna
+                        FROM Causa AS Ca
+                        INNER JOIN Juzgado AS Ju ON Ca.idJuzgado = Ju.numero
+                        LEFT JOIN Comuna AS Co ON Ca.idComuna = Co.id
+                        WHERE Ca.causa = ?`;
+            const causas = this.db.prepare(query).all(causa);
+            return causas.length > 0 ? causas : null;
+        }catch(error){
+            return null;
+
+        }
+    }
+    searchCausa(causa,numJuzgado) {
+        try{
+            const query = `SELECT Ca.*,
+                        Ju.nombre AS nombre_juzgado,
+                        Co.nombre AS nombre_comuna
+                        FROM Causa AS Ca
+                        INNER JOIN Juzgado AS Ju ON Ca.idJuzgado = Ju.numero
+                        LEFT JOIN Comuna AS Co ON Ca.idComuna = Co.id
+                        WHERE Ca.causa = ? AND Ca.idJuzgado = ?`;
+            const causas = this.db.prepare(query).all(causa,numJuzgado);
+            return causas.length > 0 ? causas[0] : null;
+        }catch(error){
+            return null;
+
+        }
+    }
+
 
     // createDB() {
     //     const query = `
@@ -37,12 +77,17 @@ class Causas {
     //         }
     //     }
     // }
-    insertMultipleCases(cases,comunas){
+    insertMultipleCases(remates,comunas){
+        const cases = [];
+        for(let remate of remates){
+            cases.push(remate[1]);
+        }
+        obtainCorteJuzgadoNumbers(cases);
         for (const caso of cases) {
             try {
                 // console.log(`Caso ${caso}`);
                 // console.log(`Caso[1] causa ${caso[1].causa}`)
-                this.insertCase(caso[1],comunas);
+                this.insertCase(caso,comunas);
             } catch (error) {
                 console.error("Error al insertar caso: ", error);
             }
@@ -84,6 +129,7 @@ class Causas {
             rolPredio = rolesPropiedad[1];
         }
 
+
         // Get comuna ID safely
         const idComuna = comunas.get(caso.comuna) ?? null;
 
@@ -115,10 +161,11 @@ class Causas {
             avaluoPropiedad: caso.avaluoPropiedad,
             montoCompra: montoCompra
         };
+        const stmt = this.db.prepare(query);
 
         try {
-            console.log(`Caso a insertar ${params}`);
-            this.db.prepare(query).run(params);
+            console.log(`Caso a insertar ${params} con causa ${params.causa} ${params.numeroJuzgado}`);
+            stmt.run(params);
         } catch (error) {
             console.error('Error inserting case:', error);
             throw error; // Re-throw or handle as appropriate

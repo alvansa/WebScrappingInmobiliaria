@@ -45,6 +45,7 @@ class Caso{
     #isPaid;
     #origen;
     #deudaHipotecaria;
+    #alreadyAppear;
 
     constructor(fechaObtencion, fechaPublicacion = 'N/A',link = 'N/A',origen = null ){    
         this.#fechaPublicacion = fechaPublicacion;
@@ -86,6 +87,7 @@ class Caso{
         this.#montoCompra = null;   
         this.#isPaid = false;
         this.#deudaHipotecaria = null;
+        this.#alreadyAppear = null;
 
 
         this.#origen = origen;
@@ -235,6 +237,9 @@ class Caso{
     set deudaHipotecaria(deudaHipotecaria){
         this.#deudaHipotecaria = deudaHipotecaria;
     }
+    set alreadyAppear(alreadyAppear){
+        this.#alreadyAppear = alreadyAppear        
+    }
 
     
     get link(){ 
@@ -272,7 +277,7 @@ class Caso{
     }
     get causa(){
         const causaNormalizada = this.normalizarCausa();
-        return String(causaNormalizada);
+        return causaNormalizada;
     }
     get comuna(){
         if(this.#comuna == null){
@@ -400,6 +405,12 @@ class Caso{
         }
         return this.normalizarPartes();
     }
+    get alreadyAppear(){
+        if(!this.#alreadyAppear){
+            return null;
+        }
+        return new Date(this.#alreadyAppear);
+    }
 
 
   
@@ -460,6 +471,7 @@ class Caso{
             montoCompra: this.#montoCompra,
             isPaid: this.#isPaid,
             deudaHipotecaria : this.#deudaHipotecaria,
+            alreadyAppear: this.#alreadyAppear,
         };
     } 
 
@@ -468,7 +480,7 @@ class Caso{
         if(this.#fechaRemate == "N/A" || this.#fechaRemate == null){ 
             return null;
         }
-        if(typeof(this.#fechaRemate) == Date){
+        if(this.#fechaRemate instanceof Date){
             return this.#fechaRemate;
         }
 
@@ -694,10 +706,14 @@ class Caso{
         }
         let montoFinal;
         let moneda;
+        
         if(this.#origen == LIQUIDACIONES){ 
             montoFinal = this.#montoMinimo.replaceAll('.','').replaceAll(',','.');
             moneda = "Pesos";
         }else if(this.#montoMinimo !== null){
+            if(typeof this.#montoMinimo.monto == "number"){
+                return this.#montoMinimo;
+            }
             let montominimo = this.#montoMinimo["monto"];
             montoFinal = montominimo.replaceAll('.', '').replaceAll(',', '.').replaceAll(' ', '');
             moneda = this.#montoMinimo["moneda"];
@@ -985,23 +1001,25 @@ class Caso{
         );
 
         // Set additional mock properties
-        mockCase.causa = "C-534-2023";
+        mockCase.causa = "C-746-2024";
         mockCase.juzgado = "1º JUZGADO DE LETRAS DE IQUIQUE";
         mockCase.porcentaje = 100;
         mockCase.comuna = "iquique";
         mockCase.direccion = "rio esena 2370 barcelona";
         mockCase.avaluoPropiedad = 250000;
         mockCase.montoMinimo = {monto : 999999, moneda: "Pesos"};
-        mockCase.porcentaje = 10;
+        mockCase.porcentaje = '10';
         mockCase.formatoEntrega = "vale vista";
         mockCase.tipoDerecho = "nuda propiedad";
         mockCase.anno = 2000;
         mockCase.rolPropiedad = "3795-302";
         mockCase.estadoCivil = "soltero";
         mockCase.corte = 11;
-        mockCase.numeroJuzgado = 9; 
+        mockCase.numeroJuzgado = 96; 
         mockCase.montoCompra = {monto: 1000, moneda: "UF"};
         mockCase.deudaHipotecaria = '1200 uf';
+        mockCase.origen = '2';
+        mockCase.fechaRemate = new Date('2000/05/19');
 
 
         return mockCase;

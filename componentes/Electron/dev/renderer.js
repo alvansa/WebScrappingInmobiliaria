@@ -94,6 +94,12 @@ document.getElementById('selectFileTesse').addEventListener('click', async () =>
   }
 });
 
+document.getElementById('getAllCausasDB').addEventListener('click', async () => {
+
+  const filePath = await window.api.getAllCausas();
+  console.log(filePath);
+});
+
 window.api.onWaitingNotification((args) => {
   const totalSeconds = args[0];
   const actualCase = args[1];

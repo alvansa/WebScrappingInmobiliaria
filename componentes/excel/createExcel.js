@@ -16,6 +16,8 @@ const THREE_DIFF = 4;
 
 
 
+
+
 class createExcel {
     constructor(saveFile, startDate, endDate, emptyMode, type) {
         this.saveFile = saveFile;
@@ -23,6 +25,7 @@ class createExcel {
         this.endDate = endDate;
         this.emptyMode = emptyMode;
         this.type = type;
+        this.causaDB = new Causas();
 
     }
     crearBase() {
@@ -76,10 +79,8 @@ class createExcel {
             Title: 'Remates',
             Subject: 'Remates'
         };
-
         // Agrega la hoja al libro de trabajo
         XLSX.utils.book_append_sheet(wb, ws, 'Remates');
-
         // Guarda el archivo
         XLSX.writeFile(wb, path.join(this.saveFile, 'Remates.xlsx'));
     }
@@ -146,8 +147,7 @@ class createExcel {
         const startDateSQL = stringToDate(this.startDate);
         let remates = new Map();
         let currentRow = 6;
-        const causaDB = new Causas();
-        const comunas = causaDB.obtainComunasFromDB();
+        const comunas = this.causaDB.obtainComunasFromDB();
 
         // Hay que ver como hacer esto, nose si es bueno pedir todos los remates pero creo que es la unica opcion
         // const rematesDB = causaDB.getCausas(formatDateToSQLite(startDateSQL));
@@ -171,8 +171,6 @@ class createExcel {
                 caso.fechaPublicacion = fechaMenosUno(this.endDate);
             }
             if(this.getValidAuctions(caso, remates, rematesDB, startDateSQL)){
-                console.log("Escribiendo el caso en remates");
-
                 this.addObjectToSet(remates,caso);
             }
         }
@@ -232,6 +230,11 @@ class createExcel {
             console.log("Enviando false por juez partidor :", currentCase.causa);
             return false;
         }
+        // Agregar la busqueda de casos en DB y union si existe ya en la DB
+        // if(this.isCaseInDB(currentCase)){
+
+        // }
+
         // if (currentCase.origen === PJUD) { // Solo si es caso es del pjud revisamos si ya existe en la base de datos
         //     // Si el caso ya existe en la base de datos, no se guarda
         //     for (let savedAuction of auctionsDB) {
@@ -248,6 +251,11 @@ class createExcel {
         return true;
     }
 
+    isCaseInDB(currentCase){
+       const inDB = this.causaDB.searchCausa(currentCase.causa, currentCase.numeroJuzgado); 
+       return inDB;
+    }
+
 
     insertarCasoIntoWorksheet(caso, ws, currentRow) {
         let newRol = caso.rolPropiedad;
@@ -262,14 +270,14 @@ class createExcel {
         // ws['E'+ currentRow ] = {v: 'notas ', t: 's'};
         if (caso.fechaRemate !== null) {
             const adjustedAuctionDate = caso.fechaRemate;
-            // adjustedAuctionDate.setHours(adjustedAuctionDate.getHours() + 1);
             if(adjustedAuctionDate){
                 ws['F' + currentRow] = { v: adjustedAuctionDate, t: 'd', z: 'dd/mm/yyyy' };
             }
-            // this.writeLine(ws, 'F', currentRow, adjustedAuctionDate, 'd');
         }
         this.writeLine(ws, 'G', currentRow, caso.martillero, 's');
-        if(caso.isPaid){
+        if(caso.tipoDerecho){
+            this.writeLine(ws, 'G', currentRow, caso.tipoDerecho, 's');
+        }else if(caso.isPaid){
             this.writeLine(ws, 'G', currentRow, "(Pagado)", 's');
         }
         // Revisamos si el caso tiene estacionamiento o bodega, y adaptamos la direccion
@@ -286,7 +294,6 @@ class createExcel {
         this.writeLine(ws, 'P', currentRow, caso.formatoEntrega, 's');
         this.writeLine(ws, 'Q', currentRow, caso.porcentaje, 's');
         this.writeLine(ws, 'R', currentRow, caso.diaEntrega, 's');
-        this.writeLine(ws, 'S', currentRow, caso.tipoDerecho, 's');
         // ws['T'+ currentRow ] = {v: caso.rolPropiedad, t: 's'};
         // ws['U'+ currentRow ] = {v: 'deuda 2 ', t: 's'};
         // ws['V'+ currentRow ] = {v: 'deuda 3 ', t: 's'};
@@ -343,9 +350,12 @@ class createExcel {
         }
     }
 
+    //Funcion para unir dos direcciones, una habitacional y la segunda de estacionamiento
     mergeDirections(dir1, dir2) {
+        if(!dir2){
+            return dir1.trim().toLowerCase();
+        }
         // Normalizar espacios y convertir a arrays de palabras
-
         const palabras1 = dir1.trim().toLowerCase().split(/\s+/);
         const palabras2 = dir2.trim().toLowerCase().split(/\s+/);
 
