@@ -257,7 +257,7 @@ class MainApp{
             const resultados = dbcausa.getAllCausas();
             console.log('Resultados de las causas en la DB: ',resultados);
             console.log("Cantidad de resultados: ", resultados.length);
-            console.log("Buscando si hay un resultado en especifico: ",dbcausa.searchCausa('C-746-2024',96))
+            console.log("Buscando si hay un resultado en especifico: ",dbcausa.searchCausa('C-746-2024',9))
             return resultados;
         });
 

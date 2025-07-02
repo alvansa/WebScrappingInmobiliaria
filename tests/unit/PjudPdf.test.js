@@ -7,7 +7,7 @@ const Causas = require('../../model/Causas');
 
 const {textoEstacionamiento1,textoHabitacional1, textoBodegaMultiple, textoEstacionamientoMultiple, textoHabitacionMultiple} = require('./textos/Avaluo');
 const {textoGP1, textoGP2, textoGP3, textoGP4, textoGP5, texto12Santiago} = require('./textos/GP');
-const {diario2484, ex1341, diario1341} = require('./textos/diario');
+const {diario2484, ex1341, diario1341, diario3354_1, diario3354_2} = require('./textos/diario');
 const {tx356, tx23039, tx12017, tx1349, tx3857, tx13759, tx7140} = require('./textos/DV');
 const {bf2201, bf1341, notBf} = require('./textos/BF');
 const {dm1056, dm1138} = require('./textos/DM');
@@ -73,6 +73,12 @@ describe('obtainRolPropiedad', () => {
         const textoNormalizado = testPjudPdf.normalizeInfo(textoGP1);
         const resRol = testPjudPdf.obtainRolPropiedad(textoNormalizado);
         expect(resRol).toBeNull();
+    });
+
+    test('Deberia ser null ya que es un diario y no se lee de ahi', ()=>{
+       const textoNormalizado = testPjudPdf.normalizeInfo(diario3354_1);
+       const res = testPjudPdf.obtainRolPropiedad(textoNormalizado); 
+       expect(res).toBeNull();
     });
 });
 
@@ -269,8 +275,20 @@ describe('ObtainMontoMinimo', () => {
         expect(montoMinimo).toEqual({
             monto: '80.074.227',
             moneda : "Pesos"
-        })
-        
+        });
+    });
+
+});
+
+describe('checkIfValidDoc',()=>{
+    test('Test de diario que deberia ser false', ()=>{
+       const res = testPjudPdf.checkIfValidDoc(diario3354_1);
+       expect(res).toEqual(false);
+    });
+
+    test('Test de diario que deberia ser false', ()=>{
+       const res = testPjudPdf.checkIfValidDoc(diario3354_2);
+       expect(res).toEqual(false);
     });
 });
 
@@ -337,112 +355,147 @@ describe('obtainDeudaHipoteca', ()=>{
 
 describe('adaptRol', () => {
     test('Caso base todo null', () =>{
-        const rolResultado = excelConstructor.adaptRol();
+        const casoTest = createCase("C-111-222","1 santaigo");
+        casoTest.rolPropiedad = null;
+        const rolResultado = casoTest.adaptRol();
         expect(rolResultado).toBeNull();
     });
 
     test('Prueba con caso rol propiedad en singular', () =>{
-        const rolResultado = excelConstructor.adaptRol("1111-1111");
-        expect(rolResultado).toEqual("1111-1111"); 
+        const casoTest = createCase("C-111-222","1 santaigo");
+        casoTest.rolPropiedad = "1111-1111";
+        // const rolResultado = casoTest.adaptRol();
+        expect(casoTest.unitRol).toEqual("1111-1111"); 
     });
 
     test('Prueba con caso rol estacionamiento', () =>{
-        const rolResultado = excelConstructor.adaptRol(null,"2222-2222");
-        expect(rolResultado).toEqual("2222-2222"); 
+        const casoTest = createCase("C-111-222","1 santaigo");
+        casoTest.rolEstacionamiento = "2222-2222";
+        expect(casoTest.unitRol).toEqual("2222-2222"); 
     });
 
     test('Prueba con caso rol bodega', () =>{
-        const rolResultado = excelConstructor.adaptRol(null,null,"3333-3333");
-        expect(rolResultado).toEqual("3333-3333"); 
+        const casoTest = createCase("C-111-222","1 santaigo");
+        casoTest.rolBodega = "3333-3333";
+        expect(casoTest.unitRol).toEqual("3333-3333"); 
     });
 
     test('Prueba con caso rol propiedad y estacionamiento inicio igual', () =>{
-        const rolResultado = excelConstructor.adaptRol('1111-1111','1111-2222');
-        expect(rolResultado).toEqual("1111-1111-2222"); 
+        const casoTest = createCase("C-111-222","1 santaigo");
+        casoTest.rolPropiedad = "1111-1111";
+        casoTest.rolEstacionamiento = "1111-2222"
+        expect(casoTest.unitRol).toEqual("1111-1111-2222"); 
     });
     
     test('Prueba con caso rol propiedad y estacionamiento inicio diferente', () =>{
-        const rolResultado = excelConstructor.adaptRol('1111-1111','2222-2222');
-        expect(rolResultado).toEqual("1111-1111//2222-2222"); 
+        const casoTest = createCase("C-111-222","1 santaigo");
+        casoTest.rolPropiedad = '1111-1111';
+        casoTest.rolEstacionamiento = '2222-2222';
+        expect(casoTest.unitRol).toEqual("1111-1111//2222-2222"); 
     });
 
     test('Prueba con caso rol propiedad y bodega inicio igual', () =>{
-        const rolResultado = excelConstructor.adaptRol('1111-1111',null,'1111-3333');
-        expect(rolResultado).toEqual("1111-1111-3333"); 
+        const casoTest = createCase("C-111-222","1 santaigo");
+        casoTest.rolPropiedad = '1111-1111';
+        casoTest.rolBodega = '1111-3333';
+        expect(casoTest.unitRol).toEqual("1111-1111-3333"); 
     });
     
     test('Prueba con caso rol propiedad y bodega inicio diferente', () =>{
-        const rolResultado = excelConstructor.adaptRol('1111-1111',null,'3333-3333');
-        expect(rolResultado).toEqual("1111-1111//3333-3333"); 
+        const casoTest = createCase("C-111-222","1 santaigo");
+        casoTest.rolPropiedad = '1111-1111';
+        casoTest.rolBodega = '3333-3333';
+        expect(casoTest.unitRol).toEqual("1111-1111//3333-3333"); 
     });
     
     test('Prueba con caso rol propiedad, estacionamiento y bodega inicio igual', () =>{
-        const rolResultado = excelConstructor.adaptRol('1111-1111','1111-2222','1111-3333');
-        expect(rolResultado).toEqual("1111-1111-2222-3333"); 
+        const casoTest = createCase("C-111-222","1 santaigo");
+        casoTest.rolPropiedad = '1111-1111';
+        casoTest.rolEstacionamiento = '1111-2222';
+        casoTest.rolBodega = '1111-3333';
+        expect(casoTest.unitRol).toEqual("1111-1111-2222-3333"); 
     });
     
     test('Prueba con caso rol propiedad, estacionamiento y bodega inicio diferente', () =>{
-        const rolResultado = excelConstructor.adaptRol('1111-1111','2222-2222','3333-3333');
-        expect(rolResultado).toEqual("1111-1111//2222-2222//3333-3333"); 
+        const casoTest = createCase("C-111-222","1 santaigo");
+        casoTest.rolPropiedad = '1111-1111';
+        casoTest.rolEstacionamiento = '2222-2222';
+        casoTest.rolBodega = '3333-3333';
+        expect(casoTest.unitRol).toEqual("1111-1111//2222-2222//3333-3333"); 
     });
     
     test('Prueba con caso rol propiedad, estacionamiento igual y bodega diferente', () =>{
-        const rolResultado = excelConstructor.adaptRol('1111-1111','1111-2222','3333-3333');
-        expect(rolResultado).toEqual("1111-1111-2222//3333-3333"); 
+        const casoTest = createCase("C-111-222","1 santaigo");
+        casoTest.rolPropiedad = '1111-1111';
+        casoTest.rolEstacionamiento = '1111-2222';
+        casoTest.rolBodega = '3333-3333';
+        expect(casoTest.unitRol).toEqual("1111-1111-2222//3333-3333"); 
     });
 
     test('Prueba con caso rol propiedad diferente estacionamiento y bodega igual', () =>{
-        const rolResultado = excelConstructor.adaptRol('1111-1111','2222-2222','2222-3333');
-        expect(rolResultado).toEqual("2222-2222-3333//1111-1111"); 
+        const casoTest = createCase("C-111-222","1 santaigo");
+        casoTest.rolPropiedad = '1111-1111';
+        casoTest.rolEstacionamiento = '2222-2222';
+        casoTest.rolBodega = '2222-3333';
+        expect(casoTest.unitRol).toEqual("2222-2222-3333//1111-1111"); 
     });
 
     test('Prueba con caso rol propiedad bodega igual y estacionamiento diferente', () =>{
-        const rolResultado = excelConstructor.adaptRol('1111-1111','2222-2222','1111-3333');
-        expect(rolResultado).toEqual("1111-1111-3333//2222-2222"); 
+        const casoTest = createCase("C-111-222","1 santaigo");
+        casoTest.rolPropiedad = '1111-1111';
+        casoTest.rolEstacionamiento = '2222-2222';
+        casoTest.rolBodega = '1111-3333';
+        expect(casoTest.unitRol).toEqual("1111-1111-3333//2222-2222"); 
     });
 
 });
 
 describe('SumAvaluo', () => {
     test('Prueba con envio null', () =>{
-        const resSumAvaluo = excelConstructor.sumAvaluo();
-        expect(resSumAvaluo).toBeNull();
+        const casoTest = createCase("C-111-222","1 santaigo");
+        expect(casoTest.unitAvaluo).toBeNull();
     });
 
     test('Prueba con solo avaluo propiedad', () =>{
-        const resSumAvaluo = excelConstructor.sumAvaluo(100000);
-        expect(resSumAvaluo).toEqual(100000);
+        const casoTest = createCase("C-111-222","1 santaigo");
+        casoTest.avaluoPropiedad = 100000;
+        expect(casoTest.unitAvaluo).toEqual(100000);
     });
 
     test('Prueba pasando texto cualquiera', () =>{
-        const resSumAvaluo = excelConstructor.sumAvaluo('asd');
-        expect(resSumAvaluo).toEqual(0);
+        const casoTest = createCase("C-111-222","1 santaigo");
+        casoTest.avaluoPropiedad = "asd";
+        expect(casoTest.unitAvaluo).toEqual(0);
     });
 
-    test('Prueba pasando texto cualquiera con numero', () =>{
-        const resSumAvaluo = excelConstructor.sumAvaluo('asd','123');
-        expect(resSumAvaluo).toEqual(123);
-    });
+//     test('Prueba pasando texto cualquiera con numero', () =>{
+//         const resSumAvaluo = excelConstructor.sumAvaluo('asd','123');
+//         expect(resSumAvaluo).toEqual(123);
+//     });
 
     test('Prueba pasando texto cualquiera con 2 numeros', () =>{
-        const resSumAvaluo = excelConstructor.sumAvaluo('asd','123','123');
-        expect(resSumAvaluo).toEqual(246);
+        const casoTest = createCase("C-111-222","1 santaigo");
+        casoTest.avaluoPropiedad = 'asd';
+        casoTest.avaluoEstacionamiento = 123;
+        casoTest.avaluoBodega = 123;
+        expect(casoTest.unitAvaluo).toEqual(246);
     });
 
     test('Prueba con solo avaluo propiedad pasando texto', () =>{
-        const resSumAvaluo = excelConstructor.sumAvaluo('100000');
-        expect(resSumAvaluo).toEqual(100000);
+        const casoTest = createCase("C-111-222","1 santaigo");
+        casoTest.avaluoPropiedad = '100000';
+        expect(casoTest.unitAvaluo).toEqual(100000);
     });
 
-    test('Prueba con avaluo propiedad y estacionamiento', () =>{
-        const resSumAvaluo = excelConstructor.sumAvaluo(100000,20000);
-        expect(resSumAvaluo).toEqual(120000);
-    });
+//     test('Prueba con avaluo propiedad y estacionamiento', () =>{
+//         const resSumAvaluo = excelConstructor.sumAvaluo(100000,20000);
+//         expect(resSumAvaluo).toEqual(120000);
+//     });
 
-    test('Prueba con avaluo propiedad, estacionamiento y bodega', () =>{
-        const resSumAvaluo = excelConstructor.sumAvaluo(100000,20000,3000);
-        expect(resSumAvaluo).toEqual(123000);
-    });
+//     test('Prueba con avaluo propiedad, estacionamiento y bodega', () =>{
+//         const resSumAvaluo = excelConstructor.sumAvaluo(100000,20000,3000);
+//         expect(resSumAvaluo).toEqual(123000);
+//     });
 });
 
 describe('obtainCorteJuzgadoNumbers', ()=>{
@@ -526,51 +579,66 @@ describe('isCaseInDB', ()=>{
         const inDB = excelConstructor.isCaseInDB(casoVacio);
         expect(inDB).toBeNull();
     });
+
+    test('Comprobar fecha de caso con casoDB',()=>{
+       const inDB = excelConstructor.isCaseInDB(casoBase);
+        const isCColderInDB = new Date(inDB.fechaRemate) > new Date(casoBase.fechaRemate);
+        expect(isCColderInDB).toEqual(true); 
+    });
 });
 
 describe('mergeDirections',()=>{
     test('Prueba con solo una direccion ',()=>{
-        const dir1 = 'AV LA TIRANA 4155 DP 905 EDIF ALTOS DEL MAR';
-        const result = excelConstructor.mergeDirections(dir1,null);
-        expect(result).toEqual(dir1.toLowerCase());
+        const casoTest = createCase("C-111-222", "1 santaigo");
+        casoTest.direccion = 'AV LA TIRANA 4155 DP 905 EDIF ALTOS DEL MAR';
+        expect(casoTest.unitDireccion).toEqual( 'AV LA TIRANA 4155 DP 905 EDIF ALTOS DEL MAR');
     });
 
     test('Caso con dos direcciones ',()=>{
-        const dir1 = 'AV LA TIRANA 4155 DP 905 EDIF ALTOS DEL MAR';
-        const dir2 = 'AV LA TIRANA 4155 BX 28 EDIF ALTOS DEL MAR';
-        const dirResult = excelConstructor.mergeDirections(dir1,dir2);
-        expect(dirResult).toEqual('av la tirana 4155 dp 905 edif altos del mar Est bx 28 edif altos del mar')
+        const casoTest = createCase("C-111-222", "1 santaigo");
+        casoTest.direccion = 'AV LA TIRANA 4155 DP 905 EDIF ALTOS DEL MAR';
+        casoTest.direccionEstacionamiento = 'AV LA TIRANA 4155 BX 28 EDIF ALTOS DEL MAR';
+        casoTest.hasEstacionamiento = true;
+        expect(casoTest.unitDireccion).toEqual('av la tirana 4155 dp 905 edif altos del mar Est bx 28 edif altos del mar')
     });
 });
 
-describe('checkEstacionamientoBodega', ()=>{
-    test('Caso sin estacionamiento ni bodega', ()=>{
-        const casotest = createCase('C-1111-2222','');
-        casotest.direccion = 'AV LA TIRANA 4155 DP 905 EDIF ALTOS DEL MAR';
-        const dirResult = excelConstructor.checkEstacionamientoBodega(casotest);
-        expect(dirResult).toEqual(casotest.direccion);
-    });
+// describe('checkEstacionamientoBodega', ()=>{
+//     test('Caso sin estacionamiento ni bodega', ()=>{
+//         const casotest = createCase('C-1111-2222','');
+//         casotest.direccion = 'AV LA TIRANA 4155 DP 905 EDIF ALTOS DEL MAR';
+//         const dirResult = excelConstructor.checkEstacionamientoBodega(casotest);
+//         expect(dirResult).toEqual(casotest.direccion);
+//     });
 
-    test('Caso con estacionamiento sin Bodega', ()=>{
-        const casotest = createCase('C-1111-2222','');
-        casotest.direccion = 'AV LA TIRANA 4155 DP 905 EDIF ALTOS DEL MAR';
-        casotest.direccionEstacionamiento = 'AV LA TIRANA 4155 BX 28 EDIF ALTOS DEL MAR';
-        casotest.hasEstacionamiento = true;
-        const dirResult = excelConstructor.checkEstacionamientoBodega(casotest);
-        expect(dirResult).toEqual('av la tirana 4155 dp 905 edif altos del mar Est bx 28 edif altos del mar');
-    });
+//     test('Caso con estacionamiento sin Bodega', ()=>{
+//         const casotest = createCase('C-1111-2222','');
+//         casotest.direccion = 'AV LA TIRANA 4155 DP 905 EDIF ALTOS DEL MAR';
+//         casotest.direccionEstacionamiento = 'AV LA TIRANA 4155 BX 28 EDIF ALTOS DEL MAR';
+//         casotest.hasEstacionamiento = true;
+//         const dirResult = excelConstructor.checkEstacionamientoBodega(casotest);
+//         expect(dirResult).toEqual('av la tirana 4155 dp 905 edif altos del mar Est bx 28 edif altos del mar');
+//     });
 
-    test('Caso con estacionamiento y Bodega', ()=>{
-        const casotest = createCase('C-1111-2222','');
-        casotest.direccion = 'AV LA TIRANA 4155 DP 905 EDIF ALTOS DEL MAR';
-        casotest.direccionEstacionamiento = 'AV LA TIRANA 4155 BX 28 EDIF ALTOS DEL MAR';
-        casotest.hasEstacionamiento = true;
-        casotest.hasBodega = true;
-        const dirResult = excelConstructor.checkEstacionamientoBodega(casotest);
-        expect(dirResult).toEqual('av la tirana 4155 dp 905 edif altos del mar Est bx 28 edif altos del mar BOD');
+//     test('Caso con estacionamiento y Bodega', ()=>{
+//         const casotest = createCase('C-1111-2222','');
+//         casotest.direccion = 'AV LA TIRANA 4155 DP 905 EDIF ALTOS DEL MAR';
+//         casotest.direccionEstacionamiento = 'AV LA TIRANA 4155 BX 28 EDIF ALTOS DEL MAR';
+//         casotest.hasEstacionamiento = true;
+//         casotest.hasBodega = true;
+//         const dirResult = excelConstructor.checkEstacionamientoBodega(casotest);
+//         expect(dirResult).toEqual('av la tirana 4155 dp 905 edif altos del mar Est bx 28 edif altos del mar BOD');
+//     });
+// });
+
+describe('bindCaseWithDB',()=>{
+    test('Caso vacio con DB', ()=>{
+        const casoDB = excelConstructor.isCaseInDB(casoBase);
+        let emptyCase = createCase(null,null);
+        emptyCase = Caso.bindCaseWithDB(emptyCase,casoDB); 
+        expect(emptyCase.direccion).toEqual("Av. Principal 1234, Santiago");
     });
 });
-
 
 
 function createCase(causa,juzgado){

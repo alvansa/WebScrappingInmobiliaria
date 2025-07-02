@@ -1,8 +1,16 @@
+const {cleanInitialZeros} = require('../../utils/cleanStrings');
 const EMOL = 1;
 const PJUD = 2;
 const LIQUIDACIONES = 3;
 const PREREMATES = 4;
 const otros = 0;
+
+const THREE_SAME = 0;
+const ONE_TWO = 1;
+const ONE_THREE = 2;
+const TWO_THREE = 3;
+const THREE_DIFF = 4;
+
 
 
 class Caso{
@@ -46,6 +54,9 @@ class Caso{
     #origen;
     #deudaHipotecaria;
     #alreadyAppear;
+    #unitRol;
+    #unitAvaluo;
+    #unitDireccion;
 
     constructor(fechaObtencion, fechaPublicacion = 'N/A',link = 'N/A',origen = null ){    
         this.#fechaPublicacion = fechaPublicacion;
@@ -89,6 +100,9 @@ class Caso{
         this.#deudaHipotecaria = null;
         this.#alreadyAppear = null;
 
+        this.#unitRol = null;
+        this.#unitAvaluo = null;
+        this.#unitDireccion = null;
 
         this.#origen = origen;
     }
@@ -240,6 +254,15 @@ class Caso{
     set alreadyAppear(alreadyAppear){
         this.#alreadyAppear = alreadyAppear        
     }
+    set unitRol(unitRol){
+        this.#unitRol = unitRol;
+    }
+    set unitDireccion(unitDireccion){
+        this.#unitDireccion = unitDireccion;
+    }
+    set unitAvaluo(unitAvaluo){
+        this.#unitAvaluo = unitAvaluo;
+    }
 
     
     get link(){ 
@@ -266,7 +289,7 @@ class Caso{
         if(!this.#fechaRemate){
             return null;
         }
-        return String(this.#fechaRemate);
+        return String(this.normalizarFechaRemate());
     }
 
     get fechaPublicacion(){
@@ -411,6 +434,30 @@ class Caso{
         }
         return new Date(this.#alreadyAppear);
     }
+    get porcentaje(){
+        if(!this.#porcentaje){
+            return null;
+        }
+        return this.normalizarPorcentaje();
+    }
+    get unitRol(){
+        if(!this.#unitRol){
+            return this.adaptRol();
+        }
+        return this.#unitRol;
+    }
+    get unitDireccion(){
+        if(!this.#unitDireccion){
+            return this.checkEstacionamientoBodega();
+        }
+        return this.#unitDireccion;
+    }
+    get unitAvaluo(){
+        if(!this.#unitAvaluo){
+            return this.sumAvaluo();
+        }
+        return this.#unitAvaluo;
+    }
 
 
   
@@ -472,6 +519,9 @@ class Caso{
             isPaid: this.#isPaid,
             deudaHipotecaria : this.#deudaHipotecaria,
             alreadyAppear: this.#alreadyAppear,
+            unitRol: this.adaptRol(),
+            unitAvaluo: this.sumAvaluo(),
+            unitDireccion : this.mergeDirections()
         };
     } 
 
@@ -943,23 +993,249 @@ class Caso{
         return this.#fechaObtencion;
     }
 
+    //Funcion que dado un string con el avaluo de la propiedad, estacionamiento y bodega, los suma
+    // Si alguno de los strings es null o undefined, se considera como 0
+    sumAvaluo() {
+        if (!this.#avaluoPropiedad && !this.#avaluoEstacionamiento && !this.#avaluoBodega ) {
+            return null;
+        }
+        const parsedPropiedad = parseInt(this.#avaluoPropiedad);
+        const parsedEstacionamiento = parseInt(this.#avaluoEstacionamiento);
+        const parsedBodega = parseInt(this.#avaluoBodega);
+        const avaluoPropiedad = (typeof parsedPropiedad === 'number' && !isNaN(parsedPropiedad)) ? parsedPropiedad : 0;
+        const avaluoEstacionamiento = (typeof parsedEstacionamiento === 'number' && !isNaN(parsedEstacionamiento)) ? parsedEstacionamiento : 0;
+        const avaluoBodega = (typeof parsedBodega === 'number' && !isNaN(parsedBodega)) ? parsedBodega : 0;
+
+
+        return avaluoPropiedad + avaluoEstacionamiento + avaluoBodega;
+    }
+    // Adaptador de roles para combinar propiedad, estacionamiento y bodega
+    adaptRol() {
+        let rol1, rol2, rol3;
+        if (!this.#rolPropiedad && !this.#rolEstacionamiento && !this.#rolBodega) {
+            return null;
+        }
+        // Limpiar y validar roles
+        const cleanedRoles = [
+            this.cleanRol(this.#rolPropiedad),
+            this.cleanRol(this.#rolEstacionamiento),
+            this.cleanRol(this.#rolBodega)
+        ].filter(rol => rol !== null && rol !== undefined);
+
+        // Si solo queda un rol válido, retornarlo directamente
+        if (cleanedRoles.length === 1) {
+            return cleanedRoles[0];
+        }
+        [rol1, rol2, rol3] = cleanedRoles;
+        const comparisonResult = this.checkFirstHalves(rol1, rol2, rol3);
+        const finalRol = this.mergeRol(rol1, rol2, rol3, comparisonResult);
+        return finalRol;
+    }
+
+    checkFirstHalves(rolOne, rolTwo, rolThree) {
+        let result;
+        if (rolOne && rolTwo && rolThree) {
+            result = this.checkThreeHalfs(rolOne, rolTwo, rolThree);
+        } else if (rolOne && rolTwo) {
+            result = this.checkTwoHalfs(rolOne, rolTwo) ? ONE_TWO : THREE_DIFF;
+        } else if (rolOne && rolThree) {
+            result = this.checkTwoHalfs(rolOne, rolThree) ? ONE_THREE : THREE_DIFF;
+        } else if (rolTwo && rolThree) {
+            result = this.checkTwoHalfs(rolTwo, rolThree) ? TWO_THREE : THREE_DIFF;
+        } else {
+            return null;
+        }
+        return result;
+    }
+
+    checkThreeHalfs(rolOne, rolTwo, rolThree) {
+        const halfOne = rolOne.split("-")[0];
+        const halfTwo = rolTwo.split("-")[0];
+        const halfThree = rolThree.split("-")[0];
+        if (halfOne == halfTwo && halfTwo == halfThree) {
+            return THREE_SAME;
+        } else if (halfOne == halfTwo) {
+            return ONE_TWO;
+        } else if (halfOne == halfThree) {
+            return ONE_THREE;
+        } else if (halfTwo == halfThree) {
+            return TWO_THREE;
+        } else if (halfOne != halfTwo && halfOne != halfThree && halfTwo != halfThree) {
+            return THREE_DIFF;
+        } else {
+            return null;
+        }
+    }
+
+    checkTwoHalfs(rolOne, rolTwo) {
+        const halfOne = rolOne.split("-")[0];
+        const halfTwo = rolTwo.split("-")[0];
+
+        if (halfOne == halfTwo) {
+            return true;
+        } else if (halfOne != halfTwo) {
+            return false;
+        } else {
+            return null;
+        }
+    }
+
+    mergeRol(rol1, rol2, rol3, areSame) {
+        let final;
+        switch (areSame) {
+            case THREE_SAME:
+                final = this.mergeThreeRoles(rol1, rol2, rol3);
+                break;
+
+            case ONE_TWO:
+                final = this.mergeDiffRoles(this.mergeTwoRoles(rol1, rol2), rol3);
+                break;
+
+            case ONE_THREE:
+                final = this.mergeDiffRoles(this.mergeTwoRoles(rol1, rol3), rol2)
+                break;
+
+            case TWO_THREE:
+                final = this.mergeDiffRoles(this.mergeTwoRoles(rol2, rol3), rol1)
+                break;
+            case THREE_DIFF:
+                final = this.mergeDiffRoles(rol1, rol2, rol3)
+
+                break;
+            default:
+                final = null;
+
+        }
+        return final;
+    }
+
+    mergeDiffRoles(rol1 = null, rol2 = null, rol3 = null) {
+        if (rol1 && rol2 && rol3) {
+            return rol1 + "//" + rol2 + "//" + rol3;
+        } else if (rol1 && rol2) {
+            return rol1 + "//" + rol2;
+        } else if (rol1 && rol3) {
+            return rol1 + "//" + rol3;
+        } else if (rol2 && rol3) {
+            return rol2 + "//" + rol3;
+        } else if (rol1) {
+            return rol1;
+        }
+    }
+
+    // Funciones para unir dos roles
+    mergeTwoRoles(rolOne, rolTwo) {
+        if (!rolOne.includes("-") || !rolTwo.includes("-")) {
+            return null;
+        }
+        const arrayRolOne = rolOne.split("-");
+        const arrayRolTwo = rolTwo.split("-");
+        if (arrayRolOne[0] === arrayRolTwo[0]) {
+            rolOne += "-" + arrayRolTwo[1];
+        }
+        rolOne = rolOne.replace(/\s*/g, "");
+        return rolOne;
+    }
+
+    // Función para unir tres roles
+    mergeThreeRoles(rolOne, rolTwo, rolThree) {
+        let twoRoles = this.mergeTwoRoles(rolOne, rolTwo);
+        if (!twoRoles || !twoRoles.includes("-") || !rolThree.includes("-")) {
+            if (twoRoles && twoRoles.includes("-")) {
+                return twoRoles;
+            } else if (rolOne.includes("-") && rolThree.includes("-")) {
+                return this.mergeTwoRoles(rolOne, rolThree);
+            }
+            return null;
+        }
+        const arrayTwoRoles = twoRoles.split("-");
+        const arrayRolThree = rolThree.split("-");
+        if (arrayTwoRoles[0] == arrayRolThree[0]) {
+            twoRoles += "-" + arrayRolThree[1];
+        }
+        return twoRoles
+    }
+
+    //Función para limpiar los roles de espacios de sobre, guiones largos y ceros iniciales
+    cleanRol(rol) {
+        if (!rol) {
+            return null;
+        }
+        rol = rol.replace("−", "-");
+        if (!rol.includes("-")) {
+            return rol;
+        }
+        const parts = rol.split("-");
+        const newFirst = cleanInitialZeros(parts[0]);
+        const newSecond = cleanInitialZeros(parts[1]);
+        return newFirst + "-" + newSecond;
+    }
+
+    checkEstacionamientoBodega() {
+        // console.log("Revisando estacionamiento y bodega para el caso: ", caso.hasEstacionamiento, caso.hasBodega, caso.direccionEstacionamiento);
+        if (!this.#direccion) {
+            return null;
+        }
+        if (this.#hasEstacionamiento && this.#hasBodega) {
+            // console.log("Tiene estacionamiento y bodega");
+            const mergeDirections = this.mergeDirections(this.#direccion, this.#direccionEstacionamiento);
+            return mergeDirections + " BOD";
+        } else if (this.#hasEstacionamiento) {
+            // console.log("Tiene estacionamiento");
+            return this.mergeDirections(this.#direccion, this.#direccionEstacionamiento);
+        } else if (this.#hasBodega) {
+            // console.log("Tiene bodega");
+            return this.#direccion + " BOD";
+        } else {
+            // console.log("No tiene estacionamiento ni bodega");
+            return this.#direccion;
+        }
+    }
+
+    //Funcion para unir dos direcciones, una habitacional y la segunda de estacionamiento
+    mergeDirections(dir1, dir2) {
+        if(!dir2){
+            return dir1.trim().toLowerCase();
+        }
+        // Normalizar espacios y convertir a arrays de palabras
+        const palabras1 = dir1.trim().toLowerCase().split(/\s+/);
+        const palabras2 = dir2.trim().toLowerCase().split(/\s+/);
+
+        // Encontrar el punto donde divergen
+        let indiceDivergencia = 0;
+        while (indiceDivergencia < palabras1.length &&
+            indiceDivergencia < palabras2.length &&
+            palabras1[indiceDivergencia] === palabras2[indiceDivergencia]) {
+            indiceDivergencia++;
+        }
+
+        // Tomar la primera dirección completa y añadir las partes únicas de la segunda
+        const direccionCombinada = [
+            ...palabras1,
+            "Est", // Añadimos "Est" para indicar estacionamiento
+            ...palabras2.slice(indiceDivergencia)
+        ].join(' ');
+
+        return direccionCombinada;
+    }
+
     static completeInfo(caso1,caso2){
-        console.log("Caso base: ",caso1.toObject(), "caso base sin funcion: ", caso1);
-        console.log("Caso rellenar: ",caso2.toObject(), "caso relleno sin funcion: ", caso2);
+        // console.log("Caso base: ",caso1.toObject(), "caso base sin funcion: ", caso1);
+        // console.log("Caso rellenar: ",caso2.toObject(), "caso relleno sin funcion: ", caso2);
         let casoUnificado;
         if(caso1.origen == PJUD){
-            console.log("el primero es pjud")
+            // console.log("el primero es pjud")
             casoUnificado = Caso.fillMissingData(caso1, caso2);
         }else{
             console.log("El segundo es pjud")
             casoUnificado = Caso.fillMissingData(caso2, caso1);
         }
-        console.log(casoUnificado.toObject())
+        // console.log(casoUnificado.toObject())
         return casoUnificado
     } 
 
     static fillMissingData(casoBase, casoRelleno) {
-        console.log(`Vamos a revisar los avaluo del caso 1: ${casoBase.avaluoPropiedad} es igual a null? ${casoBase.avaluoPropiedad == null} y del 2 ${casoRelleno.avaluoPropiedad}es igual a null? ${casoRelleno.avaluoPropiedad == null} `)
+        // console.log(`Vamos a revisar los avaluo del caso 1: ${casoBase.avaluoPropiedad} es igual a null? ${casoBase.avaluoPropiedad == null} y del 2 ${casoRelleno.avaluoPropiedad}es igual a null? ${casoRelleno.avaluoPropiedad == null} `)
         casoBase.porcentaje = casoBase.porcentaje ?? casoRelleno.porcentaje;
         casoBase.formatoEntrega = casoBase.atoEntrega ?? casoRelleno.formatoEntrega;
         casoBase.fechaRemate = casoBase.fechaRemate ?? casoRelleno.fechaRemate;
@@ -1015,7 +1291,7 @@ class Caso{
         mockCase.rolPropiedad = "3795-302";
         mockCase.estadoCivil = "soltero";
         mockCase.corte = 11;
-        mockCase.numeroJuzgado = 96; 
+        mockCase.numeroJuzgado = 9; 
         mockCase.montoCompra = {monto: 1000, moneda: "UF"};
         mockCase.deudaHipotecaria = '1200 uf';
         mockCase.origen = '2';
@@ -1023,6 +1299,23 @@ class Caso{
 
 
         return mockCase;
+    }
+
+    static bindCaseWithDB(currentCase, dbCase) {
+        currentCase.porcentaje = currentCase.porcentaje ?? dbCase.porcentajeIda;
+        currentCase.formatoEntrega = currentCase.atoEntrega ?? dbCase.tipoParticipacion;
+        currentCase.fechaRemate = currentCase.fechaRemate ?? dbCase.fechaRemate;
+        currentCase.montoMinimo = currentCase.montoMinimo ?? dbCase.minimoParticipacion;
+        currentCase.comuna = currentCase.comuna ?? dbCase.nombre_comuna;
+        currentCase.partes = currentCase.partes ?? dbCase.partes;
+        currentCase.tipoDerecho = currentCase.tipoDerecho ?? dbCase.estado_remate;
+        currentCase.anno = currentCase.anno ?? dbCase.ano;
+        currentCase.direccion = currentCase.direccion ?? dbCase.direccion;
+        // currentCase.estadoCivil = currentCase.estadoCivil ?? dbCase.estadoCivil;
+        // currentCase.corte = currentCase.corte ?? dbCase.corte;
+        currentCase.numeroJuzgado = currentCase.numeroJuzgado ?? dbCase.idJuzgado;
+        currentCase.montoCompra = currentCase.montoCompra ?? dbCase.montoCompra;
+        return currentCase;
     }
 }
 

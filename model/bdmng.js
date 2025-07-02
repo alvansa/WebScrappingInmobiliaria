@@ -39,33 +39,39 @@ function createDB(db){
 
     // create Causa table
     const queryCreateCausa = `
-    CREATE TABLE IF NOT EXISTS Causa (
-        causa TEXT,
-        FOREIGN KEY (idJuzgado) REFERENCES Juzgado(id),
-        ano INTEGER,
-        FOREIGN KEY (idComuna) REFERENCES Comuna(id),
-        fechaRemate TEXT,
-        horaRemate TEXT,
-        tipoParticipacion TEXT,
-        minimoPostura INTEGER,
-        minimoParticipacion INTEGER,
-        FOREIGN KEY (idTipoPropiedad) REFERENCES TipoPropiedad(id),
-        direccion TEXT,
-        rolManzana INTEGER,
-        rolPredio INTEGER,
-        partes TEXT,
-        avaluoFiscal INTEGER,
-        FOREIGN KEY (idEstado) REFERENCES Estado(id),
-        montoCompra INTEGER,
-        FOREIGN KEY (idSeguimiento) REFERENCES Seguimiento(id),
-        FOREIGN KEY (idEstadoRemate) REFERENCES EstadoRemate(id),
-        FOREIGN KEY (idDeudaCausa) REFERENCES IDDeudaCausa(idCausa),
-        precioVenta INTEGER,
-        porcetajeIda INTEGER,
-        maximoPostura INTEGER,
-
-        PRIMARY KEY (causa, idJuzgado)
-    )`;
+    CREATE TABLE "Causa" (
+	"id"	INTEGER NOT NULL,
+	"causa"	TEXT NOT NULL,
+	"idJuzgado"	INTEGER NOT NULL,
+	"ano"	INTEGER,
+	"idComuna"	INTEGER,
+	"fechaRemate"	TEXT,
+	"horaRemate"	TEXT,
+	"tipoParticipacion"	TEXT,
+	"minimoPostura"	INTEGER,
+	"minimoParticipacion"	INTEGER,
+	"direccion"	TEXT,
+	"rolManzana"	INTEGER,
+	"rolPredio"	INTEGER,
+	"partes"	TEXT,
+	"avaluoFiscal"	INTEGER,
+	"idEstado"	INTEGER,
+	"montoCompra"	INTEGER,
+	"idSeguimiento"	INTEGER,
+	"idEstadoRemate"	INTEGER,
+	"precioVenta"	INTEGER,
+	"porcentajeIda"	INTEGER,
+	"maximoPostura"	INTEGER,
+	"idOrigen"	INTEGER,
+	UNIQUE("causa","idJuzgado"),
+	PRIMARY KEY("id" AUTOINCREMENT),
+	FOREIGN KEY("idComuna") REFERENCES "Comuna"("id"),
+	FOREIGN KEY("idEstado") REFERENCES "EstadoRemate"("id"),
+	FOREIGN KEY("idEstadoRemate") REFERENCES "EstadoRemate"("id"),
+	FOREIGN KEY("idJuzgado") REFERENCES "Juzgado"("numero"),
+	FOREIGN KEY("idOrigen") REFERENCES "",
+	FOREIGN KEY("idSeguimiento") REFERENCES "EstadoSeguimiento"("id")
+);`;
     db.prepare(queryCreateCausa).run();
 }
 

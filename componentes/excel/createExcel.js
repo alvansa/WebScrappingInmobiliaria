@@ -4,15 +4,9 @@ const fs = require('fs');
 const path = require('path');
 const Causas = require('../../model/Causas.js');
 const config = require("../../config.js");
-const { cleanInitialZeros } = require('../../utils/cleanStrings.js');
 const Caso = require('../caso/caso.js');
 
 const PJUD = 2;
-const THREE_SAME = 0;
-const ONE_TWO = 1;
-const ONE_THREE = 2;
-const TWO_THREE = 3;
-const THREE_DIFF = 4;
 
 
 
@@ -186,9 +180,9 @@ class createExcel {
             currentRow++;
         }
         // Agrega los remates a la base de datos
-        // if (!this.emptyMode) {
-        //     causaDB.insertMultipleCases(remates,comunas);
-        // }
+        if (!this.emptyMode) {
+            this.causaDB.insertMultipleCases(remates,comunas);
+        }
         return currentRow;
     }
 
@@ -221,10 +215,10 @@ class createExcel {
         }
         // Si la fecha de remate es menor a la fecha de inicio, o mayor a la final
         console.log("Enviando false por fecha :", currentCase.causa, " fecha remate : ", currentCase.fechaRemate, " fecha inicio: ", this.startDate, " y de fin: ", this.endDate);
-        if (currentCase.fechaRemate < new Date(this.startDate) || currentCase.fechaRemate > new Date(this.endDate)) {
-            console.log("Enviando false por fecha :", currentCase.causa, currentCase.fechaRemate, new Date(this.startDate) ,new Date(this.endDate));
-            return false;
-        }
+        // if (currentCase.fechaRemate < new Date(this.startDate) || currentCase.fechaRemate > new Date(this.endDate)) {
+        //     console.log("Enviando false por fecha :", currentCase.causa, currentCase.fechaRemate, new Date(this.startDate) ,new Date(this.endDate));
+        //     return false;
+        // }
         // No se escriben casos de juez partidor
         if (currentCase.juzgado === "Juez Partidor") {
             console.log("Enviando false por juez partidor :", currentCase.causa);
@@ -282,7 +276,7 @@ class createExcel {
         }
         // Revisamos si el caso tiene estacionamiento o bodega, y adaptamos la direccion
         const newDireccion = this.checkEstacionamientoBodega(caso)
-        this.writeLine(ws, 'H', currentRow, newDireccion, 's');
+        this.writeLine(ws, 'H', currentRow, caso.unitDireccion, 's');
 
         this.writeLine(ws, 'I', currentRow, caso.causa, 's');
         this.writeLine(ws, 'J', currentRow, caso.juzgado, 's');
@@ -299,9 +293,9 @@ class createExcel {
         // ws['V'+ currentRow ] = {v: 'deuda 3 ', t: 's'};
 
         // Union de roles de propiedad, estacionamiento y bodega
-        newRol = this.adaptRol(caso.rolPropiedad, caso.rolEstacionamiento, caso.rolBodega);
-        console.log("Rol adaptado: ", newRol);
-        this.writeLine(ws, 'W', currentRow, newRol, 's');
+        // newRol = this.adaptRol(caso.rolPropiedad, caso.rolEstacionamiento, caso.rolBodega);
+        // console.log("Rol adaptado: ", newRol);
+        this.writeLine(ws, 'W', currentRow, caso.unitRol, 's');
 
         // ws['X'+ currentRow ] = {v: 'notif ', t: 's'};
         // Formato de monto minimo segun el tipo de moneda
@@ -318,7 +312,7 @@ class createExcel {
         }
         if (caso.avaluoPropiedad != null) {
             const sumAvaluo = this.sumAvaluo(caso.avaluoPropiedad, caso.avaluoEstacionamiento, caso.avaluoBodega);
-            ws['AC' + currentRow] = { v: sumAvaluo, t: 'n', z: '#,##0' };
+            ws['AC' + currentRow] = { v: caso.unitAvaluo, t: 'n', z: '#,##0' };
         }
         this.writeLine(ws, "AE", currentRow, caso.estadoCivil, "s");
         if (caso.montoCompra && caso.montoCompra.monto) {
@@ -329,232 +323,11 @@ class createExcel {
         // ws['AH' + currentRow ] = {v: 'precio venta nos ', t: 's'};
     }
 
-    checkEstacionamientoBodega(caso) {
-        // console.log("Revisando estacionamiento y bodega para el caso: ", caso.hasEstacionamiento, caso.hasBodega, caso.direccionEstacionamiento);
-        if (!caso.direccion) {
-            return null;
-        }
-        if (caso.hasEstacionamiento && caso.hasBodega) {
-            // console.log("Tiene estacionamiento y bodega");
-            const mergeDirections = this.mergeDirections(caso.direccion, caso.direccionEstacionamiento);
-            return mergeDirections + " BOD";
-        } else if (caso.hasEstacionamiento) {
-            // console.log("Tiene estacionamiento");
-            return this.mergeDirections(caso.direccion, caso.direccionEstacionamiento);
-        } else if (caso.hasBodega) {
-            // console.log("Tiene bodega");
-            return caso.direccion + " BOD";
-        } else {
-            // console.log("No tiene estacionamiento ni bodega");
-            return caso.direccion;
-        }
-    }
+    
 
-    //Funcion para unir dos direcciones, una habitacional y la segunda de estacionamiento
-    mergeDirections(dir1, dir2) {
-        if(!dir2){
-            return dir1.trim().toLowerCase();
-        }
-        // Normalizar espacios y convertir a arrays de palabras
-        const palabras1 = dir1.trim().toLowerCase().split(/\s+/);
-        const palabras2 = dir2.trim().toLowerCase().split(/\s+/);
+    
 
-        // Encontrar el punto donde divergen
-        let indiceDivergencia = 0;
-        while (indiceDivergencia < palabras1.length &&
-            indiceDivergencia < palabras2.length &&
-            palabras1[indiceDivergencia] === palabras2[indiceDivergencia]) {
-            indiceDivergencia++;
-        }
-
-        // Tomar la primera dirección completa y añadir las partes únicas de la segunda
-        const direccionCombinada = [
-            ...palabras1,
-            "Est", // Añadimos "Est" para indicar estacionamiento
-            ...palabras2.slice(indiceDivergencia)
-        ].join(' ');
-
-        return direccionCombinada;
-    }
-
-    //Funcion que dado un string con el avaluo de la propiedad, estacionamiento y bodega, los suma
-    // Si alguno de los strings es null o undefined, se considera como 0
-    sumAvaluo(avaluoPropiedadString, avaluoEstacionamientoString, avaluoBodegaString) {
-        if (!avaluoPropiedadString && !avaluoEstacionamientoString && !avaluoBodegaString) {
-            return null;
-        }
-        const parsedPropiedad = parseInt(avaluoPropiedadString);
-        const parsedEstacionamiento = parseInt(avaluoEstacionamientoString);
-        const parsedBodega = parseInt(avaluoBodegaString);
-        const avaluoPropiedad = (typeof parsedPropiedad === 'number' && !isNaN(parsedPropiedad)) ? parsedPropiedad : 0;
-        const avaluoEstacionamiento = (typeof parsedEstacionamiento === 'number' && !isNaN(parsedEstacionamiento)) ? parsedEstacionamiento : 0;
-        const avaluoBodega = (typeof parsedBodega === 'number' && !isNaN(parsedBodega)) ? parsedBodega : 0;
-
-
-        return avaluoPropiedad + avaluoEstacionamiento + avaluoBodega;
-    }
-
-    // Adaptador de roles para combinar propiedad, estacionamiento y bodega
-    adaptRol(rolPropiedad, rolEstacionamiento, rolBodega) {
-        let rol1, rol2, rol3;
-        if (!rolPropiedad && !rolEstacionamiento && !rolBodega) {
-            return null;
-        }
-        // Limpiar y validar roles
-        const cleanedRoles = [
-            this.cleanRol(rolPropiedad),
-            this.cleanRol(rolEstacionamiento),
-            this.cleanRol(rolBodega)
-        ].filter(rol => rol !== null && rol !== undefined);
-
-        // Si solo queda un rol válido, retornarlo directamente
-        if (cleanedRoles.length === 1) {
-            return cleanedRoles[0];
-        }
-        [rol1, rol2, rol3] = cleanedRoles;
-        const comparisonResult = this.checkFirstHalves(rol1, rol2, rol3);
-        const finalRol = this.mergeRol(rol1, rol2, rol3, comparisonResult);
-        return finalRol;
-    }
-
-    checkFirstHalves(rolOne, rolTwo, rolThree) {
-        let result;
-        if (rolOne && rolTwo && rolThree) {
-            result = this.checkThreeHalfs(rolOne, rolTwo, rolThree);
-        } else if (rolOne && rolTwo) {
-            result = this.checkTwoHalfs(rolOne, rolTwo) ? ONE_TWO : THREE_DIFF;
-        } else if (rolOne && rolThree) {
-            result = this.checkTwoHalfs(rolOne, rolThree) ? ONE_THREE : THREE_DIFF;
-        } else if (rolTwo && rolThree) {
-            result = this.checkTwoHalfs(rolTwo, rolThree) ? TWO_THREE : THREE_DIFF;
-        } else {
-            return null;
-        }
-        return result;
-    }
-
-    checkThreeHalfs(rolOne, rolTwo, rolThree) {
-        const halfOne = rolOne.split("-")[0];
-        const halfTwo = rolTwo.split("-")[0];
-        const halfThree = rolThree.split("-")[0];
-        if (halfOne == halfTwo && halfTwo == halfThree) {
-            return THREE_SAME;
-        } else if (halfOne == halfTwo) {
-            return ONE_TWO;
-        } else if (halfOne == halfThree) {
-            return ONE_THREE;
-        } else if (halfTwo == halfThree) {
-            return TWO_THREE;
-        } else if (halfOne != halfTwo && halfOne != halfThree && halfTwo != halfThree) {
-            return THREE_DIFF;
-        } else {
-            return null;
-        }
-    }
-
-    checkTwoHalfs(rolOne, rolTwo) {
-        const halfOne = rolOne.split("-")[0];
-        const halfTwo = rolTwo.split("-")[0];
-
-        if (halfOne == halfTwo) {
-            return true;
-        } else if (halfOne != halfTwo) {
-            return false;
-        } else {
-            return null;
-        }
-    }
-
-    mergeRol(rol1, rol2, rol3, areSame) {
-        let final;
-        switch (areSame) {
-            case THREE_SAME:
-                final = this.mergeThreeRoles(rol1, rol2, rol3);
-                break;
-
-            case ONE_TWO:
-                final = this.mergeDiffRoles(this.mergeTwoRoles(rol1, rol2), rol3);
-                break;
-
-            case ONE_THREE:
-                final = this.mergeDiffRoles(this.mergeTwoRoles(rol1, rol3), rol2)
-                break;
-
-            case TWO_THREE:
-                final = this.mergeDiffRoles(this.mergeTwoRoles(rol2, rol3), rol1)
-                break;
-            case THREE_DIFF:
-                final = this.mergeDiffRoles(rol1, rol2, rol3)
-
-                break;
-            default:
-                final = null;
-
-        }
-        return final;
-    }
-
-    mergeDiffRoles(rol1 = null, rol2 = null, rol3 = null) {
-        if (rol1 && rol2 && rol3) {
-            return rol1 + "//" + rol2 + "//" + rol3;
-        } else if (rol1 && rol2) {
-            return rol1 + "//" + rol2;
-        } else if (rol1 && rol3) {
-            return rol1 + "//" + rol3;
-        } else if (rol2 && rol3) {
-            return rol2 + "//" + rol3;
-        } else if (rol1) {
-            return rol1;
-        }
-    }
-
-    // Funciones para unir dos roles
-    mergeTwoRoles(rolOne, rolTwo) {
-        if (!rolOne.includes("-") || !rolTwo.includes("-")) {
-            return null;
-        }
-        const arrayRolOne = rolOne.split("-");
-        const arrayRolTwo = rolTwo.split("-");
-        if (arrayRolOne[0] === arrayRolTwo[0]) {
-            rolOne += "-" + arrayRolTwo[1];
-        }
-        rolOne = rolOne.replace(/\s*/g, "");
-        return rolOne;
-    }
-
-    // Función para unir tres roles
-    mergeThreeRoles(rolOne, rolTwo, rolThree) {
-        let twoRoles = this.mergeTwoRoles(rolOne, rolTwo);
-        if (!twoRoles || !twoRoles.includes("-") || !rolThree.includes("-")) {
-            if (twoRoles && twoRoles.includes("-")) {
-                return twoRoles;
-            } else if (rolOne.includes("-") && rolThree.includes("-")) {
-                return this.mergeTwoRoles(rolOne, rolThree);
-            }
-            return null;
-        }
-        const arrayTwoRoles = twoRoles.split("-");
-        const arrayRolThree = rolThree.split("-");
-        if (arrayTwoRoles[0] == arrayRolThree[0]) {
-            twoRoles += "-" + arrayRolThree[1];
-        }
-        return twoRoles
-    }
-
-    //Función para limpiar los roles de espacios de sobre, guiones largos y ceros iniciales
-    cleanRol(rol) {
-        if (!rol) {
-            return null;
-        }
-        rol = rol.replace("−", "-");
-        if (!rol.includes("-")) {
-            return rol;
-        }
-        const parts = rol.split("-");
-        const newFirst = cleanInitialZeros(parts[0]);
-        const newSecond = cleanInitialZeros(parts[1]);
-        return newFirst + "-" + newSecond;
-    }
+    
 
 
     writeLine(ws, row, col, value, type) {

@@ -1255,4 +1255,885 @@ Con lo que han comprometido la gratitud de:
 Temuco, 22 de abril de 2025.
 FAMILIA ESPARZA ALAMOS`;
 
-module.exports = {diario2484, ex1341, diario1341, diario3857};
+const diario3354_1 = `EL MERCURIO DE ANTOFAGASTA| Martes 15 de abril de 2025 |15
+NOTIFICACIONPorresoluciondefe-
+cha31/03/2025CuartoJuzgadoLe-
+tras Civil Antofagasta causa rol C-
+3035-2022caratuladoCOOPEUCH
+conSARRIAACOSTAjuicioejecutivo
+cobromutuohipotecarioseordeno
+notificaravisoslosiguiente:Atendido
+elméritodelosdocumentosacom-
+pañados con fecha 18 de marzo de
+2025,folio53,sedispone:Aloprinci-
+pal,téngasepresentecomomínimo
+para la subasta la suma de $
+37.135.258.Alprimerotrosí,téngan-
+seporaprobadaslasbasesparalasu-
+basta,conlassiguientesmodificacio-
+nes:BaseCUARTA,seagregaalfinal:
+“Losinteresadosdeberánconsignar,
+en la presente causa, garantía sufi-
+cienteparaparticipardelasubasta.
+Dichaconsignacióndeberárealizarse
+medianteCupóndePagodelBanco
+Estado;DepósitoJudicialenlacuen-
+tacorrientedeBancoEstadodelTribu-
+nal;o,ValeVistabancariotomadoa
+nombredel“CUARTOJUZGADODE
+LETRASDEANTOFAGASTA”,encual-
+quierinstituciónbancaria.Losintere-
+sadosdeberánremitir,conjuntamen-
+tesusdatosdecontactoylacopiale-
+gibledelcomprobantedecupónde
+pagoodedepósitojudicialalcorreo
+electrónicojl4_antofagasta@pjud.cl,
+hastalas12:00horasdeldíahábilan-
+terioralafechafijadaparaelremate.
+Encasodevalevistabancario,deberá
+ademásderemitirlacopiaalcorreo
+indicadoentregarlofísicamenteen
+lasdependenciasdelTribunalconan-
+telaciónalremate.Lasgarantíasde
+aquellospostores,noadjudicatarios,
+del inmueble subastado serán de-
+vueltas mediante cheque girado al
+efecto,unavezconciliadasdichassu-
+mas,enlacuentacorrientedelTribu-
+nal,elquepodránretirarenlafechay
+horaqueleseráinformadaporcorreo
+electrónico; con excepción del vale
+vistabancario,querequiereparasu
+entrega, previa coordinación con la
+secretaríadeltribunal.BaseQUINTA,
+se modifica la expresión: “30 días”,
+por:“30díashábiles”.BaseOCTAVA,
+seeliminalaexpresión:“impuestosy
+contribuciones”. Base NOVENA, se
+modificalaexpresión:“extensióndel
+actaderemate”,por:“inscripciónde
+laescriturapúblicadeadjudicación”.
+BaseDECIMA,seagregaacontinua-
+ciónde:“sinmástrámites”,laexpre-
+sión: “si procediere”. Base DECIMO
+PRIMERA,semodificalaexpresión:
+“Talca”,por:“Antofagasta”.Seagregan
+las siguientes bases: Base DECIMO
+TERCERA,“Laspublicacionesdeberán
+acompañarsecon48horasdeantela-
+ciónalasubasta,como,asimismo,de-
+beráallegarseuncertificadodehipo-
+tecasygravámenesdelinmueblea
+subastar,deunaantigüedadnoma-
+yora30díascontadosalafechadel
+remate,todoesto,bajoapercibimien-
+todenorealizarseéste”BaseDECIMO
+CUARTA,“Sefijaelplazodediezdías
+hábilesdesdelanotificacióndelapre-
+senteresolución,paraqueelejecuta-
+dohagavalerelderechoqueleotorga
+elartículo486delCódigodeProcedi-
+mientoCivil”.BaseDECIMOQUINTA,
+“Deconformidadconlodispuestoen
+laley21.389,nopodránparticiparco-
+mopostoresaquellaspersonasque
+seencuentrenenelRegistroNacional
+deDeudoresdePensionesdeAlimen-
+tos”. Ténganse por aprobadas y/o
+complementadaslasbasesderema-
+te,concitación;quedandovigentes
+entodoloquenofuerecontrarioala
+presenteresolución.Alsegundootro-
+sí,comosepide,liquídeseelcréditoy
+tásenselascostasprocesalesporla
+UnidaddeLiquidaciones.Notifíque-
+selapresenteresoluciónaldemanda-
+do personalmenteoporcédula.An-
+tofagasta,3103-2025Comosepide,
+notifíquesemedianteavisoslareso-
+lucióndefecha27demarzode2025,
+folio58,lacualapruebalasbasespa-
+ralasubasta.Secretaria.-
+REMATE:TercerJuzgadodeLetrasde
+Antofagasta,causacaratulada“Estu-
+dioJurídicoHenríquezyMieres/Ca-
+rrasco”,RolC-1641-2023.Seremata-
+rá06demayode2025alas12:30ho-
+ras,inmuebleCasanúmeroquince,
+delCondominioDunasdeCostaLa-
+guna-LoteKCinco,conaccesoprinci-
+palporAvenidaAlcaldeMaximiliano
+Poblete número catorce mil ocho-
+cientosunoinscritoafojascuatromil
+ochocientosochentaynueveVuelta
+(4889v)númerosietemildoscientos
+cuarentayocho(7248)delRegistrode
+Propiedaddelañodosmilveintidós
+(2022),cuyodominioestáanombre
+deBERTHAMARILUCARRASCOCA-
+SANA, en el Conservador de Bienes
+RaícesdeAntofagasta.Mínimo:será
+la suma de $170.000.000.- Se hace
+presentequelasubastaserealizará
+enformapresencial,salvoqueeltri-
+bunaldispongasurealizaciónporvía
+telemática,yparalocuallosinteresa-
+dosdeberánpresentarvalevistaala
+ordendelTribunal,oconsignaciónen
+lacuentacorrientedelmismoasuor-
+den,porlacantidadcorrespondiente
+al10%delpreciomínimofijadopara
+la subasta. Demás bases y antece-
+dentescausaRolC-1641-2023.
+REMATE.22°JuzgadoCivilSantiago,
+Huérfanos1409,piso6,comunaSan-
+tiago,subastaráel28deabrilde2025,
+alas11:00horas,medianteplatafor-
+maZoom,eldepartamentoNº602,
+ubicadoenel6°piso,queformaparte
+del Edificio Aconcagua, con acceso
+porcalleAconcaguaNº965,comuna
+yRegióndeAntofagasta.Adquiriódi-
+choinmuebleconjuntamenteconel
+derechodeusoygoceexclusivoyper-
+manentedelestacionamientoN°9.
+Dominioinscritoafojas3192Vuelta
+N°4871delRegistrodePropiedaddel
+ConservadordeBienesRaícesdeAn-
+tofagasta, correspondiente al año
+2018.Mínimoposturas$35.913.776.
+Todopostor,paratomarparteenla
+subasta,deberárendircauciónporun
+valorequivalenteal10%delmínimo
+fijadoparalasposturas,medianteva-
+levistaalaordendelTribunal.Laen-
+tregamaterialdelValeVistadeberá
+verificarse el día jueves inmediata-
+menteanterioralafechadelasubas-
+ta,entrelas10:00ylas12:30horas.
+ConjuntamenteconlaentregadelVa-
+leVistadeberáentregarendocumen-
+toanexo,lasiguienteinformación:1)
+Roldelacausa;2)NombreyRut del
+Postor;3)NombreyRutdelapodera-
+dodelpostorquecompareceráala
+audienciaderemate;4)N°telefónico;
+5)Correoelectrónico.Cadapostorse-
+ráresponsabledecontarymantener
+losmediostecnológicosadecuadosy
+suficientesparaaccederalaaudien-
+cia.Todoslospostoresdeberánutili-
+zarymantenervigentesu
+firmaelectrónicaavanzadaolaClave
+ÚnicadelEstado,laqueesintransfe-
+rible,ysólopodráserusadaporsuti-
+tular.Sehacepresentequelaaudien-
+ciaderemateserealizarporvíavideo-
+conferenciaatravésdelaplataforma
+Zoom,paralocualsedeberáacceder
+al ID de la audiencia: https://pjud-
+cl.zoom.us/j/94131724908.Demás
+basesyantecedentes,constanenau-
+tos caratulados “BANCO DE CHILE
+contra ARAYA CORNEJO, DANIELA
+PAZ”,causaRolNºC–2609–2024.
+ANTEestePrimerJuzgadoLetrasCa-
+lama, Granaderos N° 2345, piso 2°.
+Remataráel25deabrildel2025alas
+12:00 horas, por video conferencia,
+mediante la plataforma Zoom, link
+https://pjud-
+cl.zoom.us/j/97689878402?pwd=1z
+7bIbSnrzUg8z6xSIDp-
+cauUmtu8P4.1 el Departamento
+N°303 del tercer piso y la Bodega
+N°97delCondominioBordemar,To-
+rreCconaccesoporAvenidaEdmun-
+doPérezZujovicN°10880,Antofagas-
+ta.Inscritoeldominioanombredel
+demandadoaFojas7009vueltaN°
+7590 del Registro de Propiedad del
+ConservadordeBienesRaícesdeAn-
+tofagastaaño2013.RoldeAvalúoDe-
+partamentoN°303:16228-331;Rol
+deAvalúoBodegaN°97:16228-520.
+Mínimoparalasubastalasumade
+$70.162.228.- Precio pagadero de
+contado,dentrodequintodíahábilsi-
+guiente a la fecha del remate. Para
+participarinteresadosdeberáningre-
+sarutilizandosuclaveúnicaenlapes-
+taña“remates”yaccederalosdeta-
+llesdeeste,juntoconelformulariode
+postulación.ElPostordeberáingresar
+los datos de la garantía y adjuntar
+comprobantecomodocumentoade-
+másdeinformacióndecontacto,pa-
+rarealizarconsignación,elpostorten-
+dráplazohastaeldíahábilanterioral
+remate.Gastosyderechosdecargo
+delsubastador.Basesyantecedentes
+enjuicioejecutivocaratulado“BAN-
+CO ITAU CHILE / TORRES” Rol N° C
+1033-2023.Secretario.
+EXTRACTOREMATE:CUARTOJUZGA-
+DO CIVIL DE ANTOFAGASTA, SAN
+MARTÍNN°2984,SÉPTIMOPISO,AN-
+TOFAGASTA.REMATARÁPRESENCIAL-
+MENTEENSECRETARÍADELTRIBU-
+NALELDÍA30DEABRILDEL2025A
+LAS11:00HRSELINMUEBLECONSIS-
+TENTE EN EL DEPARTAMENTO NÚ-
+MEROMILOCHOCIENTOSCINCOB
+UBICADOENELDÉCIMOOCTAVOPI-
+SO DE LA TORRE B, DE LA BODEGA
+NÚMEROCIENTOCUARENTAUBICA-
+DAENELNIVELSUBTERRÁNEOYDEL
+ESTACIONAMIENTONÚMERODOS-
+CIENTOSOCHOENCONJUNTOCON
+EL ESTACIONAMIENTO NÚMERO
+DOSCIENTOSQUINCE,AMBOSUBI-
+CADOS EN EL PRIMER PISO,TODOS
+DEL CONDOMINIO FARO NORTE,
+CON ACCESO POR AVENIDA ASCO-
+TANNORTENÚMEROCIENTOCIN-
+CUENTAYCINCO,DELACOMUNA
+DEANTOFAGASTA.INSCRITOANOM-
+BREDELDEMANDADOAFOJAS2779
+NÚMERO3923CORRESPONDIENTE
+AL REGISTRO DE PROPIEDAD DEL
+AÑO 2020 CONSERVADOR DE BIE-
+NESRAÍCESDEANTOFAGASTA.MÍNI-
+MOPARALASPOSTURASENLASU-
+MADE$103.522.012.-LOSINTERE-
+SADOS DEBERÁN CONSTITUIR GA-
+RANTÍASUFICIENTEPORUNVALOR
+EQUIVALENTEAL10%DELMÍNIMO
+FIJADO,DICHACONSIGNACIÓNDE-
+BERÁ REALIZARSE MEDIANTE CU-
+PÓNDEPAGODELBANCOESTADO;
+DEPÓSITOJUDICIALENLACUENTA
+CORRIENTEDEBANCOESTADODEL
+TRIBUNAL;O,VALEVISTABANCARIO
+TOMADOANOMBREDEL“CUARTO
+JUZGADO DE LETRAS DE ANTOFA-
+GASTA”,ENCUALQUIERINSTITUCIÓN
+BANCARIA.YDEBERÁREMITIRSECO-
+PIADELCOMPROBANTERESPECTIVO,
+JUNTOCONSUSDATOSDECONTAC-
+TO,ALCORREOELECTRÓNICOjl4_an-
+tofagasta@pjud.clHASTALAS12:00
+HORASDELDÍAHÁBILANTERIORA
+LA FECHA FIJADA PARA EL REMATE;
+ENCASODEVALEVISTA,ADEMÁSDE
+REMITIRLACOPIAALCORREOELEC-
+TRÓNICO INDICADO, ESTE DEBERÁ
+SER ENTREGADO FÍSICAMENTE EN
+LASDEPENDENCIASDELTRIBUNAL
+CON ANTELACIÓN AL REMATE. LAS
+GARANTÍAS DE AQUELLOS POSTO-
+RES NO ADJUDICATARIOS DEL IN-
+MUEBLE SUBASTADO SERÁN DE-
+VUELTASMEDIANTECHEQUEGIRA-
+DOALEFECTO,UNAVEZCONCILIA-
+DASDICHASSUMASENLACUENTA
+CORRIENTE DELTRIBUNAL, EL QUE
+PODRÁNRETIRARENLAFECHAYHO-
+RA QUE LE SERÁ INFORMADA POR
+CORREOELECTRÓNICO;CONEXCEP-
+CIÓNDELVALEVISTABANCARIO,PRE-
+VIACOORDINACIÓNCONLASECRE-
+TARÍADELTRIBUNAL.DEMÁSANTE-
+CEDENTES EN BASES DE REMATE Y
+LOSAUTOSROLC-3354-2023,CARA-
+TULADOS “BANCO DE CHILE CON
+GONZÁLEZ”.JUICIOEJECUTIVO.SE-
+CRETARÍA
+ANTEel2°JuzgadodeLetrasCivilde
+Antofagasta,encausavoluntariaRIT
+V-230-2024,sobre“declaracióndein-
+terdicciónynombramientodecura-
+dor”,confecha09deenerodel2025,
+sedictósentencia,endondesedecla-
+ra la interdicción definitiva por de-
+menciadedoñaELSADELCARMEN
+CORTÉSPLAZA,céduladeidentidad
+N°5.108.804-2,domiciliadaenSEN-
+DERODELSOLN°449,CASAN°59,ciu-
+daddeAntofagasta,quiendesdela
+fechaenquequedeejecutoriadala
+sentenciadeautos,permanecerápri-
+vadadelaadministracióndesusbie-
+nesysedesignacomocuradordefini-
+tivo a MANUEL ALBERTO MARÍN
+CORTÉS,cédulanacionaldeidentidad
+8.901.845-5,paraquepuedaobrar,de
+conformidadalo dispuestoenelartí-
+culo462Nº2delCódigoCivil
+mite el embargo de bienes sufi-
+cientes. BancoEstado Cobranzas.
+Para consultas, llámenos desde
+celular
+ al *2326 o al 800 38 2727
+de lunes a viernes de 08:00 a
+20:00 horas, y sábado de 08:00 a
+14:00 horas
+. NOMENCLATURA: 1.
+[445]Mero trámite JUZGADO: 1º
+Juzgado de Letras Civil de Antofa-
+gasta CAUSA ROL :
+C-877-2021 CA-
+RATULADO : BANCO DE ESTADO
+DE CHILE/ARRIAZA. Antofagasta,
+veintiséis de Marzo de dos mi
+l
+veinticuatro. A lo principal, primer
+y segundo otrosí: Como se pide,
+notifíquese por medio de aviso
+s
+publicados en un Diario de circula-
+ción local de la Región, por tres ve-
+ces consecutivamente, media
+nte
+extracto que deberá redactar el
+Señor Secretario del Tribunal, sin
+perjuicio de publicarse en el
+Diario
+Oficial, también en extracto co-
+rrespondientes a los días primero
+o quince de cualquier mes o
+al día
+siguiente, todo ello de conformi-
+dad a lo dispuesto en el artículo 54
+del Código de Procedimie
+nto Civil,
+al demandado ALEJANDRA CECI-
+LIA ARRIAZA FREIRE, Rut No.
+11.648.189-8. Con la finalidad de
+dar estricto cumplimiento a lo dis-
+puesto perentoriamente por el ar-
+tículo 443 N° 1 del Código de Pro
+-
+cedimiento Civil, el extracto orde-
+nado deberá contener la citación
+al ejecutado mencionado, para
+qu
+e comparezca ante la Secretaría
+de este tribunal, ubicada en calle
+San Martín N° 2984, segundo piso,
+de esta ciudad, dentro de cuarto
+día hábil siguiente de practicada la
+última publicación, y si recaye
+re
+un sábado, al día hábil siguiente, a
+las 08:30 horas para los efectos
+que lo requiera de pago un r
+ecep-
+tor judicial de la plaza, hasta por la
+cantidad de 6340,558915 Unida-
+des de Fomento, equivalente
+s al
+día 3 de septiembre de 2020, a la
+suma de $181.861.307 (Ciento
+ochenta y un millones ochocientos
+
+sesenta y un mil trescientos siete
+pesos), más intereses reajustes y
+costas, bajo apercibimiento que
+, si
+no comparece, se le tendrá por re-
+querido de pago en su rebeldía y
+por opuesto a la traba del em
+bar-
+go. Asimismo, se pone en conoci-
+miento del ejecutado que de
+acuerdo con los artículos 459 y
+460 d
+el Código mencionado,
+cuenta con ocho días hábiles, se-
+gún el caso, para oponer excepcio-
+nes a la eje
+cución. El demandado,
+deberá dar cumplimiento con lo
+dispuesto en el artículo 49 del Có-
+digo de Proce
+dimiento Civil, con-
+forme las modificaciones introdu-
+cidas al Código citado por la Ley
+21.394, para q
+ue designe un domi-
+cilio conocido dentro de los límites
+urbanos del Tribunal, debiendo
+además designa
+rse un medio de
+notificación electrónico expedito
+y eficaz, todo dentro de tercero
+día, bajo el aperc
+ibimiento del ar-
+tículo 53 del mismo Código, esto
+es, de serles notificadas por esta-
+do diario todas
+las resoluciones
+que se dicten en lo sucesivo en el
+proceso. En Antofagasta, a veinti-
+séis de Marzo d
+e dos mil veinticua-
+tro, se notificó por el estado diario,
+la resolución precedente. Car/
+Pom Arturo
+Andrés Iribarren Pé-
+rez Juez PJUD Veintiséis de Marzo
+de dos mil veinticuatro 12:31 UTC-
+3.`
+
+const diario3354_2 = `14|EL MERCURIO DE ANTOFAGASTA| Viernes 18 de abril de 2025
+100-200
+PROPIEDADES
+Casas
+Departamentos
+Oficinas, Locales,
+Patentes y otros
+Sitios
+Corredores
+Propiedades
+300
+VEHÍCULOS
+Vehículos
+compran- arriendan
+Vehículos Venden
+Jeep y Vehículos
+Motos
+Servicios, Repuestos y
+Accesorios
+400-500
+AGRÍCOLAS
+CONSTRUCCIÓN
+Implementos y
+Servicios Agrícolas
+Maquinaria Agrícola
+Maquinas
+Venden- Arriendan
+Construcciones
+Materiales
+600-700
+INDUSTRIAS,
+NEGOCIOS Y
+OFICINAS
+HOGAR
+Maquinaria y Equipo
+Muebles, Accesorios
+y Herramientas
+Para la minería
+Para el Hogar
+ylafamilia
+Para los niños
+800
+COMUNICACIONES
+IMAGEN Y SONIDO
+Telefonía
+celular y fija
+Televisores,
+videos y radios
+Servicios técnicos,
+electrónicos
+900-1000
+COMPUTACIÓN
+DEPORTES,
+PASATIEMPOS
+Computadores
+Softwares
+Servicios Técnicos
+Deportes y
+Pasatiempos
+Deportes náuticos
+Para el Turista
+1100
+SERVICIOS
+Préstamos
+Proyectos y Asesorias.
+Empresas de Servicios
+Saludos
+Saunas
+No sometidos
+a Clasificación
+1200
+EMPLEOS
+Industria Ofrecen
+Comercio Ofrecen
+Hogar Ofrecen
+Empleos Buscan
+Trabajo temporal y
+Profesional
+1300
+LEGALES Y
+PÚBLICOS
+Legales
+Judiciales
+Remates
+Personas buscadas
+Citaciones
+Atención:Lunes a Viernes de 09:00 a 18:00 Hrs.
++56937878653
+andres.martinez@emelnor.cl
+Celular:
+1.700.000+GCOrella #610 piso 12,
+96mt2 disponible,estacionamiento,
+cocina, bodega, conserjeria. Contac-
+to:+56966355697
+10 MIL
+Señoritas disponible con un promo-
+ción de 10mil el momento te espe-
+ramos +56 9 4535 3675 Antofagas-
+ta
+
+16MIL 55.2771698
+VEN      A     LIBERAR    TODOS    TUS PE-
+CADOS! MUJERES COMPLACIENTES
+Y SIN LÍMITES...
+LEYDI,boliviana complaciente trato
+de pareja 30 años centro Calama
+.+56921935096.-
+SKARLET 10.000
+Momento, recien llegadita. Chilena.
+Blanquita    madurita.    Bellísima.
+958220346
+SEREALIZARÁen el Cementerio Ge-
+neral  de  Antofagasta,  reconoci-
+miento de dominio de la sepultura
+perpetua de don Antonio Cortese
+(Q.E.P.D.) fallecido con fecha 24 sep-
+tiembre 1964, y ubicada en patio Nº
+4, corrida Nº 3, sitios 15-16-17, sec-
+tor Plan. Se otorga el plazo de 15 dí-
+as para presentar oposición.
+ANTEel 2° Juzgado de Letras Civil de
+Antofagasta, en causa voluntaria
+RIT V-230-2024, sobre “declaración
+de interdicción y nombramiento de
+curador”, con fecha 09 de enero del
+2025, se dictó sentencia, en donde
+se declara la interdicción definitiva
+por demencia de doña ELSA DEL
+CARMEN CORTÉS PLAZA, cédula de
+identidad N° 5.108.804-2, domicilia-
+da en SENDERO DEL SOL N°449, CA-
+SA N°59, ciudad de Antofagasta,
+quien desde la fecha en que quede
+ejecutoriada la sentencia de autos,
+permanecerá privada de la adminis-
+tración de sus bienes y se designa
+como curador definitivo a MANUEL
+ALBERTO MARÍN CORTÉS, cédula na-
+cional de identidad 8.901.845-5, pa-
+ra que pueda obrar, de conformidad
+a lo dispuesto en el artículo 462 Nº2
+del Código Civil
+EXTRACTORemate causa RIT C-13-
+2021 Ante el Juzgado de Letras y ga-
+rantía  de  Mejillones  (sección  co-
+branza Laboral), ubicado en calle
+Borgoño N° 200 esta ciudad, en jui-
+cio ejecutivo laboral, en causa RIT C-
+13-2021,caratulada“QUIRO-
+GA/SOLIZ”, se ha ordenado notificar
+extracto según resolución de fecha
+07 de marzo de 2025, que se llevará
+a efecto remate ante este tribunal
+con fecha 06 de mayo de 2025, a las
+10:30 horas, bajo la modalidad de
+videoconferencia  en  plataforma
+ZOOM, conforme a los términos se-
+ñalados en la resolución indicada,
+del inmueble ubicado en calle Playa
+Blanca, número 1142, que según su
+título corresponde al sitio número 8,
+de la manzana “H”, de la Población
+Andalicán, de la Comuna de Mejillo-
+nes. Los deslindes del inmueble son
+los siguientes: AL NORTE, en 4,18
+metros,  con  otro  propietario;  AL
+SUR, en 4,18; AL ORIENTE, en 16,58
+metros con pasaje Jorge Krstulovic
+Moschini: PONIENTE, en 16,58 me-
+tros con sitio número siete. Inscrita
+a fs.37 N° 37 de 2022 del Conserva-
+dor de Bienes Raíces de Mejillones.
+El inmueble se encuentra enrolado
+ante el Servicio de impuestos inter-
+nos bajo el Rol de avalúo número
+00175-00008. El mínimo para co-
+menzar las posturas será la suma de
+$29.012.696 correspondiente a la
+suma total del avalúo fiscal de la
+propiedad. La referida subasta se
+realizará, bajo la modalidad de video
+conferencia en plataforma ZOOM.
+Para dicho efecto, los interesados
+con la debida anticipación de un mí-
+nimo de 20 minutos deberán conec-
+tarse a la siguiente reunión ID 926
+0174 1917; Código Acceso 822490.
+En  caso  que  los  interesados  no
+cuenten con los medios tecnológi-
+cos para conectarse por la platafor-
+ma antes mencionada, podrá con-
+currir en forma estrictamente per-
+sonal con 20 minutos de antelación
+al día y hora señala para audiencia
+de remate antes indicada, al tribu-
+nal ubicado en Borgoño 200, Meji-
+llones; debiendo comunicarse, pre-
+via identificación, con el personal de
+seguridad del juzgado, y señalar a la
+audiencia que concurre, por lo cual
+se dispondrá de un computador o
+sala habilitada del tribunal para par-
+ticipar de la subasta respectiva. Los
+interesados deberán consignar ga-
+rantía  suficiente  para  participar,
+conforme a las bases de remate,
+mediante depósito judicial o cupón
+de  pago  del  Banco  Estado  en  la
+cuenta corriente del Tribunal (no
+transferencia electrónica), y en el rol
+de causa correspondiente, hasta las
+12:00 horas del día hábil anterior a
+la subasta. Se sugiere utilizar el cu-
+pón de pago de Banco Estado, para
+lo cual se deja el link de acceso para
+generarlo:   http://reca.poderjudi-
+cial.cl/RECAWEB/. Los interesados,
+deberán acompañar comprobante
+legible de haber rendido las garanta
+alcorreojl_mejillones_rema-
+tes@pjud.cl, junto a copia de cédu-
+la de identidad por ambos lados,
+hasta las 12:00 horas del día hábil
+anterior a la subasta, debiendo indi-
+car el rol de la causa en la cual parti-
+cipar, su nombre, RUT y datos de
+contacto, esto es, correo electrónico
+y número telefónico, a fin de coordi-
+nar su participación, obtener infor-
+mación de la forma de realización y
+confirmación del link.
+EXTRACTOREMATE:CUARTOJUZ-
+GADO CIVIL DE ANTOFAGASTA, SAN
+MARTÍN  N°2984,  SÉPTIMO  PISO,
+ANTOFAGASTA. REMATARÁ PRESEN-
+CIALMENTE  EN  SECRETARÍA  DEL
+TRIBUNAL EL DÍA 30 DE ABRIL DEL
+2025 A LAS 11:00 HRS EL INMUEBLE
+CONSISTENTE EN EL DEPARTAMEN-
+TO NÚMERO MIL OCHOCIENTOS
+CINCOBUBICADOENELDÉCIMO
+OCTAVO PISO DE LA TORRE B, DE LA
+BODEGA NÚMERO CIENTO CUA-
+RENTA UBICADA EN EL NIVEL SUB-
+TERRÁNEO Y DEL ESTACIONAMIEN-
+TO NÚMERO DOSCIENTOS OCHO
+EN CONJUNTO CON EL ESTACIONA-
+MIENTO  NÚMERO  DOSCIENTOS
+QUINCE, AMBOS UBICADOS EN EL
+PRIMER PISO, TODOS DEL CONDO-
+MINIOFARONORTE,CONACCESO
+POR  AVENIDA  ASCOTAN  NORTE
+NÚMERO  CIENTO  CINCUENTA  Y
+CINCO, DE LA COMUNA DE ANTO-
+FAGASTA. INSCRITO A NOMBRE DEL
+DEMANDADO A FOJAS 2779 NÚ-
+MERO 3923 CORRESPONDIENTE AL
+REGISTRO DE PROPIEDAD DEL AÑO
+2020  CONSERVADOR  DE  BIENES
+RAÍCES DE ANTOFAGASTA. MÍNIMO
+PARALASPOSTURASENLASUMA
+DE $ 103.522.012.- LOS INTERESA-
+DOS  DEBERÁN  CONSTITUIR  GA-
+RANTÍA SUFICIENTE POR UN VALOR
+EQUIVALENTE AL 10% DEL MÍNIMO
+FIJADO, DICHA CONSIGNACIÓN DE-
+BERÁ REALIZARSE MEDIANTE CU-
+PÓN DE PAGO DEL BANCO ESTADO;
+DEPÓSITO JUDICIAL EN LA CUENTA
+CORRIENTE DE BANCO ESTADO DEL
+TRIBUNAL; O, VALE VISTA BANCARIO
+TOMADO A NOMBRE DEL “CUARTO
+JUZGADODELETRASDEANTOFA-
+GASTA”,  EN  CUALQUIER  INSTITU-
+CIÓN BANCARIA. Y DEBERÁ REMI-
+TIRSE COPIA DEL COMPROBANTE
+RESPECTIVO, JUNTO CON SUS DA-
+TOS  DE  CONTACTO,  AL  CORREO
+ELECTRÓNICOjl4_antofagas-
+ta@pjud.cl HASTA LAS 12:00 HO-
+RAS DEL DÍA HÁBIL ANTERIOR A LA
+FECHA FIJADA PARA EL REMATE; EN
+CASO DE VALE VISTA, ADEMÁS DE
+REMITIR LA COPIA AL CORREO ELEC-
+TRÓNICO INDICADO, ESTE DEBERÁ
+SER ENTREGADO FÍSICAMENTE EN
+LAS DEPENDENCIAS DEL TRIBUNAL
+CON ANTELACIÓN AL REMATE. LAS
+GARANTÍAS DE AQUELLOS POSTO-
+RES NO ADJUDICATARIOS DEL IN-
+MUEBLE SUBASTADO SERÁN DE-
+VUELTAS MEDIANTE CHEQUE GIRA-
+DO AL EFECTO, UNA VEZ CONCILIA-
+DAS DICHAS SUMAS EN LA CUENTA
+CORRIENTE DEL TRIBUNAL, EL QUE
+PODRÁN RETIRAR EN LA FECHA Y
+HORA QUE LE SERÁ INFORMADA
+POR CORREO ELECTRÓNICO; CON
+EXCEPCIÓN DEL VALE VISTA BANCA-
+RIO, PREVIA COORDINACIÓN CON
+LA SECRETARÍA DEL TRIBUNAL. DE-
+MÁS ANTECEDENTES EN BASES DE
+REMATE Y LOS AUTOS ROL C-3354-
+2023, CARATULADOS “BANCO DE
+CHILE CON GONZÁLEZ”. JUICIO EJE-
+CUTIVO. SECRETARÍA
+REMATEPor resolución Cuarto Juz-
+gado de Letras Civil de Antofagasta,
+calle San Martín N°2984, piso 8, ala
+sur, del Centro de Justicia de Antofa-
+gasta,  en juicio ejecutivo de despo-
+seimiento caratulado “BANCO DE
+CHILE CON BARBOSA HERRERA, PI-
+LAR”, rol C-280-2022, se ha decreta-
+do  remate  inmueble  ubicado  en
+ANTOFAGASTA, consistente en De-
+partamento N°712, del séptimo pi-
+so, y el Estacionamiento N° 302, del
+Condominio Edificio Icono Antofa-
+gasta, que tiene su acceso por calle
+Uribe N° 305, inscrito a fojas 2467
+vuelta número 3508, en el Registro
+Propiedad del Conservador de Bie-
+nes Raíces de ANTOFAGASTA corres-
+pondiente al año 2021, a nombre de
+doña PILAR ANDREA BARBOSA HE-
+RRERA. Remate se efectuará día 05
+de mayo de 2025 a las 11:00  hrs.,
+presencialmente en el Tribunal. Mí-
+nimo inicio subasta es la cantidad
+de UF 2.215,31en su equivalencia
+en pesos a la fecha del remate, y que
+corresponden al valor fijado por el
+Tribunal. Precio pagarse al contado,
+dentro quinto día hábil siguiente fe-
+cha remate. Para tener derecho a
+participar en subasta y hacer postu-
+ras en remate, interesados deberán
+consignar, en la presente causa, ga-
+rantía suficiente para participar de
+la subasta, equivalente al 10% del
+mínimo fijado para el inmueble a
+subastar. Dicha consignación debe-
+rá realizarse mediante Cupón de Pa-
+go del Banco Estado; Depósito Judi-
+cial en la cuenta corriente de Banco
+Estado del Tribunal; o, Vale Vista
+bancario  tomado  a  nombre  del
+“CUARTO JUZGADO DE LETRAS DE
+ANTOFAGASTA”, en cualquier insti-
+tución bancaria. Los interesados de-
+berán remitir, conjuntamente con
+sus datos de contacto, la copia legi-
+ble del comprobante de cupón de
+pago o de depósito judicial a los co-
+rreos electrónicos: jl4_antofagas-
+ta@pjud.cl  hasta las 12:00 horas
+del día hábil anterior a la fecha fija-
+da para el remate. En caso de vale
+vista, además de remitir la copia a
+los correos electrónicos indicados,
+éste deberá ser entregado física-
+mente en las dependencias del Tri-
+bunal con antelación al remate. De
+conformidad con lo dispuesto en la
+ley 21.389, no podrán participar co-
+mo postores aquellas personas que
+se encuentren inscrita en el Registro
+Nacional de Deudores de Pensiones
+de Alimentos. Gastos y derechos de
+cargo del subastador. Demás ante-
+cedentes constan en expediente.
+REMATE:Tercer Juzgado de Letras
+de Antofagasta, causa caratulada
+“Estudio Jurídico Henríquez y Mie-
+res/Carrasco”, Rol C-1641-2023. Se
+rematará 06 de mayo de 2025 a las
+12:30 horas, inmueble Casa núme-
+ro quince, del Condominio Dunas de
+Costa Laguna - Lote K Cinco, con ac-
+ceso principal por Avenida Alcalde
+Maximiliano Poblete número cator-
+ce mil ochocientos uno inscrito a fo-
+jas cuatro mil ochocientos ochenta
+y nueve Vuelta (4889v) número sie-
+te mil doscientos cuarenta y ocho
+(7248) del Registro de Propiedad del
+año dos mil veintidós (2022), cuyo
+dominio está a nombre de BERTHA
+MARILU CARRASCO CASANA, en el
+Conservador de Bienes Raíces de
+Antofagasta. Mínimo: será la suma
+de $170.000.000.- Se hace presente
+que la subasta se realizará en forma
+presencial, salvo que el tribunal dis-
+ponga su realización por vía telemá-
+tica, y para lo cual los interesados de-
+berán presentar vale vista a la orden
+del Tribunal, o consignación en la
+cuenta corriente del mismo a su or-
+den, por la cantidad correspondien-
+te al 10% del precio mínimo fijado
+para la subasta. Demás bases y an-
+tecedentes causa Rol C-1641-2023.
+REMATEAnte SEGUNDO Juzgado
+Letras  Antofagasta,  San  Martin
+2984, 3° y 4° piso, día 6 de mayo de
+2025; 12.00 horas, remate video
+conferencia   plataforma   zoom,
+https://zoom.us/j/7585105148,
+inmueble ubicado Antofagasta, en
+calle Leucoton Nº 1.669, correspon-
+diente al Sitio Nº23, de la Manzana
+Nº15 de la Población Chango Ló-
+pez, de propiedad del demandado,
+inscrito a fojas 5.232 vta., Nº 5.772
+del Registro de Propiedad del Con-
+servador de Bienes Raíces de Anto-
+fagasta,  correspondiente  al  año
+2011. Mínimo $ 43.327.605.- o ava-
+lúo vigente, según base tercera de
+remate. Precio pagadero contado,
+dentro quinto día. Interesados de-
+ben consignar garantía suficiente
+para participar en subasta confor-
+me bases de remate, mediante de-
+pósito judicial, cupón de pago del
+Banco Estado o vale vista a nombre
+del Juzgado en la cuenta corriente
+del Tribunal (no transferencia elec-
+trónica) y en la causa correspon-
+diente y enviar copia del compro-
+bante al correo electrónico jl2_an-
+tofagasta@pjud.cl o copia del vale
+vista, hasta las 12:00 horas del día
+anterior a la fecha fijada para el re-
+mate. Interesado en presenciar y/o
+participar en remate debe coordi-
+nar su incorporación al remate y su
+participación en correo indicado.
+En  caso  suspensión  remate  por
+motivos ajenos al Tribunal, se reali-
+zará día siguiente hábil misma ho-
+ra. Será carga de partes y postores
+tener elementos tecnológicos y de
+conexión. Demás antecedentes Se-
+cretaría Tribunal, causa “SOCOFIN
+S.A/VELASQUEZ”ROLNº
+1436/2016.`;
+
+module.exports = {diario2484, ex1341, diario1341, diario3857, diario3354_1, diario3354_2};

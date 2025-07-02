@@ -13,7 +13,7 @@ class PjudPdfData {
             return false;
         }
 
-        if (this.checkIfValidDoc(data)) {
+        if (!this.checkIfValidDoc(data)) {
             return false;
         }
         let normalizeInfo = this.normalizeInfo(data);
@@ -42,14 +42,14 @@ class PjudPdfData {
         for (const doc of docNotValid) {
             if (doc.test(item)) {
                 console.log("Documento no valido, no contiene informacion relevante");
-                return true;
+                return false;
             }
         }
         if(this.checkIfDiario(item)){
-            return true;
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     processCivilStatus(info) {
@@ -947,7 +947,7 @@ class PjudPdfData {
         if(!countRemate){
             return false;
         }
-        if(countRemate > 6){
+        if(countRemate.length > 6){
             return true;
         }
         return false;
