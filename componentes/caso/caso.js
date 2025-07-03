@@ -96,7 +96,7 @@ class Caso{
         this.#hasBodega = false;
         this.#owners = [];
         this.#montoCompra = null;   
-        this.#isPaid = false;
+        this.#isPaid = null;
         this.#deudaHipotecaria = null;
         this.#alreadyAppear = null;
 
@@ -408,7 +408,10 @@ class Caso{
         return String(this.#anno);
     }
     get isPaid(){
-        return Boolean(this.#isPaid);
+        if(!this.#isPaid){
+            return null;
+        }
+        return this.#isPaid;
     }
     get deudaHipotecaria(){
         if(!this.#deudaHipotecaria){
@@ -547,9 +550,14 @@ class Caso{
         if(this.#origen == LIQUIDACIONES){
             return new Date(this.#fechaRemate);
         }
+
+        if(this.#fechaRemate.includes("Chile Summer")){
+            return new Date(this.#fechaRemate);
+        }
         console.log("Fecha de remate en normalizacion: ", this.#fechaRemate)
         try{
 
+            //Del estilo 25/12/2025
         if(this.#fechaRemate.includes("/")){
             const regexFecha = /(\d{1,2})\/(\d{1,2})\/(\d{4})/;
             const partesFecha = this.#fechaRemate.match(regexFecha);
@@ -560,6 +568,7 @@ class Caso{
                 return new Date(anno, mes, dia);
             }
         }
+        // Del estilo 25-12-2025
         if(this.#fechaRemate.includes("-")){
             const regexFecha = /(\d{1,2})-(\d{1,2})-(\d{4})/;
             const partesFecha = this.#fechaRemate.match(regexFecha);
@@ -580,7 +589,8 @@ class Caso{
             const fecha = new Date(anno, mes - 1, dia);
             // Se suma 6 horas ya que la fecha a veces queda si es del 25 de diciembre queda como 
             // 24 de diciembre a las 23:59:59.999, por lo que se suma 6 horas para que quede como 25 de diciembre
-            return new Date(fecha.getTime() + 6 * 60 * 60 * 1000); // Sumar 6 horas
+            // return new Date(fecha.getTime() + 6 * 60 * 60 * 1000); // Sumar 6 horas
+            return fecha;
         }
         }catch(error){
             console.error("Error normalizando la fecha: ",error.message);
@@ -1194,6 +1204,9 @@ class Caso{
 
     //Funcion para unir dos direcciones, una habitacional y la segunda de estacionamiento
     mergeDirections(dir1, dir2) {
+        if(!dir1){
+            return null;
+        }
         if(!dir2){
             return dir1.trim().toLowerCase();
         }
@@ -1303,7 +1316,7 @@ class Caso{
 
     static bindCaseWithDB(currentCase, dbCase) {
         currentCase.porcentaje = currentCase.porcentaje ?? dbCase.porcentajeIda;
-        currentCase.formatoEntrega = currentCase.atoEntrega ?? dbCase.tipoParticipacion;
+        currentCase.formatoEntrega = currentCase.formatoEntrega ?? dbCase.tipoParticipacion;
         currentCase.fechaRemate = currentCase.fechaRemate ?? dbCase.fechaRemate;
         currentCase.montoMinimo = currentCase.montoMinimo ?? dbCase.minimoParticipacion;
         currentCase.comuna = currentCase.comuna ?? dbCase.nombre_comuna;
@@ -1311,10 +1324,14 @@ class Caso{
         currentCase.tipoDerecho = currentCase.tipoDerecho ?? dbCase.estado_remate;
         currentCase.anno = currentCase.anno ?? dbCase.ano;
         currentCase.direccion = currentCase.direccion ?? dbCase.direccion;
-        // currentCase.estadoCivil = currentCase.estadoCivil ?? dbCase.estadoCivil;
+        currentCase.rol = currentCase.rol ?? dbCase.rol;
+        currentCase.estadoCivil = currentCase.estadoCivil ?? dbCase.estado_civil + " " + dbCase.tipo_estado;
         // currentCase.corte = currentCase.corte ?? dbCase.corte;
         currentCase.numeroJuzgado = currentCase.numeroJuzgado ?? dbCase.idJuzgado;
         currentCase.montoCompra = currentCase.montoCompra ?? dbCase.montoCompra;
+        if(new Date(dbCase.fechaRemate) < new Date(currentCase.fechaRemate)){
+            currentCase.isPaid = new Date(dbCase.fechaRemate);
+        }
         return currentCase;
     }
 }

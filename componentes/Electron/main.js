@@ -309,7 +309,7 @@ class MainApp{
         let fechaInicio = stringToDate(fechaInicioStr);
         let fechaFin = new Date(fechaFinStr); 
 
-        // fechaInicio.setMonth(fechaInicio.getMonth() - 1);
+        fechaInicio.setMonth(fechaInicio.getMonth() - 1);
 
         // fechaInicio = stringToDate(fechaInicioStr);
         // fechaFin = stringToDate(fechaFinStr); 
@@ -368,7 +368,7 @@ class MainApp{
         let startDate = stringToDate(fechaInicioStr);
         let endDate = stringToDate(fechaFinStr); 
 
-        // startDate.setMonth(startDate.getMonth() - 1);
+        startDate.setMonth(startDate.getMonth() - 1);
        try{
             const window = new BrowserWindow({ show: true });
             const url = 'https://www.boletinconcursal.cl/boletin/remates';
@@ -416,40 +416,6 @@ class MainApp{
             return casos;
         }
     }
-
-    // async getDatosPjudBasic(fechaInicioStr,fechaFinStr,PJUDChecked){
-    //     if(!PJUDChecked){
-    //         return [];
-    //     }
-    //     let casos = [];
-    //     let startDate;
-    //     let endDate;
-    //     if (isDevMode) {
-    //         startDate = cambiarFechaInicio(fechaInicioStr,0);
-    //         endDate = cambiarFechaInicio(fechaFinStr,0);
-    //     } else {
-    //         const daysDiff = calculateDiffDays(fechaInicioStr, fechaFinStr);
-    //         startDate = cambiarFechaInicio(fechaInicioStr, daysDiff);
-    //         endDate = cambiarFechaFin(fechaFinStr);
-    //     }
-    //     // const endDate = cambiarFechaInicio(fechaFinStr,3);
-    //     try{
-    //         const window = new BrowserWindow({ show: false });
-    //         const url = 'https://oficinajudicialvirtual.pjud.cl/indexN.php';
-    //         await window.loadURL(url);
-    //         const page = await pie.getPage(this.browser, window);
-    //         const pjud = new Pjud(this.browser,page,startDate,endDate);
-    //         casos = await pjud.datosFromPjud();
-    //         window.destroy();
-    //         return casos;
-    //     } catch (error) {
-    //         console.error('Error al obtener resultados en PJUD:', error);
-    //         if(window){
-    //             window.destroy();
-    //         }
-    //         return casos;
-    //     }
-    // }
 
     async getCasosPjud(startDateOrigin,endDateOrigin,PJUDChecked, event){
         if(!PJUDChecked){
@@ -686,7 +652,7 @@ class MainApp{
     async testDB(causa){
         
         const db = new Causas();
-        const resultados = await  db.searchByCausa(causa);
+        const resultados = await  db.getByCausa(causa);
         console.log("Buscando: ",causa ,"\nResultados de la consulta a la base de datos: ",resultados);
         const jsonString = JSON.stringify(resultados, null, 2);
         return JSON.parse(JSON.stringify(resultados));;

@@ -215,19 +215,21 @@ class createExcel {
         }
         // Si la fecha de remate es menor a la fecha de inicio, o mayor a la final
         console.log("Enviando false por fecha :", currentCase.causa, " fecha remate : ", currentCase.fechaRemate, " fecha inicio: ", this.startDate, " y de fin: ", this.endDate);
-        // if (currentCase.fechaRemate < new Date(this.startDate) || currentCase.fechaRemate > new Date(this.endDate)) {
-        //     console.log("Enviando false por fecha :", currentCase.causa, currentCase.fechaRemate, new Date(this.startDate) ,new Date(this.endDate));
-        //     return false;
-        // }
+        if (currentCase.fechaRemate < new Date(this.startDate) || currentCase.fechaRemate > new Date(this.endDate)) {
+            console.log("Enviando false por fecha :", currentCase.causa, currentCase.fechaRemate, new Date(this.startDate) ,new Date(this.endDate));
+            return false;
+        }
         // No se escriben casos de juez partidor
         if (currentCase.juzgado === "Juez Partidor") {
             console.log("Enviando false por juez partidor :", currentCase.causa);
             return false;
         }
-        // Agregar la busqueda de casos en DB y union si existe ya en la DB
-        // if(this.isCaseInDB(currentCase)){
 
-        // }
+        // Agregar la busqueda de casos en DB y union si existe ya en la DB
+        const caseDB = this.isCaseInDB(currentCase);
+        if(caseDB){
+            currentCase = Caso.bindCaseWithDB(currentCase,caseDB);
+        }
 
         // if (currentCase.origen === PJUD) { // Solo si es caso es del pjud revisamos si ya existe en la base de datos
         //     // Si el caso ya existe en la base de datos, no se guarda
@@ -275,7 +277,7 @@ class createExcel {
             this.writeLine(ws, 'G', currentRow, "(Pagado)", 's');
         }
         // Revisamos si el caso tiene estacionamiento o bodega, y adaptamos la direccion
-        const newDireccion = this.checkEstacionamientoBodega(caso)
+        // const newDireccion = this.checkEstacionamientoBodega(caso)
         this.writeLine(ws, 'H', currentRow, caso.unitDireccion, 's');
 
         this.writeLine(ws, 'I', currentRow, caso.causa, 's');
@@ -311,7 +313,7 @@ class createExcel {
             this.writeLine(ws, 'Z', currentRow, caso.moneda, 's');
         }
         if (caso.avaluoPropiedad != null) {
-            const sumAvaluo = this.sumAvaluo(caso.avaluoPropiedad, caso.avaluoEstacionamiento, caso.avaluoBodega);
+            // const sumAvaluo = this.sumAvaluo(caso.avaluoPropiedad, caso.avaluoEstacionamiento, caso.avaluoBodega);
             ws['AC' + currentRow] = { v: caso.unitAvaluo, t: 'n', z: '#,##0' };
         }
         this.writeLine(ws, "AE", currentRow, caso.estadoCivil, "s");
