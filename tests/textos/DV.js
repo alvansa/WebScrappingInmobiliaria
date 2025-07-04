@@ -674,4 +674,26 @@ Medida Precautoria a fs.  11016-9200-2022.- San Miguel 12/12/2022.-
 Rep.1.944 26/01/2024 Embargo Car.11921.
 Embargo a fs. 535v-528-2024.- San Miguel 31/01/2024.-`
 
-module.exports = {tx356, tx23039, tx12017, tx1349, tx3857, tx13759, tx7140};
+const tx11066 = `CERTIFICADO
+DE
+DOMINIO VIGENTE
+Del   inmueble   ubicado   en   la   Comuna   de   Concepción   que
+corresponde:  a  UNIDAD  número  treinta  (30)  DEPARTAMENTO
+seiscientos dos (602), del Edificio Jardín del Valle, situado en calle
+Descanso  del  Sol  número  mil  novecientos  veintinueve  (1929),  se
+encuentra  vigente  a  la  fecha  de  emisión  de  este  certificado    a
+nombre de:
+
+1.-  PINEDA  MELGAREJO  LORENA  ISABEL  inscrito  a  fojas  3724
+número 3470 del Registro de Propiedad  del año 2015.-
+
+En  Concepción,      tres    de  agosto  del  año  dos  mil  veintidós  .-
+Certificado generado por MFIGUEROA
+
+Folio Real Nº 4114-2018.-
+Carátula Nº 981991.-
+Pag: 1/1
+www.cbrconcepcion.cl.2182221 -2182210info@cbrconcepcion.cl`;
+
+
+module.exports = {tx356, tx23039, tx12017, tx1349, tx3857, tx13759, tx7140, tx11066};

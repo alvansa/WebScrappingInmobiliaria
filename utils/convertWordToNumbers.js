@@ -149,7 +149,7 @@ function convertWordToNumbers(stringNumber) {
     }
     
     // 7. Procesar millones (si los tuvieras)
-    if (part === 'millones') {
+    if (part === 'millones' || part === 'millon') {
       total += (currentValue || 1) * 1000000;
       // console.log("aqui deberia entrar y el total es: ", total)
       currentValue = 0;

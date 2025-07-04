@@ -96,7 +96,7 @@ class Caso{
         this.#hasBodega = false;
         this.#owners = [];
         this.#montoCompra = null;   
-        this.#isPaid = null;
+        this.#isPaid = false;
         this.#deudaHipotecaria = null;
         this.#alreadyAppear = null;
 
@@ -411,7 +411,7 @@ class Caso{
         if(!this.#isPaid){
             return null;
         }
-        return this.#isPaid;
+        return Boolean(this.#isPaid);
     }
     get deudaHipotecaria(){
         if(!this.#deudaHipotecaria){
@@ -519,7 +519,7 @@ class Caso{
             hasEstacionamiento : this.#hasEstacionamiento,
             hasBodega : this.#hasBodega,
             montoCompra: this.#montoCompra,
-            isPaid: this.#isPaid,
+            isPaid: Boolean(this.#isPaid),
             deudaHipotecaria : this.#deudaHipotecaria,
             alreadyAppear: this.#alreadyAppear,
             unitRol: this.adaptRol(),
@@ -551,49 +551,47 @@ class Caso{
             return new Date(this.#fechaRemate);
         }
 
+        //Del estilo Wed Dec 25 2024 00:00:00 GMT-0300 (Chile Summer Time).
         if(this.#fechaRemate.includes("Chile Summer")){
             return new Date(this.#fechaRemate);
         }
-        console.log("Fecha de remate en normalizacion: ", this.#fechaRemate)
-        try{
-
+        try {
             //Del estilo 25/12/2025
-        if(this.#fechaRemate.includes("/")){
-            const regexFecha = /(\d{1,2})\/(\d{1,2})\/(\d{4})/;
-            const partesFecha = this.#fechaRemate.match(regexFecha);
-            if(partesFecha){
-                const dia = parseInt(partesFecha[1], 10);
-                const mes = parseInt(partesFecha[2], 10) - 1; // Los meses en JavaScript son 0-indexados
-                const anno = parseInt(partesFecha[3], 10);
-                return new Date(anno, mes, dia);
+            if (this.#fechaRemate.includes("/")) {
+                const regexFecha = /(\d{1,2})\/(\d{1,2})\/(\d{4})/;
+                const partesFecha = this.#fechaRemate.match(regexFecha);
+                if (partesFecha) {
+                    const dia = parseInt(partesFecha[1], 10);
+                    const mes = parseInt(partesFecha[2], 10) - 1; // Los meses en JavaScript son 0-indexados
+                    const anno = parseInt(partesFecha[3], 10);
+                    return new Date(anno, mes, dia);
+                }
             }
-        }
-        // Del estilo 25-12-2025
-        if(this.#fechaRemate.includes("-")){
-            const regexFecha = /(\d{1,2})-(\d{1,2})-(\d{4})/;
-            const partesFecha = this.#fechaRemate.match(regexFecha);
-            if(partesFecha){
-                const dia = parseInt(partesFecha[1], 10);
-                const mes = parseInt(partesFecha[2], 10) - 1; // Los meses en JavaScript son 0-indexados
-                const anno = parseInt(partesFecha[3], 10);
-                return new Date(anno, mes, dia);
+            // Del estilo 25-12-2025
+            if (this.#fechaRemate.includes("-")) {
+                const regexFecha = /(\d{1,2})-(\d{1,2})-(\d{4})/;
+                const partesFecha = this.#fechaRemate.match(regexFecha);
+                if (partesFecha) {
+                    const dia = parseInt(partesFecha[1], 10);
+                    const mes = parseInt(partesFecha[2], 10) - 1; // Los meses en JavaScript son 0-indexados
+                    const anno = parseInt(partesFecha[3], 10);
+                    return new Date(anno, mes, dia);
+                }
             }
-        }
 
-
-        // Si el origen es Emol, puede venir con formato de palabras
-        const dia = this.getDia();
-        const mes = this.getMes();
-        const anno = this.getAnno();
-        if (dia && mes && anno) {
-            const fecha = new Date(anno, mes - 1, dia);
-            // Se suma 6 horas ya que la fecha a veces queda si es del 25 de diciembre queda como 
-            // 24 de diciembre a las 23:59:59.999, por lo que se suma 6 horas para que quede como 25 de diciembre
-            // return new Date(fecha.getTime() + 6 * 60 * 60 * 1000); // Sumar 6 horas
-            return fecha;
-        }
-        }catch(error){
-            console.error("Error normalizando la fecha: ",error.message);
+            // Si el origen es Emol, puede venir con formato de palabras
+            const dia = this.getDia();
+            const mes = this.getMes();
+            const anno = this.getAnno();
+            if (dia && mes && anno) {
+                const fecha = new Date(anno, mes - 1, dia);
+                // Se suma 6 horas ya que la fecha a veces queda si es del 25 de diciembre queda como 
+                // 24 de diciembre a las 23:59:59.999, por lo que se suma 6 horas para que quede como 25 de diciembre
+                // return new Date(fecha.getTime() + 6 * 60 * 60 * 1000); // Sumar 6 horas
+                return fecha;
+            }
+        } catch (error) {
+            console.error("Error normalizando la fecha: ", error.message);
             return null;
         }
         return null;
@@ -1233,22 +1231,16 @@ class Caso{
     }
 
     static completeInfo(caso1,caso2){
-        // console.log("Caso base: ",caso1.toObject(), "caso base sin funcion: ", caso1);
-        // console.log("Caso rellenar: ",caso2.toObject(), "caso relleno sin funcion: ", caso2);
         let casoUnificado;
         if(caso1.origen == PJUD){
-            // console.log("el primero es pjud")
             casoUnificado = Caso.fillMissingData(caso1, caso2);
         }else{
-            console.log("El segundo es pjud")
             casoUnificado = Caso.fillMissingData(caso2, caso1);
         }
-        // console.log(casoUnificado.toObject())
         return casoUnificado
     } 
 
     static fillMissingData(casoBase, casoRelleno) {
-        // console.log(`Vamos a revisar los avaluo del caso 1: ${casoBase.avaluoPropiedad} es igual a null? ${casoBase.avaluoPropiedad == null} y del 2 ${casoRelleno.avaluoPropiedad}es igual a null? ${casoRelleno.avaluoPropiedad == null} `)
         casoBase.porcentaje = casoBase.porcentaje ?? casoRelleno.porcentaje;
         casoBase.formatoEntrega = casoBase.atoEntrega ?? casoRelleno.formatoEntrega;
         casoBase.fechaRemate = casoBase.fechaRemate ?? casoRelleno.fechaRemate;
@@ -1310,7 +1302,6 @@ class Caso{
         mockCase.origen = '2';
         mockCase.fechaRemate = new Date('2000/05/19');
 
-
         return mockCase;
     }
 
@@ -1325,12 +1316,14 @@ class Caso{
         currentCase.anno = currentCase.anno ?? dbCase.ano;
         currentCase.direccion = currentCase.direccion ?? dbCase.direccion;
         currentCase.rol = currentCase.rol ?? dbCase.rol;
-        currentCase.estadoCivil = currentCase.estadoCivil ?? dbCase.estado_civil + " " + dbCase.tipo_estado;
+        if(dbCase.estado_civil){
+            currentCase.estadoCivil = currentCase.estadoCivil ?? dbCase.estado_civil + " " + dbCase.tipo_estado;
+        }
         // currentCase.corte = currentCase.corte ?? dbCase.corte;
         currentCase.numeroJuzgado = currentCase.numeroJuzgado ?? dbCase.idJuzgado;
         currentCase.montoCompra = currentCase.montoCompra ?? dbCase.montoCompra;
-        if(new Date(dbCase.fechaRemate) < new Date(currentCase.fechaRemate)){
-            currentCase.isPaid = new Date(dbCase.fechaRemate);
+        if(new Date(dbCase.fechaRemate) < currentCase.fechaRemate){
+            currentCase.alreadyAppear = new Date(dbCase.fechaRemate);
         }
         return currentCase;
     }

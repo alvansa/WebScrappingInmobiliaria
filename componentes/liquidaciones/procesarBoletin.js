@@ -298,19 +298,19 @@ class ProcesarBoletin {
 
     static async convertPdfToText2(filePath, origen=1){
         try {
-            if(origen == PJUD){
-                const tesseractText = await ProcesarBoletin.processWithTesseract(filePath);
-                console.log("procesado con tesseract :) :");
+            // if(origen == PJUD){
+            //     const tesseractText = await ProcesarBoletin.processWithTesseract(filePath);
+            //     console.log("procesado con tesseract :) :");
 
-                return tesseractText;
-            }else{
+            //     return tesseractText;
+            // }else{
                 console.log("leyendo con simple pdf-parse");
 
                 const dataBuffer = fs.readFileSync(filePath);
                 const data = await pdf(dataBuffer);
-                console.log(data.text);
+                // console.log(data.text);
                 return data.text;
-            }
+            // }
         } catch (error) {
             console.error('Error al procesar PDF:', error.message);
             return null;

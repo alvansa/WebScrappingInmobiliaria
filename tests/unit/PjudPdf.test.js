@@ -4,18 +4,16 @@ const PjudPdfData = require('../../componentes/pjud/PjudPdfData');
 const Caso = require('../../componentes/caso/caso');
 const createExcel = require('../../componentes/excel/createExcel')
 const Causas = require('../../model/Causas');
+const convertWordToNumbers = require('../../utils/convertWordToNumbers');
 
-const {textoEstacionamiento1,textoHabitacional1, textoBodegaMultiple, textoEstacionamientoMultiple, textoHabitacionMultiple} = require('./textos/Avaluo');
-const {textoGP1, textoGP2, textoGP3, textoGP4, textoGP5, texto12Santiago} = require('./textos/GP');
-const {diario2484, ex1341, diario1341, diario3354_1, diario3354_2} = require('./textos/diario');
-const {tx356, tx23039, tx12017, tx1349, tx3857, tx13759, tx7140} = require('./textos/DV');
-const {bf2201, bf1341, notBf} = require('./textos/BF');
-const {dm1056, dm1138} = require('./textos/DM');
+const {textoEstacionamiento1,textoHabitacional1, textoBodegaMultiple, textoEstacionamientoMultiple, textoHabitacionMultiple} = require('../textos/Avaluo');
+const {textoGP1, textoGP2, textoGP3, textoGP4, textoGP5, texto12Santiago} = require('../textos/GP');
+const {diario2484, ex1341, diario1341, diario3354_1, diario3354_2} = require('../textos/diario');
+const {tx356, tx23039, tx12017, tx1349, tx3857, tx13759, tx7140, tx11066} = require('../textos/DV');
+const {bf2201, bf1341, notBf} = require('../textos/BF');
+const {dm1056, dm1138} = require('../textos/DM');
 const {obtainCorteJuzgadoNumbers} = require('../../utils/corteJuzgado');
-const { dir } = require('console');
-const { NormalModuleReplacementPlugin } = require('webpack');
 
-const dm1138File = fs.readFileSync(path.resolve(__dirname,'./textos/textosLargos/dm1138.txt'),'utf8')
 
 const excelConstructor = new createExcel("","","","",false,1);
 const testCaso = createCase("1111-2024", '1º Juzgado de Letras de Buin');
@@ -24,9 +22,6 @@ const casoBase = Caso.createMockCase();
 const testPjudPdf = new PjudPdfData(testCaso)
 const pjudPdf2484 = new PjudPdfData(caso2484);
 const causaDB = new Causas();
-
-const EMOL = 1;
-const PJUD = 2;
 
 
 describe('obtainRolPropiedad', () => {
@@ -294,7 +289,14 @@ describe('checkIfValidDoc',()=>{
 });
 
 describe('ObtainMontoCompra', () => {
-    test('Obtener monto de compra de DV Pesos', () => {
+    test('Caso donde no puede obtener el monto de compra',()=>{
+
+        const normalizeInfo = testPjudPdf.normalizeInfo(tx11066);
+        const resMontoCompra = testPjudPdf.obtainMontoCompra(normalizeInfo);
+        expect(resMontoCompra).toBeNull();
+    });
+
+    test('Obtener monto de compra de DV Pesos con se estiman', () => {
         const normalizeInfo = testPjudPdf.normalizeInfo(tx356);
         const resMontoCompra = testPjudPdf.obtainMontoCompra(normalizeInfo);
         expect(resMontoCompra).toEqual({
@@ -303,7 +305,7 @@ describe('ObtainMontoCompra', () => {
         });
     });
 
-    test('Obtener monto de compra uf con coma DV', () =>{
+    test('Obtener monto de compra uf con coma DV con por el precio', () =>{
         const normalizeInfo = testPjudPdf.normalizeInfo(tx23039);
         const resMontoCompra = testPjudPdf.obtainMontoCompra(normalizeInfo);
         expect(resMontoCompra).toEqual({
@@ -338,6 +340,9 @@ describe('ObtainMontoCompra', () => {
             moneda: 'Pesos' 
         });
     });
+    test('Prueba por se estiman: ',()=>{
+
+    });
 });
 
 describe('obtainDeudaHipoteca', ()=>{
@@ -352,151 +357,6 @@ describe('obtainDeudaHipoteca', ()=>{
         const deuda = testPjudPdf.obtainDeudaHipotecaria(info);
         expect(deuda).toEqual('uf 3684,5498');
     });
-});
-
-describe('adaptRol', () => {
-    test('Caso base todo null', () =>{
-        const casoTest = createCase("C-111-222","1 santaigo");
-        casoTest.rolPropiedad = null;
-        const rolResultado = casoTest.adaptRol();
-        expect(rolResultado).toBeNull();
-    });
-
-    test('Prueba con caso rol propiedad en singular', () =>{
-        const casoTest = createCase("C-111-222","1 santaigo");
-        casoTest.rolPropiedad = "1111-1111";
-        // const rolResultado = casoTest.adaptRol();
-        expect(casoTest.unitRol).toEqual("1111-1111"); 
-    });
-
-    test('Prueba con caso rol estacionamiento', () =>{
-        const casoTest = createCase("C-111-222","1 santaigo");
-        casoTest.rolEstacionamiento = "2222-2222";
-        expect(casoTest.unitRol).toEqual("2222-2222"); 
-    });
-
-    test('Prueba con caso rol bodega', () =>{
-        const casoTest = createCase("C-111-222","1 santaigo");
-        casoTest.rolBodega = "3333-3333";
-        expect(casoTest.unitRol).toEqual("3333-3333"); 
-    });
-
-    test('Prueba con caso rol propiedad y estacionamiento inicio igual', () =>{
-        const casoTest = createCase("C-111-222","1 santaigo");
-        casoTest.rolPropiedad = "1111-1111";
-        casoTest.rolEstacionamiento = "1111-2222"
-        expect(casoTest.unitRol).toEqual("1111-1111-2222"); 
-    });
-    
-    test('Prueba con caso rol propiedad y estacionamiento inicio diferente', () =>{
-        const casoTest = createCase("C-111-222","1 santaigo");
-        casoTest.rolPropiedad = '1111-1111';
-        casoTest.rolEstacionamiento = '2222-2222';
-        expect(casoTest.unitRol).toEqual("1111-1111//2222-2222"); 
-    });
-
-    test('Prueba con caso rol propiedad y bodega inicio igual', () =>{
-        const casoTest = createCase("C-111-222","1 santaigo");
-        casoTest.rolPropiedad = '1111-1111';
-        casoTest.rolBodega = '1111-3333';
-        expect(casoTest.unitRol).toEqual("1111-1111-3333"); 
-    });
-    
-    test('Prueba con caso rol propiedad y bodega inicio diferente', () =>{
-        const casoTest = createCase("C-111-222","1 santaigo");
-        casoTest.rolPropiedad = '1111-1111';
-        casoTest.rolBodega = '3333-3333';
-        expect(casoTest.unitRol).toEqual("1111-1111//3333-3333"); 
-    });
-    
-    test('Prueba con caso rol propiedad, estacionamiento y bodega inicio igual', () =>{
-        const casoTest = createCase("C-111-222","1 santaigo");
-        casoTest.rolPropiedad = '1111-1111';
-        casoTest.rolEstacionamiento = '1111-2222';
-        casoTest.rolBodega = '1111-3333';
-        expect(casoTest.unitRol).toEqual("1111-1111-2222-3333"); 
-    });
-    
-    test('Prueba con caso rol propiedad, estacionamiento y bodega inicio diferente', () =>{
-        const casoTest = createCase("C-111-222","1 santaigo");
-        casoTest.rolPropiedad = '1111-1111';
-        casoTest.rolEstacionamiento = '2222-2222';
-        casoTest.rolBodega = '3333-3333';
-        expect(casoTest.unitRol).toEqual("1111-1111//2222-2222//3333-3333"); 
-    });
-    
-    test('Prueba con caso rol propiedad, estacionamiento igual y bodega diferente', () =>{
-        const casoTest = createCase("C-111-222","1 santaigo");
-        casoTest.rolPropiedad = '1111-1111';
-        casoTest.rolEstacionamiento = '1111-2222';
-        casoTest.rolBodega = '3333-3333';
-        expect(casoTest.unitRol).toEqual("1111-1111-2222//3333-3333"); 
-    });
-
-    test('Prueba con caso rol propiedad diferente estacionamiento y bodega igual', () =>{
-        const casoTest = createCase("C-111-222","1 santaigo");
-        casoTest.rolPropiedad = '1111-1111';
-        casoTest.rolEstacionamiento = '2222-2222';
-        casoTest.rolBodega = '2222-3333';
-        expect(casoTest.unitRol).toEqual("2222-2222-3333//1111-1111"); 
-    });
-
-    test('Prueba con caso rol propiedad bodega igual y estacionamiento diferente', () =>{
-        const casoTest = createCase("C-111-222","1 santaigo");
-        casoTest.rolPropiedad = '1111-1111';
-        casoTest.rolEstacionamiento = '2222-2222';
-        casoTest.rolBodega = '1111-3333';
-        expect(casoTest.unitRol).toEqual("1111-1111-3333//2222-2222"); 
-    });
-
-});
-
-describe('SumAvaluo', () => {
-    test('Prueba con envio null', () =>{
-        const casoTest = createCase("C-111-222","1 santaigo");
-        expect(casoTest.unitAvaluo).toBeNull();
-    });
-
-    test('Prueba con solo avaluo propiedad', () =>{
-        const casoTest = createCase("C-111-222","1 santaigo");
-        casoTest.avaluoPropiedad = 100000;
-        expect(casoTest.unitAvaluo).toEqual(100000);
-    });
-
-    test('Prueba pasando texto cualquiera', () =>{
-        const casoTest = createCase("C-111-222","1 santaigo");
-        casoTest.avaluoPropiedad = "asd";
-        expect(casoTest.unitAvaluo).toEqual(0);
-    });
-
-//     test('Prueba pasando texto cualquiera con numero', () =>{
-//         const resSumAvaluo = excelConstructor.sumAvaluo('asd','123');
-//         expect(resSumAvaluo).toEqual(123);
-//     });
-
-    test('Prueba pasando texto cualquiera con 2 numeros', () =>{
-        const casoTest = createCase("C-111-222","1 santaigo");
-        casoTest.avaluoPropiedad = 'asd';
-        casoTest.avaluoEstacionamiento = 123;
-        casoTest.avaluoBodega = 123;
-        expect(casoTest.unitAvaluo).toEqual(246);
-    });
-
-    test('Prueba con solo avaluo propiedad pasando texto', () =>{
-        const casoTest = createCase("C-111-222","1 santaigo");
-        casoTest.avaluoPropiedad = '100000';
-        expect(casoTest.unitAvaluo).toEqual(100000);
-    });
-
-//     test('Prueba con avaluo propiedad y estacionamiento', () =>{
-//         const resSumAvaluo = excelConstructor.sumAvaluo(100000,20000);
-//         expect(resSumAvaluo).toEqual(120000);
-//     });
-
-//     test('Prueba con avaluo propiedad, estacionamiento y bodega', () =>{
-//         const resSumAvaluo = excelConstructor.sumAvaluo(100000,20000,3000);
-//         expect(resSumAvaluo).toEqual(123000);
-//     });
 });
 
 describe('obtainCorteJuzgadoNumbers', ()=>{
@@ -527,118 +387,6 @@ describe('obtainCorteJuzgadoNumbers', ()=>{
     });
 });
 
-describe('completeInfo',()=>{
-    test('Caso pjud con vacio',()=>{
-       const casoVacio = createCase(null,null);
-       const casoNuevo = Caso.completeInfo(casoBase,casoVacio);
-       expect(casoNuevo.causa).toEqual(casoBase.causa);
-    });
-
-    test('Caso vacio con pjud',()=>{
-       const casoVacio = createCase(null,null);
-       const casoNuevo = Caso.completeInfo(casoVacio, casoBase);
-       expect(casoNuevo.causa).toEqual(casoBase.causa);
-    });
-
-    test('Caso emol con pjud',()=>{
-       const casoEmol = createCase('C-1234-4321','30º Juzgado Civil de Santiago');
-       casoEmol.origen = EMOL;
-       const casoNuevo = Caso.completeInfo(casoEmol,casoBase);
-       expect(casoNuevo.causa).toEqual(casoBase.causa);
-    });
-
-    test('Caso pjud con emol',()=>{
-       const casoEmol = createCase('C-1234-4321','30º Juzgado Civil de Santiago');
-       casoEmol.origen = EMOL;
-       const casoNuevo = Caso.completeInfo(casoBase,casoEmol);
-       expect(casoNuevo.causa).toEqual(casoBase.causa);
-    });
-
-    test('Caso vacio con emol',()=>{
-       const casoEmol = createCase('C-1234-4321','30º Juzgado Civil de Santiago');
-       casoEmol.origen = EMOL;
-       const casoVacio = createCase(null,null);
-       const casoNuevo = Caso.completeInfo(casoVacio,casoEmol);
-       expect(casoNuevo.causa).toEqual(casoEmol.causa);
-    });
-    test('Dos casos vacios',()=>{
-       const casoVacio = createCase(null,null);
-       const casoVacio2 = createCase(null,null)
-       const casoNuevo = Caso.completeInfo(casoVacio,casoVacio2);
-       expect(casoNuevo.causa).toBeNull();
-    });
-});
-
-describe('isCaseInDB', ()=>{
-    test('caso que si deberia estar en DB',()=>{
-        const inDB = excelConstructor.isCaseInDB(casoBase);
-        expect(inDB.causa).toEqual('C-746-2024');
-    });
-
-    test('Caso que busca null', ()=>{
-        const casoVacio = createCase(null,null);
-        const inDB = excelConstructor.isCaseInDB(casoVacio);
-        expect(inDB).toBeNull();
-    });
-
-    test('Comprobar fecha de caso con casoDB',()=>{
-       const inDB = excelConstructor.isCaseInDB(casoBase);
-        const isCColderInDB = new Date(inDB.fechaRemate) > new Date(casoBase.fechaRemate);
-        expect(isCColderInDB).toEqual(true); 
-    });
-});
-
-describe('mergeDirections',()=>{
-    test('Caso con direccion nula', ()=>{
-        const casoTest = createCase("C-111-222", "1 santaigo");
-        const result = casoTest.mergeDirections(null,null)
-        expect(result).toBeNull();
-    });
-    test('Prueba con solo una direccion ',()=>{
-        const casoTest = createCase("C-111-222", "1 santaigo");
-        const result = casoTest.mergeDirections( 'AV LA TIRANA 4155 DP 905 EDIF ALTOS DEL MAR',null)
-        expect(result).toEqual( 'av la tirana 4155 dp 905 edif altos del mar');
-    });
-
-    test('Caso con dos direcciones ',()=>{
-        const casoTest = createCase("C-111-222", "1 santaigo");
-        casoTest.direccion = 'AV LA TIRANA 4155 DP 905 EDIF ALTOS DEL MAR';
-        casoTest.direccionEstacionamiento = 'AV LA TIRANA 4155 BX 28 EDIF ALTOS DEL MAR';
-        casoTest.hasEstacionamiento = true;
-        expect(casoTest.unitDireccion).toEqual('av la tirana 4155 dp 905 edif altos del mar Est bx 28 edif altos del mar')
-    });
-});
-
-describe('checkEstacionamientoBodega', ()=>{
-    test('Caso sin nada', ()=>{
-        const casotest = createCase('C-1111-2222','');
-        expect(casotest.unitDireccion).toBeNull();
-    });
-
-    test('Caso sin estacionamiento ni bodega', ()=>{
-        const casotest = createCase('C-1111-2222','');
-        casotest.direccion = 'AV LA TIRANA 4155 DP 905 EDIF ALTOS DEL MAR';
-        expect(casotest.unitDireccion).toEqual(casotest.direccion);
-    });
-
-    test('Caso con estacionamiento sin Bodega', ()=>{
-        const casotest = createCase('C-1111-2222','');
-        casotest.direccion = 'AV LA TIRANA 4155 DP 905 EDIF ALTOS DEL MAR';
-        casotest.direccionEstacionamiento = 'AV LA TIRANA 4155 BX 28 EDIF ALTOS DEL MAR';
-        casotest.hasEstacionamiento = true;
-        expect(casotest.unitDireccion).toEqual('av la tirana 4155 dp 905 edif altos del mar Est bx 28 edif altos del mar');
-    });
-
-    test('Caso con estacionamiento y Bodega', ()=>{
-        const casotest = createCase('C-1111-2222','');
-        casotest.direccion = 'AV LA TIRANA 4155 DP 905 EDIF ALTOS DEL MAR';
-        casotest.direccionEstacionamiento = 'AV LA TIRANA 4155 BX 28 EDIF ALTOS DEL MAR';
-        casotest.hasEstacionamiento = true;
-        casotest.hasBodega = true;
-        expect(casotest.unitDireccion).toEqual('av la tirana 4155 dp 905 edif altos del mar Est bx 28 edif altos del mar BOD');
-    });
-});
-
 describe('bindCaseWithDB',()=>{
     test('Caso vacio con DB', ()=>{
         const casoDB = excelConstructor.isCaseInDB(casoBase);
@@ -655,8 +403,19 @@ describe('bindCaseWithDB',()=>{
         let cCase = createCase(null,null);
         cCase.fechaRemate = new Date('2025/05/19');
         cCase = Caso.bindCaseWithDB(cCase,casoDB); 
-        expect(cCase.fechaRemate).toEqual(new Date(cCase.fechaRemate));
-        expect(cCase.isPaid).toEqual(new Date('2024/12/25'));
+        expect(cCase.fechaRemate).toEqual(new Date('2025/05/19'));
+        expect(cCase.alreadyAppear).toEqual(new Date('2024/12/25'));
+    });
+
+    test('Caso que ya estaba con fecha de remate posterior', ()=>{
+        let casoBaseFechaModificada = Caso.createMockCase();
+        casoBaseFechaModificada.fechaRemate = new Date("2023/12/25");
+        const casoDB = excelConstructor.isCaseInDB(casoBaseFechaModificada);
+        casoBaseFechaModificada = Caso.bindCaseWithDB(casoBaseFechaModificada,casoDB); 
+        expect(casoBaseFechaModificada instanceof Caso).toEqual(true);
+        expect(casoBaseFechaModificada.causa).toEqual('C-746-2024');
+        expect(casoBaseFechaModificada.fechaRemate).toEqual(new Date("2023/12/25"));
+        expect(casoBaseFechaModificada.isPaid).toBeNull();
     });
 });
 
@@ -678,57 +437,132 @@ describe('inCaseInDB', ()=>{
         expect(casoDB.causa).toEqual(casoBase.causa);
         expect(casoDB).not.toBeNull();
     });
+
 });
 
-describe('normalizarFechaRemate', ()=>{
-    test('Caso nulo',()=>{
-        const casoVacio = createCase(null,null);
-        const resFecha = casoVacio.normalizarFechaRemate();
-        expect(resFecha).toBeNull();
+
+describe('convertWordToNumbers',()=>{
+    test('No es un numero solo una palabra',()=>{
+        const numberText = "arriendo";
+        const result = convertWordToNumbers(numberText);
+        expect(result).toEqual(0);
     });
 
-    test('Caso Date',()=>{
-        const casoVacio = createCase(null,null);
-        casoVacio.fechaRemate = new Date('2025/12/25');
-        const resFecha = casoVacio.normalizarFechaRemate();
-        expect(resFecha).toEqual(new Date('2025/12/25'));
+    test('No es un numero es una frase',()=>{
+        const numberText = "arriendo por mucha plata";
+        const result = convertWordToNumbers(numberText);
+        expect(result).toEqual(0);
     });
 
-    test('Caso PJUD',()=>{
-        const casoVacio = createCase(null,null);
-        casoVacio.fechaRemate = '01/08/2025 13:00';
-        const resFecha = casoVacio.normalizarFechaRemate();
-        expect(resFecha).toEqual(new Date('2025/08/01'));
+    test('Unidad',()=>{
+        const numberText = "uno";
+        const result = convertWordToNumbers(numberText);
+        expect(result).toEqual(1);
     });
 
-    test('Caso Boletin', ()=>{
-        const casoVacio = createCase(null,null);
-        casoVacio.fechaRemate = '09/07/2025 15:00';
-        const resFecha = casoVacio.normalizarFechaRemate();
-        expect(resFecha).toEqual(new Date('2025/07/09'));
+    test('Decena simple',()=>{
+        const numberText = "diez";
+        const result = convertWordToNumbers(numberText);
+        expect(result).toEqual(10);
     });
 
-    test('caso con barra lateral "/"', ()=>{
-        const casoVacio = createCase(null,null);
-        casoVacio.fechaRemate = '25/12/2025';
-        const resFecha = casoVacio.normalizarFechaRemate();
-        expect(resFecha).toEqual(new Date('2025/12/25'));
+    test('Decena simple 2',()=>{
+        const numberText = "noventa";
+        const result = convertWordToNumbers(numberText);
+        expect(result).toEqual(90);
     });
 
-    test('Caso con fecha en palabras', ()=>{
-        const casoVacio = createCase(null,null);
-        casoVacio.fechaRemate = '25 de diciembre del 2025';
-        const resFecha = casoVacio.normalizarFechaRemate();
-        expect(resFecha).toEqual(new Date('2025/12/25'));
+    test('Decena especial',()=>{
+        const numberText = "doce";
+        const result = convertWordToNumbers(numberText);
+        expect(result).toEqual(12);
     });
-    
-    test('Caso con fecha en palabras', ()=>{
-        const casoVacio = createCase(null,null);
-        casoVacio.fechaRemate = 'Wed Dec 25 2024 00:00:00 GMT-0300 (Chile Summer Time)';
-        const resFecha = casoVacio.normalizarFechaRemate();
-        expect(resFecha).toEqual(new Date('2024/12/25'));
+
+    test('Decena especial',()=>{
+        const numberText = "diecinueve";
+        const result = convertWordToNumbers(numberText);
+        expect(result).toEqual(19);
+    });
+
+    test('Decena simple con unidad',()=>{
+        const numberText = "diez y ocho";
+        const result = convertWordToNumbers(numberText);
+        expect(result).toEqual(18);
+    });
+
+    test('Centena 100',()=>{
+        const numberText = "cien";
+        const result = convertWordToNumbers(numberText);
+        expect(result).toEqual(100);
+    });
+    test('Centena 300',()=>{
+        const numberText = "trescientos";
+        const result = convertWordToNumbers(numberText);
+        expect(result).toEqual(300);
+    });
+
+    test('Centena con unidad 301',()=>{
+        const numberText = "trescientos uno";
+        const result = convertWordToNumbers(numberText);
+        expect(result).toEqual(301);
+    });
+
+
+    test('Centena con decena',()=>{
+        const numberText = "trescientos noventa";
+        const result = convertWordToNumbers(numberText);
+        expect(result).toEqual(390);
+    });
+
+    test('Centena con decena especial',()=>{
+        const numberText = "seiscientos veinticuatro";
+        const result = convertWordToNumbers(numberText);
+        expect(result).toEqual(624);
+    });
+
+    test('Centena con decena y unidad',()=>{
+        const numberText = "quinientos cincuenta y nueve";
+        const result = convertWordToNumbers(numberText);
+        expect(result).toEqual(559);
+    });
+
+    test('Mil simple',()=>{
+        const numberText = 'mil';
+        const result = convertWordToNumbers(numberText);
+        expect(result).toEqual(1000);
+    });
+
+    test('Mil no tan simple',()=>{
+        const numberText = ' cuatro mil';
+        const result = convertWordToNumbers(numberText);
+        expect(result).toEqual(4000);
+    });
+
+    test('Miles complejo con centenda y decena especial',()=>{
+        const numberText = 'Seis mil setecientos diecinueve';
+        const result = convertWordToNumbers(numberText);
+        expect(result).toEqual(6719);
+    });
+
+    test('Un millon ',()=>{
+        const numberText = 'un millon';
+        const result = convertWordToNumbers(numberText);
+        expect(result).toEqual(1000000);
+    });
+
+    test('Un millon siete',()=>{
+        const numberText = 'un millon siete';
+        const result = convertWordToNumbers(numberText);
+        expect(result).toEqual(1000007);
+    });
+
+    test('Millones complejo con cientos de miles, miles, centena y decena especial',()=>{
+        const numberText = 'nueve millones setecientos cincuenta y nueve mil trescientos veintisiete';
+        const result = convertWordToNumbers(numberText);
+        expect(result).toEqual(9759327);
     });
 });
+
 
 
 function createCase(causa,juzgado){

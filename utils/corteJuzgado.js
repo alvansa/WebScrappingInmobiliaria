@@ -305,7 +305,6 @@ const tribunalesPorCorte = {
   ],
 }
 function obtainCorteJuzgadoNumbers(casos) {
-  console.log("Obteniendo los numeros de juzgado y corte de ", casos.length, " casos");
   for (let caso of casos) {
     if(!caso.juzgado || caso.numeroJuzgado){
       continue;
@@ -323,15 +322,12 @@ function obtainCorteJuzgadoNumbers(casos) {
       .replace(/°/g,"º")
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "");
-    console.log("Buscando : ", juzgado);
     const result = searchTribunalPorNombre(juzgado);
     if (result) {
       caso.corte = result.corte;
       caso.numeroJuzgado = result.value;
-      console.log("Caso: ", caso.causa, "Juzgado: ", caso.juzgado, "\nResultado: ", result);
     }
   }
-  console.log("Finalizado la revision de casos");
 }
 function searchTribunalPorNombre(nombreTribunal) {
   const tribunalesPorCorteNormalized = normalizeTribunalesPorCorte(tribunalesPorCorte);

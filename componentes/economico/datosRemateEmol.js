@@ -985,5 +985,6 @@ module.exports = {
     getTipoDerecho,
     getTipoPropiedad,
     getFechaRemate,
-    emptyCaseEconomico
+    emptyCaseEconomico,
+    normalizeDescription
 };

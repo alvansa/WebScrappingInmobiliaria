@@ -295,7 +295,7 @@ class ConsultaCausaPjud{
 
             const linkToDownload = linkBaseDemanda + value;
             const isDone = await this.downloadPdfFromUrl(linkToDownload);
-            console.log('Valor obtenido:', value); // Muestra el valor JWT
+            console.log('Valor obtenido:', value);
         }catch (error) {
             console.error('Error al descargar la demanda:', error.message);
             return false;
@@ -467,7 +467,7 @@ class ConsultaCausaPjud{
                 console.log("el caso tiene pago, se procede a marcarlo como pagado con: ", descripcion);
                 PAGADO.daCuenta = true;
             }
-            if(descripcion.toLowerCase().includes("tiene por pagado el crédito") && descripcion.toLowerCase().includes("Término por Avenimiento")){
+            if(descripcion.toLowerCase().includes("tiene por pagado el crédito") || descripcion.toLowerCase().includes("Término por Avenimiento")){
                 console.log("el caso tiene por pagado el credito con: ", descripcion);
                 PAGADO.pagadoCredito = true;
             }
@@ -603,13 +603,13 @@ class ConsultaCausaPjud{
                 }
             });
     
-            await pdfPage.goto(url, {waitUntil: 'domcontentloaded'});
+            await pdfPage.goto(url);
 
 
             await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
             //Leer el pdf descargado
             // Aca es donde se deberia realizar el cambio para leer con tesseract
-            resultado = await ProcesarBoletin.convertPdfToText2(this.pdfPath, 1);
+            resultado = await ProcesarBoletin.convertPdfToText2(this.pdfPath);
             await delay(1000);
             if(resultado){
                 resultOfProcess = this.PjudData.processInfo(resultado);
@@ -632,80 +632,80 @@ class ConsultaCausaPjud{
         }
     }
 
-    async downloadPdfFromUrl2(url) {
-        let resultado = '';
-        let resultOfProcess = false;
-        let pdfWindow = null;
-        try{
-            console.log("O si crashea por aca");
-            pdfWindow = new BrowserWindow({ show: true });
-            await pdfWindow.loadURL(url);
-            const pdfPage = await pie.getPage(this.browser, pdfWindow);
+    // async downloadPdfFromUrl2(url) {
+    //     let resultado = '';
+    //     let resultOfProcess = false;
+    //     let pdfWindow = null;
+    //     try{
+    //         console.log("O si crashea por aca");
+    //         pdfWindow = new BrowserWindow({ show: true });
+    //         await pdfWindow.loadURL(url);
+    //         const pdfPage = await pie.getPage(this.browser, pdfWindow);
 
-            const nameDir = `${this.caso.causa}_${this.caso.juzgado}`;
-            const pdfName = `boletin_${Date.now()}.pdf`;
-            this.dirPath = path.join(this.downloadPath, nameDir);
-            this.pdfPath = path.join(this.dirPath, pdfName);
+    //         const nameDir = `${this.caso.causa}_${this.caso.juzgado}`;
+    //         const pdfName = `boletin_${Date.now()}.pdf`;
+    //         this.dirPath = path.join(this.downloadPath, nameDir);
+    //         this.pdfPath = path.join(this.dirPath, pdfName);
      
-            if(!fs.existsSync(this.dirPath)){
-                fs.mkdirSync(this.dirPath, { recursive: true });
-            }
-            await pdfPage.setRequestInterception(true);
+    //         if(!fs.existsSync(this.dirPath)){
+    //             fs.mkdirSync(this.dirPath, { recursive: true });
+    //         }
+    //         await pdfPage.setRequestInterception(true);
 
-            // const client = await pdfPage.target().createCDPSession();
-            // await client.send('Page.setDownloadBehavior', {
-            //     behavior: "allow",
-            //     downloadPath: './downloads'
-            // })
+    //         // const client = await pdfPage.target().createCDPSession();
+    //         // await client.send('Page.setDownloadBehavior', {
+    //         //     behavior: "allow",
+    //         //     downloadPath: './downloads'
+    //         // })
 
 
-            // pdfPage.on('request', req => {
-            //     if (req.url() === url) {
-            //         const file = fs.createWriteStream(this.pdfPath);
-            //         https.get(req.url(), response => response.pipe(file));
-            //     }
-            // });
+    //         // pdfPage.on('request', req => {
+    //         //     if (req.url() === url) {
+    //         //         const file = fs.createWriteStream(this.pdfPath);
+    //         //         https.get(req.url(), response => response.pipe(file));
+    //         //     }
+    //         // });
 
-            pdfPage.on('request', interceptedRequest =>{
-                console.log(interceptedRequest.url);
-                if(interceptedRequest.url().endsWith('.pdf')){
-                    console.log("Es PDF");
-                }
-                interceptedRequest.continue();
+    //         pdfPage.on('request', interceptedRequest =>{
+    //             console.log(interceptedRequest.url);
+    //             if(interceptedRequest.url().endsWith('.pdf')){
+    //                 console.log("Es PDF");
+    //             }
+    //             interceptedRequest.continue();
 
-            })
+    //         })
 
     
-            await pdfPage.goto(url);
+    //         await pdfPage.goto(url);
 
-            // await delay(10000);
+    //         // await delay(10000);
 
-            await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
-            //Leer el pdf descargado
-            // Aca es donde se deberia realizar el cambio para leer con tesseract
+    //         await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
+    //         //Leer el pdf descargado
+    //         // Aca es donde se deberia realizar el cambio para leer con tesseract
 
-            // resultado = await ProcesarBoletin.convertPdfToText2(this.pdfPath, 2);
-            // await delay(1000);
-            // if(resultado){
-            //     resultOfProcess = this.PjudData.processInfo(resultado);
-            // }else{
-            //     return false;
-            // }
-            pdfWindow.destroy();
-            if(resultOfProcess){
-                console.log('Caso completo');
-                return true;
-            }
-            return false
-        }catch(error){
-            console.error('Error al hacer la petición:', error.message);
-            return false;
-        }finally{
-            if(!pdfWindow?.isDestroyed()){
-                pdfWindow.destroy();
-            }
-        }
-    }
+    //         // resultado = await ProcesarBoletin.convertPdfToText2(this.pdfPath, 2);
+    //         // await delay(1000);
+    //         // if(resultado){
+    //         //     resultOfProcess = this.PjudData.processInfo(resultado);
+    //         // }else{
+    //         //     return false;
+    //         // }
+    //         pdfWindow.destroy();
+    //         if(resultOfProcess){
+    //             console.log('Caso completo');
+    //             return true;
+    //         }
+    //         return false
+    //     }catch(error){
+    //         console.error('Error al hacer la petición:', error.message);
+    //         return false;
+    //     }finally{
+    //         if(!pdfWindow?.isDestroyed()){
+    //             pdfWindow.destroy();
+    //         }
+    //     }
+    // }
 
     // Función para verificar que el PDF sea válido
     isValidPdf(buffer) {
