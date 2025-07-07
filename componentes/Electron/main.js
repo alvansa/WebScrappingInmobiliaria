@@ -23,9 +23,9 @@ const {testTexto,testTextoArgs} = require('../economico/testEconomico.js');
 const {downloadPdfFromUrl,checkUserAgent} = require('../pjud/downloadPDF.js');
 const { fakeDelay, delay } = require('../../utils/delay.js');
 const {tribunalesPorCorte, obtainCorteJuzgadoNumbers} = require('../../utils/corteJuzgado.js');
+const {fixStringDate} = require('../../utils/cleanStrings.js');
+
 const Causas = require('../../model/Causas.js');
-const { type } = require('node:os');
-const { start } = require('node:repl');
 
 
 const isDevMode = process.argv.includes('--dev');
@@ -214,7 +214,7 @@ class MainApp{
         ipcMain.handle('search-case', async (event, corte, tribunal,juzgado, rol, year) => {
             try{
                 let filePath = null;
-                const caso = new Caso("");
+                const caso = new Caso(new Date(),new Date(),"lgr",2);
                 caso.tribunal = tribunal;
                 const causa = `C-${rol}-${year}`;
                 caso.causa = causa;
@@ -226,6 +226,7 @@ class MainApp{
                 console.log("Buscando caso: ",caso.toObject()); 
                 console.time("casoUnico");
                 const result = await consultaCausa(caso);
+                // const result = true
                 console.timeEnd("casoUnico");
                 console.log("Resultados del caso de prueba en pjud: ", caso.toObject());
                 if(result){
@@ -273,6 +274,8 @@ class MainApp{
         let casosPJUD = [];
         const fechaHoy = new Date();
         await this.launchPuppeteer_inElectron();
+        const fixStartDate = fixStringDate(startDate);
+        const fixEndDate = fixStringDate(endDate);
         console.log(`Iniciando la inserción de datos desde ${startDate} hasta ${endDate} y tipos ${typeof startDate} y ${typeof endDate}`);
         if(emptyMode){
            casos = emptyCaseEconomico(); 
@@ -306,10 +309,12 @@ class MainApp{
             return [];
         }
 
-        let fechaInicio = stringToDate(fechaInicioStr);
-        let fechaFin = new Date(fechaFinStr); 
+        const fixStartDate = fixStringDate(fechaInicioStr)
+        const fixEndDate = fixStringDate(fechaFinStr);
+        let fechaInicio = new Date(fixStartDate);
+        let fechaFin = new Date(fixEndDate); 
 
-        fechaInicio.setMonth(fechaInicio.getMonth() - 1);
+        // fechaInicio.setMonth(fechaInicio.getMonth() - 1);
 
         // fechaInicio = stringToDate(fechaInicioStr);
         // fechaFin = stringToDate(fechaFinStr); 
@@ -424,8 +429,10 @@ class MainApp{
         let casos = [];
         try{
             await this.launchPuppeteer_inElectron();
+            const endDateModified = stringToDate(endDateOrigin)
+            endDateModified.setDate(endDateModified.getDate() + 1); // Aumentar un dia para incluir el ultimo dia
             const startDate = dateToPjud(stringToDate(startDateOrigin));
-            const endDate = dateToPjud(stringToDate(endDateOrigin));
+            const endDate = dateToPjud(endDateModified);
             console.log("Consultando casos desde ", startDate, " hasta ", endDate);
 
             casos = await this.searchCasesByDay(startDate, endDate);
@@ -437,7 +444,7 @@ class MainApp{
             // casos.push(caso2); 
             // obtainCorteJuzgadoNumbers(casos);
             
-            const result = await this.obtainDataFromCases(casos, event);
+            // const result = await this.obtainDataFromCases(casos, event);
             console.log("Resultados de los casos en la funcion de llamada: ", casos.length);
         }catch(error){
             console.error("Error :", error.message);

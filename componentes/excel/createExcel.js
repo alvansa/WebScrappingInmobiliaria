@@ -5,6 +5,7 @@ const path = require('path');
 const Causas = require('../../model/Causas.js');
 const config = require("../../config.js");
 const Caso = require('../caso/caso.js');
+const {fixStringDate} = require('../../utils/cleanStrings.js');
 
 const PJUD = 2;
 
@@ -19,6 +20,8 @@ class createExcel {
         this.endDate = endDate;
         this.emptyMode = emptyMode;
         this.type = type;
+        this.fixedStartDate = new Date(fixStringDate(startDate));
+        this.fixedEndDate = new Date(fixStringDate(endDate));
         this.causaDB = new Causas();
 
     }
@@ -109,7 +112,7 @@ class createExcel {
                 const fechaFinDMA = cambiarFormatoFecha(this.endDate);
                 filePath = path.join(this.saveFile, 'Remates_' + fechaInicioDMA + '_a_' + fechaFinDMA + '.xlsx');
             }
-            XLSX.writeFile(wb, filePath);
+            XLSX.writeFile(wb, filePath, {cellDates: true});
             return filePath;
         } catch (error) {
             console.error('Error al obtener resultados:', error);
@@ -164,7 +167,7 @@ class createExcel {
             if (caso.fechaPublicacion === "N/A" || caso.fechaPublicacion == null) {
                 caso.fechaPublicacion = fechaMenosUno(this.endDate);
             }
-            if(this.getValidAuctions(caso, remates, rematesDB, startDateSQL)){
+            if(this.getValidAuctions(caso, remates)){
                 this.addObjectToSet(remates,caso);
             }
         }
@@ -190,11 +193,10 @@ class createExcel {
         const key = `${caso.causa}|${caso.juzgado}`;
         if(!remates.has(key)){
             remates.set(key, caso);
-            console.log(`Insertando caso con key ${key}`);
         }
     }
 
-    getValidAuctions(currentCase, cacheAuctions, auctionsDB, startDateSQL) {
+    getValidAuctions(currentCase, cacheAuctions) {
         if (currentCase.juzgado) {
             currentCase.juzgado = currentCase.juzgado.replace(/º/g, '°');
         }
@@ -213,15 +215,15 @@ class createExcel {
                 return false;
             }
         }
+        console.log(`------------\ncausa ${currentCase.causa} fecha remate ${currentCase.fechaRemate} fecha inicio ${this.fixedStartDate} y fecha final ${this.fixedStartDate}`);
         // Si la fecha de remate es menor a la fecha de inicio, o mayor a la final
-        console.log("Enviando false por fecha :", currentCase.causa, " fecha remate : ", currentCase.fechaRemate, " fecha inicio: ", this.startDate, " y de fin: ", this.endDate);
-        if (currentCase.fechaRemate < new Date(this.startDate) || currentCase.fechaRemate > new Date(this.endDate)) {
-            console.log("Enviando false por fecha :", currentCase.causa, currentCase.fechaRemate, new Date(this.startDate) ,new Date(this.endDate));
+        if (currentCase.fechaRemate < this.fixedStartDate || currentCase.fechaRemate > this.fixedEndDate ) {
+            console.log(`No guardado por fecha remate ${currentCase.causa}`);
             return false;
         }
         // No se escriben casos de juez partidor
         if (currentCase.juzgado === "Juez Partidor") {
-            console.log("Enviando false por juez partidor :", currentCase.causa);
+            
             return false;
         }
 
@@ -243,7 +245,6 @@ class createExcel {
         // if (currentCase.tipoPropiedad === "Estacionamiento") {
         //     return true;
         // }
-        console.log("Enviando true por :", currentCase.causa);
         return true;
     }
 
@@ -264,11 +265,8 @@ class createExcel {
         }
         this.writeLine(ws, 'D', currentRow, caso.link, 's');
         // ws['E'+ currentRow ] = {v: 'notas ', t: 's'};
-        if (caso.fechaRemate !== null) {
-            const adjustedAuctionDate = caso.fechaRemate;
-            if(adjustedAuctionDate){
-                ws['F' + currentRow] = { v: adjustedAuctionDate, t: 'd', z: 'dd/mm/yyyy' };
-            }
+        if (caso.fechaRemate) {
+            ws['F' + currentRow] = { v: caso.fechaRemate, t: 'd', z: 'DD/MM/YYYY' };
         }
         this.writeLine(ws, 'G', currentRow, caso.martillero, 's');
         if(caso.tipoDerecho){
@@ -295,13 +293,11 @@ class createExcel {
         // ws['V'+ currentRow ] = {v: 'deuda 3 ', t: 's'};
 
         // Union de roles de propiedad, estacionamiento y bodega
-        // newRol = this.adaptRol(caso.rolPropiedad, caso.rolEstacionamiento, caso.rolBodega);
         // console.log("Rol adaptado: ", newRol);
         this.writeLine(ws, 'W', currentRow, caso.unitRol, 's');
 
         // ws['X'+ currentRow ] = {v: 'notif ', t: 's'};
         // Formato de monto minimo segun el tipo de moneda
-        console.log("Leyendo monto minimo: ", caso.montoMinimo, " con moneda: ", caso.moneda);
         if(caso.montoMinimo > 100){
             if (caso.moneda === 'UF') {
                 ws['Y' + currentRow] = { v: parseFloat(caso.montoMinimo), t: 'n', z: '#,##0.0000' };
@@ -324,13 +320,6 @@ class createExcel {
         // ws['AG' + currentRow ] = {v: 'año compr ant ', t: 's'};
         // ws['AH' + currentRow ] = {v: 'precio venta nos ', t: 's'};
     }
-
-    
-
-    
-
-    
-
 
     writeLine(ws, row, col, value, type) {
         if (value != null) {

@@ -77,29 +77,6 @@ class Causas {
         }
     }
 
-
-    // createDB() {
-    //     const query = `
-    // CREATE TABLE IF NOT EXISTS Causa (
-    //     causa TEXT,
-    //     juzgado TEXT,
-    //     fecha TEXT,
-    //     PRIMARY KEY (causa, juzgado)
-    // )`;
-    //     this.db.prepare(query).run();
-    // }
-
-    // insertCaso(casos) {
-    //     const query = "INSERT OR IGNORE INTO Causa (causa, juzgado,fecha) VALUES (?, ?, ?)";
-    //     const stmt = this.db.prepare(query);
-    //     for (const caso of casos) {
-    //         try {
-    //             stmt.run(caso.causa, caso.juzgado, caso.fecha);
-    //         } catch (error) {
-    //             console.error("Error al insertar caso: ", e);
-    //         }
-    //     }
-    // }
     insertMultipleCases(remates,comunas){
         const cases = [];
         for(let remate of remates){
@@ -108,8 +85,6 @@ class Causas {
         obtainCorteJuzgadoNumbers(cases);
         for (const caso of cases) {
             try {
-                // console.log(`Caso ${caso}`);
-                // console.log(`Caso[1] causa ${caso[1].causa}`)
                 this.insertCase(caso,comunas);
             } catch (error) {
                 console.error("Error al insertar caso: ", error);
@@ -127,19 +102,13 @@ class Causas {
         this.db.prepare(query).run();
     }
 
-    getCausas(fechalimite) {
-        const query = "Select * from Causa WHERE fecha < ?;";
-        const causas = this.db.prepare(query).all(fechalimite);
-        return causas;
-    }
     searchByCausa(causa) {
         const query = "Select * from Causa WHERE causa = ?;";
         const causas = this.db.prepare(query).all(causa);
         return causas;
     }
+
     insertCase(caso, comunas) {
-        // Handle potential null/undefined values
-        
         const minimoPostura = caso.montoMinimo?.monto ?? null;
         const montoCompra = caso.montoCompra?.monto ?? null;
 
@@ -163,18 +132,17 @@ class Causas {
 
         // Use parameterized query to prevent SQL injection
         const query = `
-        INSERT OR IGNORE INTO Causa (
-            causa, idJuzgado, fechaRemate, ano, idComuna, 
-            tipoParticipacion, minimoPostura, direccion, 
-            rol, partes, avaluoFiscal, montoCompra,
-            idOrigen, idEstado, idEstadoCivil
-        ) VALUES (
-            @causa, @numeroJuzgado, @fechaRemate, @anno, @idComuna,
-            @formatoEntrega, @minimoPostura, @direccion,
-            @rol, @partes, @avaluoPropiedad, @montoCompra,
-            @idOrigen, @idEstado, @idEstadoCivil
-        )
-    `;
+            INSERT OR IGNORE INTO Causa (
+                causa, idJuzgado, fechaRemate, ano, idComuna, 
+                tipoParticipacion, minimoPostura, direccion, 
+                rol, partes, avaluoFiscal, montoCompra,
+                idOrigen, idEstado, idEstadoCivil
+            ) VALUES (
+                @causa, @numeroJuzgado, @fechaRemate, @anno, @idComuna,
+                @formatoEntrega, @minimoPostura, @direccion,
+                @rol, @partes, @avaluoPropiedad, @montoCompra,
+                @idOrigen, @idEstado, @idEstadoCivil
+            )`;
 
         const params = {
             causa: caso.causa,
@@ -196,7 +164,6 @@ class Causas {
         const stmt = this.db.prepare(query);
 
         try {
-            console.log(`Caso a insertar ${params} con causa ${params.causa} ${params.numeroJuzgado}`);
             stmt.run(params);
         } catch (error) {
             console.error('Error inserting case:', error);
@@ -211,7 +178,6 @@ class Causas {
         for (let comuna of comunasDB) {
             comunas.set(comuna.nombre.toLowerCase(), comuna.id);
         }
-        console.log(comunas)
         return comunas;
     }
 

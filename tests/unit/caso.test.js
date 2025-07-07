@@ -299,7 +299,7 @@ describe('checkEstacionamientoBodega', ()=>{
     test('Caso sin estacionamiento ni bodega', ()=>{
         const casotest = createCase('C-1111-2222','');
         casotest.direccion = 'AV LA TIRANA 4155 DP 905 EDIF ALTOS DEL MAR';
-        expect(casotest.unitDireccion).toEqual(casotest.direccion);
+        expect(casotest.unitDireccion).toEqual('AV LA TIRANA 4155 DP 905 EDIF ALTOS DEL MAR');
     });
 
     test('Caso con estacionamiento sin Bodega', ()=>{

@@ -524,7 +524,7 @@ class Caso{
             alreadyAppear: this.#alreadyAppear,
             unitRol: this.adaptRol(),
             unitAvaluo: this.sumAvaluo(),
-            unitDireccion : this.mergeDirections()
+            unitDireccion : this.checkEstacionamientoBodega()
         };
     } 
 

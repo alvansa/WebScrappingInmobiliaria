@@ -16,7 +16,21 @@ function cleanInitialZeros(cadena) {
     return cadena.substring(indice);
 }
 
+function fixStringDate(string){
+    if(!string){
+        return null;
+    }
+    if(string.includes('-')){
+        const parts = string.split('-');
+        if(parts.length === 3){
+            return string.replace(/-/g, '/');
+        }
+    }
+
+    return string;
+}
 
 module.exports = {
-    cleanInitialZeros
+    cleanInitialZeros,
+    fixStringDate
 };

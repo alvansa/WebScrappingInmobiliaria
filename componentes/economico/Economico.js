@@ -45,7 +45,7 @@ class Economico{
                 }
             }
             for(let caso of this.casosARevisar){
-                console.log("Procesando caso: ", caso.link);
+                // console.log("Procesando caso: ", caso.link);
                 procesarDatosRemate(caso);
             }
 
