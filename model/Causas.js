@@ -108,19 +108,10 @@ class Causas {
         return causas;
     }
 
+    //Esta funcion revise el caso como objeto Caso no como la transformacion para mostrar
     insertCase(caso, comunas) {
         const minimoPostura = caso.montoMinimo?.monto ?? null;
         const montoCompra = caso.montoCompra?.monto ?? null;
-
-        const rolesPropiedad = caso.getRolPropiedad();
-        let rolManzana = null;
-        let rolPredio = null;
-
-        if (rolesPropiedad && rolesPropiedad.length >= 2) {
-            rolManzana = rolesPropiedad[0];
-            rolPredio = rolesPropiedad[1];
-        }
-
 
         // Get comuna ID safely
         const idComuna = comunas.get(caso.comuna) ?? null;

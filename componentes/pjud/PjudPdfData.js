@@ -78,6 +78,7 @@ class PjudPdfData {
                 this.caso.rolEstacionamiento = rolEstacionamiento.rol;
             }
         }
+        //Revision de rol Bodega
         if (!this.caso.rolBodega) {
             const rolBodega = this.obtainRolPropiedad(info);
             if (rolBodega && rolBodega.tipo.includes("bodega")) {
@@ -88,6 +89,7 @@ class PjudPdfData {
     }
 
     processPropertyInfo(info, normalizedInfo) {
+        //Obtener avaluo del inmueble
         if (!this.caso.avaluoPropiedad) {
             const avaluoPropiedad = this.obtainAvaluoPropiedad(normalizedInfo);
             if (avaluoPropiedad && !avaluoPropiedad.tipo.includes("estacionamiento") && !avaluoPropiedad.tipo.includes("bodega")) {
@@ -96,6 +98,7 @@ class PjudPdfData {
             }
         }
 
+        //Obtener avaluo del estacionamiento
         if (!this.caso.avaluoEstacionamiento) {
             const avaluoEstacionamiento = this.obtainAvaluoPropiedad(normalizedInfo);
             if (avaluoEstacionamiento && avaluoEstacionamiento.tipo.includes("estacionamiento")) {
@@ -105,6 +108,7 @@ class PjudPdfData {
             }
         }
 
+        //Obtener avaluo de la bodega
         if (!this.caso.avaluoBodega) {
             const avaluoBodega = this.obtainAvaluoPropiedad(normalizedInfo);
             if (avaluoBodega && avaluoBodega.tipo.includes("bodega")) {
@@ -114,6 +118,7 @@ class PjudPdfData {
             }
         }
 
+        //Obtener comuna
         if (!this.caso.comuna) {
             let comuna = this.findValueGeneric(info, normalizedInfo, this.obtainComuna);
             if (comuna) {
@@ -122,6 +127,7 @@ class PjudPdfData {
             }
         }
 
+        //Obtener direccion del inmueble
         if (!this.caso.direccion) {
             const direccion = this.obtainDireccion(normalizedInfo);
             if (direccion && !direccion.tipo.includes("estacionamiento")) {
@@ -129,14 +135,15 @@ class PjudPdfData {
             }
         }
 
+        //Obtner direccion del estacionamiento
         if (!this.caso.direccionEstacionamiento) {
             const direccionEstacionamiento = this.obtainDireccion(normalizedInfo);
             if (direccionEstacionamiento && direccionEstacionamiento.tipo.includes("estacionamiento")) {
-
                 this.caso.direccionEstacionamiento = direccionEstacionamiento.direccion;
             }
         }
 
+        //Obtener anno de compra
         if (!this.caso.anno) {
             const anno = this.obtainAnno(normalizedInfo)
                 if (anno) {
@@ -145,8 +152,9 @@ class PjudPdfData {
                 }
         }
 
-        this.checkIfIsDerecho(normalizedInfo);
+        // this.checkIfIsDerecho(normalizedInfo);
 
+        // Obtener monto de compra
         if (!this.caso.montoCompra) {
             const montoCompra = this.obtainMontoCompra(normalizedInfo);
             if (montoCompra) {
@@ -154,20 +162,19 @@ class PjudPdfData {
                 this.caso.montoCompra = montoCompra;
             }
         }
-
     }
 
     processAuctionInfo(info, normalizedInfo) {
-        // console.log("info en processAuctionInfo: ", normalizedInfo);
+        //Obtener el monto minimo de la postura
         if (!this.caso.montoMinimo) {
             const montoMinimo = this.obtainMontoMinimo(normalizedInfo);
             if (montoMinimo) {
                 console.log(`-----------------\nmontoMinimo: ${montoMinimo}\n-----------------`);
                 this.caso.montoMinimo = montoMinimo;
             }
-
         }
 
+        //Obtener el tipo de participacion para la subasta (VV o cupon).
         if (!this.caso.formatoEntrega) {
             const formatoEntrega = getFormatoEntrega(info);
             if (formatoEntrega) {
@@ -175,13 +182,16 @@ class PjudPdfData {
             }
         }
 
+        //Obtener el porcentaje de participacion
         if (!this.caso.porcentaje) {
             const percentage = this.getAndProcessPercentage(info);
             if (percentage) {
+                console.log(`-----------------\nporcentaje: ${percentage}\n-----------------`);
                 this.caso.porcentaje = percentage ? percentage : null;
             }
         }
 
+        //Obtener si el inmueble rematado es un tipo de derecho.
         if (!this.caso.tipoDerecho) {
             const resultadoDerecho = this.obtainTipoDerecho(normalizedInfo);
             if(resultadoDerecho){
@@ -190,6 +200,7 @@ class PjudPdfData {
             }
         }
 
+        //Obtener la deuda hipotecaria si se encuentra
         if(!this.caso.deudaHipotecaria){
             if(this.checkIfTextHasHipoteca(normalizedInfo)){
                 const deuda = this.obtainDeudaHipotecaria(normalizedInfo);
@@ -201,7 +212,6 @@ class PjudPdfData {
     }
 
     obtainTipoDerecho(normalizedInfo){
-        // console.log("Buscando derecho ")
         if (regexMutuoHipotecario.exec(normalizedInfo)) {
             // Si el texto es un mutuo hipotecario no se puede obtener claramente si es un derecho o no
             return;
@@ -224,20 +234,24 @@ class PjudPdfData {
         return null;
     }
 
+    //Busca el anno de compra del inmueble
     obtainBuyYear(texto){
-        // console.log("Texto para obtener el anno: ", texto);
+        //Busca el anno por "adquirio por compra"
         let anno = this.obtainYearForm1(texto);
         if(anno) {
             return anno;
         }
+        //Busca el anno por "con fecha"
         anno = this.obtainYearnForm2(texto);
         if(anno) {
             return anno;
         }
+        //Busca el anno por "registro de propiedad del año", osea por el conservador.
         anno = this.obtainFromConservador(texto);
         if(anno){
             return anno;
         }
+        //Busca el anno por "inscripcion al año"
         anno = this.obtainYearFromInscripcion(texto);
         if(anno){
             return anno;
@@ -257,7 +271,7 @@ class PjudPdfData {
         const newStart = /del\s*ano/i;
         let startAno = newStart.exec(newText);
         if (!startAno) {
-            const newStart2 = /del\s*afio/i;
+            const newStart2 = /del\s*afio/i; // Se agrego esta segunda terminacion pensando en variaciones leidas con tesseract
             startAno = newStart2.exec(newText);
             if (!startAno) {
                 return null;
@@ -292,7 +306,6 @@ class PjudPdfData {
             return null;
         }
         newText = newText.substring(0, endWord.index);
-        // console.log(newText)
         const annoRegex = /\d{4}/i;
         const anno = newText.match(annoRegex);
         if (anno) {
@@ -318,12 +331,13 @@ class PjudPdfData {
         return null;
     }
 
+    
     obtainMontoCompra(text) {
         if (!text.includes("inscripci")) {
-            console.log("No se puede obtener el monto de compra, no contiene inscripcion");
+            // Solo se obtiene el monto de compra de la inscripcion
             return null;
         }
-        // console.log("Texto en general: ", text)
+        //Preprocesar el texto para eliminar cosas que no son necesarias
         text = this.preProcessText(text);
         // Funcion que busca: por el precio de
         let monto = this.searchByPorCompra(text);
@@ -340,26 +354,22 @@ class PjudPdfData {
         if(monto){
             return this.processMonto(monto);
         }
-
         // Funcion que busca por: por la suma
         monto = this.searchByPorLaSuma(text);
         if(monto){
             return this.processMonto(monto);
         }
-
         // Este hay que siempre dejarlo al final, ya que es el "peor" porque es un aporte de una sociedad
         monto = this.searchByEstimacion(text);
         if (monto) {
             return this.processMonto(monto);
         }
-
         return null;
     }
 
     obtainMontoMinimo(info){
         const textoRemate = this.splitTextFromPaper(info);
         for (const text of textoRemate) {
-
             if (textoRemate.length > 1) {
                 if (!text.includes(this.caso.causa.toLowerCase())) {
                     continue;
@@ -384,8 +394,8 @@ class PjudPdfData {
             .replace(/\s+/g," ");
     }
 
+    //Procesa el monto cuando viene en formato de texto y devuelve un numero con su tipo de moneda.
     processMonto(monto) {
-        // console.log("Buscando con monto: ", monto);
         let total;
         const regexNumber = /\d{1,}(?:[\.|,]\d{1,3})*/;
         const ufRegex = /(unidades\s*de\s*fomento|u\.?f\.?)/i;
@@ -418,9 +428,7 @@ class PjudPdfData {
                 }
             }
             const matchedNumber = regexNumber.exec(montoWithoutType);
-            // console.log(`Buscando en el texto tal que: ${montoWithoutType}`)
             if (matchedNumber) {
-                // console.log("Se encontro el numero asi: ",matchedNumber)
                 return {
                     monto: parseInt(matchedNumber[0]),
                     moneda: "UF"
@@ -546,7 +554,7 @@ class PjudPdfData {
 
     checkIfIsDerecho(info) {
         const buyers = this.obtainBuyers(info);
-        console.log("------------\nbuyers: ", buyers, "\n------------");
+        // console.log("------------\nbuyers: ", buyers, "\n------------");
     }
 
     obtainBuyers(texto) {
@@ -757,6 +765,9 @@ class PjudPdfData {
     }
 
     getAndProcessPercentage(info) {
+        if(info.includes('demanda')){
+            return null;        
+        }
         const percentage = getPorcentaje(info);
         // console.log("Porcentaje identificado: ", percentage);
         if (!percentage) {

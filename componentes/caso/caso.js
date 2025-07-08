@@ -542,7 +542,7 @@ class Caso{
             this.#fechaRemate = this.#fechaRemate.split(' ')[0];
             const partes = this.#fechaRemate.split('/');
             let fechaRemate = new Date(partes[2],partes[1]-1,partes[0]);
-            fechaRemate.setHours(fechaRemate.getHours() + 6);
+            // fechaRemate.setHours(fechaRemate.getHours() + 6);
             return fechaRemate;
         }
 

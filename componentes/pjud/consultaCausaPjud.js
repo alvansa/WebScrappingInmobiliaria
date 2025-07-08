@@ -565,7 +565,8 @@ class ConsultaCausaPjud{
             'sentencia',
             'mandato',
             'cartola',
-            'cronograma'
+            'cronograma',
+            'contribuciones'
         ];
 
         // Dividir el texto en palabras individuales

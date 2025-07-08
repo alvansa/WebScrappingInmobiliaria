@@ -222,6 +222,7 @@ class MainApp{
                 caso.juzgado = juzgado;
                 caso.numeroJuzgado = tribunal;
                 caso.origen = PJUD;
+                caso.fechaRemate = new Date();
                 caso.link = "Lgr";
                 console.log("Buscando caso: ",caso.toObject()); 
                 console.time("casoUnico");
@@ -433,19 +434,11 @@ class MainApp{
             endDateModified.setDate(endDateModified.getDate() + 1); // Aumentar un dia para incluir el ultimo dia
             const startDate = dateToPjud(stringToDate(startDateOrigin));
             const endDate = dateToPjud(endDateModified);
-            console.log("Consultando casos desde ", startDate, " hasta ", endDate);
 
             casos = await this.searchCasesByDay(startDate, endDate);
-
-            // console.log("Resultados de los casos en la funcion de llamada: ", casos.length);
-            // const caso1 = this.createCaso("C-10200-2024","26º JUZGADO CIVIL DE SANTIAGO");
-            // casos.push(caso1);
-            // const caso2 = this.createCaso("C-10417-2024","30º JUZGADO CIVIL DE SANTIAGO");
-            // casos.push(caso2); 
-            // obtainCorteJuzgadoNumbers(casos);
             
-            // const result = await this.obtainDataFromCases(casos, event);
-            console.log("Resultados de los casos en la funcion de llamada: ", casos.length);
+            const result = await this.obtainDataFromCases(casos, event);
+            console.log("Cantidad de casos obtenidos de pjud: ", casos.length);
         }catch(error){
             console.error("Error :", error.message);
         }

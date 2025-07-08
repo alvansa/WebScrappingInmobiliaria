@@ -23,6 +23,7 @@ class createExcel {
         this.fixedStartDate = new Date(fixStringDate(startDate));
         this.fixedEndDate = new Date(fixStringDate(endDate));
         this.causaDB = new Causas();
+        this.comunas = this.causaDB.obtainComunasFromDB();
 
     }
     crearBase() {
@@ -132,8 +133,13 @@ class createExcel {
 
 
     fillWithOne(ws, casos) {
+        // Agregar la busqueda de casos en DB y union si existe ya en la DB
+        const caseDB = this.isCaseInDB(casos);
+        if(caseDB){
+            casos = Caso.bindCaseWithDB(casos,caseDB);
+        }
+        this.causaDB.insertCase(casos,this.comunas); 
         const caso = casos.toObject();
-
         let currentRow = 6;
         this.insertarCasoIntoWorksheet(caso, ws, currentRow);
         currentRow = currentRow + 1;
@@ -141,19 +147,8 @@ class createExcel {
     }
 
     async insertarCasosExcel(casos, ws) {
-        const startDateSQL = stringToDate(this.startDate);
         let remates = new Map();
         let currentRow = 6;
-        const comunas = this.causaDB.obtainComunasFromDB();
-
-        // Hay que ver como hacer esto, nose si es bueno pedir todos los remates pero creo que es la unica opcion
-        // const rematesDB = causaDB.getCausas(formatDateToSQLite(startDateSQL));
-        // for (let remateDB of rematesDB) {
-        //     if (remateDB.juzgado) {
-        //         remateDB.juzgado = remateDB.juzgado.replace(/º/g, '°');
-        //     }
-        // }
-        const rematesDB = null;
 
         if (!Array.isArray(casos) || casos.length === 0) {
             console.log("No se encontraron datos para insertar.");
@@ -184,7 +179,7 @@ class createExcel {
         }
         // Agrega los remates a la base de datos
         if (!this.emptyMode) {
-            this.causaDB.insertMultipleCases(remates,comunas);
+            this.causaDB.insertMultipleCases(remates,this.comunas);
         }
         return currentRow;
     }
@@ -215,7 +210,7 @@ class createExcel {
                 return false;
             }
         }
-        console.log(`------------\ncausa ${currentCase.causa} fecha remate ${currentCase.fechaRemate} fecha inicio ${this.fixedStartDate} y fecha final ${this.fixedStartDate}`);
+        console.log(`------------\ncausa ${currentCase.causa} fecha remate ${currentCase.fechaRemate} fecha inicio ${this.fixedStartDate} y fecha final ${this.fixedEndDate}`);
         // Si la fecha de remate es menor a la fecha de inicio, o mayor a la final
         if (currentCase.fechaRemate < this.fixedStartDate || currentCase.fechaRemate > this.fixedEndDate ) {
             console.log(`No guardado por fecha remate ${currentCase.causa}`);
@@ -232,16 +227,6 @@ class createExcel {
         if(caseDB){
             currentCase = Caso.bindCaseWithDB(currentCase,caseDB);
         }
-
-        // if (currentCase.origen === PJUD) { // Solo si es caso es del pjud revisamos si ya existe en la base de datos
-        //     // Si el caso ya existe en la base de datos, no se guarda
-        //     for (let savedAuction of auctionsDB) {
-        //         if (savedAuction.causa === currentCase.causa && savedAuction.juzgado === currentCase.juzgado && savedAuction.fecha < formatDateToSQLite(startDateSQL)) {
-        //             console.log(`No guardado porque esta en DB ${currentCase.causa}, ${currentCase.juzgado}`);
-        //             return false;
-        //         }
-        //     }
-        // }
         // if (currentCase.tipoPropiedad === "Estacionamiento") {
         //     return true;
         // }
