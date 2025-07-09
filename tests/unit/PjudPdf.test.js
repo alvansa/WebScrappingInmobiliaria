@@ -9,7 +9,8 @@ const convertWordToNumbers = require('../../utils/convertWordToNumbers');
 const {textoEstacionamiento1,textoHabitacional1, textoBodegaMultiple, textoEstacionamientoMultiple, textoHabitacionMultiple} = require('../textos/Avaluo');
 const {textoGP1, textoGP2, textoGP3, textoGP4, textoGP5, texto12Santiago} = require('../textos/GP');
 const {diario2484, ex1341, diario1341, diario3354_1, diario3354_2} = require('../textos/diario');
-const {tx356, tx23039, tx12017, tx1349, tx3857, tx13759, tx7140, tx11066} = require('../textos/DV');
+const {tx356, tx23039, tx12017, tx1349, tx3857, tx13759, tx7140, tx11066, tx198} = require('../textos/DV');
+const {ex1666} = require('../textos/Extracto'); 
 const {bf2201, bf1341, notBf} = require('../textos/BF');
 const {dm1056, dm1138} = require('../textos/DM');
 const {obtainCorteJuzgadoNumbers} = require('../../utils/corteJuzgado');
@@ -274,6 +275,15 @@ describe('ObtainMontoMinimo', () => {
         });
     });
 
+    test('Obtener monto minimo de postura de un extracto',()=>{
+        const info = testPjudPdf.normalizeInfo(ex1666);
+        const montoMinimo = testPjudPdf.obtainMontoMinimo(info);
+        expect(montoMinimo).toEqual({
+            monto: '1031,99465',
+            moneda : "UF"
+        });
+    });
+
 });
 
 describe('checkIfValidDoc',()=>{
@@ -339,6 +349,12 @@ describe('ObtainMontoCompra', () => {
             monto: 78918749,
             moneda: 'Pesos' 
         });
+    });
+
+    test('Monto no encontrado por dacion de pago',()=>{
+        const normalizeInfo = testPjudPdf.normalizeInfo(tx198);
+        const resMontoCompra = testPjudPdf.obtainMontoCompra(normalizeInfo);
+        expect(resMontoCompra).toBeNull();
     });
     test('Prueba por se estiman: ',()=>{
 

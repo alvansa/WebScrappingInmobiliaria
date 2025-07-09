@@ -169,7 +169,7 @@ class PjudPdfData {
         if (!this.caso.montoMinimo) {
             const montoMinimo = this.obtainMontoMinimo(normalizedInfo);
             if (montoMinimo) {
-                console.log(`-----------------\nmontoMinimo: ${montoMinimo}\n-----------------`);
+                console.log(`-----------------\nPrecio minimo de subasta: ${montoMinimo}\n-----------------`);
                 this.caso.montoMinimo = montoMinimo;
             }
         }
@@ -205,6 +205,7 @@ class PjudPdfData {
             if(this.checkIfTextHasHipoteca(normalizedInfo)){
                 const deuda = this.obtainDeudaHipotecaria(normalizedInfo);
                 if(deuda){
+                    console.log(`-----------------\nDeuda : ${deuda}\n-----------------`);
                     this.caso.deudaHipotecaria = deuda;
                 }
             }
@@ -524,14 +525,12 @@ class PjudPdfData {
             return null;
         }
         let newText = text.substring(matchedAdquirio.index);
-        console.log("Nuevo texto en search By la suma ",newText);
         const regexCompraventa = /,/i;
         const matchedEnd = regexCompraventa.exec(newText);
         if (!matchedEnd) {
             return null;
         }
         newText = newText.substring(0, matchedEnd.index);
-        console.log(newText);
         return newText;
     }
 
@@ -638,7 +637,7 @@ class PjudPdfData {
 
     obtainDeudaHipotecaria(info){
         let deuda;
-        console.log("------------\nBuscando deuda hipotecaria");
+        // console.log("------------\nBuscando deuda hipotecaria");
         let newText = this.trimTextHipotecario(info);
         if(!newText){
             return null;
@@ -926,7 +925,7 @@ class PjudPdfData {
         if (!regexMutuoHipotecario.exec(info) ) {
             const GPnormalizedInfo = this.adaptTextIfGP(info);
             if (!GPnormalizedInfo) {
-                console.log("No se obtiene el ano del GP");
+                // console.log("No se obtiene el ano del GP");
                 return null;
             }
             const anno = this.obtainBuyYear(GPnormalizedInfo);

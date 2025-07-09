@@ -7,6 +7,7 @@ const axios = require('axios');
 const FormData = require('form-data');
 const fs = require('fs')
 
+const scrapeAuction = require('./prod/scrapeAuctions.js');
 const Economico = require('../economico/Economico.js');
 const {getDatosRemate,emptyCaseEconomico} = require('../economico/datosRemateEmol.js');
 const {PreRemates} = require('../preremates/obtenerPublicaciones.js');
@@ -23,7 +24,8 @@ const {testTexto,testTextoArgs} = require('../economico/testEconomico.js');
 const {downloadPdfFromUrl,checkUserAgent} = require('../pjud/downloadPDF.js');
 const { fakeDelay, delay } = require('../../utils/delay.js');
 const {tribunalesPorCorte, obtainCorteJuzgadoNumbers} = require('../../utils/corteJuzgado.js');
-const {fixStringDate} = require('../../utils/cleanStrings.js');
+const {stringToDate} = require('../../utils/cleanStrings.js');
+
 
 const Causas = require('../../model/Causas.js');
 
@@ -131,7 +133,8 @@ class MainApp{
         ipcMain.handle("start-proccess", async (event,startDate,endDate,saveFile, checkedBoxes) => {
             console.log("handle start-proccess starDate: ", startDate, " endDate: ", endDate, " saveFile: ", saveFile, " checkedBoxes: ", checkedBoxes);
             try{
-                const filePath = await this.insertarDatos(startDate,endDate,saveFile, checkedBoxes,event);
+                const mainProcess = new scrapeAuction(startDate,endDate,saveFile, checkedBoxes,event)
+                const filePath = mainProcess.startSearch();
                 return filePath;
 
             }catch(error){
@@ -263,218 +266,6 @@ class MainApp{
             return resultados;
         });
 
-    }
-
-
-    async insertarDatos(startDate,endDate,saveFile, checkedBoxes,event) {
-        let casos = [];
-        let casosEconomico = [];
-        let casosPreremates = [];
-        let casosBoletin = [];
-        let casosPYL = [];
-        let casosPJUD = [];
-        const fechaHoy = new Date();
-        await this.launchPuppeteer_inElectron();
-        const fixStartDate = fixStringDate(startDate);
-        const fixEndDate = fixStringDate(endDate);
-        console.log(`Iniciando la inserción de datos desde ${startDate} hasta ${endDate} y tipos ${typeof startDate} y ${typeof endDate}`);
-        if(emptyMode){
-           casos = emptyCaseEconomico(); 
-        }else{
-            casosEconomico = await this.getCasosEconomico(fechaHoy, startDate, endDate, 3, checkedBoxes.economico);
-            // casosPreremates = await this.getCasosPreremates(checkedBoxes.preremates),
-            casosBoletin = await this.getCasosBoletin(startDate, endDate, fechaHoy, checkedBoxes.liquidaciones),
-            casosPYL = await this.getPublicosYLegales(startDate, endDate, fechaHoy, checkedBoxes.PYL),
-            casosPJUD = await this.getCasosPjud(startDate, endDate, checkedBoxes.pjud,event)
-
-            casos = [...casosEconomico, ...casosPreremates, ...casosBoletin, ...casosPYL, ...casosPJUD];
-            // await this.obtainMapasSIIInfo(casos);
-        }
-
-        if(casos.length === 0){
-            console.log("No se encontraron datos");
-            return 5;
-        }
-        const createExcelFile = new createExcel(saveFile,startDate,endDate,emptyMode);
-        const filePath = createExcelFile.writeData(casos);
-        return filePath;
-        
-    }
-    
-    async getCasosEconomico(fechaHoy, fechaInicioStr, fechaFinStr, maxRetries, economicoChecked) {
-        if(emptyMode){
-            return emptyCaseEconomico();
-        }
-    
-        if (!economicoChecked) {
-            return [];
-        }
-
-        const fixStartDate = fixStringDate(fechaInicioStr)
-        const fixEndDate = fixStringDate(fechaFinStr);
-        let fechaInicio = new Date(fixStartDate);
-        let fechaFin = new Date(fixEndDate); 
-
-        // fechaInicio.setMonth(fechaInicio.getMonth() - 1);
-
-        // fechaInicio = stringToDate(fechaInicioStr);
-        // fechaFin = stringToDate(fechaFinStr); 
-
-
-        let casos = [];
-        try {
-            // Funcion antigua para obtener los datos de emol que funciona con axios y cheerio
-            // casos = await getDatosRemate(fechaHoy, fechaInicioStr, fechaFinStr, maxRetries) || [];
-            // Funcion nueva para obtener los datos de emol que funciona con puppeteer
-            console.log("Obteniendo casos de economico desde: ", fechaInicio, " hasta: ", fechaFin);
-            const economico = new Economico(this.browser, fechaInicio, fechaFin);
-            casos = await economico.getCases() || [];
-            
-        } catch (error) {
-            console.error('Error al obtener resultados en emol:', error);
-        }
-        return casos
-    }
-
-    async getCasosPreremates(prerematesChecked) {
-        if (!prerematesChecked) {
-            return [];
-        }
-        console.log("Obteniendo casos de preremates");
-        let casos = [];
-        const EMAIL = config.EMAIL;
-        const PASSWORD = config.PASSWORD;
-        try {
-            const window = new BrowserWindow({ show: true });
-            const url = 'https://preremates.cl/content/proximos-remates';
-            await window.loadURL(url);
-            const page = await pie.getPage(this.browser, window);
-            const preRemates = new PreRemates(EMAIL, PASSWORD,this.browser,page);
-            casos = await preRemates.getRemates();
-            window.destroy();
-            return casos;
-        } catch (error) {
-            console.error('Error al obtener resultados:', error);
-            if(window){
-                window.destroy();
-            }
-            return casos;
-        }
-    }
-    
-    async getCasosBoletin(fechaInicioStr,fechaFinStr,fechaHoy,BoletinChecked){
-
-        if(!BoletinChecked){
-            return [];
-        }
-        let casos = [];
-        // const startDate = stringToDate(fechaInicioStr);
-        // const endDate = stringToDate(fechaFinStr);
-        // let endDate = stringToDate(fechaInicioStr); 
-        let startDate = stringToDate(fechaInicioStr);
-        let endDate = stringToDate(fechaFinStr); 
-
-        startDate.setMonth(startDate.getMonth() - 1);
-       try{
-            const window = new BrowserWindow({ show: true });
-            const url = 'https://www.boletinconcursal.cl/boletin/remates';
-            await window.loadURL(url);
-            const page = await pie.getPage(this.browser, window);
-            const boletinConcursal = new ProcesarBoletin(this.browser,page);
-            casos = await boletinConcursal.getPdfData(startDate,endDate,fechaHoy);  
-            window.destroy();
-
-        }catch(error){
-            console.error('Error al obtener resultados en boletin:', error);
-            if(window){
-                window.destroy();
-            }
-        }
-        return casos;
-    }
-
-    async getPublicosYLegales(fechaInicioStr,fechaFinStr,fechaHoy,PYLChecked){
-        if(!PYLChecked){
-            return [];
-        }
-        let casos = [];
-        // const startDate = stringToDate(fechaInicioStr);
-        // const endDate = stringToDate(fechaFinStr);
-        let startDate = stringToDate(fechaInicioStr);
-        let endDate = stringToDate(fechaInicioStr); 
-
-        startDate.setMonth(startDate.getMonth() - 1);
-        
-        try{
-            const window = new BrowserWindow({ show: false });
-            const url = 'https://www.publicosylegales.cl/';
-            await window.loadURL(url);
-            const page = await pie.getPage(this.browser, window);
-            const publicosYLegales = new PublicosYLegales(startDate,endDate,fechaHoy,this.browser,page,window);
-            casos = await publicosYLegales.scrapePage();
-            window.destroy();
-            return casos;
-        } catch (error) {
-            console.error('Error al obtener resultados en publicos y legales:', error);
-            if(window){
-                window.destroy();
-            }
-            return casos;
-        }
-    }
-
-    async getCasosPjud(startDateOrigin,endDateOrigin,PJUDChecked, event){
-        if(!PJUDChecked){
-            return [];
-        }
-        let casos = [];
-        try{
-            await this.launchPuppeteer_inElectron();
-            const endDateModified = stringToDate(endDateOrigin)
-            endDateModified.setDate(endDateModified.getDate() + 1); // Aumentar un dia para incluir el ultimo dia
-            const startDate = dateToPjud(stringToDate(startDateOrigin));
-            const endDate = dateToPjud(endDateModified);
-
-            casos = await this.searchCasesByDay(startDate, endDate);
-            
-            const result = await this.obtainDataFromCases(casos, event);
-            console.log("Cantidad de casos obtenidos de pjud: ", casos.length);
-        }catch(error){
-            console.error("Error :", error.message);
-        }
-
-        return casos;
-
-    }
-
-    async obtainMapasSIIInfo(casos) {
-        let mapasSII = null;
-        let window = null;
-        try {
-            const window = new BrowserWindow({ show: true });
-            const url = 'https://www4.sii.cl/mapasui/internet/#/contenido/index.html';
-            await window.loadURL(url);
-            const page = await pie.getPage(this.browser, window);
-            const mapasSII = new MapasSII(this.browser, page);
-            await mapasSII.init();
-            for (let caso of casos) {
-                if (caso.rolPropiedad !== null && caso.comuna !== null && caso.avaluoPropiedad) {
-                    console.log(caso.causa, caso.rolPropiedad, caso.comuna, caso.link);
-                    await fakeDelay(1, 3);
-                    await mapasSII.obtainDataOfCause(caso);
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                }
-            }
-            window.destroy();
-        } catch (error) {
-            console.error('Error al obtener resultados:', error);
-            console.log("valor del mapasSII cuando es error", mapasSII);
-        } finally {
-            if (window && !window.isDestroyed()) {
-                window.destroy();
-            }
-        }
-        return;
     }
 
     cleanupBeforeExit(isCrash = false) {
@@ -746,11 +537,6 @@ function openWindow(window, useProxy){
     return window;
 }
 
-function stringToDate(fecha) {
-    const partes = fecha.split("-"); // Dividimos la fecha en partes [año, mes, día]
-    const [año, mes, día] = partes; // Desestructuramos las partes
-    return new Date(`${año}/${mes}/${día}`);
-}
 
 // Cambia la fecha final de obtencion de datos para el pjud
 function cambiarFechaFin(fecha){

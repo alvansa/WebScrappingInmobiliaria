@@ -695,5 +695,95 @@ Carátula Nº 981991.-
 Pag: 1/1
 www.cbrconcepcion.cl.2182221 -2182210info@cbrconcepcion.cl`;
 
+// Para obtener el monto de compra
+const tx198 = `Registro de Propiedad
+Copia con Vigencia
+Carátula 23408962
+Morandé 440
+Santiago
+Teléfono:
+2 2390 0800
+www.conservador.cl
+info@conservador.cl
+El Conservador de Bienes Raíces de Santiago certifica que la inscripción de fojas
+67365 número 98021 correspondiente al Registro de Propiedad del año 2019,
+adjunta al presente documento, está conforme con su original y se encuentra
+vigente al día 4 de marzo de 2025.
 
-module.exports = {tx356, tx23039, tx12017, tx1349, tx3857, tx13759, tx7140, tx11066};
+Los derechos registrales correspondientes a esta actuación ascienden a la suma
+de $ 4600.
+hegonzalez
+Santiago, 6 de marzo de 2025.
+Código de verificación: cpv1653142-0
+Documento incorpora firma electrónica avanzada conforme a Ley N°19.799.
+La vigencia de la firma electrónica en el documento, al igual que la integridad
+y autenticidad del mismo, deben ser verificados en www.conservador.cl,
+donde estará disponible por 90 días contados desde la fecha de su emisión.
+Documento impreso es sólo una copia del documento original.
+www.conservador.cl
+página 1 de 3
+
+Nº98021
+PV/RS/DC
+C: 15350098
+DACIÓN EN PAGO
+OSCAR EDUARDO
+GAJARDO URIBE
+A
+MARTA VIVIANA
+BECERRA GARCIA
+REP: 99662
+B: 191494
+F: 118413
+
+
+Santiago, veintinueve de agosto del año dos mil
+diecinueve.- Doña MARTA VIVIANA BECERRA GARCIA,
+C.I.  10.314.252-0  de  este  domicilio,  es  dueña
+de los derechos que le correspondían a don OSCAR
+EDUARDO GAJARDO URIBE, de este domicilio, en el
+inmueble  ubicado  en  calle  Alexander  Fleming
+número siete mil sesenta y seis, que corresponde
+al lote B, en que se subdividió el sitio número
+nueve  de  la  manzana  A,  del  plano  respectivo,
+Comuna de Las Condes, Región Metropolitana, que
+deslinda:  NORTE,  en  siete  metros  cincuenta
+centímetros con sitio número dos; SUR, en siete
+metros cincuenta centímetros con calle Alexander
+Flemming;   ORIENTE,   en   veintitrés   metros
+cincuenta  centímetros  con  sitio  número  ocho;
+PONIENTE,  en  veintidós  metros  con  resto  de  la
+propiedad  de  la  vendedora  de  calle  Alexander
+Flemming número siete mil sesenta y seis.- Los
+adquirió  por  dación  en  pago,  en  virtud  de
+compensación  económica  suscrita  con  la  persona
+antes  mencionada,  según  escritura  de  fecha
+veintiséis  de  julio  del  año  dos  mil  doce,
+otorgada  en  la  notaría  de  esta  ciudad,  de  don
+Iván Torrealba Acevedo, Repertorio Número 8746,
+y  sentencia  de  fecha  diez  de  octubre  del  año
+dos mil doce, del Tercer Juzgado de Familia de
+Santiago,    RIT    C-4933-2012,    debidamente
+ejecutoriada con fecha once de octubre del año
+dos  mil  doce,  del  mismo  Juzgado,  la  que  queda
+agregada  al  final  del  último  registro  del
+presente  mes  bajo  el  Número 1054.-  El  título
+anterior está a Fojas 82022 Número 60930 del año
+1995.- Rol de avalúo número 1314-12, Comuna de
+Fojas   67365
+página 2 de 3
+Documento incorpora Firma
+Electronica Avanzada
+Código de Verificación: cpv1653142-0
+
+Las   Condes.-   Requirente:   Fernando   Maturana
+Crino.- LUIS MALDONADO C.
+Fin del Texto
+
+página 3 de 3
+Documento incorpora Firma
+Electronica Avanzada
+Código de Verificación: cpv1653142-0`; 
+
+
+module.exports = {tx356, tx23039, tx12017, tx1349, tx3857, tx13759, tx7140, tx11066, tx198};

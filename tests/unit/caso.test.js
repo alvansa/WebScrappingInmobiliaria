@@ -320,6 +320,39 @@ describe('checkEstacionamientoBodega', ()=>{
     });
 });
 
+describe('normalizarMontoMinimo',()=>{
+    test('Caso con monto minimo nulo', ()=>{
+        const casoTest = createCase("C-111-222","1 santaigo");
+        casoTest.montoMinimo = null;
+        expect(casoTest.montoMinimo).toBeNull();
+    });
+
+    test('Caso con monto minimo UF con coma',()=>{
+        const casoTest = createCase("C-111-222","1 santaigo");
+        casoTest.montoMinimo = {
+            monto: '1031,99465',
+            moneda: 'UF'
+        };
+        expect(casoTest.montoMinimo).toEqual({
+            monto: 1031.99465,
+            moneda: 'UF'
+        });
+    });
+
+    test('Caso con minimo UF sin coma',()=>{
+        const casoTest = createCase("C-111-222","1 santaigo");
+        casoTest.montoMinimo = {
+            monto: '1031',
+            moneda: 'UF'
+        };
+        expect(casoTest.montoMinimo).toEqual({
+            monto: 1031,
+            moneda: 'UF'
+        });
+
+    });
+
+});
 
 function createCase(causa,juzgado){
     const caso1 = new Caso("1/1/2025");

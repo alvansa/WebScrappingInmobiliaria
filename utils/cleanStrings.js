@@ -30,7 +30,14 @@ function fixStringDate(string){
     return string;
 }
 
+function stringToDate(fecha) {
+    const partes = fecha.split("-"); // Dividimos la fecha en partes [año, mes, día]
+    const [año, mes, día] = partes; // Desestructuramos las partes
+    return new Date(`${año}/${mes}/${día}`);
+}
+
 module.exports = {
     cleanInitialZeros,
-    fixStringDate
+    fixStringDate,
+    stringToDate
 };

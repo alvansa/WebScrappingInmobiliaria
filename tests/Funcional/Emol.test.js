@@ -1,7 +1,7 @@
 const Caso = require('../../componentes/caso/caso');
 const {procesarDatosRemate, normalizeDescription} = require('../../componentes/economico/datosRemateEmol');
 
-const {ex1857} = require('../textos/Extracto');
+const {ex1857,ex1666} = require('../textos/Extracto');
 
 describe('procesarDatosRemate',()=>{
     test('Caso C-1857-2024',()=>{
@@ -12,6 +12,18 @@ describe('procesarDatosRemate',()=>{
         expect(caso1857.formatoEntrega).toEqual('vale vista');
         expect(caso1857.causa).toEqual('C-1857-2024');
     });
+    // test('Caso C-1666-2014',()=>{
+    //     const caso1666 = new Caso();
+    //     const normalizedText = normalizeDescription(ex1666);
+    //     caso1666.texto = normalizedText;
+    //     procesarDatosRemate(caso1666);
+    //     expect(caso1666.formatoEntrega).toEqual('vale vista');
+    //     expect(caso1666.causa).toEqual('C-1666-2014');
+    //     expect(caso1666.montoMinimo).toEqual({
+    //         monto: 1031.99465,
+    //         moneda: 'UF'
+    //     });
+    // });
 });
 
 

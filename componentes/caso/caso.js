@@ -776,7 +776,7 @@ class Caso{
             montoFinal = montominimo.replaceAll('.', '').replaceAll(',', '.').replaceAll(' ', '');
             moneda = this.#montoMinimo["moneda"];
         }
-        return {"monto": montoFinal, "moneda" : moneda};
+        return {"monto": parseFloat(montoFinal), "moneda" : moneda};
     }
 
     // Devuelve el tipo de moneda en que se encuentra el monto mínimo

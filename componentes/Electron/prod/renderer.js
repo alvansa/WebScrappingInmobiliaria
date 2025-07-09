@@ -159,6 +159,7 @@ document.getElementById('searchCaseBtn').addEventListener('click', async () => {
 });
 
 // obtener y procesar casos del pjud con sus pdf
+//Esta funcino fue creada para buscar datos solo del pjud
 document.getElementById('processPdfsBtn').addEventListener('click', async () => {
   const startDate = document.getElementById('pdfStartDate').value;
   const endDate = document.getElementById('pdfEndDate').value;

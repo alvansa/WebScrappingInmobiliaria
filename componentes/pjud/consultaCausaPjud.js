@@ -467,7 +467,7 @@ class ConsultaCausaPjud{
                 console.log("el caso tiene pago, se procede a marcarlo como pagado con: ", descripcion);
                 PAGADO.daCuenta = true;
             }
-            if(descripcion.toLowerCase().includes("tiene por pagado el crédito") || descripcion.toLowerCase().includes("Término por Avenimiento")){
+            if(descripcion.toLowerCase().includes("tiene por pagado el crédito") || descripcion.toLowerCase().includes("término por avenimiento")){
                 console.log("el caso tiene por pagado el credito con: ", descripcion);
                 PAGADO.pagadoCredito = true;
             }
