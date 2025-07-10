@@ -786,4 +786,91 @@ Electronica Avanzada
 Código de Verificación: cpv1653142-0`; 
 
 
-module.exports = {tx356, tx23039, tx12017, tx1349, tx3857, tx13759, tx7140, tx11066, tx198};
+//Para obtener el anno
+const dv1750 = `Registro de Propiedad
+Cert. Dominio Vigente
+En relación al inmueble inscrito a fojas 1.140, Nº 539, en el Registro de Propiedad a mi cargo,
+correspondiente al año 2.020, consistente en el Departamento Nº 1.004 y el Estacionamiento
+Subterráneo Nº 81, ambos del Condominio denominado “Condominio Puerto Bahía”, ubicado en
+Calle Blanco Nº 20, Sector La Herradura Oriente, de la comuna de Coquimbo.-
+CERTIFICO: Que revisados los Índices del Registro de Propiedad a mí cargo; el dominio del
+inmueble referido se encuentra actualmente vigente a nombre de doña NATALIA PAOLA
+BARAHONA MARTINEZ.-     Rvv.-
+Los derechos registrales correspondientes a esta actuación ascienden a la suma de $5.000.
+Carátula 755829CBR Coquimbo, 14 de Mayo de 2025`;
+
+const dv4991 = `CONSERVADOR DE BIENES RAICES DE ALTO
+HOSPICIO
+CERTIFICADO DE DOMINIO VIGENTE
+Folio N°:10000.-Carátula N°:45848.-
+Del  inmueble    ubicado  en  la  Comuna  de  ALTO  HOSPICIO  que  corresponde:  Pasaje
+Coltauco  N°3249,  que  corresponde  al  sitio  N°71  de  la  manzana  G  del  Conjunto
+Habitacional  MARIN-NORTE  GRANDE  del  Sector  La  Pampa  de  la  comuna  de  Alto
+Hospicio, Provincia de Iquique, individualizado en el Plano archivado bajo el N°1321 en
+el Registro de Planos y Documentos del año 2007 en el Conservador de Bienes Raíces
+de  Iquique,  inscrito  a  fojas  once  mil  setecientos  cincuenta  y  seis  (11756)    número  ocho
+mil sesenta y tres (8063) del Registro de Propiedad  del año dos mil veintitrés (2023), a
+nombre de ITALO FEDERICO DE JESUS HIDALGO PAICHO, se encuentra vigente a la
+fecha y hora de emisión de este certificado.- En Alto Hospicio,   veintitrés  de diciembre
+del año dos mil veinticuatro a las 15:35 PM.-   Certificado generado por PAZRE
+Pag: 1/1`;
+
+const dv212 = `COPIA DE INSCRIPCION
+
+CERTIFICO: Que la inscripción adjunta de fojas 15.165 N°7.166 del Registro
+de Propiedad a mi cargo del año 2.019, es copia conforme con su original. -
+COQUIMBO, 06 de marzo del año 2025. - Otorgado a las 09,15 horas. -
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+CERTIFICADO VIGENCIA
+
+CERTIFICO: Que el dominio del inmueble a la que se refiere la copia adjunta,
+se  encuentra  actualmente vigente por  no  existir  en  su  margen  anotación
+alguna que indique su transferencia o cancelación. - COQUIMBO, 06 de marzo
+del año 2025. - Otorgado a las 09,15 horas. –
+CRM. -
+
+
+
+
+
+
+
+C. 745315.-
+B. 255604.-
+
+
+Documento incorpora Firma Electrónica Avanzada
+Código de verificación: 0000106375página 2 de 6
+
+Documento incorpora Firma Electrónica Avanzada
+Código de verificación: 0000106375página 3 de 6
+
+Documento incorpora Firma Electrónica Avanzada
+Código de verificación: 0000106375página 4 de 6
+
+Documento incorpora Firma Electrónica Avanzada
+Código de verificación: 0000106375página 5 de 6
+
+Documento incorpora Firma Electrónica Avanzada
+Código de verificación: 0000106375página 6 de`;
+
+
+
+module.exports = {tx356, tx23039, tx12017, tx1349, tx3857, tx13759, tx7140, tx11066, tx198, dv1750, dv4991, dv212};

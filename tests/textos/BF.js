@@ -142,4 +142,16 @@ Emito  con  firma  electrónica  avanzada  (ley  No19.799,  de  2002)  AA  de
 Certificado Nro 278529.- Verifique validez en  www.fojas.cl .-
 Pag: 2/2`;
 
-module.exports = {bf2201, bf1341, notBf};
+const bf1750 = `Registro de Propiedad
+Certificado Bien Familiar
+En relación al inmueble inscrito a fojas 1.140, Nº 539, en el Registro de Propiedad a mi cargo,
+correspondiente al año 2.020, consistente en el Departamento Nº 1.004 y el Estacionamiento
+Subterráneo Nº 81, ambos del Condominio denominado “Condominio Puerto Bahía”, ubicado en
+Calle Blanco Nº 20, Sector La Herradura Oriente, de la comuna de Coquimbo, de dominio de
+doña NATALIA PAOLA BARAHONA MARTINEZ.-
+CERTIFICO: Que el inmueble referido, no se encuentran afecto a Declaración de Bien
+Familiar.-      Rvv.-
+Los derechos registrales correspondientes a esta actuación ascienden a la suma de $5.000.
+Carátula 755829CBR Coquimbo, 14 de Mayo de 2025`;
+
+module.exports = {bf2201, bf1341, notBf, bf1750};

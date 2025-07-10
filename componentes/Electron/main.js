@@ -133,8 +133,10 @@ class MainApp{
         ipcMain.handle("start-proccess", async (event,startDate,endDate,saveFile, checkedBoxes) => {
             console.log("handle start-proccess starDate: ", startDate, " endDate: ", endDate, " saveFile: ", saveFile, " checkedBoxes: ", checkedBoxes);
             try{
+                console.time("scrapeAuction");
                 const mainProcess = new scrapeAuction(startDate,endDate,saveFile, checkedBoxes,event)
                 const filePath = mainProcess.startSearch();
+                console.timeEnd("scrapeAuction");
                 return filePath;
 
             }catch(error){
@@ -229,6 +231,7 @@ class MainApp{
                 caso.link = "Lgr";
                 console.log("Buscando caso: ",caso.toObject()); 
                 console.time("casoUnico");
+                
                 const result = await consultaCausa(caso);
                 // const result = true
                 console.timeEnd("casoUnico");

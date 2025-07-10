@@ -476,7 +476,7 @@ function getNumero(data) {
 // Obtiene las partes del remate.
 function getPartes(data) {
     const regexSAGR = /S\.\s*A\.?\s*(G\.\s*)?(R\.\s*)?/gi
-    let dataNormalized = data.replace(/'/g, '').replace(/"/g, '').replace(/`/g, '');
+    let dataNormalized = data.replace(/'/g, '').replace(/"/g, '').replace(/`/g, '').replace(/“/g,'');
     dataNormalized = dataNormalized.replace(regexSAGR, (match) => match.replace(/\./g, ''));
     // regex para partes: busca la palabra caratulado o expediente seguido de un rol, y 
     //luego busca 1 a 6 palabras seguidas de S.A., S.A.G.R., S.A.G.R., S.A. o con y otra seguida de 1 a cuatro palabras.
@@ -631,7 +631,7 @@ function checkBienFamiliar(text,tipoDerecho){
     const regexNotBienFamiliar = [
         /v\.-\s*bien\s*familia.*no\s*registra\s*anotacione?s?/i,
         /no\shay\sconstancia\sde\shaberse\sdeclarado\sbien\sfamiliar/gi,
-        /no\s*se\s*encuentra\s*afecto\s*a\s(?:la\s*)*declaracion\s*de\s*bien\s*familiar/i,
+        /no\s*se\s*encuentran?\s*afecto\s*a\s(?:la\s*)*declaracion\s*de\s*bien\s*familiar/i,
         /no\s*hay\s*constancia\s*de\s*haberse\s*anotado\s*declaracion\s*de\s*bien\s*familiar/i,
         /a\s*la\s*expedicion\s*del\s*presente\s*certificado\s*no\s*consta\s*marginalmente\s*la\s*declaracion\s*de\s*bien\s*familiar/i
     ];

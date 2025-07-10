@@ -248,7 +248,12 @@ class PjudPdfData {
             return anno;
         }
         //Busca el anno por "registro de propiedad del año", osea por el conservador.
-        anno = this.obtainFromConservador(texto);
+        anno = this.obtainFromRegistroPropiedad(texto);
+        if(anno){
+            return anno;
+        }
+        //Busca el anno por Conservador
+        anno = this.obtainFromConvervador(texto);
         if(anno){
             return anno;
         }
@@ -314,8 +319,23 @@ class PjudPdfData {
         }
     }
 
-    obtainFromConservador(texto){
-        const registroRegex = /registro\s*(?:de)?\s*propiedad\s*(?:del?\s*)?(?:a(?:n|ñ|fi)o\s*)?(\d{4})/i;
+
+    obtainFromRegistroPropiedad(texto){
+        const registroRegex = /registro\s*(?:de)?\s*propiedad\s*(?:a\s*mi\s*cargo,?\s*)?(?:del?\s*)?(?:correspondiente\s*al\s*)?(?:a(?:n|ñ|fi)o\s*)?((\d{4}|\d{1,3}(\.\d{3})*))/i;
+        let registro = texto.match(registroRegex);
+        if (registro != null) {
+            return registro[1];
+        }
+        const regexAnnoParentesis = /registro\s*(?:de)?\s*propiedad\s*(?:del?\s*|a\s*mi\s*cargo,?\s*)?(?:correspondiente\s*al\s*)?(?:a(?:n|ñ|fi)o\s*)?.*\((\d{1,})\)/i;
+        registro = texto.match(regexAnnoParentesis);
+        if (registro != null) {
+            return registro[1];
+        }
+        return null;
+    }
+
+    obtainFromConvervador(texto){
+        const registroRegex = /conservador\s*de\s*bienes\s*raices\s*de(?:\s*la)?(?:\s*\w{1,}\s*,?)?(?:\s*correspondiente\s*al)?(?:\s*del)?(?:\s*ano)\s*((\d{4}|\d{1,3}(\.\d{3})*))/i;
         let registro = texto.match(registroRegex);
         if (registro != null) {
             return registro[1];

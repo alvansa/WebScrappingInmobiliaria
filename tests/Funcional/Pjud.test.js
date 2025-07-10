@@ -3,6 +3,9 @@ const {ex1666} = require('../textos/Extracto');
 const Caso = require('../../componentes/caso/caso');
 const PjudPdfData = require('../../componentes/pjud/PjudPdfData');
 
+const {dv1750, dv4991} = require('../textos/DV');
+const {bf1750} = require('../textos/BF');
+
 describe('Test de funcionalidad Pjud a normalizacion',() => {
     test('Obtener monto minimo de postura de un extracto', () => {
         const caso1666 = new Caso(new Date(), new Date(), 'lgr', 2);
@@ -11,6 +14,25 @@ describe('Test de funcionalidad Pjud a normalizacion',() => {
         testPjudPdf.processInfo(ex1666);
         const casoObj = caso1666.toObject();
         expect(casoObj.montoMinimo).toEqual(1031.99465);
+    });
+
+    test('Obtener el anno de un dominio vigente y normalizarlo',()=>{
+        const caso1750 = new Caso(new Date(), new Date(), 'lgr', 2);
+        caso1750.texto = dv1750;
+        const testPjudPdf = new PjudPdfData(caso1750);
+        testPjudPdf.processInfo(dv1750);
+        testPjudPdf.processInfo(bf1750);
+        const casoObj = caso1750.toObject();
+        expect(casoObj.anno).toEqual("2020");
+        expect(casoObj.tipoDerecho).toBeNull();
+    });
+
+    test('Obtener el anno de un dominio vigente y normalizarlo',()=>{
+        const caso4991 = new Caso(new Date(), new Date(), 'lgr', 2);
+        const testPjudPdf = new PjudPdfData(caso4991);
+        testPjudPdf.processInfo(dv4991);
+        const casoObj = caso4991.toObject();
+        expect(casoObj.anno).toEqual("2023");
     });
 
 });

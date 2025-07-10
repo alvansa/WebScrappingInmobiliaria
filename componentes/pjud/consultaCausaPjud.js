@@ -464,18 +464,16 @@ class ConsultaCausaPjud{
             }
             console.log('Fila:', number, uselessFile, directory, stage, tramite, descripcion, fecha);
             if(descripcion.toLowerCase().includes("da cuenta de pago")){
-                console.log("el caso tiene pago, se procede a marcarlo como pagado con: ", descripcion);
+                console.log("******************\nel caso tiene pago, se procede a marcarlo como pagado con: ", descripcion,"\n******************");
                 PAGADO.daCuenta = true;
             }
             if(descripcion.toLowerCase().includes("tiene por pagado el crédito") || descripcion.toLowerCase().includes("término por avenimiento")){
-                console.log("el caso tiene por pagado el credito con: ", descripcion);
+                console.log("******************\nel caso tiene por pagado el credito con: ", descripcion,"\n******************");
                 PAGADO.pagadoCredito = true;
             }
             if(PAGADO.daCuenta && PAGADO.pagadoCredito){
                 this.caso.isPaid = true;
             }
-
-
 
             return ERROR;
         } catch (error) {
@@ -560,7 +558,6 @@ class ConsultaCausaPjud{
             'c.i',
             'tgr',
             'personer',
-            'vigencia',
             'pg',
             'sentencia',
             'mandato',
@@ -604,7 +601,9 @@ class ConsultaCausaPjud{
                 }
             });
     
-            await pdfPage.goto(url);
+            await pdfPage.goto(url,{
+                timeout: 80000, // Aumentar el tiempo de espera a 80 segundos
+            });
 
 
             await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);

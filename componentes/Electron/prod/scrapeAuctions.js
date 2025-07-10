@@ -76,16 +76,13 @@ class scrapeAuction {
         let fechaInicio = new Date(fixStartDate);
         let fechaFin = new Date(fixEndDate); 
 
-        // fechaInicio.setMonth(fechaInicio.getMonth() - 1);
+        fechaInicio.setMonth(fechaInicio.getMonth() - 1);
 
         // fechaInicio = stringToDate(fechaInicioStr);
         // fechaFin = stringToDate(fechaFinStr); 
 
         let casos = [];
         try {
-            // Funcion antigua para obtener los datos de emol que funciona con axios y cheerio
-            // casos = await getDatosRemate(fechaHoy, fechaInicioStr, fechaFinStr, maxRetries) || [];
-            // Funcion nueva para obtener los datos de emol que funciona con puppeteer
             console.log("Obteniendo casos de economico desde: ", fechaInicio, " hasta: ", fechaFin);
             const economico = new Economico(this.browser, fechaInicio, fechaFin);
             casos = await economico.getCases() || [];
@@ -134,7 +131,7 @@ class scrapeAuction {
         let startDate = stringToDate(fechaInicioStr);
         let endDate = stringToDate(fechaFinStr); 
 
-        // startDate.setMonth(startDate.getMonth() - 1);
+        startDate.setMonth(startDate.getMonth() - 1);
        try{
             const window = new BrowserWindow({ show: true });
             const url = 'https://www.boletinconcursal.cl/boletin/remates';
@@ -195,8 +192,12 @@ class scrapeAuction {
             const endDate = dateToPjud(endDateModified);
 
             casos = await this.searchCasesByDay(startDate, endDate);
+            casos.reverse(); // Invertir el orden de los casos para que aparezcan del mas reciente al mas antiguo
             
             const result = await this.obtainDataFromCases(casos, event);
+            for(let caso of casos){
+                console.log("Caso obtenido de pjud: ", caso.fechaRemate);
+            }
             console.log("Cantidad de casos obtenidos de pjud: ", casos.length);
         }catch(error){
             console.error("Error :", error.message);
@@ -261,7 +262,7 @@ class scrapeAuction {
             }
             
             if((counter + 1)  < casos.length){
-                const awaitTime = Math.random() * (90 - 30) + 30; // Genera un número aleatorio entre 5 y 10
+                const awaitTime = Math.random() * (90 - 30) + 30; // Genera un número aleatorio entre 30 y 90
                 mainWindow.webContents.send('aviso-espera', [awaitTime,counter + 1,casos.length]);
                 console.log(`Esperando ${awaitTime} segundos para consulta numero ${counter + 1} de ${casos.length}`);
                 await delay(awaitTime * 1000); 

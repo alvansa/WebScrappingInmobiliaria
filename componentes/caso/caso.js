@@ -405,13 +405,13 @@ class Caso{
         if(this.#anno == null || this.#anno == 0 || this.#anno == "No especifica"){  
             return null;
         }
-        return String(this.#anno);
+        return this.normalizarAnno();
     }
     get isPaid(){
         if(!this.#isPaid){
             return null;
         }
-        return Boolean(this.#isPaid);
+        return this.#isPaid;
     }
     get deudaHipotecaria(){
         if(!this.#deudaHipotecaria){
@@ -519,7 +519,7 @@ class Caso{
             hasEstacionamiento : this.#hasEstacionamiento,
             hasBodega : this.#hasBodega,
             montoCompra: this.#montoCompra,
-            isPaid: Boolean(this.#isPaid),
+            isPaid: this.#isPaid,
             deudaHipotecaria : this.#deudaHipotecaria,
             alreadyAppear: this.#alreadyAppear,
             unitRol: this.adaptRol(),
@@ -909,8 +909,10 @@ class Caso{
         if(this.#porcentaje == "N/A" || this.#porcentaje == null){
             return null;
         }
-        const porcentaje = this.#porcentaje.replaceAll(" ","");
-        return porcentaje;
+        const porcentaje = this.#porcentaje
+            .replaceAll(" ","")
+            .replaceAll("%","");
+        return parseInt(porcentaje);
     }
 
     normalizarFormatoEntrega(){

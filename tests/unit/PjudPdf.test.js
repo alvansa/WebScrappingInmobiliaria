@@ -9,9 +9,10 @@ const convertWordToNumbers = require('../../utils/convertWordToNumbers');
 const {textoEstacionamiento1,textoHabitacional1, textoBodegaMultiple, textoEstacionamientoMultiple, textoHabitacionMultiple} = require('../textos/Avaluo');
 const {textoGP1, textoGP2, textoGP3, textoGP4, textoGP5, texto12Santiago} = require('../textos/GP');
 const {diario2484, ex1341, diario1341, diario3354_1, diario3354_2} = require('../textos/diario');
-const {tx356, tx23039, tx12017, tx1349, tx3857, tx13759, tx7140, tx11066, tx198} = require('../textos/DV');
-const {ex1666} = require('../textos/Extracto'); 
-const {bf2201, bf1341, notBf} = require('../textos/BF');
+
+const {tx356, tx23039, tx12017, tx1349, tx3857, tx13759, tx7140, tx11066, tx198, dv1750, dv212, dv4991} = require('../textos/DV');
+const {ex1666, ex800, ex2240, ex2226} = require('../textos/Extracto'); 
+const {bf2201, bf1341, notBf, bf1750} = require('../textos/BF');
 const {dm1056, dm1138} = require('../textos/DM');
 const {obtainCorteJuzgadoNumbers} = require('../../utils/corteJuzgado');
 
@@ -172,6 +173,12 @@ describe('obtainDerecho', () => {
         expect(tipoDerecho).toBeNull();
     });
 
+    test('Test de tipo de texto que dice no se encuentra afecto a bf', ()=>{
+        const info = testPjudPdf.normalizeInfo(bf1750);
+        const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
+        expect(tipoDerecho).toBeNull();
+    });
+
 });
 
 describe('obtainComuna', () => {
@@ -253,6 +260,43 @@ describe('ObtainAnno', () => {
         const info = testPjudPdf.normalizeInfo(tx3857);
         const anno = testPjudPdf.obtainAnno(info);
         expect(anno).toEqual('2014');
+    });
+
+    test('Obtener anno de DV el anno con punto',()=>{
+        const info = testPjudPdf.normalizeInfo(dv1750);
+        const anno = testPjudPdf.obtainAnno(info);
+        expect(anno).toEqual('2.020');
+    });
+
+    test('Obtener anno de DV 2',()=>{
+        const info = testPjudPdf.normalizeInfo(dv212);
+        const anno = testPjudPdf.obtainAnno(info);
+        expect(anno).toEqual('2.019');
+    });
+
+    test('Obtener el anno de registro de propiedad con parentesis',()=>{
+        const info = testPjudPdf.normalizeInfo(dv4991);
+        const anno = testPjudPdf.obtainAnno(info);
+        expect(anno).toEqual('2023');
+    });
+
+    test('Obtener el anno de registro de propiedad de conservador',()=>{
+        const info = testPjudPdf.normalizeInfo(ex800);
+        const anno = testPjudPdf.obtainAnno(info);
+        expect(anno).toEqual('2005');
+    });
+
+    test('Obtener el anno con punto de conservador',()=>{
+        const info = testPjudPdf.normalizeInfo(ex2240);
+        const anno = testPjudPdf.obtainAnno(info);
+        expect(anno).toEqual('2.020');
+    });
+
+    test('Obtener el anno de registro de propiedad de un extracto',()=>{
+        const info = testPjudPdf.normalizeInfo(ex2226);
+        console.log("extracto 2240 ",info);
+        const anno = testPjudPdf.obtainAnno(info);
+        expect(anno).toEqual('2017');
     });
 });
 
@@ -412,6 +456,7 @@ describe('bindCaseWithDB',()=>{
         expect(emptyCase.rol).toEqual('1342-209-220');
         expect(emptyCase.estadoCivil).toEqual('casado sociedad conyugal');
         expect(emptyCase.fechaRemate).toEqual(new Date(casoDB.fechaRemate));
+        expect(emptyCase.isPaid).toBeNull();
     });
 
     test('Caso que ya estaba con fecha de remate anterior', ()=>{
@@ -421,6 +466,7 @@ describe('bindCaseWithDB',()=>{
         cCase = Caso.bindCaseWithDB(cCase,casoDB); 
         expect(cCase.fechaRemate).toEqual(new Date('2025/05/19'));
         expect(cCase.alreadyAppear).toEqual(new Date('2024/12/25'));
+        expect(cCase.isPaid).toBeNull();
     });
 
     test('Caso que ya estaba con fecha de remate posterior', ()=>{
@@ -432,6 +478,16 @@ describe('bindCaseWithDB',()=>{
         expect(casoBaseFechaModificada.causa).toEqual('C-746-2024');
         expect(casoBaseFechaModificada.fechaRemate).toEqual(new Date("2023/12/25"));
         expect(casoBaseFechaModificada.isPaid).toBeNull();
+    });
+
+    test('Caso que esta en DB pero el isPaid es nulo, deberia quedar nulo', ()=>{
+        let casoforDB = createCase("C-6950-2019","1° Juzgado de Letras de San Bernardo");
+        casoforDB.numeroJuzgado = 267;
+        const casoDB = excelConstructor.isCaseInDB(casoforDB);
+
+        casoforDB = Caso.bindCaseWithDB(casoforDB,casoDB); 
+        console.log("casoforDB",casoforDB.toObject());
+        expect(casoforDB.isPaid).toBeNull();
     });
 });
 
