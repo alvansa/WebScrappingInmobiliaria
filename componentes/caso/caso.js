@@ -909,6 +909,9 @@ class Caso{
         if(this.#porcentaje == "N/A" || this.#porcentaje == null){
             return null;
         }
+        if(typeof(this.#porcentaje) === "number"){
+            return this.#porcentaje;
+        }
         const porcentaje = this.#porcentaje
             .replaceAll(" ","")
             .replaceAll("%","");

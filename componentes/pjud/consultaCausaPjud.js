@@ -35,6 +35,7 @@ class ConsultaCausaPjud{
         let lineaAnterior = '';
         let result = false;
 
+        console.log('Iniciando la consulta de causa en Pjud...');
         await this.loadConfig()
         await this.loadPageWithRetries();
 
@@ -61,15 +62,47 @@ class ConsultaCausaPjud{
         return true;
     }
 
-    async loadConfig(){
-        const userAgents = JSON.parse(process.env.USER_AGENTS);
-        const randomIndex = Math.floor(Math.random() * userAgents.length);
+    // async loadConfig(){
+        
+    //     const userAgents = JSON.parse(process.env.USER_AGENTS);
+    //     const randomIndex = Math.floor(Math.random() * userAgents.length);
+    //     await this.window.loadURL(this.link);
+    //     this.page = await pie.getPage(this.browser, this.window);
+    //     await this.page.setUserAgent(userAgents[randomIndex].userAgent);
+    //     await this.page.goto(this.link);
+
+    // }
+
+    async loadConfig() {
+    // User-Agents por defecto en caso de que .env no esté disponible
+    const defaultUserAgents = [
+        { userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' },
+        { userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' }
+    ];
+
+    let userAgents;
+    
+    try {
+        // Intenta cargar USER_AGENTS desde .env, si no existe usa los valores por defecto
+        userAgents = process.env.USER_AGENTS ? JSON.parse(process.env.USER_AGENTS) : defaultUserAgents;
+    } catch (error) {
+        console.error('Error parsing USER_AGENTS from .env, using default agents:', error);
+        userAgents = defaultUserAgents;
+    }
+
+    // Selecciona un User-Agent aleatorio
+    const randomIndex = Math.floor(Math.random() * userAgents.length);
+    
+    try {
         await this.window.loadURL(this.link);
         this.page = await pie.getPage(this.browser, this.window);
         await this.page.setUserAgent(userAgents[randomIndex].userAgent);
         await this.page.goto(this.link);
-
+    } catch (error) {
+        console.error('Error during page navigation:', error);
+        throw error; // Opcional: relanzar el error si quieres manejarlo fuera
     }
+}
 
     async loadPageWithRetries(maxRetries = 3) {
         for (let attempt = 1; attempt <= maxRetries; attempt++) {

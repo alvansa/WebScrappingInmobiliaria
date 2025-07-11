@@ -4,9 +4,12 @@ const fs = require("fs");
 const os = require("os");
 const caso = require('../componentes/caso/caso');
 
-const BDPath = path.join(os.homedir(),"Documents","infoRemates/BD/Inmobiliaria-casos.db");
+// const BDPath = path.join(os.homedir(),"Documents","infoRemates/BD/Inmobiliaria-casos.db");
+
 const BD_FK = path.join(os.homedir(),"Documents","infoRemates/BD/BD-FK.db");
-if(!fs.existsSync(BDPath)){
+const dir = path.join(os.homedir(),"Documents","infoRemates/BD/BD-FK.db");
+console.log("BD_FK: ",dir  );
+if(!fs.existsSync(BD_FK)){
     fs.mkdirSync(path.dirname(BD_FK), { recursive: true });
     const db = new Database(BD_FK);
     createDB(db);

@@ -200,7 +200,8 @@ class scrapeAuction {
             }
             console.log("Cantidad de casos obtenidos de pjud: ", casos.length);
         }catch(error){
-            console.error("Error :", error.message);
+            console.error("Error en el pjud :", error.message);
+            console.error("Error en el pjud :", error);
         }
 
         return casos;
@@ -253,20 +254,24 @@ class scrapeAuction {
     async obtainDataFromCases(casos,event){
         const mainWindow = BrowserWindow.fromWebContents(event.sender);
         let counter = 0;
-        for(let caso of casos){
-            counter++;
-            console.log(`Caso a investigar ${caso.causa} ${caso.juzgado} caso numero ${counter} de ${casos.length}`);
-            const result = await consultaCausa(caso);
-            if(result){
-                console.log("Resultados del caso de prueba en pjud: ",caso.toObject());
+        try{
+            for (let caso of casos) {
+                counter++;
+                console.log(`Caso a investigar ${caso.causa} ${caso.juzgado} caso numero ${counter} de ${casos.length}`);
+                const result = await consultaCausa(caso);
+                if (result) {
+                    console.log("Resultados del caso de prueba en pjud: ", caso.toObject());
+                }
+
+                if ((counter + 1) < casos.length) {
+                    const awaitTime = Math.random() * (90 - 30) + 30; // Genera un número aleatorio entre 30 y 90
+                    mainWindow.webContents.send('aviso-espera', [awaitTime, counter + 1, casos.length]);
+                    console.log(`Esperando ${awaitTime} segundos para consulta numero ${counter + 1} de ${casos.length}`);
+                    await delay(awaitTime * 1000);
+                }
             }
-            
-            if((counter + 1)  < casos.length){
-                const awaitTime = Math.random() * (90 - 30) + 30; // Genera un número aleatorio entre 30 y 90
-                mainWindow.webContents.send('aviso-espera', [awaitTime,counter + 1,casos.length]);
-                console.log(`Esperando ${awaitTime} segundos para consulta numero ${counter + 1} de ${casos.length}`);
-                await delay(awaitTime * 1000); 
-            } 
+        }catch (error) {
+            console.error("Error al obtener datos de los casos: ", error.message);
         }
     }
 
@@ -278,10 +283,10 @@ class scrapeAuction {
 }
 
 function openWindow(window, useProxy){
-    const proxyData = JSON.parse(process.env.PROXY_DATA);
-    const randomIndex = Math.floor(Math.random() * proxyData.length); 
     const isVisible = true;
     if(useProxy){
+        const proxyData = JSON.parse(process.env.PROXY_DATA);
+        const randomIndex = Math.floor(Math.random() * proxyData.length); 
         console.log("Se lanza el navegador con proxy");
         window = new BrowserWindow({
             show: isVisible,// Ocultar ventana para procesos en background
@@ -300,11 +305,16 @@ function openWindow(window, useProxy){
 }
 
 async function consultaCausa(caso){
+    console.log("Iniciando consulta en consulta Causa",);
     const browser = await pie.connect(app, puppeteer);
+    console.log("Browser launched in consulta Causa");
     let window;
     window = openWindow(window,false);
+    console.log("Ventana abierta en consulta Causa",window);
     const consultaCausa = new ConsultaCausaPjud(browser,window,caso);
+    console.log("Consulta Causa creada");
     const result = await consultaCausa.getConsulta()
+    console.log("Consulta Causa realizada con resultado: ");
 
     return result;
 }
