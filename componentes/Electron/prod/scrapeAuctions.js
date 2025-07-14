@@ -305,16 +305,11 @@ function openWindow(window, useProxy){
 }
 
 async function consultaCausa(caso){
-    console.log("Iniciando consulta en consulta Causa",);
     const browser = await pie.connect(app, puppeteer);
-    console.log("Browser launched in consulta Causa");
     let window;
     window = openWindow(window,false);
-    console.log("Ventana abierta en consulta Causa",window);
     const consultaCausa = new ConsultaCausaPjud(browser,window,caso);
-    console.log("Consulta Causa creada");
     const result = await consultaCausa.getConsulta()
-    console.log("Consulta Causa realizada con resultado: ");
 
     return result;
 }

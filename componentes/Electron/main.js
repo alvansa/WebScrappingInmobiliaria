@@ -33,6 +33,8 @@ const Causas = require('../../model/Causas.js');
 const isDevMode = process.argv.includes('--dev');
 const emptyMode = process.argv.includes('--empty');
 
+const devMode = true;
+
 let pieInitialized = pie.initialize(app);
 
 const EMOL = 1;
@@ -108,11 +110,6 @@ class MainApp{
     }
 
     //Funcion para lanzar el navegador estandar de electron sin proxy
-    async launchPuppeteer_inElectron(){
-        this.browser = await pie.connect(app, puppeteer);
-        console.log("Browser launched");
-    }
-    // Funcion para lanzar el navegador con Proxy
     async launchPuppeteer_inElectron(){
         this.browser = await pie.connect(app, puppeteer);
         console.log("Browser launched");
@@ -319,7 +316,7 @@ class MainApp{
             const newExcel = args[2];
             console.time("readPdf");
             const caso = crearCasoPrueba();
-            const processPDF = new PjudPdfData(caso);
+            const processPDF = new PjudPdfData(caso,devMode);
             for(let pdf of args[1]){
                 console.log("Leyendo PDF ubicado en: ",pdf);
                 result = await ProcesarBoletin.convertPdfToText2(pdf,1);

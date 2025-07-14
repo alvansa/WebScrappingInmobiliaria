@@ -8,7 +8,6 @@ const caso = require('../componentes/caso/caso');
 
 const BD_FK = path.join(os.homedir(),"Documents","infoRemates/BD/BD-FK.db");
 const dir = path.join(os.homedir(),"Documents","infoRemates/BD/BD-FK.db");
-console.log("BD_FK: ",dir  );
 if(!fs.existsSync(BD_FK)){
     fs.mkdirSync(path.dirname(BD_FK), { recursive: true });
     const db = new Database(BD_FK);

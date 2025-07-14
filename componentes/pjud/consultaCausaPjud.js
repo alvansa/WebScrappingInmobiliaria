@@ -16,7 +16,6 @@ const PjudPdfData = require('./PjudPdfData.js');
 const ERROR = 0;
 const EXITO = 1;
 const DELAY_RANGE = {"min": 2, "max" : 5}
-const PAGADO = {daCuenta: false, pagadoCredito: false}
 
 class ConsultaCausaPjud{
     constructor(browser,window,caso){
@@ -29,6 +28,7 @@ class ConsultaCausaPjud{
         this.dirPath = '';
         this.pdfPath = '';
         this.PjudData = new PjudPdfData(this.caso);
+        this.PAGADO = {daCuenta: false, pagadoCredito: false}
     }
 
     async getConsulta(){
@@ -61,17 +61,6 @@ class ConsultaCausaPjud{
 
         return true;
     }
-
-    // async loadConfig(){
-        
-    //     const userAgents = JSON.parse(process.env.USER_AGENTS);
-    //     const randomIndex = Math.floor(Math.random() * userAgents.length);
-    //     await this.window.loadURL(this.link);
-    //     this.page = await pie.getPage(this.browser, this.window);
-    //     await this.page.setUserAgent(userAgents[randomIndex].userAgent);
-    //     await this.page.goto(this.link);
-
-    // }
 
     async loadConfig() {
     // User-Agents por defecto en caso de que .env no esté disponible
@@ -307,6 +296,7 @@ class ConsultaCausaPjud{
             console.log("Caso con propietarios, se procede a descargar demanda.");
         }
         // Descargar el texto de la demanda.
+        console.log('Descargando demanda');
         await this.downloadDemanda();
         if(caseIsFinished){
             return true;
@@ -498,13 +488,13 @@ class ConsultaCausaPjud{
             console.log('Fila:', number, uselessFile, directory, stage, tramite, descripcion, fecha);
             if(descripcion.toLowerCase().includes("da cuenta de pago")){
                 console.log("******************\nel caso tiene pago, se procede a marcarlo como pagado con: ", descripcion,"\n******************");
-                PAGADO.daCuenta = true;
+                this.PAGADO.daCuenta = true;
             }
             if(descripcion.toLowerCase().includes("tiene por pagado el crédito") || descripcion.toLowerCase().includes("término por avenimiento")){
                 console.log("******************\nel caso tiene por pagado el credito con: ", descripcion,"\n******************");
-                PAGADO.pagadoCredito = true;
+                this.PAGADO.pagadoCredito = true;
             }
-            if(PAGADO.daCuenta && PAGADO.pagadoCredito){
+            if(this.PAGADO.daCuenta && this.PAGADO.pagadoCredito){
                 this.caso.isPaid = true;
             }
 
@@ -596,7 +586,10 @@ class ConsultaCausaPjud{
             'mandato',
             'cartola',
             'cronograma',
-            'contribuciones'
+            'contribuciones',
+            'contrato',
+            'medica',
+            'policia'
         ];
 
         // Dividir el texto en palabras individuales

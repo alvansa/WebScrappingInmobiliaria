@@ -10,7 +10,7 @@ const {textoEstacionamiento1,textoHabitacional1, textoBodegaMultiple, textoEstac
 const {textoGP1, textoGP2, textoGP3, textoGP4, textoGP5, texto12Santiago} = require('../textos/GP');
 const {diario2484, ex1341, diario1341, diario3354_1, diario3354_2} = require('../textos/diario');
 
-const {tx356, tx23039, tx12017, tx1349, tx3857, tx13759, tx7140, tx11066, tx198, dv1750, dv212, dv4991} = require('../textos/DV');
+const {tx356, tx23039, tx12017, tx1349, tx3857, tx13759, tx7140, tx11066, tx198, dv1750, dv212, dv4991, dv11840} = require('../textos/DV');
 const {ex1666, ex800, ex2240, ex2226} = require('../textos/Extracto'); 
 const {bf2201, bf1341, notBf, bf1750} = require('../textos/BF');
 const {dm1056, dm1138} = require('../textos/DM');
@@ -294,9 +294,14 @@ describe('ObtainAnno', () => {
 
     test('Obtener el anno de registro de propiedad de un extracto',()=>{
         const info = testPjudPdf.normalizeInfo(ex2226);
-        console.log("extracto 2240 ",info);
         const anno = testPjudPdf.obtainAnno(info);
         expect(anno).toEqual('2017');
+    });
+
+    test('Obtener el anno de un DV que aparecia 3430',()=>{
+        const info = testPjudPdf.normalizeInfo(dv11840);
+        const anno = testPjudPdf.obtainAnno(info,true);
+        expect(anno).toEqual('2016');
     });
 });
 
@@ -484,10 +489,12 @@ describe('bindCaseWithDB',()=>{
         let casoforDB = createCase("C-6950-2019","1° Juzgado de Letras de San Bernardo");
         casoforDB.numeroJuzgado = 267;
         const casoDB = excelConstructor.isCaseInDB(casoforDB);
+        expect(casoforDB.isPaid).toBeNull();
+        
 
         casoforDB = Caso.bindCaseWithDB(casoforDB,casoDB); 
-        console.log("casoforDB",casoforDB.toObject());
         expect(casoforDB.isPaid).toBeNull();
+        expect(casoDB.isPaid).toBeNull();
     });
 });
 

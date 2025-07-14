@@ -223,10 +223,10 @@ class createExcel {
         }
 
         // Agregar la busqueda de casos en DB y union si existe ya en la DB
-        const caseDB = this.isCaseInDB(currentCase);
-        if(caseDB){
-            currentCase = Caso.bindCaseWithDB(currentCase,caseDB);
-        }
+        // const caseDB = this.isCaseInDB(currentCase);
+        // if(caseDB){
+        //     currentCase = Caso.bindCaseWithDB(currentCase,caseDB);
+        // }
         // if (currentCase.tipoPropiedad === "Estacionamiento") {
         //     return true;
         // }
@@ -257,9 +257,9 @@ class createExcel {
         if(caso.tipoDerecho){
             this.writeLine(ws, 'G', currentRow, caso.tipoDerecho, 's');
         }
-        // else if(caso.isPaid){
-        //     this.writeLine(ws, 'G', currentRow, "(Pagado)", 's');
-        // }
+        else if(caso.isPaid){
+            this.writeLine(ws, 'G', currentRow, "(Pagado)", 's');
+        }
         // Revisamos si el caso tiene estacionamiento o bodega, y adaptamos la direccion
         // const newDireccion = this.checkEstacionamientoBodega(caso)
         this.writeLine(ws, 'H', currentRow, caso.unitDireccion, 's');

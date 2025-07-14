@@ -871,6 +871,120 @@ Código de verificación: 0000106375página 5 de 6
 Documento incorpora Firma Electrónica Avanzada
 Código de verificación: 0000106375página 6 de`;
 
+const dv11840 = `Registro de Propiedad
+Copia con Vigencia
+Carátula 23230886
+Morandé 440
+Santiago
+Teléfono:
+2 2390 0800
+www.conservador.cl
+info@conservador.cl
+El Conservador de Bienes Raíces de Santiago certifica que la inscripción de fojas
+34308 número 48669 correspondiente al Registro de Propiedad del año 2016,
+adjunta al presente documento, está conforme con su original y se encuentra
+vigente al día 22 de enero de 2025.
+
+Los derechos registrales correspondientes a esta actuación ascienden a la suma
+de $ 4600.
+asilva
+Santiago, 24 de enero de 2025.
+Código de verificación: cpv16279a6-0
+Documento incorpora firma electrónica avanzada conforme a Ley N°19.799.
+La vigencia de la firma electrónica en el documento, al igual que la integridad
+y autenticidad del mismo, deben ser verificados en www.conservador.cl,
+donde estará disponible por 90 días contados desde la fecha de su emisión.
+Documento impreso es sólo una copia del documento original.
+www.conservador.cl
+página 1 de 3
+
+Nº48669
+DC/RZ/VP
+C: 10858663
+DACION EN PAGO
+JAVIER FEDERICO
+PEÑA PIZARRO Y
+OTRA
+A
+“INVERSIONES
+CROACIA SpA” Y
+OTRAS
+REP: 48739
+B: 594990
+F: 316898
 
 
-module.exports = {tx356, tx23039, tx12017, tx1349, tx3857, tx13759, tx7140, tx11066, tx198, dv1750, dv4991, dv212};
+Santiago,  nueve  de  mayo  del  año  dos  mil
+dieciséis.- Las sociedades "INVERSIONES CROACIA
+SpA”,  domiciliada en  Porvenir,  provincia  de
+Tierra del Fuego, "INVERSIONES HANGA ROA SpA",
+Domiciliada  en  Isla  de  Pascua,  Región  de
+Valparaíso,  y  "INVERSIONES  PUYUHUAPI  SpA",
+domiciliada  en  Puerto  Puyuhuapi,  Región  de
+Aysén,  son  dueñas  por  partes  iguales,  del
+departamento número cuatrocientos dos del cuarto
+piso,   de   la   bodega   número   nueve   y   del
+estacionamiento número once, todos del edificio
+ubicado en calle José de Moraleda número cuatro
+mil  quinientos  cincuenta  y  uno,  Comuna  de  Las
+Condes,  Región  Metropolitana,  de  acuerdo al
+plano archivado con el número 3422, 3422 A a la
+E; y dueñas además de derechos en proporción al
+valor  de  lo  adquirido  en  unión  de  los  otros
+adquirentes  en  los  bienes  comunes  entre  los
+cuales se encuentra el terreno, que corresponde
+al  lote  uno  de  la  manzana  D  del  plano
+respectivo,   que   deslinda:   NORPONIENTE,   en
+cuarenta  y  un  metros  con  calle  Hernando  de
+Magallanes;  NORORIENTE,  en  veintiocho  metros
+veintisiete  centímetros  con  parte  del  sitio
+número  dos  del  plano  de  parcelación  de  don
+Eduardo Carrasco archivado en el Conservador de
+Bienes  Raíces  bajo  el  número  mil  novecientos
+diecinueve guión A con fecha primero de Julio de
+mil novecientos treinta y nueve hoy propiedad de
+doña  Betty  Schonmeyer  de  Hogge;  ORIENTE,  en
+treinta y cuatro metros setenta centímetros con
+lote B del mismo señor Peacok; SURPONIENTE, en
+veintiocho  metros  setenta  y  cinco  centímetros
+Fojas   34308
+página 2 de 3
+Documento incorpora Firma
+Electronica Avanzada
+Código de Verificación: cpv16279a6-0
+
+con Avenida Isabel La Católica.- Los adquirieron
+por dación en pago que les hicieron don JAVIER
+FEDERICO  PEÑA  PIZARRO  y  doña  NELLY  MARGARITA
+VENEGAS  FIGUEROA,  ambos  de  este  domicilio,
+según escritura de fecha quince de abril del año
+dos  mil  dieciséis,  otorgada  en  la  notaría  de
+esta ciudad, de don Juan Ignacio Carmona Zúñiga,
+Repertorio Número 21029.- El inmueble se estima
+en SESENTA MILLONES DE PESOS, ($60.000.000).- El
+título anterior está a Fojas 9324 Número 14371
+del año 2013.- Rol de avalúo Número 756-34, 756-
+48,  756-63,  Comuna  de  Las  Condes.-  Requirente:
+Pablo Poblete Saavedra.- LUIS MALDONADO C.
+Fin del Texto
+
+página 3 de 3
+Documento incorpora Firma
+Electronica Avanzada
+Código de Verificación: cpv16279a6-0`;
+
+module.exports = {
+    tx356,
+    tx23039, 
+    tx12017, 
+    tx1349, 
+    tx3857, 
+    tx13759, 
+    tx7140, 
+    tx11066, 
+    tx198, 
+    dv1750, 
+    dv4991, 
+    dv212, 
+    dv11840
+    };

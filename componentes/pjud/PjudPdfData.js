@@ -4,13 +4,17 @@ const convertWordToNumbers = require('../../utils/convertWordToNumbers');
 const regexMutuoHipotecario = /mutuo\s*hipotecario/i;
 
 class PjudPdfData {
-    constructor(caso) {
+    constructor(caso,isDev=false) {
         this.caso = caso;
+        this.isDev = isDev;
     }
 
     processInfo(data) {
         if(!data){
             return false;
+        }
+        if(this.isDev){
+            console.log(data);
         }
 
         if (!this.checkIfValidDoc(data)) {
@@ -30,6 +34,17 @@ class PjudPdfData {
         this.processPropertyRoles(normalizeInfo); // Rol propiedad, estacionamiento, bodega
         this.processPropertyInfo(spanishNormalization, normalizeInfo); //Avaluos, 
         this.processAuctionInfo(data, normalizeInfo);
+
+        //Obtener la deuda hipotecaria si se encuentra
+        if(!this.caso.deudaHipotecaria){
+            if(this.checkIfTextHasHipoteca(normalizeInfo)){
+                const deuda = this.obtainDeudaHipotecaria(normalizeInfo);
+                if(deuda){
+                    console.log(`-----------------\nDeuda : ${deuda}\n-----------------`);
+                    this.caso.deudaHipotecaria = deuda;
+                }
+            }
+        }
 
         return false;
     }
@@ -89,6 +104,10 @@ class PjudPdfData {
     }
 
     processPropertyInfo(info, normalizedInfo) {
+        if(this.isDemanda(info)){
+            // Si no es una demanda, entonces no se procesan los datos de la propiedad
+            return; 
+        }
         //Obtener avaluo del inmueble
         if (!this.caso.avaluoPropiedad) {
             const avaluoPropiedad = this.obtainAvaluoPropiedad(normalizedInfo);
@@ -156,6 +175,7 @@ class PjudPdfData {
 
         // Obtener monto de compra
         if (!this.caso.montoCompra) {
+            
             const montoCompra = this.obtainMontoCompra(normalizedInfo);
             if (montoCompra) {
                 console.log("-----------------\nmontoCompra: ", montoCompra, "\n-----------------");
@@ -165,11 +185,16 @@ class PjudPdfData {
     }
 
     processAuctionInfo(info, normalizedInfo) {
+        if (this.isDemanda(info)) {
+            console.log("No se obtiene el monto minimo de la subasta ya que es una demanda");
+            return;
+        }
         //Obtener el monto minimo de la postura
         if (!this.caso.montoMinimo) {
+
             const montoMinimo = this.obtainMontoMinimo(normalizedInfo);
             if (montoMinimo) {
-                console.log(`-----------------\nPrecio minimo de subasta: ${montoMinimo}\n-----------------`);
+                console.log(`-----------------\nPrecio minimo de subasta: ${montoMinimo.monto} ${montoMinimo.moneda}\n-----------------`);
                 this.caso.montoMinimo = montoMinimo;
             }
         }
@@ -200,16 +225,6 @@ class PjudPdfData {
             }
         }
 
-        //Obtener la deuda hipotecaria si se encuentra
-        if(!this.caso.deudaHipotecaria){
-            if(this.checkIfTextHasHipoteca(normalizedInfo)){
-                const deuda = this.obtainDeudaHipotecaria(normalizedInfo);
-                if(deuda){
-                    console.log(`-----------------\nDeuda : ${deuda}\n-----------------`);
-                    this.caso.deudaHipotecaria = deuda;
-                }
-            }
-        }
     }
 
     obtainTipoDerecho(normalizedInfo){
@@ -236,18 +251,18 @@ class PjudPdfData {
     }
 
     //Busca el anno de compra del inmueble
-    obtainBuyYear(texto){
+    obtainBuyYear(texto,debug= false) {
         //Busca el anno por "adquirio por compra"
         let anno = this.obtainYearForm1(texto);
         if(anno) {
             return anno;
         }
         //Busca el anno por "con fecha"
-        anno = this.obtainYearnForm2(texto);
-        if(anno) {
-            return anno;
-        }
-        //Busca el anno por "registro de propiedad del año", osea por el conservador.
+        // anno = this.obtainYearForm2(texto);
+        // if(anno) {
+        //     return anno;
+        // }
+        //Busca el anno por "registro de propiedad del año".
         anno = this.obtainFromRegistroPropiedad(texto);
         if(anno){
             return anno;
@@ -297,7 +312,7 @@ class PjudPdfData {
         return anno;
     }
 
-    obtainYearnForm2(text) {
+    obtainYearForm2(text) {
         let newText;
         const startRegex = /con\s*fecha/i;
         const startWord = startRegex.exec(text);
@@ -312,7 +327,7 @@ class PjudPdfData {
             return null;
         }
         newText = newText.substring(0, endWord.index);
-        const annoRegex = /\d{4}/i;
+        const annoRegex = /\b\d{4}\b/i;
         const anno = newText.match(annoRegex);
         if (anno) {
             return anno[0];
@@ -321,6 +336,7 @@ class PjudPdfData {
 
 
     obtainFromRegistroPropiedad(texto){
+
         const registroRegex = /registro\s*(?:de)?\s*propiedad\s*(?:a\s*mi\s*cargo,?\s*)?(?:del?\s*)?(?:correspondiente\s*al\s*)?(?:a(?:n|ñ|fi)o\s*)?((\d{4}|\d{1,3}(\.\d{3})*))/i;
         let registro = texto.match(registroRegex);
         if (registro != null) {
@@ -398,7 +414,7 @@ class PjudPdfData {
             }
             const montoMinimo = getMontoMinimo(text);
             if (montoMinimo) {
-                console.log(`-----------------\nmontoMinimo: ${montoMinimo}\n-----------------`);
+                // console.log(`-----------------\nmontoMinimo: ${montoMinimo}\n-----------------`);
                 return montoMinimo;
             }
         }
@@ -940,15 +956,15 @@ class PjudPdfData {
         }
     }
 
-    obtainAnno(info){
+    obtainAnno(info,debug = false) {
         if(!info) return null;
-        if (!regexMutuoHipotecario.exec(info) ) {
+        if (!regexMutuoHipotecario.exec(info) && !this.isDemanda(info)) {
             const GPnormalizedInfo = this.adaptTextIfGP(info);
             if (!GPnormalizedInfo) {
                 // console.log("No se obtiene el ano del GP");
                 return null;
             }
-            const anno = this.obtainBuyYear(GPnormalizedInfo);
+            const anno = this.obtainBuyYear(GPnormalizedInfo,debug);
             if (anno) {
                 console.log(`-----------------\nanno: ${anno}\n-----------------`);
                 return anno;
@@ -1003,6 +1019,12 @@ class PjudPdfData {
             return true;
         }
         return false
+    }
+    isDemanda(text){
+        if(text.match(/demanda/i)){
+            return true;
+        }
+        return false;
     }
 }
 

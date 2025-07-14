@@ -192,19 +192,19 @@ function getJuzgado(data) {
         .replace(/\bstgo\b/g, "santiago")
         .replace(/\s+/, ' ')
 
-    // console.log("Data normalizada en juzgado: ", normalizedData);
+    console.log("Data normalizada en juzgado: ", normalizedData);
 
     let tribunalAceptado = null;
 
     for (let tribunal of tribunales2) {
         const tribunalNormalized = tribunal
             .toLowerCase()
-            .replace(/de\s+/g, '')
+            .replace(/de\s*/g, '')
             .normalize("NFD")
             .replace(/,/g,"")
             .replace(/[\u0300-\u036f]/g, "");
 
-        const tribunalSinDe = tribunalNormalized.replaceAll("de ", '');
+        const tribunalSinDe = tribunalNormalized.replaceAll("de", '');
         let variaciones = [tribunalNormalized, tribunalSinDe];
 
         const numeroMatch = tribunal.match(/\d{1,2}/);
@@ -240,9 +240,9 @@ function getJuzgado(data) {
                 return variation;
             })
 
-            // if(tribunal.includes("1° JUZGADO CIVIL DE PUENTE ALTO")) {
-            //     console.log("Tribunal encontrado: ", variaciones);
-            // }
+            if(tribunal.includes("3° JUZGADO CIVIL DE VIÑA DEL MAR")) {
+                console.log("Tribunal encontrado: ", variaciones);
+            }
 
             if (tribunalNormalized.includes("en lo civil")) {
                 variaciones.push(...variaciones.map(variation => variation.replace("en lo civil ", "")));

@@ -2,7 +2,6 @@ const pie = require('puppeteer-in-electron');
 const Caso = require('../caso/caso')
 const {BrowserWindow} = require('electron');
 const {delay,fakeDelay} = require('../../utils/delay');
-const { log } = require('electron-builder');
 const {procesarDatosRemate} = require('./datosRemateEmol');
 
 require('dotenv').config();
