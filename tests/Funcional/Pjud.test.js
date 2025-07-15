@@ -1,10 +1,11 @@
 
-const {ex1666} = require('../textos/Extracto'); 
 const Caso = require('../../componentes/caso/caso');
 const PjudPdfData = require('../../componentes/pjud/PjudPdfData');
 
 const {dv1750, dv4991} = require('../textos/DV');
 const {bf1750} = require('../textos/BF');
+const {ex1666} = require('../textos/Extracto'); 
+const {textoEstacionamiento1,textoHabitacional1, textoBodegaMultiple, textoEstacionamientoMultiple, textoHabitacionMultiple} = require('../textos/Avaluo');
 
 describe('Test de funcionalidad Pjud a normalizacion',() => {
     test('Obtener monto minimo de postura de un extracto', () => {
@@ -33,6 +34,15 @@ describe('Test de funcionalidad Pjud a normalizacion',() => {
         testPjudPdf.processInfo(dv4991);
         const casoObj = caso4991.toObject();
         expect(casoObj.anno).toEqual("2023");
+    });
+
+    test('Obtener el avaluo de habitacional', ()=>{
+        const caso4991 = new Caso(new Date(), new Date(), 'lgr', 2);
+        const testPjudPdf = new PjudPdfData(caso4991);
+        testPjudPdf.processInfo(textoHabitacionMultiple);
+        const casoObj = caso4991.toObject();
+        expect(casoObj.rolPropiedad).toEqual('03795 - 00302');
+        expect(casoObj.avaluoPropiedad).toEqual(59921526);
     });
 
 });

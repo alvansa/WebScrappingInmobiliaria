@@ -589,7 +589,8 @@ class ConsultaCausaPjud{
             'contribuciones',
             'contrato',
             'medica',
-            'policia'
+            'policia',
+            'transferencia'
         ];
 
         // Dividir el texto en palabras individuales
@@ -608,7 +609,7 @@ class ConsultaCausaPjud{
         try{
             console.log("O si crashea por aca");
             pdfWindow = new BrowserWindow({ show: true });
-            await pdfWindow.loadURL(url);
+            await pdfWindow.loadURL(url, {timeout: 120000}); // Aumentar el tiempo de espera a 120 segundos
             const pdfPage = await pie.getPage(this.browser, pdfWindow);
 
             const nameDir = `${this.caso.causa}_${this.caso.juzgado}`;
@@ -620,15 +621,25 @@ class ConsultaCausaPjud{
                 fs.mkdirSync(this.dirPath, { recursive: true });
             }
 
+            
             pdfPage.on('request', req => {
                 if (req.url() === url) {
                     const file = fs.createWriteStream(this.pdfPath);
-                    https.get(req.url(), response => response.pipe(file));
+                    https.get(req.url(), response => {
+                        response.pipe(file)
+                            .on('error', (err) => {
+                                console.error('Error al descargar el PDF:', err);
+                                file.destroy(); // Cierra el stream si hay error
+                            });
+                    }).on('error', (err) => {
+                        console.error('Error en la petición HTTPS:', err);
+                    });
                 }
             });
     
             await pdfPage.goto(url,{
-                timeout: 80000, // Aumentar el tiempo de espera a 80 segundos
+                timeout: 120000, // Aumentar el tiempo de espera a 120 segundos
+                waitUntil: 'domcontentloaded' // Espera a que la red esté inactiva
             });
 
 
@@ -652,86 +663,71 @@ class ConsultaCausaPjud{
             console.error('Error al hacer la petición:', error.message);
             return false;
         }finally{
-            if(!pdfWindow?.isDestroyed()){
+            if(pdfWindow && !pdfWindow.isDestroyed()){
                 pdfWindow.destroy();
             }
         }
     }
 
-    // async downloadPdfFromUrl2(url) {
-    //     let resultado = '';
-    //     let resultOfProcess = false;
-    //     let pdfWindow = null;
-    //     try{
-    //         console.log("O si crashea por aca");
-    //         pdfWindow = new BrowserWindow({ show: true });
-    //         await pdfWindow.loadURL(url);
-    //         const pdfPage = await pie.getPage(this.browser, pdfWindow);
+    async downloadPdfFromUrl2(url) {
+        let resultado = '';
+        let resultOfProcess = false;
+        let pdfWindow = null;
+        try{
+            console.log("O si crashea por aca");
+            pdfWindow = new BrowserWindow({ show: true });
+            
 
-    //         const nameDir = `${this.caso.causa}_${this.caso.juzgado}`;
-    //         const pdfName = `boletin_${Date.now()}.pdf`;
-    //         this.dirPath = path.join(this.downloadPath, nameDir);
-    //         this.pdfPath = path.join(this.dirPath, pdfName);
+            const nameDir = `${this.caso.causa}_${this.caso.juzgado}`;
+            const pdfName = `boletin_${Date.now()}.pdf`;
+            this.dirPath = path.join(this.downloadPath, nameDir);
+            this.pdfPath = path.join(this.dirPath, pdfName);
      
-    //         if(!fs.existsSync(this.dirPath)){
-    //             fs.mkdirSync(this.dirPath, { recursive: true });
-    //         }
-    //         await pdfPage.setRequestInterception(true);
+            if(!fs.existsSync(this.dirPath)){
+                fs.mkdirSync(this.dirPath, { recursive: true });
+            }
 
-    //         // const client = await pdfPage.target().createCDPSession();
-    //         // await client.send('Page.setDownloadBehavior', {
-    //         //     behavior: "allow",
-    //         //     downloadPath: './downloads'
-    //         // })
+            await pdfWindow.loadURL(url);
+            const pdfPage = await pie.getPage(this.browser, pdfWindow);;
 
-
-    //         // pdfPage.on('request', req => {
-    //         //     if (req.url() === url) {
-    //         //         const file = fs.createWriteStream(this.pdfPath);
-    //         //         https.get(req.url(), response => response.pipe(file));
-    //         //     }
-    //         // });
-
-    //         pdfPage.on('request', interceptedRequest =>{
-    //             console.log(interceptedRequest.url);
-    //             if(interceptedRequest.url().endsWith('.pdf')){
-    //                 console.log("Es PDF");
-    //             }
-    //             interceptedRequest.continue();
-
-    //         })
+            pdfPage.on('request', req => {
+                if (req.url() === url) {
+                    const file = fs.createWriteStream(this.pdfPath);
+                    https.get(req.url(), response => response.pipe(file));
+                }
+            })
 
     
-    //         await pdfPage.goto(url);
+            await pdfPage.goto(url,{
+                timeout: 120000, // Aumentar el tiempo de espera a 120 segundos
+            });
 
-    //         // await delay(10000);
 
-    //         await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
-    //         //Leer el pdf descargado
-    //         // Aca es donde se deberia realizar el cambio para leer con tesseract
-
-    //         // resultado = await ProcesarBoletin.convertPdfToText2(this.pdfPath, 2);
-    //         // await delay(1000);
-    //         // if(resultado){
-    //         //     resultOfProcess = this.PjudData.processInfo(resultado);
-    //         // }else{
-    //         //     return false;
-    //         // }
-    //         pdfWindow.destroy();
-    //         if(resultOfProcess){
-    //             console.log('Caso completo');
-    //             return true;
-    //         }
-    //         return false
-    //     }catch(error){
-    //         console.error('Error al hacer la petición:', error.message);
-    //         return false;
-    //     }finally{
-    //         if(!pdfWindow?.isDestroyed()){
-    //             pdfWindow.destroy();
-    //         }
-    //     }
-    // }
+            await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
+            //Leer el pdf descargado
+            // Aca es donde se deberia realizar el cambio para leer con tesseract
+            resultado = await ProcesarBoletin.convertPdfToText2(this.pdfPath);
+            await delay(2000);
+            if(resultado){
+                resultOfProcess = this.PjudData.processInfo(resultado);
+            }else{
+                return false;
+            }
+            pdfWindow.destroy();
+            if(resultOfProcess){
+                console.log('Caso completo');
+                return true;
+            }
+            return false
+        }catch(error){
+            console.error('Error al hacer la petición:', error.message);
+            return false;
+        }finally{
+            if(!pdfWindow?.isDestroyed()){
+                pdfWindow.destroy();
+            }
+        }
+    }
 
     // Función para verificar que el PDF sea válido
     isValidPdf(buffer) {

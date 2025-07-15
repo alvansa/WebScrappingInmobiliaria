@@ -7,12 +7,12 @@ const Causas = require('../../model/Causas');
 const convertWordToNumbers = require('../../utils/convertWordToNumbers');
 
 const {textoEstacionamiento1,textoHabitacional1, textoBodegaMultiple, textoEstacionamientoMultiple, textoHabitacionMultiple} = require('../textos/Avaluo');
-const {textoGP1, textoGP2, textoGP3, textoGP4, textoGP5, texto12Santiago} = require('../textos/GP');
+const {textoGP1, textoGP2, textoGP3, textoGP4, textoGP5, texto12Santiago, GP1435} = require('../textos/GP');
 const {diario2484, ex1341, diario1341, diario3354_1, diario3354_2} = require('../textos/diario');
 
 const {tx356, tx23039, tx12017, tx1349, tx3857, tx13759, tx7140, tx11066, tx198, dv1750, dv212, dv4991, dv11840} = require('../textos/DV');
 const {ex1666, ex800, ex2240, ex2226} = require('../textos/Extracto'); 
-const {bf2201, bf1341, notBf, bf1750} = require('../textos/BF');
+const {bf2201, bf1341, notBf, bf1750, BF2452} = require('../textos/BF');
 const {dm1056, dm1138} = require('../textos/DM');
 const {obtainCorteJuzgadoNumbers} = require('../../utils/corteJuzgado');
 
@@ -175,6 +175,18 @@ describe('obtainDerecho', () => {
 
     test('Test de tipo de texto que dice no se encuentra afecto a bf', ()=>{
         const info = testPjudPdf.normalizeInfo(bf1750);
+        const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
+        expect(tipoDerecho).toBeNull();
+    });
+
+    test('Test de tipo de texto que dice no se encuentra afecto a bf', ()=>{
+        const info = testPjudPdf.normalizeInfo(GP1435);
+        const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
+        expect(tipoDerecho).toBeNull();
+    });
+
+    test('Test de tipo de texto que dice no se encuentra afecto a bf', ()=>{
+        const info = testPjudPdf.normalizeInfo(BF2452);
         const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
         expect(tipoDerecho).toBeNull();
     });

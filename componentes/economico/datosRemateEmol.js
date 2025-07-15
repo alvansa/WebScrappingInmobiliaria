@@ -190,9 +190,9 @@ function getJuzgado(data) {
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
         .replace(/\bstgo\b/g, "santiago")
-        .replace(/\s+/, ' ')
+        .replace(/\s+/, ' ');
 
-    console.log("Data normalizada en juzgado: ", normalizedData);
+    // console.log("Data normalizada en juzgado: ", normalizedData);
 
     let tribunalAceptado = null;
 
@@ -240,9 +240,9 @@ function getJuzgado(data) {
                 return variation;
             })
 
-            if(tribunal.includes("3° JUZGADO CIVIL DE VIÑA DEL MAR")) {
-                console.log("Tribunal encontrado: ", variaciones);
-            }
+            // if(tribunal.includes("3° JUZGADO CIVIL DE VIÑA DEL MAR")) {
+            //     console.log("Tribunal encontrado: ", variaciones);
+            // }
 
             if (tribunalNormalized.includes("en lo civil")) {
                 variaciones.push(...variaciones.map(variation => variation.replace("en lo civil ", "")));
@@ -633,7 +633,9 @@ function checkBienFamiliar(text,tipoDerecho){
         /no\shay\sconstancia\sde\shaberse\sdeclarado\sbien\sfamiliar/gi,
         /no\s*se\s*encuentran?\s*afecto\s*a\s(?:la\s*)*declaracion\s*de\s*bien\s*familiar/i,
         /no\s*hay\s*constancia\s*de\s*haberse\s*anotado\s*declaracion\s*de\s*bien\s*familiar/i,
-        /a\s*la\s*expedicion\s*del\s*presente\s*certificado\s*no\s*consta\s*marginalmente\s*la\s*declaracion\s*de\s*bien\s*familiar/i
+        /a\s*la\s*expedicion\s*del\s*presente\s*certificado\s*no\s*consta\s*marginalmente\s*la\s*declaracion\s*de\s*bien\s*familiar/i,
+        /no\s*existe\s*anotaci[o|ó].*sobre\s*declaraci[o|ó]n\s*de\s*bien\s*familiar/i,
+        /no\s*registra\s*anotacion.*de\s*bien\s*familiar/i
     ];
     for(let regex of regexNotBienFamiliar) {
         const bienFamiliar = text.match(regex);

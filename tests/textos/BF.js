@@ -154,4 +154,23 @@ Familiar.-      Rvv.-
 Los derechos registrales correspondientes a esta actuación ascienden a la suma de $5.000.
 Carátula 755829CBR Coquimbo, 14 de Mayo de 2025`;
 
-module.exports = {bf2201, bf1341, notBf, bf1750};
+const BF2452 = `TEODORO CROQUEVIELLE BRANDcbr@cbrvaldivia.cl
+       Conservador – ArchiveroFono: 632 213723-632 213219
+                     ValdiviaArauco 440, Valdivia
+C E R T I F I C A D O
+BIEN FAMILIAR
+De la inscripción de fojas 1488 bajo el número 1656 del Registro
+de   Propiedad   del   año  2011,   que   corresponde   a:   un   inmueble
+consistente en sitio y casa signado con el número 4, actualmente
+señalado   como   Calle   Álvaro   Covarrubias   número   107,   comuna   de
+VALDIVIA, a nombre de JAIME RAUL ARRIAGADA DELGADO.-
+Revisada la inscripción individualizada precedentemente, ésta  NO
+REGISTRA anotación marginal alguna que de cuenta de DECLARACIÓN DE
+BIEN FAMILIAR, en forma provisoria o definitiva.-
+Valdivia, a 17 de septiembre de 2024.-
+1656-11BF-240917-IG
+   Documento incorpora firma electrónica avanzada
+               consulte validez en www.cbrchile.cl
+Sol. 432707-IG
+`;
+module.exports = {bf2201, bf1341, notBf, bf1750, BF2452};

@@ -232,7 +232,9 @@ class MainApp{
                 const result = await consultaCausa(caso);
                 // const result = true
                 console.timeEnd("casoUnico");
+                
                 console.log("Resultados del caso de prueba en pjud: ", caso.toObject());
+                console.log("Termino a las :", new Date().toString());
                 if(result){
                     // Escribe los casos en excel.
                     const downloadPath = path.join(os.homedir(), "Documents", "infoRemates");
@@ -311,6 +313,7 @@ class MainApp{
             const caso = crearCasoPrueba();
             result = await consultaCausa(caso);
             console.log("Resultados del caso de prueba en pjud: ",result.toObject());
+            console.log(new Date().toString());
 
         }else if(arg === 'readPdf'){
             const newExcel = args[2];

@@ -232,4 +232,81 @@ MPEÑA
 B:1931955
 C:23295929`;
 
-module.exports = {textoGP1, textoGP2, textoGP3, textoGP4, textoGP5, texto12Santiago}
+const GP1435 = `CVE: 097-2025032009580731
+Notaría, Conservador de Propiedades,
+Comercio, Minas y Archivo Judicial de Lota
+Arturo Prat 112, Segundo Piso
+www.conservadordelota.cl
+El Conservador de Bienes Raíces que suscribe, certifica que el presente
+documento electrónico, reproducido en las siguientes páginas, es copia fiel
+e íntegra del original de CERTIFICADO DE GRAVAMENES COMPLETOS.
+Doy fe.
+Documento emitido con Firma Electrónica Avanzada, conforme a la Ley
+N°19.799 y el Auto Acordado de la Excma. Corte Suprema de Justicia de
+fecha  10  de  Octubre  de  2006.  Verifique  en  www.ajs.cl  Código:  097-
+2025032009580731
+Firmado electrónicamente por JOCELYN GISELA SANHUEZA CORTES,
+Notario, Conservador y Archivero Interina de Lota, a las 9:58 horas del dia
+de hoy.
+Lota, 20 de marzo de 2025
+
+A  requerimiento  de Julio Burgos  se  otorgan  los  certificados  que  más
+adelante  se  detallan,  desde 30  años a  la  fecha.- LOTA,  20  DE  MARZO
+DE 2025.-
+
+CERTIFICADO DE DOMINIO VIGENTE
+ Certifico:  que  la  inscripción  de fojas  219  vuelta  Nº  143  del
+Registro de Propiedad del Conservador de Bienes Raíces de Lota del
+año  2008, del  inmueble  ubicado  en  Psje.  Los  Pingüinos  número
+ciento  dieciséis  (116),  que  corresponde  al  lote número  doscientos
+noventa y ocho raya dieciséis (298-16), Manzana “R”, del plano de
+loteo de la Población “La Cantera”, comuna de Lota, agregado bajo
+el número cinco (5), del Registro de Propiedad del Conservador de
+Bienes  Raíces  de  Lota  del  año  mil  novecientos  noventa  y  dos
+(1992) y cuyos deslindes según sus títulos, son: Norte, lote quince
+(15); Sur,  lote  diecisiete  (17);  Oriente,  Los  Pingüinos;  y  Poniente,
+Lote  nueve  (9), se  encuentra VIGENTE a  nombre  de SUSANA  DE
+LAS NIEVES FUENTEALBA BASTIDAS.- LOTA, 20 DE MARZO DE
+2025.-
+
+CERTIFICADO DE HIPOTECAS Y GRAVÁMENES
+ Revisados por sus índices respectivos los Registros de Hipotecas
+y  Gravámenes,  desde 30  años a  la  fecha,  certifico:  Que  el inmueble
+singularizado en el Certificado anterior, NO TIENE VIGENTES Hipotecas
+ni  Gravámenes  de  ningún  tipo  en  dichos  Registros.- LOTA,  20  DE
+MARZO DE 2025.-
+
+
+CERTIFICADO DE PROHIBICIONES
+Revisado  por  sus  índices  respectivos  los  Registros  de  Interdicciones  y
+Prohibiciones de Enajenar, desde 30 años a la fecha, CERTIFICO: Que el
+inmueble   singularizado   en   el   Certificado   anterior, TIENE   VIGENTE
+Embargo Por  Mandamiento  de  fecha  doce  (12)  de  abril  del  año  dos  mil
+veintidós  (2022)  y  por  resolución  de  fecha  veintiséis  (26)  de  agosto  del
+año  dos mil  veinticuatro  (2024)  dictada  en  causa  rol  número  C  guión  mil
+cuatrocientos  treinta  y  cinco  setenta  guión  dos  mil  veintidós  (C-1435-
+2022), del 1º Juzgado Civil de Concepción, caratulado “Banco de Estado
+de Chile con Saez" y exhorto de fecha seis (6) de septiembre de dos mil
+veinticuatro    (20204)  causa  rol  E  guion  setecientos  cuarenta  y  cuatro
+guion dos mil veinticuatro  (E-744-2024) del Juzgado de letras y garantía
+de Lota, inscrito a fojas 4316 N°1255 del Registro de Prohibiciones, DEL
+Conservador de Bienes Raíces de  Lota  del  año  2024.- LOTA,  20  DE
+MARZO DE 2025.-
+
+CERTIFICADO DE LITIGIOS
+ Certifico:  Que  al  margen  de  la  inscripción  de fojas  219  vuelta  Nº
+143 del Registro de Propiedad del Conservador de Bienes Raíces de Lota
+del  año  2008, no  existe  anotación  en  su  margen  que  diga  relación  con
+litigios pendientes.- LOTA, 20 DE MARZO DE 2025.-
+
+
+CERTIFICADO DE BIEN FAMILIAR
+Certifico  que  al  margen  de  la  inscripción  de fojas  219  vuelta  Nº
+143 del Registro de Propiedad del Conservador de Bienes Raíces de Lota
+del  año  2008, no  existe  anotación  que  diga relación  con  el  Art.  141  del
+Código  Civil  sobre  declaración  de  Bien  Familiar.- LOTA,  20  DE  MARZO
+DE 2025.-
+Verifique este documento en https://ajs.cl con el código adjunto.
+CVE: 097-2025032009580731`;
+
+module.exports = {textoGP1, textoGP2, textoGP3, textoGP4, textoGP5, texto12Santiago, GP1435}

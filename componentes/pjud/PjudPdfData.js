@@ -34,17 +34,8 @@ class PjudPdfData {
         this.processPropertyRoles(normalizeInfo); // Rol propiedad, estacionamiento, bodega
         this.processPropertyInfo(spanishNormalization, normalizeInfo); //Avaluos, 
         this.processAuctionInfo(data, normalizeInfo);
+        this.processDemanda(normalizeInfo);
 
-        //Obtener la deuda hipotecaria si se encuentra
-        if(!this.caso.deudaHipotecaria){
-            if(this.checkIfTextHasHipoteca(normalizeInfo)){
-                const deuda = this.obtainDeudaHipotecaria(normalizeInfo);
-                if(deuda){
-                    console.log(`-----------------\nDeuda : ${deuda}\n-----------------`);
-                    this.caso.deudaHipotecaria = deuda;
-                }
-            }
-        }
 
         return false;
     }
@@ -53,6 +44,8 @@ class PjudPdfData {
         const docNotValid = [
             /tabla\s*de\s*contenidos/i,
             /solicitud\s*copias\s*y\s*certificados/i,
+            /clasificado/i,
+            /tasador/i
         ];
         for (const doc of docNotValid) {
             if (doc.test(item)) {
@@ -226,6 +219,22 @@ class PjudPdfData {
         }
 
     }
+
+    //Obtener la deuda hipotecaria si se encuentra
+    processDemanda(normalizeInfo) {
+        if(!this.caso.deudaHipotecaria){
+            if(!this.checkIfTextHasHipoteca(normalizeInfo)){
+                return;
+            }
+            const deuda = this.obtainDeudaHipotecaria(normalizeInfo);
+            if (deuda) {
+                console.log(`-----------------\nDeuda : ${deuda}\n-----------------`);
+                this.caso.deudaHipotecaria = deuda;
+            }
+        }
+    }
+
+    
 
     obtainTipoDerecho(normalizedInfo){
         if (regexMutuoHipotecario.exec(normalizedInfo)) {
@@ -667,7 +676,6 @@ class PjudPdfData {
                 return true;
             }
         }
-        console.log("El texto no puede ser utilizado para obtener la deuda hipotecaria");
         return false;
     }
 
@@ -905,9 +913,12 @@ class PjudPdfData {
         if (tipoBien) {
             return tipoBien[0];
         }
-        else {
-            return null;
+        const regexTipoExtracto = /el\s*inmueble\s*tiene\s*destino\s*de\s*(.*)\./
+        tipoBien = info.match(regexTipoExtracto);
+        if (tipoBien) {
+            return tipoBien[1].trim();
         }
+        return null;
     }
 
     obtainComuna(info, infoNormalized) {
