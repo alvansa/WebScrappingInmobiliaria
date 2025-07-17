@@ -44,5 +44,46 @@ describe('Test de funcionalidad Pjud a normalizacion',() => {
         expect(casoObj.rolPropiedad).toEqual('03795 - 00302');
         expect(casoObj.avaluoPropiedad).toEqual(59921526);
     });
+});
 
+describe('Test de Pjud con avaluos', ()=>{
+    test('Caso con solo avaluo habitacional', ()=>{
+        const caso4991 = new Caso(new Date(), new Date(), 'lgr', 2);
+        const testPjudPdf = new PjudPdfData(caso4991);
+        testPjudPdf.processInfo(textoHabitacionMultiple);
+        const casoObj = caso4991.toObject();
+        expect(casoObj.unitRol).toEqual('3795-302');
+        expect(casoObj.unitAvaluo).toEqual(59921526);
+    });
+
+    test('Caso con avaluo habitacional y estacionamiento', ()=>{
+        const caso4991 = new Caso(new Date(), new Date(), 'lgr', 2);
+        const testPjudPdf = new PjudPdfData(caso4991);
+        testPjudPdf.processInfo(textoHabitacionMultiple);
+        testPjudPdf.processInfo(textoEstacionamientoMultiple);
+        const casoObj = caso4991.toObject();
+        expect(casoObj.unitRol).toEqual('3795-302-474');
+        expect(casoObj.unitAvaluo).toEqual(64348355);
+    });
+
+    test('Caso con avaluo habitacional, estacionamiento y bodega', ()=>{
+        const caso4991 = new Caso(new Date(), new Date(), 'lgr', 2);
+        const testPjudPdf = new PjudPdfData(caso4991);
+        testPjudPdf.processInfo(textoHabitacionMultiple);
+        testPjudPdf.processInfo(textoEstacionamientoMultiple);
+        testPjudPdf.processInfo(textoBodegaMultiple);
+        const casoObj = caso4991.toObject();
+        expect(casoObj.unitRol).toEqual('3795-302-474-368');
+        expect(casoObj.unitAvaluo).toEqual(65214126);
+    });
+
+    test('Caso con avaluo habitacional, estacionamiento y bodega', ()=>{
+        const caso4991 = new Caso(new Date(), new Date(), 'lgr', 2);
+        const testPjudPdf = new PjudPdfData(caso4991);
+        testPjudPdf.processInfo(textoHabitacionMultiple);
+        testPjudPdf.processInfo(textoBodegaMultiple);
+        const casoObj = caso4991.toObject();
+        expect(casoObj.unitRol).toEqual('3795-302-368');
+        expect(casoObj.unitAvaluo).toEqual(60787297);
+    });
 });

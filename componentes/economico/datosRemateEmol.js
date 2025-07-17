@@ -869,6 +869,9 @@ function verificarOpcionesInvalidas(texto) {
     return false;
 }
 function normalizeDescription(description) {
+    if(!description){
+        return null;
+    }
     return description.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, ' ').trim();
 }
 function generateVariations(tribunal) {

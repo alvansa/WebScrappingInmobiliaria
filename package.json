@@ -12,7 +12,7 @@
     "empty": "electron . --empty",
     "test": "jest",
     "test:unit": "jest tests/unit",
-    "test:funcional": "jest tests/Funcional"
+    "test:functional": "jest tests/Funcional"
   },
   "author": "Alvaro",
   "license": "ISC",

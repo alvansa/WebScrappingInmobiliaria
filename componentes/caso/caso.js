@@ -57,6 +57,7 @@ class Caso{
     #unitRol;
     #unitAvaluo;
     #unitDireccion;
+    #isAvenimiento;
 
     constructor(fechaObtencion, fechaPublicacion = 'N/A',link = 'N/A',origen = null ){    
         this.#fechaPublicacion = fechaPublicacion;
@@ -99,6 +100,7 @@ class Caso{
         this.#isPaid = false;
         this.#deudaHipotecaria = null;
         this.#alreadyAppear = null;
+        this.#isAvenimiento = false;
 
         this.#unitRol = null;
         this.#unitAvaluo = null;
@@ -263,6 +265,9 @@ class Caso{
     set unitAvaluo(unitAvaluo){
         this.#unitAvaluo = unitAvaluo;
     }
+    set isAvenimiento(isAvenimiento){
+        this.#isAvenimiento = isAvenimiento;
+    }
 
     
     get link(){ 
@@ -387,7 +392,7 @@ class Caso{
         return Boolean(this.#hasBodega);
     }
     get montoMinimo(){
-        if(this.#montoMinimo == "N/A" || this.#montoMinimo == null){
+        if(this.#montoMinimo == "N/A" || !this.#montoMinimo){
             return null;
         }
         return this.normalizarMontoMinimo();
@@ -408,9 +413,6 @@ class Caso{
         return this.normalizarAnno();
     }
     get isPaid(){
-        if(!this.#isPaid){
-            return null;
-        }
         return this.#isPaid;
     }
     get deudaHipotecaria(){
@@ -461,6 +463,43 @@ class Caso{
         }
         return this.#unitAvaluo;
     }
+    get diaEntrega(){
+        if(!this.#diaEntrega){
+            return null;
+        }
+        return this.normalizarDiaEntrega();
+    }
+    get moneda(){
+        const monto =  this.normalizarMontoMinimo()
+        return monto["moneda"];
+    }
+    get foja(){
+        if(!this.#foja){
+            return null;
+        }
+        return String(this.#foja);
+    }
+    get numero(){
+        if(!this.#numero){
+            return null;
+        }
+        return String(this.#numero);
+    }
+    get tipoPropiedad(){
+        return this.#tipoPropiedad ?? null ;
+    }
+    get tipoDerecho(){
+        return this.#tipoDerecho ?? null ;
+    }
+    get martillero(){
+        return this.#martillero ?? null ;
+    }
+    get aviso(){
+        return this.#texto ?? null ;
+    }
+    get isAvenimiento(){
+        return Boolean(this.#isAvenimiento);
+    }
 
 
   
@@ -496,7 +535,6 @@ class Caso{
             multiplesFoja : this.#multiplesFoja,
             comuna: comunaNormalizada,
             foja: this.#foja,
-            numero: this.#numero,
             partes: partesNormalizadas,
             tipoPropiedad: this.#tipoPropiedad,
             tipoDerecho: tipoDerechoNormalizado,
@@ -524,7 +562,8 @@ class Caso{
             alreadyAppear: this.#alreadyAppear,
             unitRol: this.adaptRol(),
             unitAvaluo: this.sumAvaluo(),
-            unitDireccion : this.checkEstacionamientoBodega()
+            unitDireccion : this.checkEstacionamientoBodega(),
+            isAvenimiento : Boolean(this.#isAvenimiento)
         };
     } 
 
@@ -863,7 +902,7 @@ class Caso{
     normalizarPartes(){
         if(this.#partes === "N/A" || this.#partes === null || typeof this.#partes != 'string' || !this.#partes){
             return null;
-        }else if(this.#link === "Lgr"){
+        }else if(this.#origen == PJUD){
             return this.#partes;
         }
         let partesNormalizadas = this.#partes.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
@@ -891,7 +930,7 @@ class Caso{
         if(comaFinal != -1 && comaFinal > 10){
             partesNormalizadas = partesNormalizadas.substring(0,comaFinal);
         }
-        return partesNormalizadas.trim();
+        return partesNormalizadas.trim().toLocaleLowerCase();
     }
 
     normalizarAnno(){
@@ -981,7 +1020,7 @@ class Caso{
     //     return this.#diaEntrega.toLowerCase();
     // }
     normalizarDiaEntrega(){
-        if(this.#diaEntrega == "N/A" || this.#diaEntrega == null){
+        if(this.#diaEntrega == "N/A" || !this.#diaEntrega){
             return null;
         }
         return this.#diaEntrega.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();

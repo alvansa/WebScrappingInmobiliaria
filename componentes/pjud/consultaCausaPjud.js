@@ -35,11 +35,11 @@ class ConsultaCausaPjud{
         let lineaAnterior = '';
         let result = false;
 
-        console.log('Iniciando la consulta de causa en Pjud...');
-        await this.loadConfig()
-        await this.loadPageWithRetries();
-
         try{
+            console.log('Iniciando la consulta de causa en Pjud...');
+            await this.loadConfig()
+            await this.loadPageWithRetries();
+
             result = await this.procesarCaso(lineaAnterior)
             if(!result){
                 console.log('No se pudo procesar el caso');
@@ -54,7 +54,8 @@ class ConsultaCausaPjud{
             await this.browser.close();
             return false;
         }finally{
-            if(!this.window.isDestroyed()){
+            if(this.window && this.window.isDestroyed()){
+                console.log("Cerrando ventana del pjud");
                 this.window.destroy();
             }
         }
@@ -497,6 +498,10 @@ class ConsultaCausaPjud{
             if(this.PAGADO.daCuenta && this.PAGADO.pagadoCredito){
                 this.caso.isPaid = true;
             }
+            if(descripcion.toLowerCase().includes("avenimiento")){
+                this.caso.isAvenimiento = true;
+                console.log("******************\nel caso tiene avenimiento, se procede a marcarlo como avenimiento con: ", descripcion,"\n******************");
+            }
 
             return ERROR;
         } catch (error) {
@@ -627,10 +632,12 @@ class ConsultaCausaPjud{
                     const file = fs.createWriteStream(this.pdfPath);
                     https.get(req.url(), response => {
                         response.pipe(file)
+                            //Manejo de error en la descarga del PDF
                             .on('error', (err) => {
                                 console.error('Error al descargar el PDF:', err);
                                 file.destroy(); // Cierra el stream si hay error
                             });
+                    //Manejo de error en la peticion HTTPS
                     }).on('error', (err) => {
                         console.error('Error en la petición HTTPS:', err);
                     });
@@ -664,6 +671,7 @@ class ConsultaCausaPjud{
             return false;
         }finally{
             if(pdfWindow && !pdfWindow.isDestroyed()){
+                console.log("Cerrando ventana del pdf");
                 pdfWindow.destroy();
             }
         }
@@ -700,6 +708,7 @@ class ConsultaCausaPjud{
     
             await pdfPage.goto(url,{
                 timeout: 120000, // Aumentar el tiempo de espera a 120 segundos
+                // waitUntil: 'domcontentloaded'
             });
 
 
