@@ -195,11 +195,11 @@ class scrapeAuction {
             casos.reverse(); // Invertir el orden de los casos para que aparezcan del mas reciente al mas antiguo
             
             const result = await this.obtainDataFromCases(casos, event);
-            for(let caso of casos){
+            for (let caso of casos) {
                 console.log("Caso obtenido de pjud: ", caso.fechaRemate);
             }
             console.log("Cantidad de casos obtenidos de pjud: ", casos.length);
-        }catch(error){
+        } catch (error) {
             console.error("Error en el pjud :", error.message);
             console.error("Error en el pjud :", error);
         }
@@ -239,15 +239,25 @@ class scrapeAuction {
     }
 
     async searchCasesByDay(startDate, endDate) {
-        const window = new BrowserWindow({ show: true });
-        const url = 'https://oficinajudicialvirtual.pjud.cl/indexN.php';
-        await window.loadURL(url);
-        const page = await pie.getPage(this.browser, window);
-        const pjud = new Pjud(this.browser, page, startDate, endDate);
-        const casos = await pjud.datosFromPjud();
-        obtainCorteJuzgadoNumbers(casos);
-        window.destroy();
-        return casos;
+        let window;
+        try{
+            window = new BrowserWindow({ show: true });
+            const url = 'https://oficinajudicialvirtual.pjud.cl/indexN.php';
+            await window.loadURL(url);
+            const page = await pie.getPage(this.browser, window);
+            const pjud = new Pjud(this.browser, page, startDate, endDate);
+            const casos = await pjud.datosFromPjud();
+            obtainCorteJuzgadoNumbers(casos);
+            window.destroy();
+            return casos;
+        }catch(error){
+            console.error("Error al buscar casos por dia en Pjud: ", error.message);
+            if (window && !window.isDestroyed()) {
+                window.destroy();
+            }
+            return [];
+        }
+
 
     }
 

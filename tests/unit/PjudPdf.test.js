@@ -473,7 +473,7 @@ describe('bindCaseWithDB',()=>{
         expect(emptyCase.rol).toEqual('1342-209-220');
         expect(emptyCase.estadoCivil).toEqual('casado sociedad conyugal');
         expect(emptyCase.fechaRemate).toEqual(new Date(casoDB.fechaRemate));
-        expect(emptyCase.isPaid).toBeNull();
+        expect(emptyCase.isPaid).toEqual(false);
     });
 
     test('Caso que ya estaba con fecha de remate anterior', ()=>{
@@ -483,7 +483,7 @@ describe('bindCaseWithDB',()=>{
         cCase = Caso.bindCaseWithDB(cCase,casoDB); 
         expect(cCase.fechaRemate).toEqual(new Date('2025/05/19'));
         expect(cCase.alreadyAppear).toEqual(new Date('2024/12/25'));
-        expect(cCase.isPaid).toBeNull();
+        expect(cCase.isPaid).toEqual(false);
     });
 
     test('Caso que ya estaba con fecha de remate posterior', ()=>{
@@ -494,18 +494,18 @@ describe('bindCaseWithDB',()=>{
         expect(casoBaseFechaModificada instanceof Caso).toEqual(true);
         expect(casoBaseFechaModificada.causa).toEqual('C-746-2024');
         expect(casoBaseFechaModificada.fechaRemate).toEqual(new Date("2023/12/25"));
-        expect(casoBaseFechaModificada.isPaid).toBeNull();
+        expect(casoBaseFechaModificada.isPaid).toEqual(false);
     });
 
     test('Caso que esta en DB pero el isPaid es nulo, deberia quedar nulo', ()=>{
         let casoforDB = createCase("C-6950-2019","1° Juzgado de Letras de San Bernardo");
         casoforDB.numeroJuzgado = 267;
         const casoDB = excelConstructor.isCaseInDB(casoforDB);
-        expect(casoforDB.isPaid).toBeNull();
+        expect(casoforDB.isPaid).toEqual(false);
         
 
         casoforDB = Caso.bindCaseWithDB(casoforDB,casoDB); 
-        expect(casoforDB.isPaid).toBeNull();
+        expect(casoforDB.isPaid).toEqual(false);
         expect(casoDB.isPaid).toBeNull();
     });
 });

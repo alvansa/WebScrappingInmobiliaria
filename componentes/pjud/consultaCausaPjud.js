@@ -41,22 +41,21 @@ class ConsultaCausaPjud{
             await this.loadPageWithRetries();
 
             result = await this.procesarCaso(lineaAnterior)
-            if(!result){
+            if(result){
+                console.log('Caso procesado correctamente');
+            }else{
                 console.log('No se pudo procesar el caso');
                 return false;
-            }else{
-                console.log('Caso procesado correctamente');
             }
-            await this.window.destroy();
             await this.cleanFilesDownloaded();
         }catch(error){
             console.error('Error en la función getEspecificDataFromPjud:', error.message);
-            await this.browser.close();
+            await this.window.close();
             return false;
         }finally{
-            if(this.window && this.window.isDestroyed()){
+            if(this.window && !this.window.isDestroyed()){
                 console.log("Cerrando ventana del pjud");
-                this.window.destroy();
+                this.window.close();
             }
         }
 
@@ -143,15 +142,13 @@ class ConsultaCausaPjud{
             return lineaAnterior; // Salta al siguiente caso
         }
 
-        const isValid = await this.buscarGP();
-        if(!isValid){
-            console.log('Fallo al buscar GP');
-            return false;
-        }else{
+        const isValid = await this.searchAuctionInfo();
+        if(isValid){
             console.log("Datos posibles del caso obtenidos correctamente");
-            // await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max)
-            // await this.downloadDemanda()
             return true;
+        }else{
+            console.log('Fallo al buscar la informacion');
+            return false;
         }
     }
 
@@ -253,7 +250,6 @@ class ConsultaCausaPjud{
                 const texto = opt.textContent.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
                 return texto.includes(nombreTribunal.toLowerCase());
             });
-                
             
             // Si la opción se encuentra, retornamos su value, si no, retornamos null
             return option ? option.value : null;
@@ -263,25 +259,21 @@ class ConsultaCausaPjud{
         return value;
     }
 
-    async buscarGP(){
+    async searchAuctionInfo(){
         console.log('Se esta buscando los datos del cuaderno');
         let caseIsFinished = false;
-        const findLink = await this.findAndProcessLinkGP();
+        // Busca y presiona el boton que muestra la tabla principal del caso.
+        const findLink = await this.searchButtonAuction();
 
         if(!findLink){
-            console.error("No se pudo encontrar el enlace del GP"); 
+            console.error("No se pudo encontrar el enlace del caso"); 
             return false;
         }
 
         const estadoCaso = await this.checkIfCaseIsConcluded();
         console.log("Estado actual del caso: ", estadoCaso)
 
-        // if(this.checkIfCaseIsConcluded()){
-        //     console.log("El caso ya esta concluido, no es necesario continuar.");
-        //     return true; // Si el caso ya está concluido, no es necesario continuar
-        // }
-
-
+        //Se selecciona el cuaderno de apremio o en caso de que no este el principal.
         const selectedCuaderno = await this.selectCuaderno();
 
         if(!selectedCuaderno){ 
@@ -289,19 +281,10 @@ class ConsultaCausaPjud{
             return false; 
         }
 
-        // await fakeDelay(4, 10);
-
-        caseIsFinished = await this.getAvaluoTablaCausa();
-        // Aqui falta agregar que solo se descargue la demanda en caso de que se hayan encontrado los datos de los propietarios.
-        if(this.caso.owners){
-            console.log("Caso con propietarios, se procede a descargar demanda.");
-        }
+        caseIsFinished = await this.searchInMainTable();
         // Descargar el texto de la demanda.
         console.log('Descargando demanda');
         await this.downloadDemanda();
-        if(caseIsFinished){
-            return true;
-        }
         return true;
     }
 
@@ -354,7 +337,7 @@ class ConsultaCausaPjud{
         }
     }
 
-    async findAndProcessLinkGP(){
+    async searchButtonAuction(){
         try{
             // Espera a que la tabla esté presente en la página
             await this.page.waitForSelector('#verDetalle a');
@@ -431,7 +414,7 @@ class ConsultaCausaPjud{
 
     }
 
-    async getAvaluoTablaCausa() {
+    async searchInMainTable() {
         let caseIsFinished = false;
         let isDone;
         try {
@@ -441,7 +424,7 @@ class ConsultaCausaPjud{
             for (const row of rows) {
                 // Track if the row is processed successfull
                 try {
-                    if (caseIsFinished === true) {
+                    if (caseIsFinished) {
                         return true; // Si ya se obtuvo todo lo necesario del caso, salimos del bucle
                     }
                     caseIsFinished = await this.searchForDirectory(row);
@@ -487,27 +470,33 @@ class ConsultaCausaPjud{
                 return false;
             }
             console.log('Fila:', number, uselessFile, directory, stage, tramite, descripcion, fecha);
-            if(descripcion.toLowerCase().includes("da cuenta de pago")){
-                console.log("******************\nel caso tiene pago, se procede a marcarlo como pagado con: ", descripcion,"\n******************");
-                this.PAGADO.daCuenta = true;
-            }
-            if(descripcion.toLowerCase().includes("tiene por pagado el crédito") || descripcion.toLowerCase().includes("término por avenimiento")){
-                console.log("******************\nel caso tiene por pagado el credito con: ", descripcion,"\n******************");
-                this.PAGADO.pagadoCredito = true;
-            }
-            if(this.PAGADO.daCuenta && this.PAGADO.pagadoCredito){
-                this.caso.isPaid = true;
-            }
-            if(descripcion.toLowerCase().includes("avenimiento")){
-                this.caso.isAvenimiento = true;
-                console.log("******************\nel caso tiene avenimiento, se procede a marcarlo como avenimiento con: ", descripcion,"\n******************");
-            }
+            this.checkDescription(descripcion);
 
-            return ERROR;
+            return false;
         } catch (error) {
             console.error('Error al obtener los datos de la fila:', error.message);
-            return ERROR;
+            return false;
         }
+    }
+
+    checkDescription(descripcion){
+        const lowerCaseDesc = descripcion.toLowerCase();
+        if (lowerCaseDesc.includes("da cuenta de pago")) {
+            console.log("******************\nel caso tiene pago, se procede a marcarlo como pagado con: ", descripcion, "\n******************");
+            this.PAGADO.daCuenta = true;
+        }
+        if (lowerCaseDesc.includes("tiene por pagado el crédito") || lowerCaseDesc.includes("término por avenimiento")) {
+            console.log("******************\nel caso tiene por pagado el credito con: ", descripcion, "\n******************");
+            this.PAGADO.pagadoCredito = true;
+        }
+        if (this.PAGADO.daCuenta && this.PAGADO.pagadoCredito) {
+            this.caso.isPaid = true;
+        }
+        if (lowerCaseDesc.includes("avenimiento")) {
+            console.log("******************\nel caso tiene avenimiento, se procede a marcarlo como avenimiento con: ", descripcion, "\n******************");
+            this.caso.isAvenimiento = true;
+        }
+
     }
 
     async obtainLinkOfPdf(){
@@ -534,7 +523,7 @@ class ConsultaCausaPjud{
                 console.log("Procesando el documento: ", reference);
                 if(valuePdf && valuePdf !== ''){
                     const linkToPdf = "https://oficinajudicialvirtual.pjud.cl/ADIR_871/civil/documentos/anexoDocCivil.php?dtaDoc=" + valuePdf
-                    isDone = await this.downloadPdfFromUrl(linkToPdf);
+                    isDone = await this.downloadPdfFromUrl2(linkToPdf);
                     if (isDone) {
                         return true;
                     }
@@ -719,6 +708,7 @@ class ConsultaCausaPjud{
             await delay(2000);
             if(resultado){
                 resultOfProcess = this.PjudData.processInfo(resultado);
+                return resultOfProcess;
             }else{
                 return false;
             }
@@ -732,10 +722,142 @@ class ConsultaCausaPjud{
             console.error('Error al hacer la petición:', error.message);
             return false;
         }finally{
-            if(!pdfWindow?.isDestroyed()){
+            if(pdfWindow && !pdfWindow.isDestroyed()){
                 pdfWindow.destroy();
             }
         }
+    }
+
+    async downloadPdfFromUrl3(url) {
+        let resultado = '';
+        let resultOfProcess = false;
+        let pdfWindow = null;
+        let pdfPage = null;
+
+        try {
+            console.log("Iniciando descarga de PDF desde URL");
+            pdfWindow = new BrowserWindow({
+                show: true,
+                webPreferences: {
+                    plugins: true // Habilitar plugins para PDF
+                }
+            });
+
+            // Configurar tiempo de espera más largo
+            await pdfWindow.loadURL(url, {
+                timeout: 120000, // 3 minutos
+                waitUntil: 'networkidle2' // Esperar a que la red esté inactiva
+            });
+
+            pdfPage = await pie.getPage(this.browser, pdfWindow);
+
+            // Configurar directorio y nombre del archivo
+            const nameDir = `${this.caso.causa}_${this.caso.juzgado}`;
+            const pdfName = `boletin_${Date.now()}.pdf`;
+            this.dirPath = path.join(this.downloadPath, nameDir);
+            this.pdfPath = path.join(this.dirPath, pdfName);
+
+            if (!fs.existsSync(this.dirPath)) {
+                fs.mkdirSync(this.dirPath, { recursive: true });
+            }
+
+            // Esperar a que el contenido del PDF esté completamente cargado
+            await pdfPage.waitForFunction(() => {
+                // Verificar si hay algún elemento que indique que el PDF está cargando
+                const loadingElements = document.querySelectorAll('.loading, .progress, [aria-busy="true"]');
+                return loadingElements.length === 0;
+            }, {
+                timeout: 180000, // 3 minutos
+                polling: 1000 // Verificar cada segundo
+            });
+
+            // Esperar adicionalmente para contenido complejo
+            await delay(1000);
+
+            // // Descargar el PDF
+            // const file = fs.createWriteStream(this.pdfPath);
+            // const response = await new Promise((resolve, reject) => {
+            //     https.get(url, res => {
+            //         let data = [];
+            //         res.on('data', chunk => data.push(chunk));
+            //         res.on('end', () => resolve(Buffer.concat(data)));
+            //         res.on('error', reject);
+            //     }).on('error', reject);
+            // });
+
+            //Descargar el Pdf con sistema de fallo
+            const pdfBuffer = await this.downloadWithFallback(url, pdfPage);
+            fs.writeFileSync(this.pdfPath, pdfBuffer);
+
+            // Verificar que el PDF se descargó correctamente
+            await this.verifyPdfIntegrity(this.pdfPath);
+
+            // Procesar el PDF
+            resultado = await ProcesarBoletin.convertPdfToText2(this.pdfPath);
+
+            if (resultado) {
+                resultOfProcess = this.PjudData.processInfo(resultado);
+                return resultOfProcess;
+            } else {
+                return false;
+            }
+        } catch (error) {
+            console.error('Error al descargar el PDF:', error.message);
+            return false;
+        } finally {
+            if (pdfPage) {
+                pdfPage.close();
+            }
+            if (pdfWindow && !pdfWindow.isDestroyed()) {
+                console.log("Cerrando ventana del PDF");
+                pdfWindow.destroy();
+            }
+        }
+    }
+    async downloadWithFallback(url, page) {
+        try {
+            // Intento 1: Descarga directa
+            const directDownload = await new Promise((resolve, reject) => {
+                https.get(url, res => {
+                    let data = [];
+                    res.on('data', chunk => data.push(chunk));
+                    res.on('end', () => resolve(Buffer.concat(data)));
+                    res.on('error', reject);
+                }).on('error', reject);
+            });
+            return directDownload;
+        } catch (error) {
+            console.log('Fallando a estrategia de captura de página...');
+
+            // Intento 2: Capturar como PDF desde la página renderizada
+            const pdf = await page.pdf({
+                format: 'A4',
+                printBackground: true,
+                margin: { top: '1cm', right: '1cm', bottom: '1cm', left: '1cm' }
+            });
+            return pdf;
+        }
+    }
+    // Función auxiliar para verificar la integridad del PDF
+    async verifyPdfIntegrity(filePath) {
+        return new Promise((resolve, reject) => {
+            try {
+                const stats = fs.statSync(filePath);
+                if (stats.size < 1024) { // PDF muy pequeño probablemente está corrupto
+                    throw new Error('El archivo PDF es demasiado pequeño y probablemente está incompleto');
+                }
+
+                // Verificar que el PDF termine con el footer %%EOF
+                const fileContent = fs.readFileSync(filePath, 'utf8');
+                if (!fileContent.includes('%%EOF')) {
+                    throw new Error('El archivo PDF no termina correctamente (falta %%EOF)');
+                }
+
+                resolve(true);
+            } catch (error) {
+                reject(error);
+            }
+        });
     }
 
     // Función para verificar que el PDF sea válido
