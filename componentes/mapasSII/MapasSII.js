@@ -3,14 +3,18 @@ const fs = require('fs');
 const {delay} = require('../../utils/delay');
 
 class MapasSII {
-    constructor(browser, page) {
+    constructor(page) {
         this.URL = 'https://www4.sii.cl/mapasui/internet/#/contenido/index.html';
-        this.browser = browser;
         this.page = page;
     }
 
     async init() {
-        await this.entryPage();
+        try{
+            await this.entryPage();
+        }catch (error) {
+            console.error("Error al inicializar MapasSII:", error);
+            throw error; // Re-throw the error to handle it in the calling function
+        }
     }
 
     async obtainDataOfCause(caso) {

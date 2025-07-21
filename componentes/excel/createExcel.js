@@ -166,7 +166,7 @@ class createExcel {
                 this.addObjectToSet(remates,caso);
             }
         }
-        console.log("Total de casos en remates: ", remates.length);
+        console.log("Total de casos en remates: ", remates.size);
 
         // Se escriben todos los casos revisados en la hoja, para eso primero se transforman a
         // objetos para verificar la normalizacion

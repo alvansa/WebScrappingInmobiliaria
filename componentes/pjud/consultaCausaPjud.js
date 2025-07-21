@@ -523,7 +523,7 @@ class ConsultaCausaPjud{
                 console.log("Procesando el documento: ", reference);
                 if(valuePdf && valuePdf !== ''){
                     const linkToPdf = "https://oficinajudicialvirtual.pjud.cl/ADIR_871/civil/documentos/anexoDocCivil.php?dtaDoc=" + valuePdf
-                    isDone = await this.downloadPdfFromUrl2(linkToPdf);
+                    isDone = await this.downloadPdfFromUrl(linkToPdf);
                     if (isDone) {
                         return true;
                     }

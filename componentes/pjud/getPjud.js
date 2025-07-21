@@ -16,6 +16,8 @@ class Pjud {
     }
 
     async getPJUD() {
+        let tableData = [];
+        let tienePaginaSiguiente = true;
         try {
             await this.page.evaluate(() => {
                 verRemates();
@@ -36,15 +38,13 @@ class Pjud {
                 console.log("Botón de consulta clickeado")
             } catch (error) {
                 console.error('Error al hacer clic en el botón de consulta:', error);
-                return [];
+                return tableData;
             }
             // Esperar a que la tabla aparezca después de hacer clic en el botón de consulta
             console.log("Esperando tabla");
             await this.page.waitForSelector('#dtaTableDetalleRemate', { visible: true });
             console.log("Tabla encontrada");
 
-            let tableData = [];
-            let tienePaginaSiguiente = true;
 
             while (tienePaginaSiguiente) {
                 try{
@@ -62,7 +62,7 @@ class Pjud {
             return tableData;
         } catch (error) {
             console.error('Error en la función getPJUD:', error);
-            return [];
+            return tableData;
         }
     }
 
