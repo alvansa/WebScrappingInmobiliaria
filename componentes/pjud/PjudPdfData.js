@@ -143,6 +143,7 @@ class PjudPdfData {
         if (!this.caso.direccion) {
             const direccion = this.obtainDireccion(normalizedInfo);
             if (direccion && !direccion.tipo.includes("estacionamiento")) {
+                console.log(`\n-----------------------------\nDireccion ${direccion.direccion}\n----------------------------- `);
                 this.caso.direccion = direccion.direccion;
             }
         }

@@ -584,7 +584,8 @@ class ConsultaCausaPjud{
             'contrato',
             'medica',
             'policia',
-            'transferencia'
+            'transferencia',
+            'acta'
         ];
 
         // Dividir el texto en palabras individuales
@@ -636,6 +637,7 @@ class ConsultaCausaPjud{
             await pdfPage.goto(url,{
                 timeout: 120000, // Aumentar el tiempo de espera a 120 segundos
                 waitUntil: 'domcontentloaded' // Espera a que la red esté inactiva
+                // waitUntil: 'networkidle'
             });
 
 
