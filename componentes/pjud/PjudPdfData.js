@@ -922,13 +922,19 @@ class PjudPdfData {
         return null;
     }
 
-    obtainComuna(info, infoNormalized) {
+    obtainComuna(info, infoNormalized,logData = false) {
         const regexRegistro = /dominio\s*con\s*vigencia/gi;
         //No se obtiene la comuna de la inscripcion porque en esta aparecen varias comunas
         //Del comprador, vendedor, inmobiliaria, juzgado, etc
         if (regexRegistro.test(info)) {
             console.log("Incluye registro de propiedad, no se puede obtener la comuna");
             return null;
+        }
+        info = normalizeInfoForComuna(info);
+        infoNormalized = normalizeInfoForComuna(infoNormalized) 
+        if(logData){
+            console.log(info);
+            console.log(infoNormalized);
         }
         // console.log("info en comuna: ", info);
         let comuna = obtainComunaByIndex(infoNormalized);
@@ -1038,8 +1044,24 @@ class PjudPdfData {
         }
         return false;
     }
+
 }
 
+    function normalizeInfoForComuna(info) {
+        const regexAdquirio = /los\s*adquirio\s*/i;
+        const regexAdquirioSpanish = /los\s*adquirió/i;
+        const matchNormalizado = regexAdquirio.exec(info);
+        const matchSpanish = regexAdquirioSpanish.exec(info);
+
+        if(matchNormalizado){
+            const endIndex = matchNormalizado.index;
+            info = info.substring(0,endIndex);
+        }else if(matchSpanish){
+            const endIndex = matchSpanish.index;
+            info = info.substring(0,endIndex);
+        }
+        return info
+    }
     function obtainComunaByIndex(info) {
         const startText = "comuna:";
         const startIndex = info.indexOf(startText);

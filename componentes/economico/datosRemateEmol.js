@@ -635,7 +635,8 @@ function checkBienFamiliar(text,tipoDerecho){
         /no\s*hay\s*constancia\s*de\s*haberse\s*anotado\s*declaracion\s*de\s*bien\s*familiar/i,
         /a\s*la\s*expedicion\s*del\s*presente\s*certificado\s*no\s*consta\s*marginalmente\s*la\s*declaracion\s*de\s*bien\s*familiar/i,
         /no\s*existe\s*anotaci[o|ó].*sobre\s*declaraci[o|ó]n\s*de\s*bien\s*familiar/i,
-        /no\s*registra\s*anotacion.*de\s*bien\s*familiar/i
+        /no\s*registra\s*anotacion.*de\s*bien\s*familiar/i,
+        /no\s*existe\s*declaraci[o|ó]n\s*de\s*bien\s*familiar/i,
     ];
     for(let regex of regexNotBienFamiliar) {
         const bienFamiliar = text.match(regex);

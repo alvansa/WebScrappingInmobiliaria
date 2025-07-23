@@ -173,4 +173,25 @@ Valdivia, a 17 de septiembre de 2024.-
                consulte validez en www.cbrchile.cl
 Sol. 432707-IG
 `;
-module.exports = {bf2201, bf1341, notBf, bf1750, BF2452};
+
+const BF2055 = `
+CONSERVADOR DE BIENES RAÍCES
+LA UNIÓN
+CERTIFICADO DECLARACION DE BIEN FAMILIAR
+Carátula Nro 12227.-
+El Conservador que suscribe, certifica haber revisado el margen de la inscripción de dominio
+correspondiente al LOTE TRES, del Plano de Subdivisión de un retazo de terreno ubicado en
+el Sector Santa Rosa, Comuna de La Unión, Provincia del Ranco, Región de Los Ríos, inscrito
+actualmente  a  nombre  de  doña  CRISTINA  DEL  ROSARIO  HUMIRE  MAMANI,  a  Fs.  995  Nº
+1196 en el Registro de Propiedad de este Conservador de Bienes Raíces, correspondiente al
+año  2020,  por  el  lapso  de  treinta  años,  hasta  hoy,  y  ha  establecido  que  NO  EXISTE
+DECLARACION  DE  BIEN  FAMILIAR  a  que  se  refiere  la  Ley  Nº  19.335,  al  margen  de  ellas.-
+LA UNION, 06 DE MAYO DEL AÑO 2024.-
+H1196-20.-LJ
+FR: 1857-3.-
+Conservador de Bienes Raíces de La Unión ,  06 Mayo de 2024
+Emito  con  firma  electrónica  avanzada  (ley  No19.799,  de  2002)  AA  de
+13/10/2006 de la Excma. Corte Suprema.-
+Certificado Nro 143456961068.- Verifique validez en  www.fojas.cl .-`;
+
+module.exports = {bf2201, bf1341, notBf, bf1750, BF2452, BF2055};

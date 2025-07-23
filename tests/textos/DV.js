@@ -973,6 +973,110 @@ Documento incorpora Firma
 Electronica Avanzada
 Código de Verificación: cpv16279a6-0`;
 
+const dv10803 = `Registro de Propiedad
+Copia con Vigencia
+Carátula 23587669
+Morandé 440
+Santiago
+Teléfono:
+2 2390 0800
+www.conservador.cl
+info@conservador.cl
+El Conservador de Bienes Raíces de Santiago certifica que la inscripción de fojas
+45843 número 65911 correspondiente al Registro de Propiedad del año 2017,
+adjunta al presente documento, está conforme con su original y se encuentra
+vigente al día 11 de abril de 2025.
+
+Los derechos registrales correspondientes a esta actuación ascienden a la suma
+de $ 4600.
+asilva
+Santiago, 14 de abril de 2025.
+Código de verificación: cpv167eb55-0
+Documento incorpora firma electrónica avanzada conforme a Ley N°19.799.
+La vigencia de la firma electrónica en el documento, al igual que la integridad
+y autenticidad del mismo, deben ser verificados en www.conservador.cl,
+donde estará disponible por 90 días contados desde la fecha de su emisión.
+Documento impreso es sólo una copia del documento original.
+www.conservador.cl
+página 1 de 3
+
+Nº65911
+JR/AF/AG
+C: 12265684
+COMPRAVENTA
+GESTIÓN
+INMOBILIARIA EL
+BOSQUE LIMITADA
+A
+DIEGO ANDRÉS
+SALINAS RIVERA
+REP: 65900
+B: 1542845
+F:
+
+
+Santiago,  treinta  de  junio  del  año  dos  mil
+diecisiete.-  Don  DIEGO  ANDRÉS  SALINAS  RIVERA,
+C.I.  13.689.126-K,  casado,  bajo  el  régimen  de
+separación  de  bienes,  de  este  domicilio,  es
+dueño  de  la  oficina  número  ochocientos  nueve
+del  octavo  piso,  de  los  estacionamientos
+números   trescientos   treinta   y   nueve   y
+trescientos    cuarenta    ambos    del    tercer
+subterráneo  y  de  la  bodega  número  doscientos
+uno del segundo subterráneo, todos del Edificio
+Nueva La Dehesa Torre Sur, que tiene su acceso
+principal  por  calle  Avenida  La  Dehesa  número
+mil   ochocientos   veintidós,   Comuna   de   Lo
+Barnechea, Región Metropolitana, de acuerdo al
+plano archivado con el número 4181 al 4181 - F;
+y  dueño  además  de  derechos  en  proporción  al
+valor  de  lo  adquirido  en  unión  de  los  otros
+adquirentes  en  los  bienes  comunes  entre  los
+cuales se encuentra el terreno, que corresponde
+al Lote B del plano de subdivisión respectivo,
+que  deslinda:  NORTE,  en  tramo  P  -  Q  de
+cincuenta y nueve coma setenta y seis metros y
+en  tramo  R  -  D  de  treinta  y  uno  coma  ochenta
+metros   ambos   con   lote   A   de   la   misma
+subdivisión; SUR, en tramo B - C de noventa y
+uno coma cincuenta y seis metros con calle Los
+Cactus;  ORIENTE,  en  tramo  C  -  D  de  treinta  y
+nueve  coma  setenta  y  siete  metros  con  Avenida
+La Dehesa y en tramo Q - R de dos coma setenta
+y  tres  metros  con  Lote  A  de  la  misma
+subdivisión;  PONIENTE,  en  tramo  B  -  O  de
+treinta y ocho coma diez metros con Lote C y en
+tramo  Q  -  P  de  cuatro  coma  cuatro  metros  con
+Fojas   45843
+página 2 de 3
+Documento incorpora Firma
+Electronica Avanzada
+Código de Verificación: cpv167eb55-0
+
+lote  D,  ambos  de  la  misma  subdivisión.-  Los
+adquirió  por  compra  a  la  sociedad  GESTIÓN
+INMOBILIARIA EL BOSQUE LIMITADA, con domicilio
+en  la  Comuna  de  Chillán,  Región  del  Bío-Bío,
+según escritura de fecha nueve de junio del año
+dos  mil  diecisiete,  otorgada  en  la  notaría  de
+esta  ciudad,  de  don  René  Benavente  Cash,
+Repertorio  Número  21206,  por  el  precio  de
+CUATRO MIL NOVECIENTAS NOVENTA Y OCHO UNIDADES
+DE  FOMENTO,  que  se  paga  en  la  forma  y
+condiciones  establecidas  en  la  escritura.-  El
+título anterior está a Fojas 44311 Número 67198
+del  año  2013.-  Rol  de  avalúo  número  3587-498,
+3587-548,  3587-547,  3587-351,  Comuna  de  Lo
+Barnechea.-  Requirente:  Banco  de  Chile.-  LUIS
+MALDONADO C.
+Fin del Texto
+
+página 3 de 3
+Documento incorpora Firma
+Electronica Avanzada
+Código de Verificación: cpv167eb55-0`;
+
 module.exports = {
     tx356,
     tx23039, 
@@ -986,5 +1090,6 @@ module.exports = {
     dv1750, 
     dv4991, 
     dv212, 
-    dv11840
+    dv11840,
+    dv10803
     };

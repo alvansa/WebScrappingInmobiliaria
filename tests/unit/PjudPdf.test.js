@@ -10,9 +10,9 @@ const {textoEstacionamiento1,textoHabitacional1, textoBodegaMultiple, textoEstac
 const {textoGP1, textoGP2, textoGP3, textoGP4, textoGP5, texto12Santiago, GP1435} = require('../textos/GP');
 const {diario2484, ex1341, diario1341, diario3354_1, diario3354_2} = require('../textos/diario');
 
-const {tx356, tx23039, tx12017, tx1349, tx3857, tx13759, tx7140, tx11066, tx198, dv1750, dv212, dv4991, dv11840} = require('../textos/DV');
+const {tx356, tx23039, tx12017, tx1349, tx3857, tx13759, tx7140, tx11066, tx198, dv1750, dv212, dv4991, dv11840, dv10803} = require('../textos/DV');
 const {ex1666, ex800, ex2240, ex2226} = require('../textos/Extracto'); 
-const {bf2201, bf1341, notBf, bf1750, BF2452} = require('../textos/BF');
+const {bf2201, bf1341, notBf, bf1750, BF2452, BF2055} = require('../textos/BF');
 const {dm1056, dm1138} = require('../textos/DM');
 const {obtainCorteJuzgadoNumbers} = require('../../utils/corteJuzgado');
 
@@ -24,6 +24,8 @@ const casoBase = Caso.createMockCase();
 const testPjudPdf = new PjudPdfData(testCaso)
 const pjudPdf2484 = new PjudPdfData(caso2484);
 const causaDB = new Causas();
+
+const devMode = true;
 
 
 describe('obtainRolPropiedad', () => {
@@ -191,6 +193,12 @@ describe('obtainDerecho', () => {
         expect(tipoDerecho).toBeNull();
     });
 
+    test('Test de tipo de texto que dice no existe declaracion de bf', ()=>{
+        const info = testPjudPdf.normalizeInfo(BF2055);
+        const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
+        expect(tipoDerecho).toBeNull();
+    });
+
 });
 
 describe('obtainComuna', () => {
@@ -228,6 +236,14 @@ describe('obtainComuna', () => {
         const spanishNormalization = testPjudPdf.normalizeSpanish(tx1349)
         const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
         expect(resAnno).toEqual("colina");
+    });
+
+    test('Test obtencion del DV que dice comuna de chillan y lo barnechea', () =>{
+        const normalizeInfo = testPjudPdf.normalizeInfo(dv10803);
+        const spanishNormalization = testPjudPdf.normalizeSpanish(dv10803)
+        const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
+        expect(resAnno).toEqual("lo barnechea");
+
     });
 
 });
