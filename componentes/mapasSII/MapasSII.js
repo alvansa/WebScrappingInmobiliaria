@@ -81,7 +81,7 @@ class MapasSII {
         const botonCerrar = "div.modal-footer.ng-scope button.btn.btn-warning";
         try {
             // busca el elemento de resultado o error
-            await this.page.waitForSelector(`${divResultado},${divError}`, { timeout: 5000 });
+            await this.page.waitForSelector(`${divResultado},${divError}`);
             // Verificar si el mensaje de error está presente
             const errorElement = await this.page.$(divError);
             if (errorElement) {

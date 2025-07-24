@@ -194,7 +194,7 @@ class scrapeAuction {
             casos = await this.searchCasesByDay(startDate, endDate);
             casos.reverse(); // Invertir el orden de los casos para que aparezcan del mas reciente al mas antiguo
             
-            // const result = await this.obtainDataFromCases(casos, event);
+            const result = await this.obtainDataFromCases(casos, event);
             for (let caso of casos) {
                 console.log("Caso obtenido de pjud: ", caso.fechaRemate);
             }
@@ -212,6 +212,7 @@ class scrapeAuction {
         let mapasSII = null;
         let window = null;
         try {
+            console.log("Obteniendo datos de Mapas SII");
             window = new BrowserWindow({ show: true });
             const url = 'https://www4.sii.cl/mapasui/internet/#/contenido/index.html';
             await window.loadURL(url);
@@ -219,7 +220,8 @@ class scrapeAuction {
             mapasSII = new MapasSII(page);
             await mapasSII.init();
             for (let caso of casos) {
-                if (caso.rolPropiedad !== null && caso.comuna !== null && caso.avaluoPropiedad && caso.origen != 2){
+                console.log("Buscando info del caso ", caso.causa)
+                if (caso.rolPropiedad !== null && caso.comuna !== null && !caso.avaluoPropiedad && caso.origen != 2){
                     console.log(caso.causa, caso.rolPropiedad, caso.comuna, caso.link);
                     await fakeDelay(1, 3);
                     await mapasSII.obtainDataOfCause(caso);

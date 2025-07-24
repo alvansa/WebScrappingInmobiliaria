@@ -203,22 +203,21 @@ class createExcel {
                 const key = `${auction[1].causa}|${auction[1].juzgado}`;
                 let actualCase = cacheAuctions.get(key);
                 if(actualCase){
-                    console.log(`El caso con key ${key} ya se encontro rellenado info`)
+                    // console.log(`El caso con key ${key} ya se encontro rellenado info`)
                     actualCase = Caso.fillMissingData(actualCase,currentCase);
                 }
-                console.log("Enviando false por cachedAuctions :",currentCase.causa);
+                // console.log("Enviando false por cachedAuctions :",currentCase.causa);
                 return false;
             }
         }
-        console.log(`------------\ncausa ${currentCase.causa} fecha remate ${currentCase.fechaRemate} fecha inicio ${this.fixedStartDate} y fecha final ${this.fixedEndDate}`);
+        // console.log(`------------\ncausa ${currentCase.causa} fecha remate ${currentCase.fechaRemate} fecha inicio ${this.fixedStartDate} y fecha final ${this.fixedEndDate}`);
         // Si la fecha de remate es menor a la fecha de inicio, o mayor a la final
         if (currentCase.fechaRemate < this.fixedStartDate || currentCase.fechaRemate > this.fixedEndDate ) {
-            console.log(`No guardado por fecha remate ${currentCase.causa}`);
+            // console.log(`No guardado por fecha remate ${currentCase.causa}`);
             return false;
         }
         // No se escriben casos de juez partidor
         if (currentCase.juzgado === "Juez Partidor") {
-            
             return false;
         }
 
@@ -227,6 +226,7 @@ class createExcel {
         // if(caseDB){
         //     currentCase = Caso.bindCaseWithDB(currentCase,caseDB);
         // }
+
         // if (currentCase.tipoPropiedad === "Estacionamiento") {
         //     return true;
         // }

@@ -440,17 +440,17 @@ class ConsultaCausaPjud{
     }
 
     async searchForDirectory(row){
-        const [number,uselessFile,directory,dirHasLink,stage, tramite, descripcion, fecha] = await Promise.all([
-            row.$eval('td:nth-child(1)', el => el.textContent.trim()),
-            row.$eval('td:nth-child(2)', el => el.textContent.trim()),
-            row.$eval('td:nth-child(3)', el => el.textContent.trim()),
-            row.$eval('td:nth-child(3)', el => el.querySelector('a') !== null),
-            row.$eval('td:nth-child(4)', el => el.textContent.trim()),
-            row.$eval('td:nth-child(5)', el => el.textContent.trim()),
-            row.$eval('td:nth-child(6)', el => el.textContent.trim()),
-            row.$eval('td:nth-child(7)', el => el.textContent.trim()),
-        ]);
         try{
+            const [number, uselessFile, directory, dirHasLink, stage, tramite, descripcion, fecha] = await Promise.all([
+                row.$eval('td:nth-child(1)', el => el.textContent.trim()),
+                row.$eval('td:nth-child(2)', el => el.textContent.trim()),
+                row.$eval('td:nth-child(3)', el => el.textContent.trim()),
+                row.$eval('td:nth-child(3)', el => el.querySelector('a') !== null),
+                row.$eval('td:nth-child(4)', el => el.textContent.trim()),
+                row.$eval('td:nth-child(5)', el => el.textContent.trim()),
+                row.$eval('td:nth-child(6)', el => el.textContent.trim()),
+                row.$eval('td:nth-child(7)', el => el.textContent.trim()),
+            ]);
             if (dirHasLink) {
                 console.log(`El numero ${number} tiene directorio se hace click`);
                 await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
@@ -462,12 +462,14 @@ class ConsultaCausaPjud{
                 if (caseIsFinished) {
                     return true;
                 }
-
                 const xSelector = '#modalAnexoSolicitudCivil > div > div > div.modal-header > button';
-                await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
-                await this.page.waitForSelector(xSelector, { visible: true });
-                await this.page.click(xSelector);
-                return false;
+                const xButton = await this.page.$(xSelector);
+                if (xButton) {
+                    await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
+                    await this.page.waitForSelector(xSelector, { visible: true });
+                    await this.page.click(xSelector);
+                    return false;
+                }
             }
             console.log('Fila:', number, uselessFile, directory, stage, tramite, descripcion, fecha);
             this.checkDescription(descripcion);

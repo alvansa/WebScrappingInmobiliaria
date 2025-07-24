@@ -132,7 +132,7 @@ class MainApp{
             try{
                 console.time("scrapeAuction");
                 const mainProcess = new scrapeAuction(startDate,endDate,saveFile, checkedBoxes,event)
-                const filePath = mainProcess.startSearch();
+                const filePath = await mainProcess.startSearch();
                 console.timeEnd("scrapeAuction");
                 return filePath;
 

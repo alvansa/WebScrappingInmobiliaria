@@ -11,7 +11,8 @@ const SELECTORS =
     'NEXT_PAGE_SELECTOR': 'span.pag_bt_result_left.pag_bt_resul_green.pag_bt_pad_r.pag_color_bt_green',
     'CASO_BLOQUE_SELECTOR': 'div.result.row-fluid',
 }
-    const EMOL = 1;
+const EMOL = 1;
+
 class Economico{
     constructor(browser,fechaInicio, fechaFin){
         this.browser = browser;
@@ -238,6 +239,7 @@ addFoundCases(cases,fechaHoy){
         const fechaPublicacion = new Date(currentCase.fechaPublicacion);
         const fechaHoyCaso = fechaHoy;
         const casoObj = new Caso(fechaHoyCaso, fechaPublicacion, announcement, EMOL);
+        
         this.casosARevisar.push(casoObj);
     }
 }
