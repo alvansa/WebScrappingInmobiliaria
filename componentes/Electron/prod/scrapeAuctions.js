@@ -43,11 +43,11 @@ class scrapeAuction {
         if(this.emptyMode){
            casos = emptyCaseEconomico(); 
         }else{
+            casosPJUD = await this.getCasosPjud(this.startDate, this.endDate, this.checkedBoxes.pjud,this.event)
             casosEconomico = await this.getCasosEconomico(fechaHoy, this.startDate, this.endDate, 3, this.checkedBoxes.economico);
             // casosPreremates = await this.getCasosPreremates(checkedBoxes.preremates),
             casosBoletin = await this.getCasosBoletin(this.startDate, this.endDate, fechaHoy, this.checkedBoxes.liquidaciones),
             casosPYL = await this.getPublicosYLegales(this.startDate, this.endDate, fechaHoy, this.checkedBoxes.PYL),
-            casosPJUD = await this.getCasosPjud(this.startDate, this.endDate, this.checkedBoxes.pjud,this.event)
 
             casos = [...casosEconomico, ...casosPreremates, ...casosBoletin, ...casosPYL, ...casosPJUD];
             await this.obtainMapasSIIInfo(casos);
