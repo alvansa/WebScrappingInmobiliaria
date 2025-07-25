@@ -12,7 +12,7 @@ const {diario2484, ex1341, diario1341, diario3354_1, diario3354_2} = require('..
 
 const {tx356, tx23039, tx12017, tx1349, tx3857, tx13759, tx7140, tx11066, tx198, dv1750, dv212, dv4991, dv11840, dv10803} = require('../textos/DV');
 const {ex1666, ex800, ex2240, ex2226} = require('../textos/Extracto'); 
-const {bf2201, bf1341, notBf, bf1750, BF2452, BF2055} = require('../textos/BF');
+const {bf2201, bf1341, notBf, bf1750, BF2452, BF2055,BF199, CertificadoBF} = require('../textos/BF');
 const {dm1056, dm1138} = require('../textos/DM');
 const {obtainCorteJuzgadoNumbers} = require('../../utils/corteJuzgado');
 
@@ -197,6 +197,18 @@ describe('obtainDerecho', () => {
         const info = testPjudPdf.normalizeInfo(BF2055);
         const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
         expect(tipoDerecho).toBeNull();
+    });
+
+    test('Test de tipo de texto que dice Consta que no tiene anotaciones de bien familiar', ()=>{
+        const info = testPjudPdf.normalizeInfo(BF199);
+        const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
+        // expect(tipoDerecho).toBeNull();
+    });
+
+    test('Test de tipo de texto donde solo dice certificado BF', ()=>{
+        const info = testPjudPdf.normalizeInfo(CertificadoBF);
+        const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
+        // expect(tipoDerecho).toBeNull();
     });
 
 });

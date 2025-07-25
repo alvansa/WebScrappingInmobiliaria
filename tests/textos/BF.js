@@ -194,4 +194,151 @@ Emito  con  firma  electrónica  avanzada  (ley  No19.799,  de  2002)  AA  de
 13/10/2006 de la Excma. Corte Suprema.-
 Certificado Nro 143456961068.- Verifique validez en  www.fojas.cl .-`;
 
-module.exports = {bf2201, bf1341, notBf, bf1750, BF2452, BF2055};
+const BF199 = `CONSERVADOR DE BIENES RAÍCES
+ANGOL
+CERTIFICADO DOMINIO VIGENTE
+Carátula Nro 192.-
+CERTIFICO: Que la inscripción de dominio de fojas 1753 Número 1435 del Registro de
+Propiedad a mi cargo año 2019, relativo a inmueble urbano de una superficie actual de
+doscientos  metros  cuadrados,  que  corresponde  al  Lote  número  seis,  hoy  ubicado
+Avenida Estadio número quinientos diez, de la ciudad y comuna de Renaico, a nombre
+de ALEX LORENS CASTILLO SALAMANCA, se encuentra vigente a esta fecha por no
+existir  anotaciones  marginales  de  transferencia  que  la  cancelen  a  la  fecha.-  Doy  fe.-
+RWP/lhh
+ROBERTO MAXIMILIANO WINTER PEREZ
+Dirección: Pedro Aguirre Cerda N° 601. Angol.-
+ANGOL, OCHO DE JULIO DE 2025
+Conservador de Bienes Raíces de Angol ,  08 Julio de 2025
+Emito  con  firma  electrónica  avanzada  (ley  No19.799,  de  2002)  AA  de
+13/10/2006 de la Excma. Corte Suprema.-
+Certificado Nro 2328.- Verifique validez en  www.fojas.cl .-
+
+
+
+CONSERVADOR DE BIENES RAÍCES
+ANGOL
+CERTIFICADO DE BIEN FAMILIAR
+Carátula Nro 192.-
+INMUEBLE  URBANO  DE  UNA  SUPERFICIE  ACTUAL  DE  DOSCIENTOS  METROS
+CUADRADOS,  QUE  CORRESPONDE  AL  LOTE  NÚMERO  SEIS,  HOY  UBICADO
+AVENIDA  ESTADIO  NÚMERO  QUINIENTOS  DIEZ,  DE  LA  CIUDAD  Y  COMUNA  DE
+RENAICO.-
+CERTIFICO:  Que  al  margen  de  la  inscripción  de  fojas  1753  Número  1435  del  año
+2019,  del  Registro  de  Propiedad  del  Conservador  de  Bienes  Raices  a  mi  cargo,  a
+nombre  de  ALEX  LORENS  CASTILLO  SALAMANCA,  consta  que  esta  no  tiene
+anotación de declaración de Bien Familiar.- Doy fe.- RWP/lhh
+ROBERTO MAXIMILIANO WINTER PEREZ
+Dirección: Pedro Aguirre Cerda N° 601. Angol.-
+ANGOL, OCHO DE JULIO DE 2025
+Conservador de Bienes Raíces de Angol ,  08 Julio de 2025
+Emito  con  firma  electrónica  avanzada  (ley  No19.799,  de  2002)  AA  de
+13/10/2006 de la Excma. Corte Suprema.-
+Certificado Nro 2331.- Verifique validez en  www.fojas.cl .-
+
+
+
+CONSERVADOR DE BIENES RAÍCES
+ANGOL
+CERTIFICADO DE LITIGIO
+Carátula Nro 192.-
+INMUEBLE  URBANO  DE  UNA  SUPERFICIE  ACTUAL  DE  DOSCIENTOS  METROS
+CUADRADOS,  QUE  CORRESPONDE  AL  LOTE  NÚMERO  SEIS,  HOY  UBICADO
+AVENIDA  ESTADIO  NÚMERO  QUINIENTOS  DIEZ,  DE  LA  CIUDAD  Y  COMUNA  DE
+RENAICO.-
+CERTIFICO:  Que  revisados  los  registros  respectivos  en  los  últimos  treinta  años,  la
+propiedad  inscrita  a  fojas  1753  Nro.  1435  del  Registro  de  Propiedad  del  año  2019,  a
+nombre  de  ALEX  LORENS  CASTILLO  SALAMANCA,  no  existe  constancia  de  litigio
+pendiente.- Doy fe.- RWP/lhh
+ROBERTO MAXIMILIANO WINTER PEREZ
+Dirección: Pedro Aguirre Cerda N° 601. Angol.-
+ANGOL, OCHO DE JULIO DE 2025
+Conservador de Bienes Raíces de Angol ,  08 Julio de 2025
+Emito  con  firma  electrónica  avanzada  (ley  No19.799,  de  2002)  AA  de
+13/10/2006 de la Excma. Corte Suprema.-
+Certificado Nro 2330.- Verifique validez en  www.fojas.cl .-
+
+
+
+CONSERVADOR DE BIENES RAÍCES
+ANGOL
+CERTIFICADO HIPOTECA Y GRAVAMENES
+Carátula Nro 192.-
+Inmueble inscrito a:
+FOJAS 1753 NÚMERO 1435 DEL REGISTRO DE PROPIEDAD DEL AÑO 2019 DEL
+CONSERVADOR DE BIENES RAICES A MI CARGO.
+Que corresponde a:
+INMUEBLE  URBANO  DE  UNA  SUPERFICIE  ACTUAL  DE  DOSCIENTOS  METROS
+CUADRADOS,  QUE  CORRESPONDE  AL  LOTE  NÚMERO  SEIS,  HOY  UBICADO
+AVENIDA  ESTADIO  NÚMERO  QUINIENTOS  DIEZ,  DE  LA  CIUDAD  Y  COMUNA  DE
+RENAICO.-
+De propiedad de: ALEX LORENS CASTILLO SALAMANCA.-
+Revisados  los  índices  del  Registro  de  Hipotecas  y  Gravámenes  durante  30  años  a  la
+fecha, certifico que la propiedad individualizada precedentemente tiene una inscripción
+vigente:
+1.- Primera hipoteca
+Cuya inscripción es: fojas 839 N° 385 año 2019
+A favor de: Institución Financiera Cooperativa Coopeuch
+Angol, a 08 de Julio del año 2025.- Doy fe.-
+Revisados  igualmente  durante  30  años  los  índices  del  Registro  de  Interdicciones  y
+Prohibiciones,  certifico  que  la  propiedad  referida  anteriormente,  a  la  fecha  tiene  dos
+inscripciones vigentes:
+1.- Prohibición de enajenar
+Cuya inscripción es: fojas 533 vuelta N° 455 año 2019
+A favor de: Institución Financiera Cooperativa Coopeuch
+Conservador de Bienes Raíces de Angol ,  08 Julio de 2025
+Emito  con  firma  electrónica  avanzada  (ley  No19.799,  de  2002)  AA  de
+13/10/2006 de la Excma. Corte Suprema.-
+Certificado Nro 2329.- Verifique validez en  www.fojas.cl .-
+
+2.- Embargo
+Cuya inscripción es: fojas 63 N° 52 del año 2025
+A favor de: Cooperativa de Ahorro y Crédito Coopeuch
+Angol, a 08 de Julio del año 2025.- Doy fe.-
+RWP/lhh
+Boleta N° 23724
+Conservador de Bienes Raíces de Angol ,  08 Julio de 2025
+Emito  con  firma  electrónica  avanzada  (ley  No19.799,  de  2002)  AA  de
+13/10/2006 de la Excma. Corte Suprema.-
+Certificado Nro 2329.- Verifique validez en  www.fojas.cl .-
+
+COPIA AUTORIZADA
+Conservador de Bienes Raíces de Angol
+Certifico  que  el  presente  documento  electrónico  es  copia  fiel  e  íntegra  de  su
+original, reproducido en las siguientes páginas.
+Conservador de Bienes Raíces de Angol certifica que la copia de la inscripción
+de fojas 1753 número 1435 correspondiente al Registro de Propiedad del año
+2019, adjunta al presente documento, está conforme con su original
+Conservador de Bienes Raíces de Angol.-
+Pedro Aguirre Cerda Nro. 601.-
+Registro de Propiedad Fs 1753 Nº 1435 de 2019.-
+Cantidad páginas documento (incluida la presente): 3
+Carátula  Nº 192.- Código retiro 9e32e
+Angol, 08 de Julio de 2025.-
+Emito  el  presente  documento  con  firma  electrónica  avanzada  (ley  No19.799,  de
+2002), conforme al procedimiento establecido por Auto Acordado de 13/10/2006 de la
+Excma. Corte Suprema.-
+Certificado Nº 2327.- Verifique validez en www.fojas.cl.-
+Nº Certificado 2327.-
+www.fojas.cl
+Pag: 1/3
+
+Emito  con  firma  electrónica  avanzada  (ley  No19.799,  de  2002)  AA  de  13/10/2006  de  la
+Excma. Corte Suprema.-
+Certificado Nº 2327.- Verifique validez en  www.fojas.cl .-
+Pag: 2/3
+
+Emito  con  firma  electrónica  avanzada  (ley  No19.799,  de  2002)  AA  de  13/10/2006  de  la
+Excma. Corte Suprema.-
+Certificado Nº 2327.- Verifique validez en  www.fojas.cl .-
+Pag: 3/3`;
+
+const CertificadoBF = `CONSERVADOR DE BIENES RAÍCES
+ANGOL
+CERTIFICADO DE BIEN FAMILIAR
+Carátula Nro 192.-
+INMUEBLE  URBANO  DE  UNA  SUPERFICIE  ACTUAL  DE  DOSCIENTOS  METROS
+CUADRADOS,  QUE  CORRESPONDE  AL  LOTE  NÚMERO  SEIS,  HOY  UBICADO
+AVENIDA  ESTADIO  NÚMERO  QUINIENTOS  DIEZ,  DE  LA  CIUDAD  Y  COMUNA  DE
+RENAICO.-`;
+
+module.exports = {bf2201, bf1341, notBf, bf1750, BF2452, BF2055, BF199, CertificadoBF};
