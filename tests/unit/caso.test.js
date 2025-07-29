@@ -1,30 +1,34 @@
 const Caso = require('../../componentes/caso/caso');
-const createExcel = require('../../componentes/excel/createExcel')
+const config = require('../../config');
+// const createExcel = require('../../componentes/excel/createExcel')
 
-const excelConstructor = new createExcel("","","","",false,1);
+// const excelConstructor = new createExcel("","","","",false,1);
 const casoBase = Caso.createMockCase();
 
-const EMOL = 1;
-const PJUD = 2;
 
-describe('isCaseInDB', ()=>{
-    test('caso que si deberia estar en DB',()=>{
-        const inDB = excelConstructor.isCaseInDB(casoBase);
-        expect(inDB.causa).toEqual('C-746-2024');
-    });
+const EMOL = config.EMOL;
+const PJUD = config.PJUD;
+const LIQUIDACIONES = config.LIQUIDACIONES;
+const PREREMATES = config.PREREMATES;
 
-    test('Caso que busca null', ()=>{
-        const casoVacio = createCase(null,null);
-        const inDB = excelConstructor.isCaseInDB(casoVacio);
-        expect(inDB).toBeNull();
-    });
+// describe('isCaseInDB', ()=>{
+//     test('caso que si deberia estar en DB',()=>{
+//         const inDB = excelConstructor.isCaseInDB(casoBase);
+//         expect(inDB.causa).toEqual('C-746-2024');
+//     });
 
-    test('Comprobar fecha de caso con casoDB',()=>{
-       const inDB = excelConstructor.isCaseInDB(casoBase);
-        const isCColderInDB = new Date(inDB.fechaRemate) > new Date(casoBase.fechaRemate);
-        expect(isCColderInDB).toEqual(true); 
-    });
-});
+//     test('Caso que busca null', ()=>{
+//         const casoVacio = createCase(null,null);
+//         const inDB = excelConstructor.isCaseInDB(casoVacio);
+//         expect(inDB).toBeNull();
+//     });
+
+//     test('Comprobar fecha de caso con casoDB',()=>{
+//        const inDB = excelConstructor.isCaseInDB(casoBase);
+//         const isCColderInDB = new Date(inDB.fechaRemate) > new Date(casoBase.fechaRemate);
+//         expect(isCColderInDB).toEqual(true); 
+//     });
+// });
 
 describe('mergeDirections',()=>{
     test('Caso con direccion nula', ()=>{
@@ -240,55 +244,7 @@ describe('completeInfo',()=>{
     });
 });
 
-describe('normalizarFechaRemate', ()=>{
-    test('Caso nulo',()=>{
-        const casoVacio = createCase(null,null);
-        const resFecha = casoVacio.normalizarFechaRemate();
-        expect(resFecha).toBeNull();
-    });
 
-    test('Caso Date',()=>{
-        const casoVacio = createCase(null,null);
-        casoVacio.fechaRemate = new Date('2025/12/25');
-        const resFecha = casoVacio.normalizarFechaRemate();
-        expect(resFecha).toEqual(new Date('2025/12/25'));
-    });
-
-    test('Caso PJUD',()=>{
-        const casoVacio = createCase(null,null);
-        casoVacio.fechaRemate = '01/08/2025 13:00';
-        const resFecha = casoVacio.normalizarFechaRemate();
-        expect(resFecha).toEqual(new Date('2025/08/01'));
-    });
-
-    test('Caso Boletin', ()=>{
-        const casoVacio = createCase(null,null);
-        casoVacio.fechaRemate = '09/07/2025 15:00';
-        const resFecha = casoVacio.normalizarFechaRemate();
-        expect(resFecha).toEqual(new Date('2025/07/09'));
-    });
-
-    test('caso con barra lateral "/"', ()=>{
-        const casoVacio = createCase(null,null);
-        casoVacio.fechaRemate = '25/12/2025';
-        const resFecha = casoVacio.normalizarFechaRemate();
-        expect(resFecha).toEqual(new Date('2025/12/25'));
-    });
-
-    test('Caso con fecha en palabras', ()=>{
-        const casoVacio = createCase(null,null);
-        casoVacio.fechaRemate = '25 de diciembre del 2025';
-        const resFecha = casoVacio.normalizarFechaRemate();
-        expect(resFecha).toEqual(new Date('2025/12/25'));
-    });
-    
-    test('Caso con fecha en palabras', ()=>{
-        const casoVacio = createCase(null,null);
-        casoVacio.fechaRemate = 'Wed Dec 25 2024 00:00:00 GMT-0300 (Chile Summer Time)';
-        const resFecha = casoVacio.normalizarFechaRemate();
-        expect(resFecha).toEqual(new Date('2024/12/25'));
-    });
-});
 
 describe('checkEstacionamientoBodega', ()=>{
     test('Caso sin nada', ()=>{

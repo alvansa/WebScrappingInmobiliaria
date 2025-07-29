@@ -9,10 +9,6 @@ const {fixStringDate} = require('../../utils/cleanStrings.js');
 
 const PJUD = 2;
 
-
-
-
-
 class createExcel {
     constructor(saveFile, startDate, endDate, emptyMode, type) {
         this.saveFile = saveFile;
@@ -26,6 +22,7 @@ class createExcel {
         this.comunas = this.causaDB.obtainComunasFromDB();
 
     }
+
     crearBase() {
         // Crea una hoja de cálculo vacía
         const ws = {};
@@ -82,7 +79,6 @@ class createExcel {
         // Guarda el archivo
         XLSX.writeFile(wb, path.join(this.saveFile, 'Remates.xlsx'));
     }
-
 
     async writeData(casos, name = "") {
         console.log("=====================\nEscibiendo informacion en excel\n==============================");
@@ -222,10 +218,10 @@ class createExcel {
         }
 
         // Agregar la busqueda de casos en DB y union si existe ya en la DB
-        // const caseDB = this.isCaseInDB(currentCase);
-        // if(caseDB){
-        //     currentCase = Caso.bindCaseWithDB(currentCase,caseDB);
-        // }
+        const caseDB = this.isCaseInDB(currentCase);
+        if(caseDB){
+            currentCase = Caso.bindCaseWithDB(currentCase,caseDB);
+        }
 
         // if (currentCase.tipoPropiedad === "Estacionamiento") {
         //     return true;

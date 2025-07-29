@@ -199,7 +199,7 @@ class MainApp{
                 caso.causa = null;
                 caso.juzgado = null;
                 const pdfProcess = new ProcesarBoletin(null,null);
-                const result = await ProcesarBoletin.convertPdfToText2(filePath);
+                const result = await ProcesarBoletin.convertPdfToText(filePath);
                 pdfProcess.obtainDataRematesPdf(result, caso);
                 console.log("Caso procesado: ", caso.toObject());
             } catch (error) {
@@ -322,7 +322,7 @@ class MainApp{
             const processPDF = new PjudPdfData(caso,devMode);
             for(let pdf of args[1]){
                 console.log("Leyendo PDF ubicado en: ",pdf);
-                result = await ProcesarBoletin.convertPdfToText2(pdf,1);
+                result = await ProcesarBoletin.convertPdfToText(pdf,1);
                 // console.log("Resultados del texto introducido: ",result);
                 processPDF.processInfo(result);
             }

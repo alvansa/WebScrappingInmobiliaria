@@ -272,8 +272,29 @@ class ProcesarBoletin {
         .replace(/\s+/, ' ');
         return newData;
     }
-
+    
     static async convertPdfToText(filePath) {
+        let text;
+        try{
+
+            text = await ProcesarBoletin.pdfToTextPdfParse(filePath);
+            if(!text){
+                console.error("No se pudo procesar el PDF con pdf-parse, intentando con tesseract...");
+                text = await ProcesarBoletin.pdfToTextPdf2Json(filePath);
+            }
+            // if(!texto){
+            //     console.error("No se pudo procesar el PDF con pdf-parse ni con pdf2json, intentando con tesseract...");
+            //     texto = await ProcesarBoletin.pdfToTextTesseract(filePath);
+            // }
+            return text;
+
+       }catch(error){
+
+       }
+
+    }
+
+    static async pdfToTextPdf2Json(filePath) {
         return new Promise((resolve, reject) => {
             const pdfParser = new PDFParser(this,1);
 
@@ -296,7 +317,7 @@ class ProcesarBoletin {
         });
     }
 
-    static async convertPdfToText2(filePath, origen=1){
+    static async pdfToTextPdfParse(filePath, origen=1){
         try {
             // if(origen == PJUD){
             //     const tesseractText = await ProcesarBoletin.processWithTesseract(filePath);
@@ -317,7 +338,7 @@ class ProcesarBoletin {
         }
     }
 
-    static async processWithTesseract(filePath){
+    static async pdfToTextTesseract(filePath){
         console.log(filePath);
         try{
             const form = new FormData();

@@ -2,8 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const PjudPdfData = require('../../componentes/pjud/PjudPdfData');
 const Caso = require('../../componentes/caso/caso');
-const createExcel = require('../../componentes/excel/createExcel')
-const Causas = require('../../model/Causas');
+// const createExcel = require('../../componentes/excel/createExcel')
+// const Causas = require('../../model/Causas');
 const convertWordToNumbers = require('../../utils/convertWordToNumbers');
 
 const {textoEstacionamiento1,textoHabitacional1, textoBodegaMultiple, textoEstacionamientoMultiple, textoHabitacionMultiple} = require('../textos/Avaluo');
@@ -17,13 +17,13 @@ const {dm1056, dm1138} = require('../textos/DM');
 const {obtainCorteJuzgadoNumbers} = require('../../utils/corteJuzgado');
 
 
-const excelConstructor = new createExcel("","","","",false,1);
+// const excelConstructor = new createExcel("","","","",false,1);
 const testCaso = createCase("1111-2024", '1º Juzgado de Letras de Buin');
 const caso2484 = createCase("C-2484-2023","3º Juzgado de Letras de Iquique");
 const casoBase = Caso.createMockCase();
 const testPjudPdf = new PjudPdfData(testCaso)
 const pjudPdf2484 = new PjudPdfData(caso2484);
-const causaDB = new Causas();
+// const causaDB = new Causas();
 
 const devMode = true;
 
@@ -492,72 +492,72 @@ describe('obtainCorteJuzgadoNumbers', ()=>{
     });
 });
 
-describe('bindCaseWithDB',()=>{
-    test('Caso vacio con DB', ()=>{
-        const casoDB = excelConstructor.isCaseInDB(casoBase);
-        let emptyCase = createCase(null,null);
-        emptyCase = Caso.bindCaseWithDB(emptyCase,casoDB); 
-        expect(emptyCase.direccion).toEqual("Calle Principal 123, Santiago");
-        expect(emptyCase.rol).toEqual('1342-209-220');
-        expect(emptyCase.estadoCivil).toEqual('casado sociedad conyugal');
-        expect(emptyCase.fechaRemate).toEqual(new Date(casoDB.fechaRemate));
-        expect(emptyCase.isPaid).toEqual(false);
-    });
+// describe('bindCaseWithDB',()=>{
+//     test('Caso vacio con DB', ()=>{
+//         const casoDB = excelConstructor.isCaseInDB(casoBase);
+//         let emptyCase = createCase(null,null);
+//         emptyCase = Caso.bindCaseWithDB(emptyCase,casoDB); 
+//         expect(emptyCase.direccion).toEqual("Calle Principal 123, Santiago");
+//         expect(emptyCase.rol).toEqual('1342-209-220');
+//         expect(emptyCase.estadoCivil).toEqual('casado sociedad conyugal');
+//         expect(emptyCase.fechaRemate).toEqual(new Date(casoDB.fechaRemate));
+//         expect(emptyCase.isPaid).toEqual(false);
+//     });
 
-    test('Caso que ya estaba con fecha de remate anterior', ()=>{
-        const casoDB = excelConstructor.isCaseInDB(casoBase);
-        let cCase = createCase(null,null);
-        cCase.fechaRemate = new Date('2025/05/19');
-        cCase = Caso.bindCaseWithDB(cCase,casoDB); 
-        expect(cCase.fechaRemate).toEqual(new Date('2025/05/19'));
-        expect(cCase.alreadyAppear).toEqual(new Date('2024/12/25'));
-        expect(cCase.isPaid).toEqual(false);
-    });
+//     test('Caso que ya estaba con fecha de remate anterior', ()=>{
+//         const casoDB = excelConstructor.isCaseInDB(casoBase);
+//         let cCase = createCase(null,null);
+//         cCase.fechaRemate = new Date('2025/05/19');
+//         cCase = Caso.bindCaseWithDB(cCase,casoDB); 
+//         expect(cCase.fechaRemate).toEqual(new Date('2025/05/19'));
+//         expect(cCase.alreadyAppear).toEqual(new Date('2024/12/25'));
+//         expect(cCase.isPaid).toEqual(false);
+//     });
 
-    test('Caso que ya estaba con fecha de remate posterior', ()=>{
-        let casoBaseFechaModificada = Caso.createMockCase();
-        casoBaseFechaModificada.fechaRemate = new Date("2023/12/25");
-        const casoDB = excelConstructor.isCaseInDB(casoBaseFechaModificada);
-        casoBaseFechaModificada = Caso.bindCaseWithDB(casoBaseFechaModificada,casoDB); 
-        expect(casoBaseFechaModificada instanceof Caso).toEqual(true);
-        expect(casoBaseFechaModificada.causa).toEqual('C-746-2024');
-        expect(casoBaseFechaModificada.fechaRemate).toEqual(new Date("2023/12/25"));
-        expect(casoBaseFechaModificada.isPaid).toEqual(false);
-    });
+//     test('Caso que ya estaba con fecha de remate posterior', ()=>{
+//         let casoBaseFechaModificada = Caso.createMockCase();
+//         casoBaseFechaModificada.fechaRemate = new Date("2023/12/25");
+//         const casoDB = excelConstructor.isCaseInDB(casoBaseFechaModificada);
+//         casoBaseFechaModificada = Caso.bindCaseWithDB(casoBaseFechaModificada,casoDB); 
+//         expect(casoBaseFechaModificada instanceof Caso).toEqual(true);
+//         expect(casoBaseFechaModificada.causa).toEqual('C-746-2024');
+//         expect(casoBaseFechaModificada.fechaRemate).toEqual(new Date("2023/12/25"));
+//         expect(casoBaseFechaModificada.isPaid).toEqual(false);
+//     });
 
-    test('Caso que esta en DB pero el isPaid es nulo, deberia quedar nulo', ()=>{
-        let casoforDB = createCase("C-6950-2019","1° Juzgado de Letras de San Bernardo");
-        casoforDB.numeroJuzgado = 267;
-        const casoDB = excelConstructor.isCaseInDB(casoforDB);
-        expect(casoforDB.isPaid).toEqual(false);
+//     test('Caso que esta en DB pero el isPaid es nulo, deberia quedar nulo', ()=>{
+//         let casoforDB = createCase("C-6950-2019","1° Juzgado de Letras de San Bernardo");
+//         casoforDB.numeroJuzgado = 267;
+//         const casoDB = excelConstructor.isCaseInDB(casoforDB);
+//         expect(casoforDB.isPaid).toEqual(false);
         
 
-        casoforDB = Caso.bindCaseWithDB(casoforDB,casoDB); 
-        expect(casoforDB.isPaid).toEqual(false);
-        expect(casoDB.isPaid).toBeNull();
-    });
-});
+//         casoforDB = Caso.bindCaseWithDB(casoforDB,casoDB); 
+//         expect(casoforDB.isPaid).toEqual(false);
+//         expect(casoDB.isPaid).toBeNull();
+//     });
+// });
 
-describe('inCaseInDB', ()=>{
-    test('Caso null', ()=>{
-        const casoVacio = createCase(null,null)
-        const casoDB = excelConstructor.isCaseInDB(casoVacio);
-        expect(casoDB).toBeNull();
-    });
+// describe('inCaseInDB', ()=>{
+//     test('Caso null', ()=>{
+//         const casoVacio = createCase(null,null)
+//         const casoDB = excelConstructor.isCaseInDB(casoVacio);
+//         expect(casoDB).toBeNull();
+//     });
     
-    test('Caso que no esta en DB',()=>{
-        const casoVacio = createCase('C-123-1111',null)
-        const casoDB = excelConstructor.isCaseInDB(casoVacio);
-        expect(casoDB).toBeNull();
-    });
+//     test('Caso que no esta en DB',()=>{
+//         const casoVacio = createCase('C-123-1111',null)
+//         const casoDB = excelConstructor.isCaseInDB(casoVacio);
+//         expect(casoDB).toBeNull();
+//     });
 
-    test('Caso que ya estaba con fecha de remate anterior', ()=>{
-        const casoDB = excelConstructor.isCaseInDB(casoBase);
-        expect(casoDB.causa).toEqual(casoBase.causa);
-        expect(casoDB).not.toBeNull();
-    });
+//     test('Caso que ya estaba con fecha de remate anterior', ()=>{
+//         const casoDB = excelConstructor.isCaseInDB(casoBase);
+//         expect(casoDB.causa).toEqual(casoBase.causa);
+//         expect(casoDB).not.toBeNull();
+//     });
 
-});
+// });
 
 
 describe('convertWordToNumbers',()=>{

@@ -3,7 +3,15 @@ require('dotenv').config();
 const DESARROLLO = true;
 const TESTPJUD = true;
 
-const config = {
+const baseConfig = {
+    EMOL: 1,
+    PJUD: 2,
+    LIQUIDACIONES: 3,
+    PREREMATES: 4,
+    OTROS: 0,
+}
+
+const environmentConfig = {
     DESARROLLO: {
         env: 'desarrollo',
         cambiarDias: false,
@@ -30,13 +38,14 @@ const config = {
         PASSWORD : process.env.PASSWORD ? process.env.PASSWORD : null,
         
     }
-
 }
 
+const config = {
+    ...baseConfig,
+    ...environmentConfig.DESARROLLO,
+};
 
 
-
-
-module.exports = config['PRODUCCION'];
+module.exports = config;
 
 // exports.TESTPJUD = TESTPJUD;

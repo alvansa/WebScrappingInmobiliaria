@@ -646,7 +646,7 @@ class ConsultaCausaPjud{
             await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
             //Leer el pdf descargado
             // Aca es donde se deberia realizar el cambio para leer con tesseract
-            resultado = await ProcesarBoletin.convertPdfToText2(this.pdfPath);
+            resultado = await ProcesarBoletin.convertPdfToText(this.pdfPath);
             await delay(1000);
             if(resultado){
                 resultOfProcess = this.PjudData.processInfo(resultado);

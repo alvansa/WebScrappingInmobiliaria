@@ -30,13 +30,11 @@
     "better-sqlite3": "^11.10.0",
     "cheerio": "^1.0.0",
     "dotenv": "^16.4.7",
-    "electron-store": "^10.0.1",
     "node-fetch": "^3.3.2",
     "pdf-parse": "^1.1.1",
     "pdf2json": "^3.1.4",
     "puppeteer-core": "^24.4.0",
     "puppeteer-in-electron": "^3.0.5",
-    "scribe.js-ocr": "^0.8.0",
     "webpack": "^5.96.1",
     "xlsx": "^0.18.5"
   },
@@ -52,7 +50,7 @@
       "perMachine": false,
       "allowToChangeInstallationDirectory": true
     },
-    "mac":{
+    "mac": {
       "category": "public.app-category.finance",
       "target": [
         {

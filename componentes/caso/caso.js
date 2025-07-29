@@ -1,9 +1,13 @@
 const {cleanInitialZeros} = require('../../utils/cleanStrings');
-const EMOL = 1;
-const PJUD = 2;
-const LIQUIDACIONES = 3;
-const PREREMATES = 4;
-const otros = 0;
+const config = require('../../config');
+const DateHelper = require('./Normalizers/DateHelper');
+
+
+const EMOL = config.EMOL;
+const PJUD = config.PJUD;
+const LIQUIDACIONES = config.LIQUIDACIONES;
+const PREREMATES = config.PREREMATES;
+const otros = config.OTROS;
 
 const THREE_SAME = 0;
 const ONE_TWO = 1;
@@ -288,13 +292,13 @@ class Caso{
         if(this.#fechaRemate == "N/A" || this.#fechaRemate == null){
             return null;
         }
-        return this.normalizarFechaRemate();
+        return DateHelper.normalizar(this.#fechaRemate, this.#origen);
     }
     get fechaRemateSQL(){
         if(!this.#fechaRemate){
             return null;
         }
-        return String(this.normalizarFechaRemate());
+        return DateHelper.formatearParaSQL(this.fechaRemate);
     }
 
     get fechaPublicacion(){
@@ -505,7 +509,7 @@ class Caso{
   
 
     toObject() {
-        const fechaObtencionNormalizada = this.normalizarFechaObtencion()
+        const fechaObtencionNormalizada = DateHelper.normalizar(this.#fechaObtencion, this.#origen);
         const montoMoneda = this.normalizarMontoMinimo(); 
         const causaNormalizada = this.normalizarCausa();
         const annoNormalizado = this.normalizarAnno();
@@ -517,7 +521,7 @@ class Caso{
         const diaEntregaNormalizado = this.normalizarDiaEntrega();
         const comunaNormalizada = this.normalizarComuna();
         const tipoDerechoNormalizado = this.normalizarTipoDerecho();
-        const fechaRemateNormalizada = this.normalizarFechaRemate();
+        const fechaRemateNormalizada = DateHelper.normalizar(this.#fechaRemate, this.#origen);
 
         return {
             fechaObtencion: fechaObtencionNormalizada,
@@ -568,73 +572,73 @@ class Caso{
     } 
 
     // Transforma la fecha de la publicación de estar escrita en palabras a un objeto Date
-    normalizarFechaRemate(){
-        if(this.#fechaRemate == "N/A" || this.#fechaRemate == null){ 
-            return null;
-        }
-        if(this.#fechaRemate instanceof Date){
-            return this.#fechaRemate;
-        }
+    // normalizarFechaRemate(){
+    //     if(this.#fechaRemate == "N/A" || this.#fechaRemate == null){ 
+    //         return null;
+    //     }
+    //     if(this.#fechaRemate instanceof Date){
+    //         return this.#fechaRemate;
+    //     }
 
-        // Si el origen es Pjud, viene con formato tipo dd/mm/yyyy HH:mm:ss
-        if(this.#origen == PJUD){
-            this.#fechaRemate = this.#fechaRemate.split(' ')[0];
-            const partes = this.#fechaRemate.split('/');
-            let fechaRemate = new Date(partes[2],partes[1]-1,partes[0]);
-            // fechaRemate.setHours(fechaRemate.getHours() + 6);
-            return fechaRemate;
-        }
+    //     // Si el origen es Pjud, viene con formato tipo dd/mm/yyyy HH:mm:ss
+    //     if(this.#origen == PJUD){
+    //         this.#fechaRemate = this.#fechaRemate.split(' ')[0];
+    //         const partes = this.#fechaRemate.split('/');
+    //         let fechaRemate = new Date(partes[2],partes[1]-1,partes[0]);
+    //         // fechaRemate.setHours(fechaRemate.getHours() + 6);
+    //         return fechaRemate;
+    //     }
 
-        // Si el origen es Liquidaciones, viene con el formato Date listo
-        if(this.#origen == LIQUIDACIONES){
-            return new Date(this.#fechaRemate);
-        }
+    //     // Si el origen es Liquidaciones, viene con el formato Date listo
+    //     if(this.#origen == LIQUIDACIONES){
+    //         return new Date(this.#fechaRemate);
+    //     }
 
-        //Del estilo Wed Dec 25 2024 00:00:00 GMT-0300 (Chile Summer Time).
-        if(this.#fechaRemate.includes("Chile Summer")){
-            return new Date(this.#fechaRemate);
-        }
-        try {
-            //Del estilo 25/12/2025
-            if (this.#fechaRemate.includes("/")) {
-                const regexFecha = /(\d{1,2})\/(\d{1,2})\/(\d{4})/;
-                const partesFecha = this.#fechaRemate.match(regexFecha);
-                if (partesFecha) {
-                    const dia = parseInt(partesFecha[1], 10);
-                    const mes = parseInt(partesFecha[2], 10) - 1; // Los meses en JavaScript son 0-indexados
-                    const anno = parseInt(partesFecha[3], 10);
-                    return new Date(anno, mes, dia);
-                }
-            }
-            // Del estilo 25-12-2025
-            if (this.#fechaRemate.includes("-")) {
-                const regexFecha = /(\d{1,2})-(\d{1,2})-(\d{4})/;
-                const partesFecha = this.#fechaRemate.match(regexFecha);
-                if (partesFecha) {
-                    const dia = parseInt(partesFecha[1], 10);
-                    const mes = parseInt(partesFecha[2], 10) - 1; // Los meses en JavaScript son 0-indexados
-                    const anno = parseInt(partesFecha[3], 10);
-                    return new Date(anno, mes, dia);
-                }
-            }
+    //     //Del estilo Wed Dec 25 2024 00:00:00 GMT-0300 (Chile Summer Time).
+    //     if(this.#fechaRemate.includes("Chile Summer")){
+    //         return new Date(this.#fechaRemate);
+    //     }
+    //     try {
+    //         //Del estilo 25/12/2025
+    //         if (this.#fechaRemate.includes("/")) {
+    //             const regexFecha = /(\d{1,2})\/(\d{1,2})\/(\d{4})/;
+    //             const partesFecha = this.#fechaRemate.match(regexFecha);
+    //             if (partesFecha) {
+    //                 const dia = parseInt(partesFecha[1], 10);
+    //                 const mes = parseInt(partesFecha[2], 10) - 1; // Los meses en JavaScript son 0-indexados
+    //                 const anno = parseInt(partesFecha[3], 10);
+    //                 return new Date(anno, mes, dia);
+    //             }
+    //         }
+    //         // Del estilo 25-12-2025
+    //         if (this.#fechaRemate.includes("-")) {
+    //             const regexFecha = /(\d{1,2})-(\d{1,2})-(\d{4})/;
+    //             const partesFecha = this.#fechaRemate.match(regexFecha);
+    //             if (partesFecha) {
+    //                 const dia = parseInt(partesFecha[1], 10);
+    //                 const mes = parseInt(partesFecha[2], 10) - 1; // Los meses en JavaScript son 0-indexados
+    //                 const anno = parseInt(partesFecha[3], 10);
+    //                 return new Date(anno, mes, dia);
+    //             }
+    //         }
 
-            // Si el origen es Emol, puede venir con formato de palabras
-            const dia = this.getDia();
-            const mes = this.getMes();
-            const anno = this.getAnno();
-            if (dia && mes && anno) {
-                const fecha = new Date(anno, mes - 1, dia);
-                // Se suma 6 horas ya que la fecha a veces queda si es del 25 de diciembre queda como 
-                // 24 de diciembre a las 23:59:59.999, por lo que se suma 6 horas para que quede como 25 de diciembre
-                // return new Date(fecha.getTime() + 6 * 60 * 60 * 1000); // Sumar 6 horas
-                return fecha;
-            }
-        } catch (error) {
-            console.error("Error normalizando la fecha: ", error.message);
-            return null;
-        }
-        return null;
-    }
+    //         // Si el origen es Emol, puede venir con formato de palabras
+    //         const dia = this.getDia();
+    //         const mes = this.getMes();
+    //         const anno = this.getAnno();
+    //         if (dia && mes && anno) {
+    //             const fecha = new Date(anno, mes - 1, dia);
+    //             // Se suma 6 horas ya que la fecha a veces queda si es del 25 de diciembre queda como 
+    //             // 24 de diciembre a las 23:59:59.999, por lo que se suma 6 horas para que quede como 25 de diciembre
+    //             // return new Date(fecha.getTime() + 6 * 60 * 60 * 1000); // Sumar 6 horas
+    //             return fecha;
+    //         }
+    //     } catch (error) {
+    //         console.error("Error normalizando la fecha: ", error.message);
+    //         return null;
+    //     }
+    //     return null;
+    // }
 
     // Obtiene el número de la causa para buscar el remate en el pjud
     getCausaPjud(){
@@ -655,53 +659,6 @@ class Caso{
         return causa[2];
     }
    
-    // Obtiene el día de la fecha de cuando se realizara el remate.
-    getDia(){
-        if(this.#fechaRemate == "N/A" || this.#fechaRemate == null){
-            return null;
-        }
-        const dias = ['uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve','diez','once','doce','trece','catorce','quince','dieciseis','diecisiete','dieciocho','diecinueve','veinte','veintiuno','veintidos','veintitres','veinticuatro','veinticinco','veintiseis','veintisiete','veintiocho','veintinueve','treinta','treinta y uno'];
-        const diaRegex = /(\d{1,2})/g;
-        const diaRemate = this.#fechaRemate.match(diaRegex);
-        if(diaRemate){
-            return diaRemate[0];
-        }
-        for(let dia of dias){
-            if(this.#fechaRemate.toLowerCase().includes(dia)){
-                return this.palabraADia(dia);
-            }
-        }
-        return null;
-    }
-
-    // Obtiene el mes de la fecha de cuando se realizara el remate.
-    getMes(){
-        if(this.#fechaRemate == "N/A" || this.#fechaRemate == null){return null}
-        const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-        for(let mes of meses){
-            if(this.#fechaRemate.toLowerCase().includes(mes)){
-                
-                return this.mesNumero(mes);
-            }
-        }
-        return null;
-    }   
-
-    // Obtiene el año de la fecha de cuando se realizara el remate.
-    getAnno(){
-        const annoRegex = /(\d{4})/g;
-        const annoRemate = this.#fechaRemate.match(annoRegex);
-        if(annoRemate){
-            return annoRemate[0];
-        }
-        const annoPalabras = /dos\smil\s(veinticuatro|veinticinco|veintiséis|veintisiete|veintiocho|veintinueve|treinta|treinta y uno|treinta y dos|treinta y tres|treinta y cuatro|treinta y cinco)/i;
-        const annoRematePalabras = this.#fechaRemate.match(annoPalabras);
-        if(annoRematePalabras){
-            const anno = this.palabrasANumero(annoRematePalabras[0]);
-            return anno;
-        }
-        return null;
-    }
 
     // Devuelve el número del año en base a su nombre en palabras para escribir la fecha en tipo Date
     palabrasANumero(añoEnPalabras) {
@@ -729,62 +686,6 @@ class Caso{
         throw new Error("Formato no reconocido");
     }
 
-    // Devuele el número del día en base a su nombre en palabras para escribir la fecha en tipo Date
-    palabraADia(diaEnPalabras) {
-        const mapNumeros ={
-            "uno": 1,
-            "dos": 2,
-            "tres": 3,
-            "cuatro": 4,
-            "cinco": 5,
-            "seis": 6,
-            "siete": 7,
-            "ocho": 8,
-            "nueve": 9,
-            "diez": 10,
-            "once": 11,
-            "doce": 12,
-            "trece": 13,
-            "catorce": 14,
-            "quince": 15,
-            "dieciseis": 16,
-            "diecisiete": 17,
-            "dieciocho": 18,
-            "diecinueve": 19,
-            "veinte": 20,
-            "veintiuno": 21,
-            "veintidos": 22,
-            "veintitres": 23,
-            "veinticuatro": 24,
-            "veinticinco": 25,
-            "veintiséis": 26,
-            "veintisiete": 27,
-            "veintiocho": 28,
-            "veintinueve": 29,
-            "treinta": 30,
-            "treinta y uno": 31
-        };
-        return mapNumeros[diaEnPalabras];
-    }
-    
-    // Devuelve el número del mes en base a su nombre en palabras para escribir la fecha en tipo Date
-    mesNumero(mesEnPalabras){
-        const mapaNumeros ={
-            "enero": 1,
-            "febrero": 2,
-            "marzo": 3,
-            "abril": 4,
-            "mayo": 5,
-            "junio": 6,
-            "julio": 7,
-            "agosto": 8,
-            "septiembre": 9,
-            "octubre": 10,
-            "noviembre": 11,
-            "diciembre": 12
-        };
-        return mapaNumeros[mesEnPalabras];
-    }
     
     // Devuelve el monto numerico mínimo del remate
     getMontoMinimo(){
