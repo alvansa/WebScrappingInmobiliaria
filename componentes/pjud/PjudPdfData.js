@@ -4,8 +4,9 @@ const convertWordToNumbers = require('../../utils/convertWordToNumbers');
 const regexMutuoHipotecario = /mutuo\s*hipotecario/i;
 
 class PjudPdfData {
-    constructor(caso,isDev=false) {
+    constructor(caso,mainWindow,isDev=false) {
         this.caso = caso;
+        this.mainWindow = mainWindow;
         this.isDev = isDev;
     }
 
@@ -135,6 +136,7 @@ class PjudPdfData {
             let comuna = this.findValueGeneric(info, normalizedInfo, this.obtainComuna);
             if (comuna) {
                 console.log(`\n-----------------------------\nComuna ${comuna}\n----------------------------- `);
+                sendToRenderer(this.mainWindow, `Causa: ${this.caso.causa} Comuna obtenida: ${comuna}`);
                 this.caso.comuna = comuna;
             }
         }
@@ -206,6 +208,7 @@ class PjudPdfData {
             const percentage = this.getAndProcessPercentage(info);
             if (percentage) {
                 console.log(`-----------------\nporcentaje: ${percentage}\n-----------------`);
+                sendToRenderer(this.mainWindow, `Causa: ${this.caso.causa} Porcentaje obtenido: ${percentage}`);
                 this.caso.porcentaje = percentage ? percentage : null;
             }
         }
@@ -1092,6 +1095,12 @@ class PjudPdfData {
         }
         return null;
     }
+
+function sendToRenderer(window,msg){
+    if(window && !window.isDestroyed()){
+        window.webContents.send("electron-log", msg);  
+    }
+}
 module.exports = PjudPdfData;
 // && this.caso.isBienFamiliar
 // && this.caso.anno

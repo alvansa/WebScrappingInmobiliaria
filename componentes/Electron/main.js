@@ -131,7 +131,7 @@ class MainApp{
             console.log("handle start-proccess starDate: ", startDate, " endDate: ", endDate, " saveFile: ", saveFile, " checkedBoxes: ", checkedBoxes);
             try{
                 console.time("scrapeAuction");
-                const mainProcess = new scrapeAuction(startDate,endDate,saveFile, checkedBoxes,event)
+                const mainProcess = new scrapeAuction(startDate,endDate,saveFile, checkedBoxes,event,this.mainWindow)
                 const filePath = await mainProcess.startSearch();
                 console.timeEnd("scrapeAuction");
                 return filePath;

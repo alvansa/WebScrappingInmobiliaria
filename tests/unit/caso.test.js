@@ -55,8 +55,7 @@ describe('adaptRol', () => {
     test('Caso base todo null', () =>{
         const casoTest = createCase("C-111-222","1 santaigo");
         casoTest.rolPropiedad = null;
-        const rolResultado = casoTest.adaptRol();
-        expect(rolResultado).toBeNull();
+        expect(casoTest.unitRol).toBeNull();
     });
 
     test('Prueba con caso rol propiedad en singular', () =>{
@@ -244,8 +243,6 @@ describe('completeInfo',()=>{
     });
 });
 
-
-
 describe('checkEstacionamientoBodega', ()=>{
     test('Caso sin nada', ()=>{
         const casotest = createCase('C-1111-2222','');
@@ -308,6 +305,37 @@ describe('normalizarMontoMinimo',()=>{
 
     });
 
+});
+
+describe('Normalizar formato entrega', ()=>{
+    test('Test nulo ', ()=>{
+        casoBase.formatoEntrega = null;
+        expect(casoBase.formatoEntrega).toBeNull();
+    });
+    
+    test('Test basico ', ()=>{
+        const formato = 'vale            vista';
+        casoBase.formatoEntrega = formato;
+        expect(casoBase.formatoEntrega).toEqual('vale vista');
+    });
+
+    test('Test vale a la vista ', ()=>{
+        const formato = 'vale a la vista';
+        casoBase.formatoEntrega = formato;
+        expect(casoBase.formatoEntrega).toEqual('vale vista');
+    });
+
+    test('Test con salto de linea ', ()=>{
+        const formato = 'vale a\n la vista';
+        casoBase.formatoEntrega = formato;
+        expect(casoBase.formatoEntrega).toEqual('vale vista');
+    });
+
+    test('Test con salto de linea ', ()=>{
+        const formato = 'vale a\n la           VISTA';
+        casoBase.formatoEntrega = formato;
+        expect(casoBase.formatoEntrega).toEqual('vale vista');
+    });
 });
 
 function createCase(causa,juzgado){

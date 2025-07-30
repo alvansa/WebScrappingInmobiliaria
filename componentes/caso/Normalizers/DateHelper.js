@@ -8,7 +8,7 @@ const PREREMATES = config.PREREMATES;
 
 class DateHelper{
     // Normalización principal
-    static normalizar(fecha, origen) {
+    static normalize(fecha, origen) {
         if (!fecha || fecha === 'N/A') return null;
 
         if( fecha instanceof Date) {
@@ -43,6 +43,9 @@ class DateHelper{
     }
 
     static inteligentParse(fecha) {
+        if(fecha.includes("Chile Summer")){
+            return new Date(fecha);
+        }
         //Del estilo 25/12/2025
         if (fecha.includes("/")) {
             const regexFecha = /(\d{1,2})\/(\d{1,2})\/(\d{4})/;
@@ -67,9 +70,13 @@ class DateHelper{
         }
 
         // Si el origen es Emol, puede venir con formato de palabras
-        const dia = this.getDia(fecha);
-        const mes = this.getMes(fecha);
-        const anno = this.getAnno(fecha);
+        const splitDate = fecha.split("de");
+        if(splitDate.length < 3){
+            return null;
+        }
+        const dia = this.getDia(splitDate[0]);
+        const mes = this.getMes(splitDate[1]);
+        const anno = this.getAnno(splitDate[2]);
         if (dia && mes && anno) {
             const newFecha = new Date(anno, mes - 1, dia);
             return newFecha;
@@ -86,6 +93,7 @@ class DateHelper{
         if(fecha == "N/A" || fecha == null){
             return null;
         }
+        fecha = fecha.toLowerCase().trim();
         const dias = ['uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve','diez','once','doce','trece','catorce','quince','dieciseis','diecisiete','dieciocho','diecinueve','veinte','veintiuno','veintidos','veintitres','veinticuatro','veinticinco','veintiseis','veintisiete','veintiocho','veintinueve','treinta','treinta y uno'];
         const diaRegex = /(\d{1,2})/g;
         const diaRemate = fecha.match(diaRegex);
@@ -93,7 +101,7 @@ class DateHelper{
             return diaRemate[0];
         }
         for(let dia of dias){
-            if(fecha.toLowerCase().includes(dia)){
+            if(fecha.toLowerCase() == dia){
                 return this.palabraADia(dia);
             }
         }
@@ -157,6 +165,7 @@ class DateHelper{
             "veinticuatro": 24,
             "veinticinco": 25,
             "veintiséis": 26,
+            "veintiseis" : 26,
             "veintisiete": 27,
             "veintiocho": 28,
             "veintinueve": 29,
@@ -183,6 +192,32 @@ class DateHelper{
             "diciembre": 12
         };
         return mapaNumeros[mesEnPalabras];
+    }
+
+    // Devuelve el número del año en base a su nombre en palabras para escribir la fecha en tipo Date
+    static palabrasANumero(añoEnPalabras) {
+        añoEnPalabras = añoEnPalabras.toLowerCase();
+        const mapaNumeros = {
+            "veinticuatro": 24,
+            "veinticinco": 25,
+            "veintiséis": 26,
+            "veintisiete": 27,
+            "veintiocho": 28,
+            "veintinueve": 29,
+            "treinta": 30,
+            "treinta y uno": 31,
+            "treinta y dos": 32,
+            "treinta y tres": 33,
+            "treinta y cuatro": 34,
+            "treinta y cinco": 35
+        };
+    
+        const prefijo = "dos mil ";
+        if (añoEnPalabras.startsWith(prefijo)) {
+            const resto = añoEnPalabras.slice(prefijo.length).trim();
+            return 2000 + (mapaNumeros[resto] || 0);
+        }
+        throw new Error("Formato no reconocido");
     }
     
 }

@@ -72,6 +72,7 @@ contextBridge.exposeInMainWorld('api', {
     console.log("Resultados de la consulta en el preload :", result);
     return result;
   },
+
   getAllCausas : async() =>{
     const result = await ipcRenderer.invoke('getAllCausas');
     return result;
@@ -86,7 +87,12 @@ contextBridge.exposeInMainWorld('api', {
       console.error('Error al obtener información del Pjud:', error);
       throw error; // Re-lanzar el error para manejarlo en el lugar donde se llama
     }
+  },
+
+  electronLog : async  (callback) => {
+    const result = await ipcRenderer.invoke('electron-log', (event, message) => callback(message));
   }
+
 });
 
 

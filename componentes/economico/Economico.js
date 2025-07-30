@@ -43,6 +43,9 @@ class Economico{
                 }else{
                     console.log("No se pudo obtener la descripción para el caso: ", caso);
                 }
+                if(counter % 5 == 0){
+                    await fakeDelay(120, 240);
+                }
             }
             for(let caso of this.casosARevisar){
                 // console.log("Procesando caso: ", caso.link);

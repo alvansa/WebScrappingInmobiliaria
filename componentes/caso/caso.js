@@ -1,21 +1,14 @@
 const {cleanInitialZeros} = require('../../utils/cleanStrings');
 const config = require('../../config');
 const DateHelper = require('./Normalizers/DateHelper');
-
+const RolHelper = require('./Normalizers/RolHelper');
+const StringHelper = require('./Normalizers/StringHelper');
 
 const EMOL = config.EMOL;
 const PJUD = config.PJUD;
 const LIQUIDACIONES = config.LIQUIDACIONES;
 const PREREMATES = config.PREREMATES;
 const otros = config.OTROS;
-
-const THREE_SAME = 0;
-const ONE_TWO = 1;
-const ONE_THREE = 2;
-const TWO_THREE = 3;
-const THREE_DIFF = 4;
-
-
 
 class Caso{
     #fechaPublicacion;
@@ -284,15 +277,14 @@ class Caso{
         if(this.#juzgado == null){
             return null;
         }
-        const juzgadoNormalizado = this.normalizarJuzgado();
-        return String(juzgadoNormalizado);
+        return StringHelper.juzgado(this.#juzgado);
     }
 
     get fechaRemate(){
         if(this.#fechaRemate == "N/A" || this.#fechaRemate == null){
             return null;
         }
-        return DateHelper.normalizar(this.#fechaRemate, this.#origen);
+        return DateHelper.normalize(this.#fechaRemate, this.#origen);
     }
     get fechaRemateSQL(){
         if(!this.#fechaRemate){
@@ -339,7 +331,7 @@ class Caso{
         if(this.#direccion === null){
             return null;
         }
-        return String(this.#direccion);
+        return StringHelper.direccion(this.#direccion);
     }
     get corte(){
         if(this.#corte === null){
@@ -429,13 +421,13 @@ class Caso{
         if(!this.#formatoEntrega){
             return null;
         }
-        return this.normalizarFormatoEntrega()
+        return StringHelper.formatoEntrega(this.#formatoEntrega);
     }
     get partes(){
         if(!this.#partes){
             return null;
         }
-        return this.normalizarPartes();
+        return StringHelper.partes(this.#partes, this.#origen);
     }
     get alreadyAppear(){
         if(!this.#alreadyAppear){
@@ -451,7 +443,7 @@ class Caso{
     }
     get unitRol(){
         if(!this.#unitRol){
-            return this.adaptRol();
+            return RolHelper.normalizeRol(this.#rolPropiedad, this.#rolEstacionamiento, this.#rolBodega);
         }
         return this.#unitRol;
     }
@@ -509,29 +501,24 @@ class Caso{
   
 
     toObject() {
-        const fechaObtencionNormalizada = DateHelper.normalizar(this.#fechaObtencion, this.#origen);
         const montoMoneda = this.normalizarMontoMinimo(); 
         const causaNormalizada = this.normalizarCausa();
         const annoNormalizado = this.normalizarAnno();
         const porcentajeNormalizado = this.normalizarPorcentaje(); 
-        const formatoEntregaNormalizado = this.normalizarFormatoEntrega();
-        const juzgadoNormalizado = this.normalizarJuzgado();
-        const direccionNormalizada = this.normalizarDireccion();
-        const partesNormalizadas = this.normalizarPartes();
         const diaEntregaNormalizado = this.normalizarDiaEntrega();
         const comunaNormalizada = this.normalizarComuna();
         const tipoDerechoNormalizado = this.normalizarTipoDerecho();
-        const fechaRemateNormalizada = DateHelper.normalizar(this.#fechaRemate, this.#origen);
+        
 
         return {
-            fechaObtencion: fechaObtencionNormalizada,
+            fechaObtencion: DateHelper.normalize(this.#fechaObtencion, this.#origen),
             fechaPublicacion: this.#fechaPublicacion,
             link: this.#link,
             causa: causaNormalizada,
-            juzgado: juzgadoNormalizado,
+            juzgado: StringHelper.juzgado(this.#juzgado),
             porcentaje: porcentajeNormalizado,
-            formatoEntrega: formatoEntregaNormalizado,
-            fechaRemate: fechaRemateNormalizada, 
+            formatoEntrega: StringHelper.formatoEntrega(this.#formatoEntrega),
+            fechaRemate: DateHelper.normalize(this.#fechaRemate, this.#origen), 
             // montoMinimo: this.#montoMinimo,
             montoMinimo: montoMoneda["monto"],
             moneda : montoMoneda["moneda"],
@@ -539,12 +526,12 @@ class Caso{
             multiplesFoja : this.#multiplesFoja,
             comuna: comunaNormalizada,
             foja: this.#foja,
-            partes: partesNormalizadas,
+            partes: StringHelper.partes(this.#partes, this.#origen),
             tipoPropiedad: this.#tipoPropiedad,
             tipoDerecho: tipoDerechoNormalizado,
             anno: annoNormalizado,
             martillero: this.#martillero,
-            direccion: direccionNormalizada,
+            direccion: StringHelper.direccion(this.#direccion),
             diaEntrega: diaEntregaNormalizado,
             aviso : this.#texto,
             numero : this.#numero,
@@ -564,81 +551,12 @@ class Caso{
             isPaid: this.#isPaid,
             deudaHipotecaria : this.#deudaHipotecaria,
             alreadyAppear: this.#alreadyAppear,
-            unitRol: this.adaptRol(),
+            unitRol: RolHelper.normalizeRol(this.#rolPropiedad, this.#rolEstacionamiento, this.#rolBodega) ,
             unitAvaluo: this.sumAvaluo(),
             unitDireccion : this.checkEstacionamientoBodega(),
             isAvenimiento : Boolean(this.#isAvenimiento)
         };
     } 
-
-    // Transforma la fecha de la publicación de estar escrita en palabras a un objeto Date
-    // normalizarFechaRemate(){
-    //     if(this.#fechaRemate == "N/A" || this.#fechaRemate == null){ 
-    //         return null;
-    //     }
-    //     if(this.#fechaRemate instanceof Date){
-    //         return this.#fechaRemate;
-    //     }
-
-    //     // Si el origen es Pjud, viene con formato tipo dd/mm/yyyy HH:mm:ss
-    //     if(this.#origen == PJUD){
-    //         this.#fechaRemate = this.#fechaRemate.split(' ')[0];
-    //         const partes = this.#fechaRemate.split('/');
-    //         let fechaRemate = new Date(partes[2],partes[1]-1,partes[0]);
-    //         // fechaRemate.setHours(fechaRemate.getHours() + 6);
-    //         return fechaRemate;
-    //     }
-
-    //     // Si el origen es Liquidaciones, viene con el formato Date listo
-    //     if(this.#origen == LIQUIDACIONES){
-    //         return new Date(this.#fechaRemate);
-    //     }
-
-    //     //Del estilo Wed Dec 25 2024 00:00:00 GMT-0300 (Chile Summer Time).
-    //     if(this.#fechaRemate.includes("Chile Summer")){
-    //         return new Date(this.#fechaRemate);
-    //     }
-    //     try {
-    //         //Del estilo 25/12/2025
-    //         if (this.#fechaRemate.includes("/")) {
-    //             const regexFecha = /(\d{1,2})\/(\d{1,2})\/(\d{4})/;
-    //             const partesFecha = this.#fechaRemate.match(regexFecha);
-    //             if (partesFecha) {
-    //                 const dia = parseInt(partesFecha[1], 10);
-    //                 const mes = parseInt(partesFecha[2], 10) - 1; // Los meses en JavaScript son 0-indexados
-    //                 const anno = parseInt(partesFecha[3], 10);
-    //                 return new Date(anno, mes, dia);
-    //             }
-    //         }
-    //         // Del estilo 25-12-2025
-    //         if (this.#fechaRemate.includes("-")) {
-    //             const regexFecha = /(\d{1,2})-(\d{1,2})-(\d{4})/;
-    //             const partesFecha = this.#fechaRemate.match(regexFecha);
-    //             if (partesFecha) {
-    //                 const dia = parseInt(partesFecha[1], 10);
-    //                 const mes = parseInt(partesFecha[2], 10) - 1; // Los meses en JavaScript son 0-indexados
-    //                 const anno = parseInt(partesFecha[3], 10);
-    //                 return new Date(anno, mes, dia);
-    //             }
-    //         }
-
-    //         // Si el origen es Emol, puede venir con formato de palabras
-    //         const dia = this.getDia();
-    //         const mes = this.getMes();
-    //         const anno = this.getAnno();
-    //         if (dia && mes && anno) {
-    //             const fecha = new Date(anno, mes - 1, dia);
-    //             // Se suma 6 horas ya que la fecha a veces queda si es del 25 de diciembre queda como 
-    //             // 24 de diciembre a las 23:59:59.999, por lo que se suma 6 horas para que quede como 25 de diciembre
-    //             // return new Date(fecha.getTime() + 6 * 60 * 60 * 1000); // Sumar 6 horas
-    //             return fecha;
-    //         }
-    //     } catch (error) {
-    //         console.error("Error normalizando la fecha: ", error.message);
-    //         return null;
-    //     }
-    //     return null;
-    // }
 
     // Obtiene el número de la causa para buscar el remate en el pjud
     getCausaPjud(){
@@ -858,20 +776,20 @@ class Caso{
         return parseInt(porcentaje);
     }
 
-    normalizarFormatoEntrega(){
-        if(this.#formatoEntrega == "N/A" || this.#formatoEntrega == null){
-            return null;
-        }
-        if(this.#formatoEntrega == "vale a la vista"){
-            return "vale vista";
-        }
-        const formato = this.#formatoEntrega
-        .toLowerCase()
-        .replace(/(\s+)/g, ' ') // Reemplazar espacios y comas por un solo espacio;
-        .replace(/\n/g, ' ')
-        .trim(); // Reemplazar saltos de línea por espacios
-        return formato;
-    }
+    // normalizarFormatoEntrega(){
+    //     if(this.#formatoEntrega == "N/A" || this.#formatoEntrega == null){
+    //         return null;
+    //     }
+    //     if(this.#formatoEntrega == "vale a la vista"){
+    //         return "vale vista";
+    //     }
+    //     const formato = this.#formatoEntrega
+    //     .toLowerCase()
+    //     .replace(/(\s+)/g, ' ') // Reemplazar espacios y comas por un solo espacio;
+    //     .replace(/\n/g, ' ')
+    //     .trim(); // Reemplazar saltos de línea por espacios
+    //     return formato;
+    // }
     normalizarCausa() {
         let causa;
         const valorOriginal = this.#causa;
@@ -901,19 +819,13 @@ class Caso{
         return causa
             .toUpperCase();
     } 
-    normalizarJuzgado(){
-        if(this.#juzgado == "N/A" || this.#juzgado == null){
-            return null;
-        }
-        return this.#juzgado.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
-    }
 
-    normalizarDireccion(){
-        if(this.#direccion == "N/A" || this.#direccion == null){
-            return null;
-        }
-        return this.#direccion.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
-    }
+    // normalizarDireccion(){
+    //     if(this.#direccion == "N/A" || this.#direccion == null){
+    //         return null;
+    //     }
+    //     return this.#direccion.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
+    // }
     // normalizarDiaEntrega(){
     //     if(this.#diaEntrega == "N/A" || this.#diaEntrega == null){
     //         return "No especifica";
@@ -962,168 +874,7 @@ class Caso{
 
         return avaluoPropiedad + avaluoEstacionamiento + avaluoBodega;
     }
-    // Adaptador de roles para combinar propiedad, estacionamiento y bodega
-    adaptRol() {
-        let rol1, rol2, rol3;
-        if (!this.#rolPropiedad && !this.#rolEstacionamiento && !this.#rolBodega) {
-            return null;
-        }
-        // Limpiar y validar roles
-        const cleanedRoles = [
-            this.cleanRol(this.#rolPropiedad),
-            this.cleanRol(this.#rolEstacionamiento),
-            this.cleanRol(this.#rolBodega)
-        ].filter(rol => rol !== null && rol !== undefined);
-
-        // Si solo queda un rol válido, retornarlo directamente
-        if (cleanedRoles.length === 1) {
-            return cleanedRoles[0];
-        }
-        [rol1, rol2, rol3] = cleanedRoles;
-        const comparisonResult = this.checkFirstHalves(rol1, rol2, rol3);
-        const finalRol = this.mergeRol(rol1, rol2, rol3, comparisonResult);
-        return finalRol;
-    }
-
-    checkFirstHalves(rolOne, rolTwo, rolThree) {
-        let result;
-        if (rolOne && rolTwo && rolThree) {
-            result = this.checkThreeHalfs(rolOne, rolTwo, rolThree);
-        } else if (rolOne && rolTwo) {
-            result = this.checkTwoHalfs(rolOne, rolTwo) ? ONE_TWO : THREE_DIFF;
-        } else if (rolOne && rolThree) {
-            result = this.checkTwoHalfs(rolOne, rolThree) ? ONE_THREE : THREE_DIFF;
-        } else if (rolTwo && rolThree) {
-            result = this.checkTwoHalfs(rolTwo, rolThree) ? TWO_THREE : THREE_DIFF;
-        } else {
-            return null;
-        }
-        return result;
-    }
-
-    checkThreeHalfs(rolOne, rolTwo, rolThree) {
-        const halfOne = rolOne.split("-")[0];
-        const halfTwo = rolTwo.split("-")[0];
-        const halfThree = rolThree.split("-")[0];
-        if (halfOne == halfTwo && halfTwo == halfThree) {
-            return THREE_SAME;
-        } else if (halfOne == halfTwo) {
-            return ONE_TWO;
-        } else if (halfOne == halfThree) {
-            return ONE_THREE;
-        } else if (halfTwo == halfThree) {
-            return TWO_THREE;
-        } else if (halfOne != halfTwo && halfOne != halfThree && halfTwo != halfThree) {
-            return THREE_DIFF;
-        } else {
-            return null;
-        }
-    }
-
-    checkTwoHalfs(rolOne, rolTwo) {
-        const halfOne = rolOne.split("-")[0];
-        const halfTwo = rolTwo.split("-")[0];
-
-        if (halfOne == halfTwo) {
-            return true;
-        } else if (halfOne != halfTwo) {
-            return false;
-        } else {
-            return null;
-        }
-    }
-
-    mergeRol(rol1, rol2, rol3, areSame) {
-        let final;
-        switch (areSame) {
-            case THREE_SAME:
-                final = this.mergeThreeRoles(rol1, rol2, rol3);
-                break;
-
-            case ONE_TWO:
-                final = this.mergeDiffRoles(this.mergeTwoRoles(rol1, rol2), rol3);
-                break;
-
-            case ONE_THREE:
-                final = this.mergeDiffRoles(this.mergeTwoRoles(rol1, rol3), rol2)
-                break;
-
-            case TWO_THREE:
-                final = this.mergeDiffRoles(this.mergeTwoRoles(rol2, rol3), rol1)
-                break;
-            case THREE_DIFF:
-                final = this.mergeDiffRoles(rol1, rol2, rol3)
-
-                break;
-            default:
-                final = null;
-
-        }
-        return final;
-    }
-
-    mergeDiffRoles(rol1 = null, rol2 = null, rol3 = null) {
-        if (rol1 && rol2 && rol3) {
-            return rol1 + "//" + rol2 + "//" + rol3;
-        } else if (rol1 && rol2) {
-            return rol1 + "//" + rol2;
-        } else if (rol1 && rol3) {
-            return rol1 + "//" + rol3;
-        } else if (rol2 && rol3) {
-            return rol2 + "//" + rol3;
-        } else if (rol1) {
-            return rol1;
-        }
-    }
-
-    // Funciones para unir dos roles
-    mergeTwoRoles(rolOne, rolTwo) {
-        if (!rolOne.includes("-") || !rolTwo.includes("-")) {
-            return null;
-        }
-        const arrayRolOne = rolOne.split("-");
-        const arrayRolTwo = rolTwo.split("-");
-        if (arrayRolOne[0] === arrayRolTwo[0]) {
-            rolOne += "-" + arrayRolTwo[1];
-        }
-        rolOne = rolOne.replace(/\s*/g, "");
-        return rolOne;
-    }
-
-    // Función para unir tres roles
-    mergeThreeRoles(rolOne, rolTwo, rolThree) {
-        let twoRoles = this.mergeTwoRoles(rolOne, rolTwo);
-        if (!twoRoles || !twoRoles.includes("-") || !rolThree.includes("-")) {
-            if (twoRoles && twoRoles.includes("-")) {
-                return twoRoles;
-            } else if (rolOne.includes("-") && rolThree.includes("-")) {
-                return this.mergeTwoRoles(rolOne, rolThree);
-            }
-            return null;
-        }
-        const arrayTwoRoles = twoRoles.split("-");
-        const arrayRolThree = rolThree.split("-");
-        if (arrayTwoRoles[0] == arrayRolThree[0]) {
-            twoRoles += "-" + arrayRolThree[1];
-        }
-        return twoRoles
-    }
-
-    //Función para limpiar los roles de espacios de sobre, guiones largos y ceros iniciales
-    cleanRol(rol) {
-        if (!rol) {
-            return null;
-        }
-        rol = rol.replace("−", "-");
-        if (!rol.includes("-")) {
-            return rol;
-        }
-        const parts = rol.split("-");
-        const newFirst = cleanInitialZeros(parts[0]);
-        const newSecond = cleanInitialZeros(parts[1]);
-        return newFirst + "-" + newSecond;
-    }
-
+   
     checkEstacionamientoBodega() {
         // console.log("Revisando estacionamiento y bodega para el caso: ", caso.hasEstacionamiento, caso.hasBodega, caso.direccionEstacionamiento);
         if (!this.#direccion) {

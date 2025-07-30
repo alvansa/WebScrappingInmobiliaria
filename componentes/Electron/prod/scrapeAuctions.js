@@ -20,7 +20,7 @@ const { fakeDelay, delay } = require('../../../utils/delay.js');
 
 class scrapeAuction {
 
-    constructor(startDate,endDate,saveFile, checkedBoxes,event) {
+    constructor(startDate,endDate,saveFile, checkedBoxes,event,mainWindow) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.saveFile = saveFile;
@@ -28,6 +28,7 @@ class scrapeAuction {
         this.event = event;
         this.emptyMode = false;
         this.browser = null;
+        this.mainWindow = mainWindow; // Guardar la referencia a la ventana principal
     }
 
     async startSearch() {
@@ -320,7 +321,7 @@ async function consultaCausa(caso){
     const browser = await pie.connect(app, puppeteer);
     let window;
     window = openWindow(window,false);
-    const consultaCausa = new ConsultaCausaPjud(browser,window,caso);
+    const consultaCausa = new ConsultaCausaPjud(browser,window,caso,this.mainWindow);
     const result = await consultaCausa.getConsulta()
 
     return result;

@@ -221,6 +221,10 @@ window.api.onWaitingNotification((args) => {
   }, 1000);
 });
 
+window.api.electronLog((event, message) => {
+  console.log('Mensaje del proceso principal:', message);
+});
+
 function updateCountdown(data) {
   const seconds = data[0];
   const actualCase = data[1];

@@ -18,7 +18,7 @@ const EXITO = 1;
 const DELAY_RANGE = {"min": 2, "max" : 5}
 
 class ConsultaCausaPjud{
-    constructor(browser,window,caso){
+    constructor(browser,window,caso,mainWindow){
         this.browser = browser;
         this.window = window;
         this.caso = caso;
@@ -27,7 +27,7 @@ class ConsultaCausaPjud{
         this.downloadPath = path.join(os.homedir(), "Documents", "infoRemates/pdfDownload");
         this.dirPath = '';
         this.pdfPath = '';
-        this.PjudData = new PjudPdfData(this.caso);
+        this.PjudData = new PjudPdfData(this.caso,mainWindow);
         this.PAGADO = {daCuenta: false, pagadoCredito: false}
     }
 
