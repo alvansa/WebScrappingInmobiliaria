@@ -101,6 +101,7 @@ function procesarDatosRemate(caso) {
     }
 
     if (anno) {
+        console.log("Anno fijado",anno)
         caso.anno = anno;
     }
 
@@ -399,7 +400,6 @@ function buscarMontosFinal(regexList, regexMontoMinimo) {
     }
 }
 
-
 function esMontoValido(monto) {
     if (monto.includes("no inferior")) {
         return false;
@@ -432,7 +432,7 @@ function getComuna(data, isPjud = false) {
             "comuna y provincia de ",
             "comuna: "
         ];
-        if( !isPjud) {
+        if(!isPjud) {
             const listaExtra = [
             "conservador de bienes raíces de ", 
             "conservador bienes raíces ", 
@@ -442,16 +442,20 @@ function getComuna(data, isPjud = false) {
             "Registro de Propiedad del CBR de ",
             ]
             listaPreFrases.push(...listaExtra);
-
         }
+
         for (let preFrase of listaPreFrases) {
             const comunaPreFrase = preFrase + comuna;
-            const regexComuna = new RegExp(`${preFrase}${comuna}\\b`, 'i');
-            // if(comuna === 'peñaflor'){
-            //     console.log("Comuna encontrada: ",regexComuna);
-            // }
+            const regexComuna = new RegExp(`${preFrase}${comuna}(\\b|,)`, 'i');
             const comunaSinEspacio = comunaPreFrase.replace(/\s*/g, '');
-            if (regexComuna.test(dataNormalizada) || dataNormalizada.includes(comunaSinEspacio)) {
+
+            const fraseNoValida = new RegExp(`domiciliad[oa]\\s*en\\s*la\\s*comuna\\s*de\\s*${comuna}`, 'i');
+
+            // if(comuna === 'antofagasta')
+            //     console.log("Comuna encontrada: ",regexComuna);
+            //     console.log(`Probadno con comuna ${comuna} y es ${fraseNoValida.test(dataNormalizada)}`);
+            // }
+            if ((regexComuna.test(dataNormalizada) || dataNormalizada.includes(comunaSinEspacio)) && !fraseNoValida.test(dataNormalizada)) {
                 return comuna;
             }
         }
@@ -697,11 +701,14 @@ function obtainFinalPercentage(foreclosures) {
 function getAnno(data) {
     // Busca el año con dependencia de las fojas, "fojas xxxx del año xxxx"
     // console.log("Data en getAnno: ", data);
-    const regexFojasDependiente = /(?:fojas?|fs\.?|fjs).*?(?:del?|a[n|ñ]o)\s*(\b\d{1}(?:\.\d{3})?\b|\d{1,4})/i;
+    const regexFojasDependiente = /(?:fojas?|fs\.?|fjs).*?(?:del?|a[n|ñ]o)\s*(\b\d{1}(?:\.\d{3})?(?:\b|,)|\d{1,4})/i;
+    
     const fojasDependiente = data.match(regexFojasDependiente);
     if (fojasDependiente != null) {
-        if(fojasDependiente[1] > 1700) {
-            return fojasDependiente[1];
+        const anno = parseInt(fojasDependiente[1].replaceAll(".",""));
+        if(anno > 1700) {
+            console.log("En fojas dependientes: ", anno, typeof fojasDependiente[1])
+            return anno;
         }
     }
     // Busca el año con dependencia del registro de propiedad con regex "registro de propiedad del? ano? xxxx"

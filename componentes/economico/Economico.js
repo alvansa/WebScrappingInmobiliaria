@@ -3,6 +3,7 @@ const Caso = require('../caso/caso')
 const {BrowserWindow} = require('electron');
 const {delay,fakeDelay} = require('../../utils/delay');
 const {procesarDatosRemate} = require('./datosRemateEmol');
+const listUserAgents = require('../../utils/userAgents.json');
 
 require('dotenv').config();
 
@@ -37,14 +38,15 @@ class Economico{
                 counter++;
                 const description = await this.getInfoFromSingularPage(caso);
                 console.log(`Obtienedo caso ${counter} de ${this.casosARevisar.length}`);
-                await fakeDelay(2, 4);
+                await fakeDelay(5,10);
                 if(description){
                     caso.texto = description;
                 }else{
                     console.log("No se pudo obtener la descripción para el caso: ", caso);
                 }
                 if(counter % 5 == 0){
-                    await fakeDelay(120, 240);
+                    await fakeDelay(120, 240,true);
+                    await this.changeUserAgent();
                 }
             }
             for(let caso of this.casosARevisar){
@@ -64,6 +66,16 @@ class Economico{
         }
 
         return this.casosARevisar;
+    }
+
+    async changeUserAgent(){
+        try{
+            const randomIndex = Math.floor(Math.random() * userAgents.length);
+            customUA = listUserAgents[randomIndex].userAgent;
+            await this.page.setUserAgent(customUA);
+        }catch(error){
+            console.error('Error cambiando el userAgent');
+        }
 
     }
 

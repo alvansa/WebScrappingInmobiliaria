@@ -12,7 +12,7 @@ describe('Test de funcionalidad Pjud a normalizacion',() => {
         const caso1666 = new Caso(new Date(), new Date(), 'lgr', 2);
         caso1666.texto = ex1666;
         const testPjudPdf = new PjudPdfData(caso1666);
-        testPjudPdf.processInfo(ex1666);
+        testPjudPdf.processInfo(ex1666)
         const casoObj = caso1666.toObject();
         expect(casoObj.montoMinimo).toEqual(1031.99465);
     });
@@ -24,7 +24,7 @@ describe('Test de funcionalidad Pjud a normalizacion',() => {
         testPjudPdf.processInfo(dv1750);
         testPjudPdf.processInfo(bf1750);
         const casoObj = caso1750.toObject();
-        expect(casoObj.anno).toEqual("2020");
+        expect(casoObj.anno).toEqual(2020);
         expect(casoObj.tipoDerecho).toBeNull();
     });
 
@@ -33,7 +33,7 @@ describe('Test de funcionalidad Pjud a normalizacion',() => {
         const testPjudPdf = new PjudPdfData(caso4991);
         testPjudPdf.processInfo(dv4991);
         const casoObj = caso4991.toObject();
-        expect(casoObj.anno).toEqual("2023");
+        expect(casoObj.anno).toEqual(2023);
     });
 
     test('Obtener el avaluo de habitacional', ()=>{

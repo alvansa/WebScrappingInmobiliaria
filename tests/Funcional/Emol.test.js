@@ -1,18 +1,18 @@
 const Caso = require('../../componentes/caso/caso');
 const {procesarDatosRemate, normalizeDescription} = require('../../componentes/economico/datosRemateEmol');
 
-const {ex1857,ex1666, ex800} = require('../textos/Extracto');
+const Extractos = require('../textos/Extracto');
 
 describe('procesarDatosRemate',()=>{
     test('Caso C-1857-2024',()=>{
         const caso1857 = new Caso();
-        const normalizedText = normalizeDescription(ex1857);
+        const normalizedText = normalizeDescription(Extractos.ex1857);
         caso1857.texto = normalizedText;
         procesarDatosRemate(caso1857);
         expect(caso1857.formatoEntrega).toEqual('vale vista');
         expect(caso1857.causa).toEqual('C-1857-2024');
         expect(caso1857.comuna).toEqual('antofagasta');
-        expect(caso1857.anno).toEqual('2013');
+        expect(caso1857.anno).toEqual(2013);
         expect(caso1857.montoMinimo).toEqual({
             monto: 83547301,
             moneda: 'Pesos'
@@ -25,7 +25,7 @@ describe('procesarDatosRemate',()=>{
 
     test('Caso C-1666-2014',()=>{
         const caso1666 = new Caso(new Date(), new Date(), 'emol', 1);
-        const normalizedText = normalizeDescription(ex1666);
+        const normalizedText = normalizeDescription(Extractos.ex1666);
         caso1666.texto = normalizedText;
         procesarDatosRemate(caso1666);
         expect(caso1666.formatoEntrega).toEqual('vale vista');
@@ -41,13 +41,25 @@ describe('procesarDatosRemate',()=>{
 
     test('Caso C-800-2025',()=>{
         const caso800 = new Caso();
-        const normalizedText = normalizeDescription(ex800);
+        const normalizedText = normalizeDescription(Extractos.ex800);
         caso800.texto = normalizedText;
         procesarDatosRemate(caso800);
         expect(caso800.formatoEntrega).toEqual('vale vista');
         expect(caso800.causa).toEqual('C-800-2025');
         expect(caso800.porcentaje).toEqual(10);
-        expect(caso800.anno).toEqual('2005');
+        expect(caso800.anno).toEqual(2005);
+    });
+
+    test('Caso C-18731-2007',()=>{
+        const caso18731 = new Caso();
+        const normalizedText = normalizeDescription(Extractos.ex18731);
+        caso18731.texto = normalizedText;
+        procesarDatosRemate(caso18731);
+        expect(caso18731.formatoEntrega).toEqual('vale vista');
+        expect(caso18731.causa).toEqual('C-18731-2007');
+        expect(caso18731.porcentaje).toEqual(10);
+        expect(caso18731.anno).toEqual(2006);
+        expect(caso18731.juzgado).toEqual('16° JUZGADO CIVIL DE SANTIAGO')
     });
 
     test('Caso con texto nulo con toObject()',()=>{

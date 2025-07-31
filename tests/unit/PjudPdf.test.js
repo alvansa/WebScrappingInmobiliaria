@@ -10,7 +10,7 @@ const {textoEstacionamiento1,textoHabitacional1, textoBodegaMultiple, textoEstac
 const {textoGP1, textoGP2, textoGP3, textoGP4, textoGP5, texto12Santiago, GP1435} = require('../textos/GP');
 const {diario2484, ex1341, diario1341, diario3354_1, diario3354_2} = require('../textos/diario');
 
-const {tx356, tx23039, tx12017, tx1349, tx3857, tx13759, tx7140, tx11066, tx198, dv1750, dv212, dv4991, dv11840, dv10803} = require('../textos/DV');
+const textosDV = require('../textos/DV');
 const {ex1666, ex800, ex2240, ex2226} = require('../textos/Extracto'); 
 const {bf2201, bf1341, notBf, bf1750, BF2452, BF2055,BF199, CertificadoBF} = require('../textos/BF');
 const {dm1056, dm1138} = require('../textos/DM');
@@ -26,7 +26,7 @@ const pjudPdf2484 = new PjudPdfData(caso2484);
 // const causaDB = new Causas();
 
 const devMode = true;
-
+;
 
 describe('obtainRolPropiedad', () => {
 
@@ -215,7 +215,7 @@ describe('obtainDerecho', () => {
 
 describe('obtainComuna', () => {
 
-    test('Test con avaluo habitacional ', () => {
+    test('Obtener comuna con avaluo habitacional ', () => {
         const textoNormalizado = testPjudPdf.normalizeInfo(textoHabitacional1);
         const spanishNormalization = testPjudPdf.normalizeSpanish(textoHabitacional1);
         const resComuna = testPjudPdf.obtainComuna(spanishNormalization, textoNormalizado);
@@ -237,25 +237,38 @@ describe('obtainComuna', () => {
     });
 
     test('Test con obtencion en DV santiago', () =>{
-        const normalizeInfo = testPjudPdf.normalizeInfo(tx356);
-        const spanishNormalization = testPjudPdf.normalizeSpanish(tx356)
+        const normalizeInfo = testPjudPdf.normalizeInfo(textosDV.dv356);
+        const spanishNormalization = testPjudPdf.normalizeSpanish(textosDV.dv356)
         const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
         expect(resAnno).toEqual("santiago");
     });
 
     test('Test con obtencion en DV colina', () =>{
-        const normalizeInfo = testPjudPdf.normalizeInfo(tx1349);
-        const spanishNormalization = testPjudPdf.normalizeSpanish(tx1349)
+        const normalizeInfo = testPjudPdf.normalizeInfo(textosDV.dv1349);
+        const spanishNormalization = testPjudPdf.normalizeSpanish(textosDV.dv1349)
         const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
         expect(resAnno).toEqual("colina");
     });
 
     test('Test obtencion del DV que dice comuna de chillan y lo barnechea', () =>{
-        const normalizeInfo = testPjudPdf.normalizeInfo(dv10803);
-        const spanishNormalization = testPjudPdf.normalizeSpanish(dv10803)
+        const normalizeInfo = testPjudPdf.normalizeInfo(textosDV.dv10803);
+        const spanishNormalization = testPjudPdf.normalizeSpanish(textosDV.dv10803)
         const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
         expect(resAnno).toEqual("lo barnechea");
+    });
 
+    test('Test que dice dos comunas pero una es el domicilio y la otra es la comprada', ()=>{
+        const normalizeInfo = testPjudPdf.normalizeInfo(textosDV.dv100);
+        const spanishNormalization = testPjudPdf.normalizeSpanish(textosDV.dv100)
+        const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
+        expect(resAnno).toEqual("ñuñoa");
+    });
+
+    test('Test que tiene comuna de x, el problema antes era la coma', ()=>{
+        const normalizeInfo = testPjudPdf.normalizeInfo(textosDV.dv1602);
+        const spanishNormalization = testPjudPdf.normalizeSpanish(textosDV.dv1602)
+        const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
+        expect(resAnno).toEqual("maipú");
     });
 
 });
@@ -280,7 +293,7 @@ describe('ObtainAnno', () => {
     // });
 
     test('Test de anno con DV ', () => {
-        const normalizeInfo = testPjudPdf.normalizeInfo(tx356);
+        const normalizeInfo = testPjudPdf.normalizeInfo(textosDV.dv356);
         const resAnno = testPjudPdf.obtainAnno(normalizeInfo);
         expect(resAnno).toEqual('2021');
     });
@@ -297,25 +310,25 @@ describe('ObtainAnno', () => {
     });
 
     test('Caso donde aparece el ano de inscripcion y el ano de vigencia', ()=>{
-        const info = testPjudPdf.normalizeInfo(tx3857);
+        const info = testPjudPdf.normalizeInfo(textosDV.dv3857);
         const anno = testPjudPdf.obtainAnno(info);
         expect(anno).toEqual('2014');
     });
 
     test('Obtener anno de DV el anno con punto',()=>{
-        const info = testPjudPdf.normalizeInfo(dv1750);
+        const info = testPjudPdf.normalizeInfo(textosDV.dv1750);
         const anno = testPjudPdf.obtainAnno(info);
         expect(anno).toEqual('2.020');
     });
 
     test('Obtener anno de DV 2',()=>{
-        const info = testPjudPdf.normalizeInfo(dv212);
+        const info = testPjudPdf.normalizeInfo(textosDV.dv212);
         const anno = testPjudPdf.obtainAnno(info);
         expect(anno).toEqual('2.019');
     });
 
     test('Obtener el anno de registro de propiedad con parentesis',()=>{
-        const info = testPjudPdf.normalizeInfo(dv4991);
+        const info = testPjudPdf.normalizeInfo(textosDV.dv4991);
         const anno = testPjudPdf.obtainAnno(info);
         expect(anno).toEqual('2023');
     });
@@ -339,7 +352,7 @@ describe('ObtainAnno', () => {
     });
 
     test('Obtener el anno de un DV que aparecia 3430',()=>{
-        const info = testPjudPdf.normalizeInfo(dv11840);
+        const info = testPjudPdf.normalizeInfo(textosDV.dv11840);
         const anno = testPjudPdf.obtainAnno(info,true);
         expect(anno).toEqual('2016');
     });
@@ -390,13 +403,13 @@ describe('checkIfValidDoc',()=>{
 describe('ObtainMontoCompra', () => {
     test('Caso donde no puede obtener el monto de compra',()=>{
 
-        const normalizeInfo = testPjudPdf.normalizeInfo(tx11066);
+        const normalizeInfo = testPjudPdf.normalizeInfo(textosDV.dv11066);
         const resMontoCompra = testPjudPdf.obtainMontoCompra(normalizeInfo);
         expect(resMontoCompra).toBeNull();
     });
 
     test('Obtener monto de compra de DV Pesos con se estiman', () => {
-        const normalizeInfo = testPjudPdf.normalizeInfo(tx356);
+        const normalizeInfo = testPjudPdf.normalizeInfo(textosDV.dv356);
         const resMontoCompra = testPjudPdf.obtainMontoCompra(normalizeInfo);
         expect(resMontoCompra).toEqual({
             monto: 67000000,
@@ -405,7 +418,7 @@ describe('ObtainMontoCompra', () => {
     });
 
     test('Obtener monto de compra uf con coma DV con por el precio', () =>{
-        const normalizeInfo = testPjudPdf.normalizeInfo(tx23039);
+        const normalizeInfo = testPjudPdf.normalizeInfo(textosDV.dv23039);
         const resMontoCompra = testPjudPdf.obtainMontoCompra(normalizeInfo);
         expect(resMontoCompra).toEqual({
             monto: 3192.39,
@@ -414,7 +427,7 @@ describe('ObtainMontoCompra', () => {
     });
 
     test('Obtener monto de compra uf DV', () =>{
-        const normalizeInfo = testPjudPdf.normalizeInfo(tx12017);
+        const normalizeInfo = testPjudPdf.normalizeInfo(textosDV.dv12017);
         const resMontoCompra = testPjudPdf.obtainMontoCompra(normalizeInfo);
         expect(resMontoCompra).toEqual({
             monto: 3756,
@@ -423,7 +436,7 @@ describe('ObtainMontoCompra', () => {
     });
 
     test('Obtener motno de compra por compraventa', ()=>{
-        const normalizeInfo = testPjudPdf.normalizeInfo(tx13759);
+        const normalizeInfo = testPjudPdf.normalizeInfo(textosDV.dv13759);
         const monto = testPjudPdf.obtainMontoCompra(normalizeInfo);
         expect(monto).toEqual({
             monto: 9744,
@@ -432,7 +445,7 @@ describe('ObtainMontoCompra', () => {
     });
 
     test('Obtener monto de compra pesos por la suma', () =>{
-        const normalizeInfo = testPjudPdf.normalizeInfo(tx7140);
+        const normalizeInfo = testPjudPdf.normalizeInfo(textosDV.dv7140);
         const resMontoCompra = testPjudPdf.obtainMontoCompra(normalizeInfo);
         expect(resMontoCompra).toEqual({
             monto: 78918749,
@@ -441,7 +454,7 @@ describe('ObtainMontoCompra', () => {
     });
 
     test('Monto no encontrado por dacion de pago',()=>{
-        const normalizeInfo = testPjudPdf.normalizeInfo(tx198);
+        const normalizeInfo = testPjudPdf.normalizeInfo(textosDV.dv198);
         const resMontoCompra = testPjudPdf.obtainMontoCompra(normalizeInfo);
         expect(resMontoCompra).toBeNull();
     });

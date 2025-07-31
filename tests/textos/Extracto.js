@@ -85,6 +85,8 @@ del Primer Juzgado  de  Letras  de  La  Serena equivalente  al  10%  del  mínim
 Mayores  antecedentes  Secretaria  del  Tribunal,  causa  Rol, C-800-2025 caratulada
 “COMUNIDAD EDIFICIO ALHAMBRA/MELENDEZ”. Secretaria.`;
 
+const ex18731 = `Remate: Décimo Sexto Juzgado Civil de Santiago, Huérfanos 1409, piso 4, Santiago, Se rematará el 07 de agosto de 2025, a las 12:45 horas, inmueble ubicado en calle Gran Bretaña Nº 3.079, Población Armando Alarcón del Canto, Hualpén, inscrito a fojas 1.621, Nº 1.265 del Registro Propiedad año 2.006, Conservador Bienes Raíces Talcahuano. Mínimo: 500 UF, más la suma de $ 320.000 por costas. Pago contado dentro de 5º día hábil de efectuado el remate. Los interesados deben acompañar vale vista tomado en cualquier banco de la plaza, a la orden del tribunal, con indicación del tomador para facilitar su devolución, por el 10% del mínimo para iniciar las posturas. El vale vista deberá ser presentado en la secretaría del tribunal el día precedente a la fecha de la subasta, entre las 11:00 y 12:00 horas. No se admiten vale vistas fuera de este horario. Al momento de presentar el vale vista, el postor deberá informar correo electrónico y Nº telefónico válido a través de acta predeterminada que será suscrita por el postor e incorporada a la Carpeta Electrónica por ministro de fe conjuntamente con copia del Vale Vista. Se utilizará la plataforma Zoom, para lo cual se requiere de un computador o teléfono, en ambos casos, con cámara, micrófono y audio del mismo equipo y conexión a internet. Demás bases y antecedentes causa 'Compañía de Seguros de Vida con Escobar Fica', Rol Nº C- 18731-2007. Hipotecario. Secretaria (S).`;
 
 
-module.exports = {ex1857, ex1666, ex800, ex2226, ex2240};
+
+module.exports = {ex1857, ex1666, ex800, ex2226, ex2240, ex18731};

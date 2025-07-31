@@ -79,8 +79,8 @@ class scrapeAuction {
 
         fechaInicio.setMonth(fechaInicio.getMonth() - 1);
 
-        // fechaInicio = stringToDate(fechaInicioStr);
-        // fechaFin = stringToDate(fechaFinStr); 
+        fechaInicio = stringToDate(fechaInicioStr);
+        fechaFin = stringToDate(fechaFinStr); 
 
         let casos = [];
         try {

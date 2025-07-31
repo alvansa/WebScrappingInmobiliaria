@@ -1,4 +1,4 @@
-const tx356 = `Registro de Propiedad
+const dv356 = `Registro de Propiedad
 Copia con Vigencia
 Carátula 19527720
 Morandé 440
@@ -98,7 +98,7 @@ Documento incorpora Firma
 Electronica Avanzada
 Código de Verificación: cpv129f828-0`;
 
-const tx23039 = `Registro de Propiedad
+const dv23039 = `Registro de Propiedad
 Copia con Vigencia
 Carátula 23257934
 Morandé 440
@@ -205,7 +205,7 @@ Documento incorpora Firma
 Electronica Avanzada
 Código de Verificación: cpv162e34e-0`;
 
-const tx12017 = `Registro de Propiedad
+const dv12017 = `Registro de Propiedad
 Copia con Vigencia
 Carátula 23723073
 Morandé 440
@@ -308,7 +308,7 @@ Documento incorpora Firma
 Electronica Avanzada
 Código de Verificación: cpv169fc41-0`;
 
-const tx1349 = `Registro de Propiedad
+const dv1349 = `Registro de Propiedad
 Copia con Vigencia
 Carátula 23683186
 Morandé 440
@@ -412,7 +412,7 @@ Documento incorpora Firma
 Electronica Avanzada
 Código de Verificación: cpv1696072-0`;
 
-const tx3857 = `Conservador de Bienes Raíces de Villarrica
+const dv3857 = `Conservador de Bienes Raíces de Villarrica
 http://www.cbrvillarrica.cl
 CBRV
 Conservador de Bienes Raíces de Villarrica
@@ -441,7 +441,7 @@ Mrs
 
 07N42BSJRB Página 3 de 3`;
 
-const tx13759 = `Registro de Propiedad
+const dv13759 = `Registro de Propiedad
 Copia con Vigencia
 Carátula 23127208
 Morandé 440
@@ -549,7 +549,7 @@ de Colina.- Requirente: Banco Santander Chile.-
 LUIS MALDONADO C.
 Fin del Texto`;
 
-const tx7140 = `COPIA DE INSCRIPCION
+const dv7140 = `COPIA DE INSCRIPCION
 REGISTRO DE PROPIEDAD
 El  Conservador  que  suscribe  certifica  que  la  inscripción
 adjunta, y que rola a fojas7723, nº7136, año2018, de
@@ -674,7 +674,7 @@ Medida Precautoria a fs.  11016-9200-2022.- San Miguel 12/12/2022.-
 Rep.1.944 26/01/2024 Embargo Car.11921.
 Embargo a fs. 535v-528-2024.- San Miguel 31/01/2024.-`
 
-const tx11066 = `CERTIFICADO
+const dv11066 = `CERTIFICADO
 DE
 DOMINIO VIGENTE
 Del   inmueble   ubicado   en   la   Comuna   de   Concepción   que
@@ -696,7 +696,7 @@ Pag: 1/1
 www.cbrconcepcion.cl.2182221 -2182210info@cbrconcepcion.cl`;
 
 // Para obtener el monto de compra
-const tx198 = `Registro de Propiedad
+const dv198 = `Registro de Propiedad
 Copia con Vigencia
 Carátula 23408962
 Morandé 440
@@ -1077,19 +1077,208 @@ Documento incorpora Firma
 Electronica Avanzada
 Código de Verificación: cpv167eb55-0`;
 
+const dv100 = `Registro de Propiedad
+Copia con Vigencia
+Carátula 23382542
+Morandé 440
+Santiago
+Teléfono:
+2 2390 0800
+www.conservador.cl
+info@conservador.cl
+El Conservador de Bienes Raíces de Santiago certifica que la inscripción de fojas
+52606 número 76325 correspondiente al Registro de Propiedad del año 2019,
+adjunta al presente documento, está conforme con su original y se encuentra
+vigente al día 26 de febrero de 2025.
+
+Los derechos registrales correspondientes a esta actuación ascienden a la suma
+de $ 4600.
+hegonzalez
+Santiago, 28 de febrero de 2025.
+Código de verificación: cpv164ca0e-0
+Documento incorpora firma electrónica avanzada conforme a Ley N°19.799.
+La vigencia de la firma electrónica en el documento, al igual que la integridad
+y autenticidad del mismo, deben ser verificados en www.conservador.cl,
+donde estará disponible por 90 días contados desde la fecha de su emisión.
+Documento impreso es sólo una copia del documento original.
+www.conservador.cl
+página 1 de 3
+
+Nº76325
+MP/AF/VP
+C: 15061911
+COMPRAVENTA
+FELIPE ANDRES
+SALAZAR LATORRE
+A
+NICHMET LORENA
+MATTAR NOVOA
+REP: 71058
+B: 1278609
+F:
+
+
+Santiago,  ocho  de  julio  del  año  dos  mil
+diecinueve.- Doña NICHMET LORENA MATTAR NOVOA,
+C.I.  12.049.907-6,  divorciada,  domiciliada  en
+la comuna de Chillán, es dueña del departamento
+número mil ciento tres del onceavo piso, de la
+bodega  número  B  -  cincuenta  y  cuatro  del
+segundo   subterráneo   y   del   estacionamiento
+número  E  -  cuarenta  del  primer  subterráneo,
+todos  del  Edificio  José  Domingo  Cañas  número
+mil  novecientos  ochenta,  con  acceso  por  calle
+José  Domingo  Cañas  número  mil  novecientos
+ochenta, Comuna de Ñuñoa, Región Metropolitana,
+de  acuerdo  al  plano  archivado  con  el  número
+3170  al  3170  letra  C;  y  dueña  además  de
+derechos en proporción al valor de lo adquirido
+en unión de los otros adquirentes en los bienes
+comunes  entre  los  cuales  se  encuentra  el
+terreno,  que  deslinda:  NORTE,  en  línea  D-G  de
+cuarenta   coma   veintiún   metros   con   otro
+propietario;  SUR,  en  línea  A-K  de  treinta  y
+nueve  coma  noventa  y  cuatro  metros  con  calle
+José  Domingo  Cañas;  ORIENTE,  en  línea  G-K  de
+setenta  y  cinco  coma  doce  metros  con  otro
+propietario; PONIENTE, en línea A-D de setenta
+y  tres  metros  con  otro  propietario.-  Los
+adquirió por compra a don FELIPE ANDRES SALAZAR
+LATORRE,   domiciliado   en   la   comuna   de
+Concepción, según escritura de fecha catorce de
+junio  del  año  dos  mil  diecinueve,  otorgada  en
+la  notaría  de  Chillán,  de  don  Juan  Armando
+Bustos Bonniard, Repertorio Número 3231, por el
+precio  de  CIENTO  DIEZ  MILLONES  DE  PESOS,
+($110.000.000),  que  se  paga  en  la  forma  y
+Fojas   52606
+página 2 de 3
+Documento incorpora Firma
+Electronica Avanzada
+Código de Verificación: cpv164ca0e-0
+
+condiciones  establecidas  en  la  escritura.-  El
+título anterior está a Fojas 30603 Número 43821
+del  año  2018.-  Rol  de  avalúo  número  5121-148,
+5121-213,    5121-75,    Comuna    de    Ñuñoa.-
+Requirente:  Pedro  Salazar  Latorre.-  FRANCISCO
+BARRIGA V.
+Fin del Texto
+
+página 3 de 3
+Documento incorpora Firma
+Electronica Avanzada
+Código de Verificación: cpv164ca0e-0
+`;
+
+const dv1602 = `Registro de Propiedad
+Copia con Vigencia
+Carátula 23790639
+Morandé 440
+Santiago
+Teléfono:
+2 2390 0800
+www.conservador.cl
+info@conservador.cl
+El Conservador de Bienes Raíces de Santiago certifica que la inscripción de fojas
+46140 número 67138 correspondiente al Registro de Propiedad del año 2019,
+adjunta al presente documento, está conforme con su original y se encuentra
+vigente al día 26 de mayo de 2025.
+
+Los derechos registrales correspondientes a esta actuación ascienden a la suma
+de $ 4600.
+hegonzalez
+Santiago, 28 de mayo de 2025.
+Código de verificación: cpv16b042f-0
+Documento incorpora firma electrónica avanzada conforme a Ley N°19.799.
+La vigencia de la firma electrónica en el documento, al igual que la integridad
+y autenticidad del mismo, deben ser verificados en www.conservador.cl,
+donde estará disponible por 90 días contados desde la fecha de su emisión.
+Documento impreso es sólo una copia del documento original.
+www.conservador.cl
+página 1 de 3
+
+Nº67138
+JA/CC/JA
+C: 15023775
+COMPRAVENTA
+VENANCIO
+AUGUSTO ALDUNCE
+PEÑA Y OTRA
+A
+EDDIE ELADIO
+CHÁVEZ POVEDA
+REP: 67281
+B: 1177490
+F:
+
+
+Santiago,  catorce  de  junio  del  año  dos  mil
+diecinueve.-  Don  EDDIE  ELADIO  CHÁVEZ  POVEDA,
+C.I.  y  RUT.  13.658.414-6,  soltero,  de  este
+domicilio, es dueño de la propiedad ubicada en
+Pasaje  Doctor  Galvarino  Araya  González  número
+mil  quinientos  veintiuno,  que  corresponde  al
+sitio  o  lote  número  cuarenta  y  seis  de  la
+Manzana  D,  del  Conjunto  Habitacional  Pehuén
+Catorce, Comuna de Maipú, Región Metropolitana,
+que deslinda: NORTE, con lote cuarenta y siete
+de la misma manzana; SUR, con lote cuarenta y
+cinco de la misma manzana; ORIENTE, con Pasaje
+Doctor Galvarino Araya González; PONIENTE, con
+parte  del  lote  uno  y  lote  dos  de  la  misma
+manzana.- La adquirió por compra a don VENANCIO
+AUGUSTO  ALDUNCE  PEÑA  y  A  doña  ELIZABETH  DEL
+CARMEN CHÁVEZ POVEDA, ambos de este domicilio,
+según  escritura  de  fecha  veintinueve  de  mayo
+del  año  dos  mil  dieciocho,  otorgada  en  la
+notaría  de  esta  ciudad,  de  doña  María  Soledad
+Lascar Merino, Repertorio Número 25408, por el
+precio de DOS MIL CUATROCIENTAS UNA UNIDADES DE
+FOMENTO, que se paga en la forma y condiciones
+establecidas  en  la  escritura.-  El  título
+anterior  está  a  Fojas  11756  Número  18779  del
+año 2008.- Rol de avalúo número 7397-46, Comuna
+de  Maipú.-  Requirente:  Banco  Santander.-  LUIS
+MALDONADO C.
+Fin del Texto
+
+Fojas   46140
+página 2 de 3
+Documento incorpora Firma
+Electronica Avanzada
+Código de Verificación: cpv16b042f-0
+
+FOJA [46140] NUMERO [67138] AÑO [2019]
+Error Of. Antecedentes.- Carátula: 15113832
+Vistos los antecedentes con los cuales se practicó la
+del centro, se rectifica esta inscripción en el
+sentido que la fecha correcta de la escritura es:
+"veintinueve de mayo del año dos mil diecinueve".-
+Santiago, 1 de Julio del año 2019. Luis Maldonado
+Croquevielle.
+
+    Subinscripciones y Notas Marginales
+página 3 de 3
+Documento incorpora Firma
+Electronica Avanzada
+Código de Verificación: cpv16b042f-0`;
+
 module.exports = {
-    tx356,
-    tx23039, 
-    tx12017, 
-    tx1349, 
-    tx3857, 
-    tx13759, 
-    tx7140, 
-    tx11066, 
-    tx198, 
+    dv356,
+    dv23039, 
+    dv12017, 
+    dv1349, 
+    dv3857, 
+    dv13759, 
+    dv7140, 
+    dv11066, 
+    dv198, 
     dv1750, 
     dv4991, 
     dv212, 
     dv11840,
-    dv10803
+    dv10803,
+    dv100,
+    dv1602
     };

@@ -158,7 +158,7 @@ class createExcel {
             if (caso.fechaPublicacion === "N/A" || caso.fechaPublicacion == null) {
                 caso.fechaPublicacion = fechaMenosUno(this.endDate);
             }
-            if(this.getValidAuctions(caso, remates)){
+            if(this.getValidAuctions(caso, remates) || true){
                 this.addObjectToSet(remates,caso);
             }
         }
@@ -237,16 +237,16 @@ class createExcel {
 
     insertarCasoIntoWorksheet(caso, ws, currentRow) {
         let newRol = caso.rolPropiedad;
-        if(caso.fechaPublicacion){
+        if(caso.fechaPublicacion && caso.fechaPublicacion instanceof Date){
             ws['A' + currentRow] = { v: caso.fechaPublicacion, t: 'd', z: 'dd/mm/yyyy' };
         }
         // console.log("Fecha de obtenion : ", caso.fechaObtencion, "Tipo :", typeof caso.fechaObtencion);
-        if(caso.fechaObtencion){
+        if(caso.fechaObtencion && caso.fechaObtencion instanceof Date){
             ws['C' + currentRow] = { v: caso.fechaObtencion, t: 'd', z: 'dd/mm/yyyy' };
         }
         this.writeLine(ws, 'D', currentRow, caso.link, 's');
         // ws['E'+ currentRow ] = {v: 'notas ', t: 's'};
-        if (caso.fechaRemate) {
+        if (caso.fechaRemate && caso.fechaRemate instanceof Date){
             ws['F' + currentRow] = { v: caso.fechaRemate, t: 'd', z: 'DD/MM/YYYY' };
         }
         this.writeLine(ws, 'G', currentRow, caso.martillero, 's');
@@ -265,7 +265,7 @@ class createExcel {
         this.writeLine(ws, 'J', currentRow, caso.juzgado, 's');
         this.writeLine(ws, 'K', currentRow, getComunaJuzgado(caso.juzgado), 's');
         this.writeLine(ws, 'L', currentRow, caso.comuna, 's');
-        this.writeLine(ws, 'M', currentRow, caso.anno, 's');
+        this.writeLine(ws, 'M', currentRow, caso.anno, 'n');
         this.writeLine(ws, 'N', currentRow, caso.partes, 's');
         // ws['O'+ currentRow ] = {v: 'dato ', t: 's'};
         this.writeLine(ws, 'P', currentRow, caso.formatoEntrega, 's');

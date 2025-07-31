@@ -760,7 +760,7 @@ class Caso{
             return this.#anno;
         }
         const anno = this.#anno.replaceAll(".","");
-        return anno;
+        return Number(anno);
     }
 
     normalizarPorcentaje(){

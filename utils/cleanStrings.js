@@ -20,6 +20,9 @@ function fixStringDate(string){
     if(!string){
         return null;
     }
+    if(string instanceof Date){
+        return string;
+    }
     if(string.includes('-')){
         const parts = string.split('-');
         if(parts.length === 3){

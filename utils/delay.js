@@ -5,8 +5,11 @@ async function delay(ms) {
 }
 
 // Espera un tiempo entre min en segundos y el max segundos
-async function fakeDelay(min,max) {
+async function fakeDelay(min,max,log = false) {
     const ms = (Math.random() * (max - min) + min) * 1000;
+    if(log){
+        console.log(`Esperando ${ms/1000} segundos`);
+    }
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 

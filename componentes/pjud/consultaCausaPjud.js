@@ -587,7 +587,8 @@ class ConsultaCausaPjud{
             'medica',
             'policia',
             'transferencia',
-            'acta'
+            'acta',
+            'pericial'
         ];
 
         // Dividir el texto en palabras individuales
