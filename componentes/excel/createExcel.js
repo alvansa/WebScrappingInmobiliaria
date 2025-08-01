@@ -158,7 +158,7 @@ class createExcel {
             if (caso.fechaPublicacion === "N/A" || caso.fechaPublicacion == null) {
                 caso.fechaPublicacion = fechaMenosUno(this.endDate);
             }
-            if(this.getValidAuctions(caso, remates) || true){
+            if(this.getValidAuctions(caso, remates)){
                 this.addObjectToSet(remates,caso);
             }
         }
