@@ -20,6 +20,7 @@ class ProcesarBoletin {
         this.page = page;
         this.downloadPath = path.join(os.homedir(), "Documents", "infoRemates/pdfDownload");
     }
+
     obtainDataRematesPdf(data, caso) {
         if (!caso) {
             console.error("No se ha recibido caso");
@@ -83,10 +84,10 @@ class ProcesarBoletin {
             for (let pdf of pdfs) {
                 const pdfFile = path.join(this.downloadPath, pdf);
                 if (fs.existsSync(pdfFile)) {
-                    console.log("Procesando pdf: ", pdf," con path: ",pdfFile);
+                    console.log("Procesando pdf: ", pdf," con path: ",pdfFile,"\n-----------------------------");
                     // Aqui se envian los pdf a el proceso principal para ser convertidos a texto y poder trabajar con ellos.
                     try{
-                        texto = await ProcesarBoletin.convertPdfToText2(pdfFile);
+                        texto = await ProcesarBoletin.convertPdfToText(pdfFile);
                         const caso = this.getCaso(pdf, casos);
                         this.obtainDataRematesPdf(texto, caso);
                     }catch(error){
@@ -169,7 +170,6 @@ class ProcesarBoletin {
     }
 
     montoMinimo(texto) {
-        console.log("Texto: ", texto);
         const reMonto = /Valor\s*Minimo\s*\(pesos\):\s*(\d{7,13}|\d{1,3}(\.\d{1,3})*)/i;
         let monto = texto.match(reMonto);
         return monto;
@@ -339,7 +339,6 @@ class ProcesarBoletin {
     }
 
     static async pdfToTextTesseract(filePath){
-        console.log(filePath);
         try{
             const form = new FormData();
             form.append("file", fs.createReadStream(filePath));

@@ -240,23 +240,28 @@ class ConsultaCausaPjud{
     }
 
     async seleccionarTribunal(nombreTribunal) {
-        // Obtenemos el valor del tribunal correspondiente por su nombre
-        const value = await this.page.evaluate((nombreTribunal) => {
-            // Obtenemos todas las opciones del select
-            const options = Array.from(document.querySelectorAll('#conTribunal option'));
-            
-            // Encontramos la opción que contiene el nombre del tribunal
-            const option = options.find(opt =>{
-                const texto = opt.textContent.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-                return texto.includes(nombreTribunal.toLowerCase());
-            });
-            
-            // Si la opción se encuentra, retornamos su value, si no, retornamos null
-            return option ? option.value : null;
-        }, nombreTribunal);
+        try{
+            // Obtenemos el valor del tribunal correspondiente por su nombre
+            const value = await this.page.evaluate((nombreTribunal) => {
+                // Obtenemos todas las opciones del select
+                const options = Array.from(document.querySelectorAll('#conTribunal option'));
 
-        // Si se encuentra un valor, lo retornamos; si no, retornamos null
-        return value;
+                // Encontramos la opción que contiene el nombre del tribunal
+                const option = options.find(opt => {
+                    const texto = opt.textContent.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+                    return texto.includes(nombreTribunal.toLowerCase());
+                });
+
+                // Si la opción se encuentra, retornamos su value, si no, retornamos null
+                return option ? option.value : null;
+            }, nombreTribunal);
+
+            // Si se encuentra un valor, lo retornamos; si no, retornamos null
+            return value;
+        }catch(error){
+            console.error("Error al seleccionar el tribunal")
+            return null;
+        }
     }
 
     async searchAuctionInfo(){
@@ -360,6 +365,7 @@ class ConsultaCausaPjud{
     async selectCuaderno() {
         const selectorCuaderno = '#selCuaderno';
         const targetOptionText = 'Apremio';
+        const targetOptionConcursal = 'Concursal'
         let secondOption = null;
         // Espera a que se carguen las opciones de Historia Causa Cuaderno
         try{
@@ -382,15 +388,25 @@ class ConsultaCausaPjud{
                 await this.page.select('#selCuaderno', optionToSelect.value);
             } else {
                 console.log('La opción deseada no se encuentra en el select.');
-                secondOption = options.find(option => option.text.includes('Principal'));
+                secondOption = options.find(option => option.text.includes(targetOptionConcursal));
                 if (secondOption) {
-                    console.log('La opción "Principal" se seleccionará en su lugar.', secondOption);
+                    console.log('La opción "Administracion concursal" se seleccionará en su lugar.', secondOption);
                     console.log(secondOption.text, secondOption.value);
                     await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
                     // Seleccionar la segunda opción si "Apremio" no está disponible
                     await this.page.select('#selCuaderno', secondOption.value);
                 }else{
-                    return false
+                    console.log('La opción deseada no se encuentra en el select.');
+                    secondOption = options.find(option => option.text.includes('Principal'));
+                    if (secondOption) {
+                        console.log('La opción "Principal" se seleccionará en su lugar.', secondOption);
+                        console.log(secondOption.text, secondOption.value);
+                        await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
+                        // Seleccionar la segunda opción si "Apremio" no está disponible
+                        await this.page.select('#selCuaderno', secondOption.value);
+                    } else {
+                        return false
+                    }
                 }
             }
 
@@ -588,7 +604,9 @@ class ConsultaCausaPjud{
             'policia',
             'transferencia',
             'acta',
-            'pericial'
+            'pericial',
+            'minuta',
+            'cheque'
         ];
 
         // Dividir el texto en palabras individuales

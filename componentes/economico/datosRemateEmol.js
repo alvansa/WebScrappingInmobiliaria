@@ -101,7 +101,6 @@ function procesarDatosRemate(caso) {
     }
 
     if (anno) {
-        console.log("Anno fijado",anno)
         caso.anno = anno;
     }
 
@@ -707,7 +706,6 @@ function getAnno(data) {
     if (fojasDependiente != null) {
         const anno = parseInt(fojasDependiente[1].replaceAll(".",""));
         if(anno > 1700) {
-            console.log("En fojas dependientes: ", anno, typeof fojasDependiente[1])
             return anno;
         }
     }

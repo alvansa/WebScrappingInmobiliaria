@@ -79,8 +79,8 @@ class scrapeAuction {
 
         fechaInicio.setMonth(fechaInicio.getMonth() - 1);
 
-        fechaInicio = stringToDate(fechaInicioStr);
-        fechaFin = stringToDate(fechaFinStr); 
+        // fechaInicio = stringToDate(fechaInicioStr);
+        // fechaFin = stringToDate(fechaFinStr); 
 
         let casos = [];
         try {
@@ -132,7 +132,7 @@ class scrapeAuction {
         let startDate = stringToDate(fechaInicioStr);
         let endDate = stringToDate(fechaFinStr); 
 
-        startDate.setMonth(startDate.getMonth() - 1);
+        // startDate.setMonth(startDate.getMonth() - 1);
        try{
             const window = new BrowserWindow({ show: true });
             const url = 'https://www.boletinconcursal.cl/boletin/remates';

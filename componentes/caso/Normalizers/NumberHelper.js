@@ -1,17 +1,23 @@
 
 class NumberHelper{
-    deudaHipotecaria(deuda){
+    static deudaHipotecaria(deuda){
+        if(!deuda){
+            return null;
+        }
         deuda = deuda
             .replace(/unidades\s*de\s*fomento/i,"")
             .replace(/\$/,"")
             .replace(/u\.?f\.?/i,"")
             .replace(/\s*/,"")
-            .replace(/-/,"");
-        
-        const regexNumber = /(\d{1,}(?:\.\d{1,3})*(?:,\d+)?)(\b|,)/;
+            .replace(/-/,"")
+            .replace(/\./g,"")
+            .replace(",",".");
+        const regexNumber = /(\d{1,}(?:\.\d+)?)(\b|,)/;
         const matchedRegex = deuda.match(regexNumber);
         if(matchedRegex){
-            return matchedRegex[0];
+            return Number(matchedRegex[0]);
         }
     }
 }
+
+module.exports = NumberHelper;

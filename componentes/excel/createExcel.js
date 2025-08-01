@@ -299,7 +299,7 @@ class createExcel {
         if (caso.montoCompra && caso.montoCompra.monto) {
             ws['AF' + currentRow] = { v: caso.montoCompra.monto, t: 'n' };
         }
-        this.writeLine(ws, "AP", currentRow, caso.deudaHipotecaria, "s");
+        this.writeLine(ws, "AP", currentRow, caso.deudaHipotecaria, "n");
         // ws['AG' + currentRow ] = {v: 'año compr ant ', t: 's'};
         // ws['AH' + currentRow ] = {v: 'precio venta nos ', t: 's'};
     }

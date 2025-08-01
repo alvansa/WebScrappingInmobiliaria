@@ -941,12 +941,10 @@ class PjudPdfData {
         }
         // console.log("info en comuna: ", info);
         let comuna = obtainComunaByIndex(infoNormalized);
-        console.log("comuna by index: ", comuna);
         if (comuna) {
             return comuna;
         }
         comuna = getComuna(info, true);
-        console.log("comuna by getComuna", comuna)
 
         if (comuna) {
             return comuna;

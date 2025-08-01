@@ -3,6 +3,7 @@ const config = require('../../config');
 const DateHelper = require('./Normalizers/DateHelper');
 const RolHelper = require('./Normalizers/RolHelper');
 const StringHelper = require('./Normalizers/StringHelper');
+const NumberHelper = require('./Normalizers/NumberHelper');
 
 const EMOL = config.EMOL;
 const PJUD = config.PJUD;
@@ -415,7 +416,7 @@ class Caso{
         if(!this.#deudaHipotecaria){
             return null;
         }
-        return this.#deudaHipotecaria;
+        return NumberHelper.deudaHipotecaria(this.#deudaHipotecaria);
     }
     get formatoEntrega(){
         if(!this.#formatoEntrega){
@@ -549,7 +550,7 @@ class Caso{
             hasBodega : this.#hasBodega,
             montoCompra: this.#montoCompra,
             isPaid: this.#isPaid,
-            deudaHipotecaria : this.#deudaHipotecaria,
+            deudaHipotecaria : NumberHelper.deudaHipotecaria(this.#deudaHipotecaria),
             alreadyAppear: this.#alreadyAppear,
             unitRol: RolHelper.normalizeRol(this.#rolPropiedad, this.#rolEstacionamiento, this.#rolBodega) ,
             unitAvaluo: this.sumAvaluo(),
