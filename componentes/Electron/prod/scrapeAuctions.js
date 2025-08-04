@@ -9,9 +9,10 @@ const {PreRemates} = require('../../preremates/obtenerPublicaciones.js');
 const MapasSII = require('../../mapasSII/MapasSII.js');
 const ProcesarBoletin = require('../../liquidaciones/procesarBoletin.js');
 const PublicosYLegales = require('../../publicosYlegales/publicosYLegales.js');
-const Pjud = require('../../pjud/getPjud.js');
 const createExcel = require('../../excel/createExcel.js');
 const Caso = require('../../caso/caso.js')
+const Pjud = require('../../pjud/getPjud.js');
+const GestorRematesPjud = require('../../pjud/GestorRematesPjud.js')
 const ConsultaCausaPjud = require('../../pjud/consultaCausaPjud.js');
 const PjudPdfData = require('../../pjud/PjudPdfData.js');
 const {fixStringDate,stringToDate} = require('../../../utils/cleanStrings.js');
@@ -150,6 +151,7 @@ class scrapeAuction {
         }
         return casos;
     }
+
     async getPublicosYLegales(fechaInicioStr,fechaFinStr,fechaHoy,PYLChecked){
         if(!PYLChecked){
             return [];
@@ -195,7 +197,10 @@ class scrapeAuction {
             casos = await this.searchCasesByDay(startDate, endDate);
             casos.reverse(); // Invertir el orden de los casos para que aparezcan del mas reciente al mas antiguo
             
-            const result = await this.obtainDataFromCases(casos, event);
+            const gestorRemates = new GestorRematesPjud(casos,event,this.mainWindow);
+            const result = await gestorRemates.getInfoFromAuctions();
+            
+            // const result = await this.obtainDataFromCases(casos, event);
             for (let caso of casos) {
                 console.log("Caso obtenido de pjud: ", caso.fechaRemate);
             }
@@ -317,15 +322,6 @@ function openWindow(window, useProxy){
     return window;
 }
 
-async function consultaCausa(caso){
-    const browser = await pie.connect(app, puppeteer);
-    let window;
-    window = openWindow(window,false);
-    const consultaCausa = new ConsultaCausaPjud(browser,window,caso,this.mainWindow);
-    const result = await consultaCausa.getConsulta()
-
-    return result;
-}
 
 // Dado un objeto Date, devuelve un string con el formato dd/mm/yyyy
 function dateToPjud(date) {

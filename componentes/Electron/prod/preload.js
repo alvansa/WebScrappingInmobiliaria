@@ -78,9 +78,9 @@ contextBridge.exposeInMainWorld('api', {
     return result;
   },
 
-  getInfoFromPdfPjud: async(filePath, startDate, endDate) => {
+  completeInfoFromExcel: async(filePath) => {
     try {
-      const result = await ipcRenderer.invoke('getInfoFromPdfPjud', filePath, startDate, endDate);
+      const result = await ipcRenderer.invoke('complete-info-excel', filePath);
       console.log("Resultados de la consulta en el preload :", result);
       return result;
     } catch (error) {
@@ -91,7 +91,9 @@ contextBridge.exposeInMainWorld('api', {
 
   electronLog : async  (callback) => {
     const result = await ipcRenderer.invoke('electron-log', (event, message) => callback(message));
-  }
+  },
+
+  selectExcelPath : async ()=> ipcRenderer.invoke('select-excel-path'),
 
 });
 

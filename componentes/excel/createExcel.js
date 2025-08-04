@@ -7,7 +7,10 @@ const config = require("../../config.js");
 const Caso = require('../caso/caso.js');
 const {fixStringDate} = require('../../utils/cleanStrings.js');
 
-const PJUD = 2;
+const PJUD = config.PJUD;
+const EMOL = config.EMOL;
+const LIQUIDACIONES = config.LIQUIDACIONES;
+const PREREMATES = config.PREREMATES;
 
 class createExcel {
     constructor(saveFile, startDate, endDate, emptyMode, type) {
@@ -121,7 +124,7 @@ class createExcel {
     insertCasos(casos, ws) {
         let currentRow = 6;
         for (let caso of casos) {
-            this.insertarCasoIntoWorksheet(caso.toObject(), ws, currentRow);
+            insertarCasoIntoWorksheet(caso.toObject(), ws, currentRow);
             currentRow = currentRow + 1;
         }
         return currentRow;
@@ -137,7 +140,7 @@ class createExcel {
         this.causaDB.insertCase(casos,this.comunas); 
         const caso = casos.toObject();
         let currentRow = 6;
-        this.insertarCasoIntoWorksheet(caso, ws, currentRow);
+        insertarCasoIntoWorksheet(caso, ws, currentRow);
         currentRow = currentRow + 1;
         return currentRow
     }
@@ -170,7 +173,7 @@ class createExcel {
             console.log("Escribiendo caso :", caso[1].causa);
             const casoObj = caso[1].toObject()
 
-            this.insertarCasoIntoWorksheet(casoObj, ws, currentRow);
+            insertarCasoIntoWorksheet(casoObj, ws, currentRow);
             currentRow++;
         }
         // Agrega los remates a la base de datos
@@ -235,80 +238,7 @@ class createExcel {
     }
 
 
-    insertarCasoIntoWorksheet(caso, ws, currentRow) {
-        let newRol = caso.rolPropiedad;
-        if(caso.fechaPublicacion && caso.fechaPublicacion instanceof Date){
-            ws['A' + currentRow] = { v: caso.fechaPublicacion, t: 'd', z: 'dd/mm/yyyy' };
-        }
-        // console.log("Fecha de obtenion : ", caso.fechaObtencion, "Tipo :", typeof caso.fechaObtencion);
-        if(caso.fechaObtencion && caso.fechaObtencion instanceof Date){
-            ws['C' + currentRow] = { v: caso.fechaObtencion, t: 'd', z: 'dd/mm/yyyy' };
-        }
-        this.writeLine(ws, 'D', currentRow, caso.link, 's');
-        // ws['E'+ currentRow ] = {v: 'notas ', t: 's'};
-        if (caso.fechaRemate && caso.fechaRemate instanceof Date){
-            ws['F' + currentRow] = { v: caso.fechaRemate, t: 'd', z: 'DD/MM/YYYY' };
-        }
-        this.writeLine(ws, 'G', currentRow, caso.martillero, 's');
-        if(caso.tipoDerecho){
-            this.writeLine(ws, 'G', currentRow, caso.tipoDerecho, 's');
-        }else if(caso.isPaid){
-            this.writeLine(ws, 'G', currentRow, "(Pagado)", 's');
-        }else if(caso.isAvenimiento){
-            this.writeLine(ws, 'G', currentRow, "(Avenimiento)", 's');
-        }
-        // Revisamos si el caso tiene estacionamiento o bodega, y adaptamos la direccion
-        // const newDireccion = this.checkEstacionamientoBodega(caso)
-        this.writeLine(ws, 'H', currentRow, caso.unitDireccion, 's');
 
-        this.writeLine(ws, 'I', currentRow, caso.causa, 's');
-        this.writeLine(ws, 'J', currentRow, caso.juzgado, 's');
-        this.writeLine(ws, 'K', currentRow, getComunaJuzgado(caso.juzgado), 's');
-        this.writeLine(ws, 'L', currentRow, caso.comuna, 's');
-        this.writeLine(ws, 'M', currentRow, caso.anno, 'n');
-        this.writeLine(ws, 'N', currentRow, caso.partes, 's');
-        // ws['O'+ currentRow ] = {v: 'dato ', t: 's'};
-        this.writeLine(ws, 'P', currentRow, caso.formatoEntrega, 's');
-        this.writeLine(ws, 'Q', currentRow, caso.porcentaje, 's');
-        this.writeLine(ws, 'R', currentRow, caso.diaEntrega, 's');
-        // ws['T'+ currentRow ] = {v: caso.rolPropiedad, t: 's'};
-        // ws['U'+ currentRow ] = {v: 'deuda 2 ', t: 's'};
-        // ws['V'+ currentRow ] = {v: 'deuda 3 ', t: 's'};
-
-        // Union de roles de propiedad, estacionamiento y bodega
-        // console.log("Rol adaptado: ", newRol);
-        this.writeLine(ws, 'W', currentRow, caso.unitRol, 's');
-
-        // ws['X'+ currentRow ] = {v: 'notif ', t: 's'};
-        // Formato de monto minimo segun el tipo de moneda
-        if(caso.montoMinimo > 100){
-            if (caso.moneda === 'UF') {
-                ws['Y' + currentRow] = { v: parseFloat(caso.montoMinimo), t: 'n', z: '#,##0.0000' };
-            }
-            else if (caso.moneda == 'Pesos') {
-                console.log("leyo que la moneda es pesos", caso.moneda);
-                ws['Y' + currentRow] = { v: parseFloat(caso.montoMinimo), t: 'n', z: '#,##0' };
-            }
-            this.writeLine(ws, 'Z', currentRow, caso.moneda, 's');
-        }
-        if (caso.avaluoPropiedad != null) {
-            // const sumAvaluo = this.sumAvaluo(caso.avaluoPropiedad, caso.avaluoEstacionamiento, caso.avaluoBodega);
-            ws['AC' + currentRow] = { v: caso.unitAvaluo, t: 'n', z: '#,##0' };
-        }
-        this.writeLine(ws, "AE", currentRow, caso.estadoCivil, "s");
-        if (caso.montoCompra && caso.montoCompra.monto) {
-            ws['AF' + currentRow] = { v: caso.montoCompra.monto, t: 'n' };
-        }
-        this.writeLine(ws, "AP", currentRow, caso.deudaHipotecaria, "n");
-        // ws['AG' + currentRow ] = {v: 'año compr ant ', t: 's'};
-        // ws['AH' + currentRow ] = {v: 'precio venta nos ', t: 's'};
-    }
-
-    writeLine(ws, row, col, value, type) {
-        if (value != null) {
-            ws[row + col] = { v: value, t: type };
-        }
-    }
 
 
     cambiarAnchoColumnas(ws) {
@@ -401,7 +331,81 @@ function fechaMenosUno(fecha) {
     nuevaFecha.setDate(nuevaFecha.getDate() - 1);
     return nuevaFecha;
 }
+function writeLine(ws, row, col, value, type) {
+    if (value != null) {
+        ws[row + col] = { v: value, t: type };
+    }
+}
+
+function insertarCasoIntoWorksheet(caso, ws, currentRow) {
+    let newRol = caso.rolPropiedad;
+    if (caso.fechaPublicacion && caso.fechaPublicacion instanceof Date) {
+        ws['A' + currentRow] = { v: caso.fechaPublicacion, t: 'd', z: 'dd/mm/yyyy' };
+    }
+    // console.log("Fecha de obtenion : ", caso.fechaObtencion, "Tipo :", typeof caso.fechaObtencion);
+    if (caso.fechaObtencion && caso.fechaObtencion instanceof Date) {
+        ws['C' + currentRow] = { v: caso.fechaObtencion, t: 'd', z: 'dd/mm/yyyy' };
+    }
+    writeLine(ws, 'D', currentRow, caso.link, 's');
+    // ws['E'+ currentRow ] = {v: 'notas ', t: 's'};
+    if (caso.fechaRemate && caso.fechaRemate instanceof Date) {
+        ws['F' + currentRow] = { v: caso.fechaRemate, t: 'd', z: 'DD/MM/YYYY' };
+    }
+    writeLine(ws, 'G', currentRow, caso.martillero, 's');
+    if (caso.tipoDerecho) {
+        writeLine(ws, 'G', currentRow, caso.tipoDerecho, 's');
+    } else if (caso.isPaid) {
+        writeLine(ws, 'G', currentRow, "(Pagado)", 's');
+    } else if (caso.isAvenimiento) {
+        writeLine(ws, 'G', currentRow, "(Avenimiento)", 's');
+    }
+    // Revisamos si el caso tiene estacionamiento o bodega, y adaptamos la direccion
+    // const newDireccion = this.checkEstacionamientoBodega(caso)
+    writeLine(ws, 'H', currentRow, caso.unitDireccion, 's');
+
+    writeLine(ws, 'I', currentRow, caso.causa, 's');
+    writeLine(ws, 'J', currentRow, caso.juzgado, 's');
+    writeLine(ws, 'K', currentRow, getComunaJuzgado(caso.juzgado), 's');
+    writeLine(ws, 'L', currentRow, caso.comuna, 's');
+    writeLine(ws, 'M', currentRow, caso.anno, 'n');
+    writeLine(ws, 'N', currentRow, caso.partes, 's');
+    // ws['O'+ currentRow ] = {v: 'dato ', t: 's'};
+    writeLine(ws, 'P', currentRow, caso.formatoEntrega, 's');
+    writeLine(ws, 'Q', currentRow, caso.porcentaje, 's');
+    writeLine(ws, 'R', currentRow, caso.diaEntrega, 's');
+    // ws['T'+ currentRow ] = {v: caso.rolPropiedad, t: 's'};
+    // ws['U'+ currentRow ] = {v: 'deuda 2 ', t: 's'};
+    // ws['V'+ currentRow ] = {v: 'deuda 3 ', t: 's'};
+
+    // Union de roles de propiedad, estacionamiento y bodega
+    // console.log("Rol adaptado: ", newRol);
+    writeLine(ws, 'W', currentRow, caso.unitRol, 's');
+
+    // ws['X'+ currentRow ] = {v: 'notif ', t: 's'};
+    // Formato de monto minimo segun el tipo de moneda
+    if (caso.montoMinimo > 100) {
+        if (caso.moneda === 'UF') {
+            ws['Y' + currentRow] = { v: parseFloat(caso.montoMinimo), t: 'n', z: '#,##0.0000' };
+        }
+        else if (caso.moneda == 'Pesos') {
+            console.log("leyo que la moneda es pesos", caso.moneda);
+            ws['Y' + currentRow] = { v: parseFloat(caso.montoMinimo), t: 'n', z: '#,##0' };
+        }
+        writeLine(ws, 'Z', currentRow, caso.moneda, 's');
+    }
+    if (caso.avaluoPropiedad != null) {
+        // const sumAvaluo = this.sumAvaluo(caso.avaluoPropiedad, caso.avaluoEstacionamiento, caso.avaluoBodega);
+        ws['AC' + currentRow] = { v: caso.unitAvaluo, t: 'n', z: '#,##0' };
+    }
+    writeLine(ws, "AE", currentRow, caso.estadoCivil, "s");
+    if (caso.montoCompra && caso.montoCompra.monto) {
+        ws['AF' + currentRow] = { v: caso.montoCompra.monto, t: 'n' };
+    }
+    writeLine(ws, "AP", currentRow, caso.deudaHipotecaria, "n");
+    // ws['AG' + currentRow ] = {v: 'año compr ant ', t: 's'};
+    // ws['AH' + currentRow ] = {v: 'precio venta nos ', t: 's'};
+}
 
 
 
-module.exports = createExcel;
+module.exports = {createExcel, writeLine,insertarCasoIntoWorksheet};

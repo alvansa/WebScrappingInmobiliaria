@@ -160,44 +160,41 @@ document.getElementById('searchCaseBtn').addEventListener('click', async () => {
 
 // obtener y procesar casos del pjud con sus pdf
 //Esta funcino fue creada para buscar datos solo del pjud
-document.getElementById('processPdfsBtn').addEventListener('click', async () => {
-  const startDate = document.getElementById('pdfStartDate').value;
-  const endDate = document.getElementById('pdfEndDate').value;
-  const saveFile = document.getElementById('pdf-folder-input').value;
+document.getElementById('processExcelBtn').addEventListener('click', async () => {
+  const saveFile = document.getElementById('excel-input').value;
 
-  if (!startDate || !endDate || !saveFile) {
-    alert('Por favor complete todos los campos');
+  if (!saveFile) {
+    alert('Por favor seleccionar excel a completar');
     return;
   }
 
   try {
-    alert(`Procesando PDFs desde ${startDate} hasta ${endDate} y guardando en: ${saveFile} tipo de la fecha ${typeof startDate} y ${typeof endDate}`);
-    const result = await window.api.getInfoFromPdfPjud(saveFile, startDate, endDate);
+    const result = await window.api.completeInfoFromExcel(saveFile, startDate, endDate);
     if (result) {
       alert(`PDFs procesados y guardados en: ${result}`);
     } else {
       alert('No se encontraron PDFs para procesar');
     }
   } catch (error) {
-    console.error('Error al procesar PDFs:', error);
-    alert('Ocurrió un error al procesar los PDFs');
+    console.error('Error al procesar los casos faltantes:', error);
+    alert('Ocurrió un error al procesar el excel');
   }
 });
 
-document.getElementById('select-pdf-folder-btn').addEventListener('click', async () => {
-  // Llama al proceso principal para abrir el selector de carpetas
-  const folderPath = await window.api.selectFolder();
-  console.log("Path escogido: ", folderPath);
-  const folderInput = document.getElementById('pdf-folder-input'); // Obtén el input
+// document.getElementById('select-pdf-folder-btn').addEventListener('click', async () => {
+//   // Llama al proceso principal para abrir el selector de carpetas
+//   const folderPath = await window.api.selectFolder();
+//   console.log("Path escogido: ", folderPath);
+//   const folderInput = document.getElementById('pdf-folder-input'); // Obtén el input
 
-  if (folderPath) {
-    console.log('Carpeta seleccionada:', folderPath);
-    folderInput.value = folderPath;
-  } else {
-    console.log('Selección cancelada.');
-    folderInput.value = 'No se seleccionó ninguna carpeta.';
-  }
-});
+//   if (folderPath) {
+//     console.log('Carpeta seleccionada:', folderPath);
+//     folderInput.value = folderPath;
+//   } else {
+//     console.log('Selección cancelada.');
+//     folderInput.value = 'No se seleccionó ninguna carpeta.';
+//   }
+// });
 
 // Manejo de notificaciones de espera con Modal
 window.api.onWaitingNotification((args) => {
@@ -240,6 +237,16 @@ function showWaitingModal(show) {
   if (!show && countdownInterval) clearInterval(countdownInterval);
 }
 
+document.getElementById('select-excel-file-btn').addEventListener('click', async()=>{
+  const excelInput = document.getElementById('excel-input'); // Obtén el input
+  const excelPath = await window.api.selectExcelPath();
+
+  if (excelPath) {
+    excelInput.value = excelPath;
+  } else {
+    excelInput.value = 'No se seleccionó ninguna carpeta.';
+  }
+});
 
 loadTribunales();
 

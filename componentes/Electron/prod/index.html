@@ -52,7 +52,7 @@
           </button>
           <button onclick="switchView('getDataFromPdfView')" 
             class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
-            Extraer datos de PDFs
+            Completar informacion Excel
           </button>
         </div>
     </div>
@@ -137,20 +137,20 @@
   <!-- Vista para extraer datos de PDFs -->
   <div id="getDataFromPdfView" class="view">
       <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
-        <h2 class="text-2xl font-semibold text-center mb-4">Extraer datos de PDFs</h2>
+        <h2 class="text-2xl font-semibold text-center mb-4">Completar informacion faltante del excel</h2>
         
         <!-- Selector de carpeta -->
         <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700">Seleccionar carpeta con PDFs</label>
+          <label class="block text-sm font-medium text-gray-700">Seleccionar excel incompleto</label>
           <div class="flex mt-1">
-            <input type="text" id="pdf-folder-input" class="flex-1 border p-2 rounded-l-md bg-gray-100" readonly
-              placeholder="No se ha seleccionado ninguna carpeta">
-            <button id="select-pdf-folder-btn"
+            <input type="text" id="excel-input" class="flex-1 border p-2 rounded-l-md bg-gray-100" readonly
+              placeholder="No se ha seleccionado ningun documento">
+            <button id="select-excel-file-btn"
               class="bg-blue-500 text-white px-4 py-2 rounded-r-md hover:bg-blue-600">Seleccionar</button>
           </div>
         </div>
         
-        <!-- Selectores de fecha -->
+        <!-- Selectores de fecha
         <div class="mb-4 flex gap-2">
           <div class="w-1/2">
             <label class="block text-sm font-medium text-gray-700 mb-1">Fecha desde</label>
@@ -160,11 +160,11 @@
             <label class="block text-sm font-medium text-gray-700 mb-1">Fecha hasta</label>
             <input type="date" id="pdfEndDate" class="w-full border p-2 rounded">
           </div>
-        </div>
+        </div> -->
         
         <!-- Botón de procesar -->
-        <button id="processPdfsBtn" class="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600 mb-4">
-          Procesar PDFs
+        <button id="processExcelBtn" class="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600 mb-4">
+          Procesar Excel
         </button>
         
         <!-- Botón para volver -->

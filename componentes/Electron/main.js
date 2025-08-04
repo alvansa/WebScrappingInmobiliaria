@@ -8,6 +8,7 @@ const FormData = require('form-data');
 const fs = require('fs')
 
 const scrapeAuction = require('./prod/scrapeAuctions.js');
+const CompleteExcelInfo = require('./prod/completeExcelInfo.js');
 const Economico = require('../economico/Economico.js');
 const {getDatosRemate,emptyCaseEconomico} = require('../economico/datosRemateEmol.js');
 const {PreRemates} = require('../preremates/obtenerPublicaciones.js');
@@ -15,7 +16,7 @@ const MapasSII = require('../mapasSII/MapasSII.js');
 const ProcesarBoletin = require('../liquidaciones/procesarBoletin.js');
 const PublicosYLegales = require('../publicosYlegales/publicosYLegales.js');
 const Pjud = require('../pjud/getPjud.js');
-const createExcel = require('../excel/createExcel.js');
+const {createExcel} = require('../excel/createExcel.js');
 const Caso = require('../caso/caso.js')
 const ConsultaCausaPjud = require('../pjud/consultaCausaPjud.js');
 const PjudPdfData = require('../pjud/PjudPdfData.js');
@@ -142,13 +143,16 @@ class MainApp{
         });
 
         // Funcion para buscar la informacion del pjud en pdf en base a una fecha de inicio y final.
-        ipcMain.handle('getInfoFromPdfPjud', async (event, filePath,startDate, endDate) => {
+        ipcMain.handle('complete-info-excel', async (event, filePath) => {
             try{
-                const filePathPdf = await this.obtainDataPdfPjud(event,filePath,startDate,endDate);
-                return filePathPdf;
+                const FillExcel = new CompleteExcelInfo(filePath,event,this.mainWindow);
+                await FillExcel.fillData();
+                this.mainWindow.send("electron-log","En la funcion de completar excel")
+
+                return true;
 
             }catch(error){
-                console.error('Error al obtener información del PDF:', error);
+                console.error('Error al completar la informacion del excel:', error);
                 return null;
             }
         });
@@ -186,6 +190,17 @@ class MainApp{
             });
 
             return canceled ? [] : filePaths;
+        });
+
+        ipcMain.handle('select-excel-path', async ()=>{
+            const result = await dialog.showOpenDialog(this.mainWindow, {
+                properties: ['openFile'],
+                filters: [
+                  { name: 'Todos los archivos', extensions: ['*.xlsx'] }
+                ]
+            });
+            return result.filePaths[0] || null;
+
         });
 
         // funcion que dado un archivo pdf lo procesa con la funcion del boletin.
