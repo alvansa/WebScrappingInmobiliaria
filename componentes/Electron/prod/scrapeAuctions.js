@@ -9,7 +9,7 @@ const {PreRemates} = require('../../preremates/obtenerPublicaciones.js');
 const MapasSII = require('../../mapasSII/MapasSII.js');
 const ProcesarBoletin = require('../../liquidaciones/procesarBoletin.js');
 const PublicosYLegales = require('../../publicosYlegales/publicosYLegales.js');
-const createExcel = require('../../excel/createExcel.js');
+const {createExcel} = require('../../excel/createExcel.js');
 const Caso = require('../../caso/caso.js')
 const Pjud = require('../../pjud/getPjud.js');
 const GestorRematesPjud = require('../../pjud/GestorRematesPjud.js')
@@ -20,7 +20,6 @@ const {tribunalesPorCorte, obtainCorteJuzgadoNumbers} = require('../../../utils/
 const { fakeDelay, delay } = require('../../../utils/delay.js');
 
 class scrapeAuction {
-
     constructor(startDate,endDate,saveFile, checkedBoxes,event,mainWindow) {
         this.startDate = startDate;
         this.endDate = endDate;
@@ -80,8 +79,8 @@ class scrapeAuction {
 
         fechaInicio.setMonth(fechaInicio.getMonth() - 1);
 
-        // fechaInicio = stringToDate(fechaInicioStr);
-        // fechaFin = stringToDate(fechaFinStr); 
+        fechaInicio = stringToDate(fechaInicioStr);
+        fechaFin = stringToDate(fechaFinStr); 
 
         let casos = [];
         try {

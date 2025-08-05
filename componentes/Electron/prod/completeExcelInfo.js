@@ -5,8 +5,9 @@ const path = require('path');
 const Caso = require('../../caso/caso');
 const CasoBuilder = require('../../caso/casoBuilder');
 const GestorRematesPjud = require('../../pjud/GestorRematesPjud.js');
-const {writeLine,insertarCasoIntoWorksheet} = require('../../excel/createExcel')
+const {writeLine,insertarCasoIntoWorksheet,createExcel} = require('../../excel/createExcel')
 const {tribunalesPorCorte, obtainCorteJuzgadoNumbers} = require('../../../utils/corteJuzgado.js');
+const { create } = require('domain');
 
 
 class CompleteExcelInfo{
@@ -19,13 +20,36 @@ class CompleteExcelInfo{
 
     async fillData(){
         const wb = XLSX.readFile(this.filePath);
-        const ws = wb.Sheets['Remates'];
+        const ws = wb.Sheets[wb.SheetNames[0]];
         let lastRow = 6;
 
-
         // Obtain de auctions
+        lastRow = this.getCausasFromExcel(ws,lastRow);
+
+        console.log(`Casos a buscar: ${this.casos.length}`);
+        if(this.casos.length == 0){
+            return true;
+        }
+
+        // Process de auctions
+        await this.obtainNewData()
+
+
+        // Write the new data
+        this.writeData(ws);
+        console.log('------------------------------------------------------');
+        console.log(this.casos.map(obj => obj.toObject()));
+
+        createExcel.cambiarAnchoColumnas(ws);
+        ws['!ref'] = 'A5:AP' + lastRow;
+        const fileName = this.filePath.split('.')[0];
+        const filePath = fileName+'Completo'+'.xlsx';
+        XLSX.writeFile(wb, this.filePath, { cellDates: true });
+        return filePath;
+    }
+
+    getCausasFromExcel(ws,lastRow){
         while(ws[`I${lastRow}`]){
-            const celda = ws[`I${lastRow}`];
             const causa = ws[`I${lastRow}`].v;
             const juzgado = ws[`J${lastRow}`].v
             const celdaPartes = ws[`N${lastRow}`]
@@ -45,38 +69,22 @@ class CompleteExcelInfo{
 
             lastRow++;
         }
-
-        console.log(`Casos a buscar: ${this.casos.length}`);
-        if(this.casos.length == 0){
-            return true;
-        }
-
-        this.casos[0].partes = "TEST REAL";
-        // Process de auctions
-        await this.obtainNewData()
-
-
-        // Write the new data
-        this.writeData(ws);
-        console.log(this.casos.map(obj => obj.toObject()));
-
-        ws['!ref'] = 'A5:AP' + lastRow;
-        const fileName = this.filePath.split('.')[0];
-        const filePath = fileName+'Completo'+'.xlsx';
-        XLSX.writeFile(wb, this.filePath, { cellDates: true });
-        return filePath;
+        return lastRow;
     }
 
     async obtainNewData(){
-        obtainCorteJuzgadoNumbers(this.casos);
-        const gestorRemates = new GestorRematesPjud(this.casos,this.event,this.mainWindow);
-        const result = await gestorRemates.getInfoFromAuctions();
-
-        return true;
+        try{
+            obtainCorteJuzgadoNumbers(this.casos);
+            const gestorRemates = new GestorRematesPjud(this.casos, this.event, this.mainWindow);
+            const result = await gestorRemates.getInfoFromAuctions();
+            return true;
+        }catch(error){
+            console.error('Error al obtener nueva información:', error);
+            return false;
+        }
     }
 
     writeData(ws) {
-
         for (let caso of this.casos) {
             const actualCausa = caso.causa;
             let lastRow = 6;

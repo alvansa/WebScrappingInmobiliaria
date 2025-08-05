@@ -11,6 +11,7 @@ const {textoGP1, textoGP2, textoGP3, textoGP4, textoGP5, texto12Santiago, GP1435
 const {diario2484, ex1341, diario1341, diario3354_1, diario3354_2} = require('../textos/diario');
 
 const textosDV = require('../textos/DV');
+const AR = require('../textos/ActaRemate');
 const {ex1666, ex800, ex2240, ex2226} = require('../textos/Extracto'); 
 const {bf2201, bf1341, notBf, bf1750, BF2452, BF2055,BF199, CertificadoBF} = require('../textos/BF');
 const {dm1056, dm1138} = require('../textos/DM');
@@ -26,7 +27,6 @@ const pjudPdf2484 = new PjudPdfData(caso2484);
 // const causaDB = new Causas();
 
 const devMode = true;
-;
 
 describe('obtainRolPropiedad', () => {
 
@@ -79,6 +79,33 @@ describe('obtainRolPropiedad', () => {
        const textoNormalizado = testPjudPdf.normalizeInfo(diario3354_1);
        const res = testPjudPdf.obtainRolPropiedad(textoNormalizado); 
        expect(res).toBeNull();
+    });
+
+    test('Prueba con acta de remate', ()=>{
+       const textoNormalizado = testPjudPdf.normalizeInfo(AR.AR572);
+       const res = testPjudPdf.obtainRolPropiedad(textoNormalizado,0); 
+       expect(res).toEqual({
+            tipo : 'departamento',
+            rol : '2864-182'
+        });
+    });
+
+    test('Prueba con acta de remate', ()=>{
+       const textoNormalizado = testPjudPdf.normalizeInfo(AR.AR572);
+       const res = testPjudPdf.obtainRolPropiedad(textoNormalizado,1); 
+       expect(res).toEqual({
+            tipo : 'estacionamiento',
+            rol : '2874-439'
+        });
+    });
+
+    test('Prueba con acta de remate', ()=>{
+       const textoNormalizado = testPjudPdf.normalizeInfo(AR.AR572);
+       const res = testPjudPdf.obtainRolPropiedad(textoNormalizado,2); 
+       expect(res).toEqual({
+            tipo : 'bodega',
+            rol : '2874-173'
+        });
     });
 });
 
@@ -383,6 +410,15 @@ describe('ObtainMontoMinimo', () => {
         expect(montoMinimo).toEqual({
             monto: '1031,99465',
             moneda : "UF"
+        });
+    });
+
+    test('Obtener monto minimo de un acta de remate',()=>{
+        const info = testPjudPdf.normalizeInfo(AR.AR572);
+        const montoMinimo = testPjudPdf.obtainMontoMinimo(info);
+        expect(montoMinimo).toEqual({
+            monto: '81.100.000',
+            moneda : "Pesos"
         });
     });
 
@@ -695,6 +731,13 @@ describe('convertWordToNumbers',()=>{
     });
 });
 
+describe('obtainFormatoEntrega',()=>{
+    test('Obtener el formato de entrega de un acta de remate',()=>{
+        const info = testPjudPdf.normalizeInfo(AR.AR572);
+        const formatoEntrega = testPjudPdf.obtainFormatoEntrega(info);
+        expect(formatoEntrega).toEqual('vale vista');
+    });
+});
 
 
 function createCase(causa,juzgado){

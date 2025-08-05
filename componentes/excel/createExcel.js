@@ -66,7 +66,7 @@ class createExcel {
         ws['AP5'] = { v: 'Deuda Hipotecaria', t: 's' };
 
         // Ajusta el ancho de las columnas
-        this.cambiarAnchoColumnas(ws);
+        createExcel.cambiarAnchoColumnas(ws);
 
         // Define el rango de la hoja para asegurar que incluya todas las celdas especificadas
         ws['!ref'] = 'A5:AP5';
@@ -94,7 +94,7 @@ class createExcel {
         // Lee el archivo base para poder insertar los datos
         const wb = XLSX.readFile(path.join(this.saveFile, 'Remates.xlsx'));
         const ws = wb.Sheets['Remates'];
-        this.cambiarAnchoColumnas(ws);
+        createExcel.cambiarAnchoColumnas(ws);
 
         try {
             if (this.type === "one") {
@@ -161,7 +161,7 @@ class createExcel {
             if (caso.fechaPublicacion === "N/A" || caso.fechaPublicacion == null) {
                 caso.fechaPublicacion = fechaMenosUno(this.endDate);
             }
-            if(this.getValidAuctions(caso, remates)){
+            if(this.getValidAuctions(caso, remates) || true){
                 this.addObjectToSet(remates,caso);
             }
         }
@@ -237,11 +237,7 @@ class createExcel {
        return inDB;
     }
 
-
-
-
-
-    cambiarAnchoColumnas(ws) {
+    static cambiarAnchoColumnas(ws) {
         ws['!cols'] = [
             { wch: 15 },  // A
             { wch: 15 },  // B

@@ -344,6 +344,7 @@ function getFechaRemate(data) {
 
 //Obtiene el monto minimo por el cual iniciara el remate.
 function getMontoMinimo(data) {
+    console.log('BUSCANDO EL MINIMO')
     // console.log(data);
     const regexPatronBase = "(?:subasta|m[íi]nim[oa]|rematar|propiedad)\\s*[,a-zA-ZáéíóúÑñ:º0-9\\s]*\\s+";
 

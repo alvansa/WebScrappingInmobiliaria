@@ -3,6 +3,11 @@ const convertWordToNumbers = require('../../utils/convertWordToNumbers');
 
 const regexMutuoHipotecario = /mutuo\s*hipotecario/i;
 
+const PROPIEDAD = 0;
+const ESTACIONAMIENTO = 1;
+const BODEGA = 2;
+const TODOS = 3;
+
 class PjudPdfData {
     constructor(caso,mainWindow,isDev=false) {
         this.caso = caso;
@@ -19,6 +24,7 @@ class PjudPdfData {
         }
 
         if (!this.checkIfValidDoc(data)) {
+            console.log("Documento no valido")
             return false;
         }
         let normalizeInfo = this.normalizeInfo(data);
@@ -48,6 +54,10 @@ class PjudPdfData {
             /clasificado/i,
             /tasador/i
         ];
+
+        if(item.toLowerCase().includes('bases generales de remate')){
+            return true;
+        }
         for (const doc of docNotValid) {
             if (doc.test(item)) {
                 console.log("Documento no valido, no contiene informacion relevante");
@@ -71,7 +81,7 @@ class PjudPdfData {
     processPropertyRoles(info) {
         // Revision de rol de propiedad
         if (!this.caso.rolPropiedad) {
-            const rolPropiedad = this.obtainRolPropiedad(info);
+            const rolPropiedad = this.obtainRolPropiedad(info,PROPIEDAD);
             if (rolPropiedad) {
                 if (!rolPropiedad.tipo.includes("estacionamiento") && !rolPropiedad.tipo.includes("bodega")) {
                     console.log(`\n-----------------------------\nRol de la propieadad obtenido con ${rolPropiedad}\n---------------------------- `);
@@ -81,7 +91,7 @@ class PjudPdfData {
         }
         // Revision de rol de estacionamiento
         if (!this.caso.rolEstacionamiento) {
-            const rolEstacionamiento = this.obtainRolPropiedad(info);
+            const rolEstacionamiento = this.obtainRolPropiedad(info,ESTACIONAMIENTO);
             if (rolEstacionamiento && rolEstacionamiento.tipo.includes("estacionamiento")) {
                 console.log(`\n-----------------------------\nRol de la estacionamiento obtenido con ${rolEstacionamiento}\n---------------------------- `);
                 this.caso.rolEstacionamiento = rolEstacionamiento.rol;
@@ -89,7 +99,7 @@ class PjudPdfData {
         }
         //Revision de rol Bodega
         if (!this.caso.rolBodega) {
-            const rolBodega = this.obtainRolPropiedad(info);
+            const rolBodega = this.obtainRolPropiedad(info,BODEGA);
             if (rolBodega && rolBodega.tipo.includes("bodega")) {
                 console.log(`\n-----------------------------\nRol de la bodega obtenido con ${rolBodega}\n---------------------------- `);
                 this.caso.rolBodega = rolBodega.rol;
@@ -104,7 +114,7 @@ class PjudPdfData {
         }
         //Obtener avaluo del inmueble
         if (!this.caso.avaluoPropiedad) {
-            const avaluoPropiedad = this.obtainAvaluoPropiedad(normalizedInfo);
+            const avaluoPropiedad = this.obtainAvaluoPropiedad(normalizedInfo,PROPIEDAD);
             if (avaluoPropiedad && !avaluoPropiedad.tipo.includes("estacionamiento") && !avaluoPropiedad.tipo.includes("bodega")) {
                 console.log(`\n-----------------------------\nAvaluo propiedad ${avaluoPropiedad.avaluo} y ${avaluoPropiedad.tipo}\n----------------------------- `);
                 this.caso.avaluoPropiedad = avaluoPropiedad.avaluo;
@@ -113,7 +123,7 @@ class PjudPdfData {
 
         //Obtener avaluo del estacionamiento
         if (!this.caso.avaluoEstacionamiento) {
-            const avaluoEstacionamiento = this.obtainAvaluoPropiedad(normalizedInfo);
+            const avaluoEstacionamiento = this.obtainAvaluoPropiedad(normalizedInfo,ESTACIONAMIENTO);
             if (avaluoEstacionamiento && avaluoEstacionamiento.tipo.includes("estacionamiento")) {
                 console.log(`\n-----------------------------\nAvaluo estacionamiento ${avaluoEstacionamiento.avaluo} y ${avaluoEstacionamiento.tipo}\n----------------------------- `);
                 this.caso.hasEstacionamiento = true;
@@ -123,7 +133,7 @@ class PjudPdfData {
 
         //Obtener avaluo de la bodega
         if (!this.caso.avaluoBodega) {
-            const avaluoBodega = this.obtainAvaluoPropiedad(normalizedInfo);
+            const avaluoBodega = this.obtainAvaluoPropiedad(normalizedInfo,BODEGA);
             if (avaluoBodega && avaluoBodega.tipo.includes("bodega")) {
                 console.log(`\n-----------------------------\nAvaluo bodega ${avaluoBodega}\n----------------------------- `);
                 this.caso.hasBodega = true;
@@ -197,9 +207,9 @@ class PjudPdfData {
 
         //Obtener el tipo de participacion para la subasta (VV o cupon).
         if (!this.caso.formatoEntrega) {
-            const formatoEntrega = getFormatoEntrega(info);
+            const formatoEntrega = this.obtainFormatoEntrega(info);
             if (formatoEntrega) {
-                this.caso.formatoEntrega = formatoEntrega ? formatoEntrega[0] : null;
+                this.caso.formatoEntrega = formatoEntrega;
             }
         }
 
@@ -222,6 +232,14 @@ class PjudPdfData {
             }
         }
 
+    }
+
+    obtainFormatoEntrega(info) {
+        const formatoEntrega = getFormatoEntrega(info);
+        if(formatoEntrega){
+            return formatoEntrega[0];
+        }
+        return null;
     }
 
     //Obtener la deuda hipotecaria si se encuentra
@@ -350,16 +368,17 @@ class PjudPdfData {
 
     obtainFromRegistroPropiedad(texto){
 
-        const registroRegex = /registro\s*(?:de)?\s*propiedad\s*(?:a\s*mi\s*cargo,?\s*)?(?:del?\s*)?(?:correspondiente\s*al\s*)?(?:a(?:n|ñ|fi)o\s*)?((\d{4}|\d{1,3}(\.\d{3})*))/i;
+        const registroRegex = /registro\s*(?:de)?\s*propiedad(?:es)?\s*(?:a\s*mi\s*cargo,?\s*)?(?:del?\s*)?(?:correspondiente\s*al\s*)?(?:a(?:n|ñ|fi)o\s*)?((\d{4}|\d{1,3}(\.\d{3})*))/i;
         let registro = texto.match(registroRegex);
         if (registro != null) {
             return registro[1];
         }
-        const regexAnnoParentesis = /registro\s*(?:de)?\s*propiedad\s*(?:del?\s*|a\s*mi\s*cargo,?\s*)?(?:correspondiente\s*al\s*)?(?:a(?:n|ñ|fi)o\s*)?.*\((\d{1,})\)/i;
+        const regexAnnoParentesis = /registro\s*(?:de)?\s*propiedad(?:es)?\s*(?:del?\s*|a\s*mi\s*cargo,?\s*)?(?:correspondiente\s*al\s*)?(?:a(?:n|ñ|fi)o\s*)?.*\((\d{1,})\)/i;
         registro = texto.match(regexAnnoParentesis);
         if (registro != null) {
             return registro[1];
         }
+        // const regexAnnoConservador = 
         return null;
     }
 
@@ -369,6 +388,12 @@ class PjudPdfData {
         if (registro != null) {
             return registro[1];
         }
+        const delAnnoConservador = /del\s*ano\s*(\d{4}|\d{1,3}(\.\d{3})*)\s*,\s*del\s*conservador\s*de\s*bienes\s*raices/i;
+        registro = texto.match(delAnnoConservador);
+        if (registro != null) {
+            return registro[1];
+        }
+        
         return null;
     }
 
@@ -873,8 +898,11 @@ class PjudPdfData {
     }
 
     //Obtiene el rol del bien raiz del documento de avaluo fiscal
-    obtainRolPropiedad(info) {
+    obtainRolPropiedad(info,tipo=TODOS) {
         if(!info) return null;
+        if(info.includes('bases generales de remate')){
+            return this.obtainRolOfActaRemate(info,tipo);
+        }
         if (info.includes("inscripcion")) {
             return null;
         }
@@ -887,14 +915,48 @@ class PjudPdfData {
                 "rol": match[1],
             };
         }
-        else {
-            return null;
-        }
+        return null;
     }
+
+    obtainRolOfActaRemate(info,tipo){
+        //Obtener de acta de remate
+        let searchRol;
+        if(tipo === PROPIEDAD){
+            searchRol = 'departamento';
+        }else if(tipo === ESTACIONAMIENTO){
+            searchRol = 'estacionamiento';
+        }else if(tipo === BODEGA){
+            searchRol = 'bodega';
+        }else{
+            searchRol = '';
+        }
+        const rolAvaluo = `rol\\s*de\\s*avaluo\\s*${searchRol}\\s*:\\s*(\\d{1,}-\\d{1,})`;
+        const regexAvaluo = new RegExp(rolAvaluo,'i')
+        const matchAvaluoDepartamento = info.match(regexAvaluo);
+        
+        if(matchAvaluoDepartamento){
+            return {
+                'tipo' : `${searchRol}`,
+                'rol': matchAvaluoDepartamento[1],
+            }
+        }else{
+
+            const rolAvaluoFinal = `rol\\s*de\\s*avaluo\\s*:\\s*(\\d{1,}-\\d{1,})`;
+            const regexAvaluoFinal = new RegExp(rolAvaluoFinal, 'i')
+            const matchAvaluo = info.match(regexAvaluoFinal);
+
+            if (matchAvaluo) {
+                return {
+                    'tipo': `Avaluo`,
+                    'rol': matchAvaluo[1],
+                }
+            }
+    }
+}
 
     //Obtiene el avaluo fiscal del documento avaluo fiscal
     // se ocupa para obtener el avaluo de habitacion, estacionamineto, bodega
-    obtainAvaluoPropiedad(info) {
+    obtainAvaluoPropiedad(info,tipo=TODOS) {
         let avaluoType = this.obtainTipo(info) ? this.obtainTipo(info) : '';
         const regexAvaluo = /avaluo\stotal\s*:\$(\d{1,3}.?)*/g;
         const avaluoMatch = info.match(regexAvaluo);
@@ -956,6 +1018,9 @@ class PjudPdfData {
     //Esta funcion esta pensada para funcionar con textos de avaluo fiscal
     obtainDireccion(info) {
         // console.log("info en direccion: ", info);
+        if(info.includes('bases generales de remate')){
+            return this.obtainDireccionActaRemate(info);
+        }
         let avaluoType = this.obtainTipo(info) ? this.obtainTipo(info) : '';
         let startText = "direccion o nombre del bien raiz:";
         let startIndex = info.indexOf(startText);
@@ -974,6 +1039,29 @@ class PjudPdfData {
             "direccion": direccion,
             "tipo": avaluoType
         }
+    }
+
+    obtainDireccionActaRemate(info) {
+        console.log("BUSCANDO DIRECCION EN ACTA REMATE");
+        let startText = "ubicados en:";
+        let startIndex = info.indexOf(startText);
+        if (startIndex === -1) {
+            startText = "ubicado en:";
+            startIndex = info.indexOf(startText);
+            if( startIndex === -1) {
+                return null;
+            }
+        }
+        const endText = "comuna";
+        const endIndex = info.indexOf(endText);
+        if (endIndex === -1) {
+            return null;
+        }
+        const direccion = info.substring(startIndex + startText.length, endIndex).trim();
+        return {
+            "direccion": direccion,
+            "tipo": "Remate"   
+        };
     }
 
     obtainAnno(info,debug = false) {
@@ -1041,7 +1129,7 @@ class PjudPdfData {
         return false
     }
     isDemanda(text){
-        if(text.match(/demanda/i)){
+        if(text.match(/demanda(?:\b|,)/i)){
             return true;
         }
         return false;

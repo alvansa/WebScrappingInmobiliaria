@@ -5,6 +5,7 @@ const PjudPdfData = require('../../componentes/pjud/PjudPdfData');
 const {dv1750, dv4991} = require('../textos/DV');
 const {bf1750} = require('../textos/BF');
 const {ex1666} = require('../textos/Extracto'); 
+const AR = require('../textos/ActaRemate');
 const {textoEstacionamiento1,textoHabitacional1, textoBodegaMultiple, textoEstacionamientoMultiple, textoHabitacionMultiple} = require('../textos/Avaluo');
 
 describe('Test de funcionalidad Pjud a normalizacion',() => {
@@ -85,5 +86,37 @@ describe('Test de Pjud con avaluos', ()=>{
         const casoObj = caso4991.toObject();
         expect(casoObj.unitRol).toEqual('3795-302-368');
         expect(casoObj.unitAvaluo).toEqual(60787297);
+    });
+});
+
+describe('Test funcional de pjud con rol',()=>{
+
+    test('Leer acta de remate 572',()=>{
+
+        const caso572 = new Caso(new Date(), new Date(), 'lgr', 2);
+        const testPjudPdf = new PjudPdfData(caso572);
+        testPjudPdf.processInfo(AR.AR572);
+        const casoObj = caso572.toObject();
+        expect(casoObj.unitRol).toEqual('2874-439-173//2864-182');
+        expect(casoObj.montoMinimo).toEqual(81100000);
+        expect(casoObj.formatoEntrega).toEqual('vale vista');
+        expect(casoObj.comuna).toEqual('santiago');
+        expect(casoObj.direccion).toEqual(`calle santa rosa nº 991: departamento nº 905; estacionamiento nº 234, y bodega nº 173, del tercer subterraneo; todos del proyecto "edificio espacio santa rosa",`)
+        expect(casoObj.anno).toEqual(2019);
+    });
+
+    test('Leer acta de remate 2396',()=>{
+
+        const caso2396 = new Caso(new Date(), new Date(), 'lgr', 2);
+        const testPjudPdf = new PjudPdfData(caso2396);
+        testPjudPdf.processInfo(AR.AR2396);
+        const casoObj = caso2396.toObject();
+        expect(casoObj.unitRol).toEqual('5500-26');
+        expect(casoObj.montoMinimo).toEqual(50000000);
+        expect(casoObj.formatoEntrega).toEqual('vale vista');
+        expect(casoObj.comuna).toEqual('osorno');
+        expect(casoObj.direccion).toEqual(`la campina sitio nº 26, loteo la campina,`)
+        expect(casoObj.anno).toEqual(2022);
+        // expect(casoObj.unitAvaluo).toEqual(60787297);
     });
 });

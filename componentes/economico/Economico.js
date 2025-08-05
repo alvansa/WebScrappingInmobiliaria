@@ -70,11 +70,11 @@ class Economico{
 
     async changeUserAgent(){
         try{
-            const randomIndex = Math.floor(Math.random() * userAgents.length);
-            customUA = listUserAgents[randomIndex].userAgent;
+            const randomIndex = Math.floor(Math.random() * listUserAgents.length);
+            const customUA = listUserAgents[randomIndex].userAgent;
             await this.page.setUserAgent(customUA);
         }catch(error){
-            console.error('Error cambiando el userAgent');
+            console.error('Error cambiando el userAgent', error.message);
         }
 
     }
