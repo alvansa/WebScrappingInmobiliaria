@@ -155,6 +155,22 @@ describe('procesarDatosRemate',()=>{
         expect(caso1666.unitAvaluo).toBeNull();
         expect(caso1666.unitDireccion).toBeNull();
     });
+    test('Caso C-460-2024 de Emol', ()=>{
+        const caso460 = new Caso();
+        const normalizedText = normalizeDescription(Extractos.ex460);
+        caso460.texto = normalizedText;
+        procesarDatosRemate(caso460);
+        expect(caso460.formatoEntrega).toEqual('vale vista');
+        expect(caso460.causa).toEqual('C-460-2024');
+        expect(caso460.porcentaje).toEqual(10);
+        expect(caso460.anno).toEqual(2019);
+        expect(caso460.montoMinimo).toEqual({
+            monto: 59396684,
+            moneda: 'Pesos'
+        });
+        expect(caso460.fechaRemate).toEqual(new Date('2025/08/07'));
+        expect(caso460.partes).toEqual('banco santander-chile sa/prinea');
+    });
 });
 
 

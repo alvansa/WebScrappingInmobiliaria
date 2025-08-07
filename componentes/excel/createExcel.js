@@ -36,40 +36,40 @@ class createExcel {
         ws['D5'] = { v: 'origen', t: 's' };
         ws['E5'] = { v: 'notas', t: 's' };
         ws['F5'] = { v: 'F. remate', t: 's' };
-        ws['G5'] = { v: 'macal', t: 's' };
-        ws['H5'] = { v: 'direccion', t: 's' };
-        ws['I5'] = { v: 'causa', t: 's' };
-        ws['J5'] = { v: 'tribunal', t: 's' };
-        ws['K5'] = { v: 'comuna tribunal', t: 's' };
-        ws['L5'] = { v: 'comuna propiedad', t: 's' };
-        ws['M5'] = { v: 'año inscripcion', t: 's' };
-        ws['N5'] = { v: 'partes', t: 's' };
-        ws['O5'] = { v: 'dato', t: 's' };
-        ws['P5'] = { v: 'vale vista o cupon', t: 's' };
-        ws['Q5'] = { v: '%', t: 's' };
-        ws['R5'] = { v: 'plazo vv', t: 's' };
-        ws['S5'] = { v: 'tipo derecho', t: 's' };
-        ws['T5'] = { v: 'deuda 1', t: 's' };
-        ws['U5'] = { v: 'deuda 2', t: 's' };
-        ws['V5'] = { v: 'deuda 3', t: 's' };
-        ws['W5'] = { v: 'rol', t: 's' };
-        ws['X5'] = { v: 'notif', t: 's' };
-        ws['Y5'] = { v: 'preciominimo', t: 's' };
-        ws['Z5'] = { v: 'UF o $', t: 's' };
-        ws['AC5'] = { v: 'avaluo fiscal', t: 's' };
-        ws['AE5'] = { v: 'estado civil', t: 's' };
-        ws['AF5'] = { v: 'Px $ compra ant', t: 's' };
-        ws['AG5'] = { v: 'año compr ant', t: 's' };
-        ws['AH5'] = { v: 'precio venta nos', t: 's' };
-        ws['AE5'] = { v: 'estado civil', t: 's' };
+        ws['G5'] = { v: 'Ocup', t: 's' };
+        ws['H5'] = { v: 'macal', t: 's' };
+        ws['I5'] = { v: 'direccion', t: 's' };
+        ws['J5'] = { v: 'causa', t: 's' };
+        ws['K5'] = { v: 'tribunal', t: 's' };
+        ws['L5'] = { v: 'comuna tribunal', t: 's' };
+        ws['M5'] = { v: 'comuna propiedad', t: 's' };
+        ws['N5'] = { v: 'año inscripcion', t: 's' };
+        ws['O5'] = { v: 'partes', t: 's' };
+        ws['P5'] = { v: 'dato', t: 's' };
+        ws['Q5'] = { v: 'vale vista o cupon', t: 's' };
+        ws['R5'] = { v: '%', t: 's' };
+        ws['S5'] = { v: 'plazo vv', t: 's' };
+        ws['T5'] = { v: 'tipo derecho', t: 's' };
+        ws['U5'] = { v: 'deuda 1', t: 's' };
+        ws['V5'] = { v: 'deuda 2', t: 's' };
+        ws['W5'] = { v: 'deuda 3', t: 's' };
+        ws['X5'] = { v: 'rol', t: 's' };
+        ws['Y5'] = { v: 'notif', t: 's' };
+        ws['Z5'] = { v: 'preciominimo', t: 's' };
+        ws['AC5'] = { v: 'UF o $', t: 's' };
+        ws['AD5'] = { v: 'avaluo fiscal', t: 's' };
+        ws['AF5'] = { v: 'estado civil', t: 's' };
+        ws['AG5'] = { v: 'Px $ compra ant', t: 's' };
+        ws['AH5'] = { v: 'año compr ant', t: 's' };
+        ws['AJ5'] = { v: 'precio venta nos', t: 's' };
 
-        ws['AP5'] = { v: 'Deuda Hipotecaria', t: 's' };
+        ws['AQ5'] = { v: 'Deuda Hipotecaria', t: 's' };
 
         // Ajusta el ancho de las columnas
         createExcel.cambiarAnchoColumnas(ws);
 
         // Define el rango de la hoja para asegurar que incluya todas las celdas especificadas
-        ws['!ref'] = 'A5:AP5';
+        ws['!ref'] = 'A5:AQ5';
 
         // Crea un nuevo libro y agrega la hoja
         const wb = XLSX.utils.book_new();
@@ -245,30 +245,30 @@ class createExcel {
             { wch: 70 },  // D
             { wch: 25 },  // E
             { wch: 15 },  // F
-            { wch: 30 },  // G
-            { wch: 20 },  // H
-            { wch: 15 },  // I
-            { wch: 30 },  // J
-            { wch: 15 },  // K
-            { wch: 20 },  // L
-            { wch: 15 },  // M
-            { wch: 60 },  // N
-            { wch: 15 },  // O
-            { wch: 20 },  // P
-            { wch: 15 },  // Q
-            { wch: 30 },  // R
-            { wch: 15 },  // S
-            { wch: 30 },  // T
-            { wch: 10 },  // U
-            { wch: 30 },  // V
-            { wch: 15 },  // W
+            { wch: 15 },  // G
+            { wch: 30 },  // H
+            { wch: 20 },  // I
+            { wch: 15 },  // J
+            { wch: 30 },  // K
+            { wch: 15 },  // L
+            { wch: 20 },  // M
+            { wch: 15 },  // N
+            { wch: 60 },  // O
+            { wch: 15 },  // P
+            { wch: 20 },  // Q
+            { wch: 15 },  // R
+            { wch: 30 },  // S
+            { wch: 15 },  // T
+            { wch: 30 },  // U
+            { wch: 10 },  // V
+            { wch: 30 },  // W
             { wch: 15 },  // X
             { wch: 15 },  // Y
             { wch: 15 },  // Z
             { wch: 15 },  // AA
             { wch: 15 },  // AB
-            { wch: 25 },  // AC
-            { wch: 15 },  // AD
+            { wch: 15 },  // AC
+            { wch: 25 },  // AD
             { wch: 15 },  // AE
             { wch: 15 },  // AF
             { wch: 15 },  // AG
@@ -280,7 +280,8 @@ class createExcel {
             { wch: 15 },  // AM
             { wch: 15 },  // AN
             { wch: 15 },  // AO
-            { wch: 25 },  // AP
+            { wch: 15 },  // AP
+            { wch: 25 },  // AQ
         ];
     }
 }
@@ -347,57 +348,57 @@ function insertarCasoIntoWorksheet(caso, ws, currentRow) {
     if (caso.fechaRemate && caso.fechaRemate instanceof Date) {
         ws['F' + currentRow] = { v: caso.fechaRemate, t: 'd', z: 'DD/MM/YYYY' };
     }
-    writeLine(ws, 'G', currentRow, caso.martillero, 's');
+    writeLine(ws, 'H', currentRow, caso.martillero, 's');
     if (caso.tipoDerecho) {
-        writeLine(ws, 'G', currentRow, caso.tipoDerecho, 's');
+        writeLine(ws, 'H', currentRow, caso.tipoDerecho, 's');
     } else if (caso.isPaid) {
-        writeLine(ws, 'G', currentRow, "(Pagado)", 's');
+        writeLine(ws, 'H', currentRow, "(Pagado)", 's');
     } else if (caso.isAvenimiento) {
-        writeLine(ws, 'G', currentRow, "(Avenimiento)", 's');
+        writeLine(ws, 'H', currentRow, "(Avenimiento)", 's');
     }
     // Revisamos si el caso tiene estacionamiento o bodega, y adaptamos la direccion
     // const newDireccion = this.checkEstacionamientoBodega(caso)
-    writeLine(ws, 'H', currentRow, caso.unitDireccion, 's');
+    writeLine(ws, 'I', currentRow, caso.unitDireccion, 's');
 
-    writeLine(ws, 'I', currentRow, caso.causa, 's');
-    writeLine(ws, 'J', currentRow, caso.juzgado, 's');
-    writeLine(ws, 'K', currentRow, getComunaJuzgado(caso.juzgado), 's');
-    writeLine(ws, 'L', currentRow, caso.comuna, 's');
-    writeLine(ws, 'M', currentRow, caso.anno, 'n');
-    writeLine(ws, 'N', currentRow, caso.partes, 's');
+    writeLine(ws, 'J', currentRow, caso.causa, 's');
+    writeLine(ws, 'K', currentRow, caso.juzgado, 's');
+    writeLine(ws, 'L', currentRow, getComunaJuzgado(caso.juzgado), 's');
+    writeLine(ws, 'M', currentRow, caso.comuna, 's');
+    writeLine(ws, 'N', currentRow, caso.anno, 'n');
+    writeLine(ws, 'O', currentRow, caso.partes, 's');
     // ws['O'+ currentRow ] = {v: 'dato ', t: 's'};
-    writeLine(ws, 'P', currentRow, caso.formatoEntrega, 's');
-    writeLine(ws, 'Q', currentRow, caso.porcentaje, 's');
-    writeLine(ws, 'R', currentRow, caso.diaEntrega, 's');
+    writeLine(ws, 'Q', currentRow, caso.formatoEntrega, 's');
+    writeLine(ws, 'R', currentRow, caso.porcentaje, 's');
+    writeLine(ws, 'S', currentRow, caso.diaEntrega, 's');
     // ws['T'+ currentRow ] = {v: caso.rolPropiedad, t: 's'};
     // ws['U'+ currentRow ] = {v: 'deuda 2 ', t: 's'};
     // ws['V'+ currentRow ] = {v: 'deuda 3 ', t: 's'};
 
     // Union de roles de propiedad, estacionamiento y bodega
     // console.log("Rol adaptado: ", newRol);
-    writeLine(ws, 'W', currentRow, caso.unitRol, 's');
+    writeLine(ws, 'X', currentRow, caso.unitRol, 's');
 
     // ws['X'+ currentRow ] = {v: 'notif ', t: 's'};
     // Formato de monto minimo segun el tipo de moneda
     if (caso.montoMinimo > 100) {
         if (caso.moneda === 'UF') {
-            ws['Y' + currentRow] = { v: parseFloat(caso.montoMinimo), t: 'n', z: '#,##0.0000' };
+            ws['Z' + currentRow] = { v: parseFloat(caso.montoMinimo), t: 'n', z: '#,##0.0000' };
         }
         else if (caso.moneda == 'Pesos') {
             console.log("leyo que la moneda es pesos", caso.moneda);
-            ws['Y' + currentRow] = { v: parseFloat(caso.montoMinimo), t: 'n', z: '#,##0' };
+            ws['Z' + currentRow] = { v: parseFloat(caso.montoMinimo), t: 'n', z: '#,##0' };
         }
-        writeLine(ws, 'Z', currentRow, caso.moneda, 's');
+        writeLine(ws, 'AA', currentRow, caso.moneda, 's');
     }
     if (caso.avaluoPropiedad != null) {
         // const sumAvaluo = this.sumAvaluo(caso.avaluoPropiedad, caso.avaluoEstacionamiento, caso.avaluoBodega);
-        ws['AC' + currentRow] = { v: caso.unitAvaluo, t: 'n', z: '#,##0' };
+        ws['AD' + currentRow] = { v: caso.unitAvaluo, t: 'n', z: '#,##0' };
     }
-    writeLine(ws, "AE", currentRow, caso.estadoCivil, "s");
+    writeLine(ws, "AF", currentRow, caso.estadoCivil, "s");
     if (caso.montoCompra && caso.montoCompra.monto) {
-        ws['AF' + currentRow] = { v: caso.montoCompra.monto, t: 'n' };
+        ws['AG' + currentRow] = { v: caso.montoCompra.monto, t: 'n' };
     }
-    writeLine(ws, "AP", currentRow, caso.deudaHipotecaria, "n");
+    writeLine(ws, "AQ", currentRow, caso.deudaHipotecaria, "n");
     // ws['AG' + currentRow ] = {v: 'año compr ant ', t: 's'};
     // ws['AH' + currentRow ] = {v: 'precio venta nos ', t: 's'};
 }

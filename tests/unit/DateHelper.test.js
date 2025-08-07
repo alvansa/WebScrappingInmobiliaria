@@ -27,6 +27,12 @@ describe('Fechas en pjud', () => {
         expect(resFecha).toEqual(new Date('2025/12/25'));
     });
 
+    test('Caso 07 agosto 2025',()=>{
+        const fecha = '07 agosto 2025';
+        const resFecha = DateHelper.normalize(fecha, null);
+        expect(resFecha).toEqual(new Date('2025/08/07'));
+    });
+
     test('Caso PJUD',()=>{
         const fecha = '01/08/2025 13:00';
         const resFecha = DateHelper.normalize(fecha,null);

@@ -70,10 +70,16 @@ class DateHelper{
         }
 
         // Si el origen es Emol, puede venir con formato de palabras
-        const splitDate = fecha.split("de");
-        if(splitDate.length < 3){
+        let splitDate = fecha.split("de");
+        if(splitDate.length < 3 && splitDate.length > 1) {
             return null;
+        }else if (splitDate.length !== 3) {
+            splitDate = fecha.split(" ");
+            if(splitDate.length !== 3) {
+                return null;
+            }
         }
+
         const dia = this.getDia(splitDate[0]);
         const mes = this.getMes(splitDate[1]);
         const anno = this.getAnno(splitDate[2]);

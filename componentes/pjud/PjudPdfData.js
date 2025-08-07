@@ -52,7 +52,8 @@ class PjudPdfData {
             /tabla\s*de\s*contenidos/i,
             /solicitud\s*copias\s*y\s*certificados/i,
             /clasificado/i,
-            /tasador/i
+            /tasador/i,
+            /d\.?g\.?a\.?/i
         ];
 
         if(item.toLowerCase().includes('bases generales de remate')){

@@ -606,7 +606,10 @@ class ConsultaCausaPjud{
             'acta',
             'pericial',
             'minuta',
-            'cheque'
+            'cheque',
+            'd.g.a',
+            'dga',
+            'dga.',
         ];
 
         // Dividir el texto en palabras individuales
