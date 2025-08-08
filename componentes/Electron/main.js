@@ -283,6 +283,17 @@ class MainApp{
             return resultados;
         });
 
+        ipcMain.handle('search-repeated-cases', async (event, excelBase, excelNuevo) => {
+            try {
+                const result = CompleteExcelInfo.searchRepeatedCases(excelBase, excelNuevo);
+                console.log("Resultados de la busqueda de casos repetidos:", result);
+                return result;
+            } catch (error) {
+                console.error('Error al buscar casos repetidos:', error);
+                throw error; // Re-lanzar el error para manejarlo en el lugar donde se llama
+            }
+        });
+
     }
 
     cleanupBeforeExit(isCrash = false) {

@@ -34,9 +34,15 @@ function fixStringDate(string){
 }
 
 function stringToDate(fecha) {
-    const partes = fecha.split("-"); // Dividimos la fecha en partes [año, mes, día]
-    const [año, mes, día] = partes; // Desestructuramos las partes
-    return new Date(`${año}/${mes}/${día}`);
+    if(fecha.includes('/')){
+        const partes = fecha.split("/"); // Dividimos la fecha en partes [dia, mes, ano]
+        const [dia,mes,ano] = partes; // Desestructuramos las partes
+        return new Date(`${ano}/${mes}/${dia}`);
+    }else if(fecha.includes('-')){
+        const partes = fecha.split("-"); // Dividimos la fecha en partes [año, mes, día]
+        const [año, mes, dia] = partes; // Desestructuramos las partes
+        return new Date(`${año}/${mes}/${dia}`);
+    }
 }
 
 module.exports = {

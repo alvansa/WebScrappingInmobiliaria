@@ -12,6 +12,8 @@ const EMOL = config.EMOL;
 const LIQUIDACIONES = config.LIQUIDACIONES;
 const PREREMATES = config.PREREMATES;
 
+const RANGO_EXCEL = 'A5:AQ';
+
 class createExcel {
     constructor(saveFile, startDate, endDate, emptyMode, type) {
         this.saveFile = saveFile;
@@ -99,15 +101,15 @@ class createExcel {
         try {
             if (this.type === "one") {
                 const lastRow = this.fillWithOne(ws, casos);
-                ws['!ref'] = 'A5:AP' + lastRow;
+                ws['!ref'] = RANGO_EXCEL + lastRow;
                 filePath = path.join(this.saveFile, 'Caso_' + casos.causa + casos.juzgado + '.xlsx');
             } else if (this.type === "oneDay") {
                 let lastRow = this.insertCasos(casos, ws) - 1;
-                ws['!ref'] = 'A5:AP' + lastRow;
+                ws['!ref'] = RANGO_EXCEL + lastRow;
                 filePath = path.join(this.saveFile, name + '.xlsx');
             } else {
                 let lastRow = await this.insertarCasosExcel(casos, ws) - 1;
-                ws['!ref'] = 'A5:AP' + lastRow;
+                ws['!ref'] = RANGO_EXCEL + lastRow;
                 const fechaInicioDMA = cambiarFormatoFecha(this.startDate);
                 const fechaFinDMA = cambiarFormatoFecha(this.endDate);
                 filePath = path.join(this.saveFile, 'Remates_' + fechaInicioDMA + '_a_' + fechaFinDMA + '.xlsx');
@@ -161,7 +163,7 @@ class createExcel {
             if (caso.fechaPublicacion === "N/A" || caso.fechaPublicacion == null) {
                 caso.fechaPublicacion = fechaMenosUno(this.endDate);
             }
-            if(this.getValidAuctions(caso, remates) || true){
+            if(this.getValidAuctions(caso, remates)){
                 this.addObjectToSet(remates,caso);
             }
         }

@@ -3,6 +3,11 @@ const selectFileBtn = document.getElementById('selectFileBtn');
 const fileInfo = document.getElementById('fileInfo');
 const fileInfoPjud = document.getElementById('fileInfoPjud');
 
+const excelBase = document.getElementById('fileExcelBase');
+const excelNuevo = document.getElementById('fileExcelNuevo');
+
+let pathExcelBase, pathExcelNuevo;
+
 let countdownInterval = null;
 
 document.getElementById('imbeddedText').addEventListener('click', () => {
@@ -36,6 +41,31 @@ document.getElementById('readPdf').addEventListener('click', async () => {
     fileInfoPjud.textContent = 'Error al seleccionar archivo';
 
   }
+});
+
+document.getElementById('ExcelBase').addEventListener('click',async ()=>{
+    const filePath = await window.api.selectExcelPath();
+    if (filePath) {
+        pathExcelBase = filePath;
+        console.log(`Archivo base seleccionado: ${filePath}`);
+      excelBase.textContent = `${filePath.split('/').pop()}`;
+    }
+});
+document.getElementById('ExcelNuevo').addEventListener('click',async ()=>{
+    const filePath = await window.api.selectExcelPath();
+    if (filePath) {
+      pathExcelNuevo = filePath;
+      excelNuevo.textContent = `Archivo seleccionado: ${filePath}`;
+
+    }
+});
+document.getElementById('compararExcel').addEventListener('click', async ()=>{
+    if(!pathExcelBase|| !pathExcelNuevo){
+        alert("Debe seleccionar ambos archivos");
+        return;
+    }
+    window.api.searchRepeatedCases(pathExcelBase, pathExcelNuevo);
+
 });
 
 document.getElementById('testConsultaCausa').addEventListener('click', ()=>{

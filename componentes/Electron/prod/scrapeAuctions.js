@@ -74,13 +74,13 @@ class scrapeAuction {
 
         const fixStartDate = fixStringDate(fechaInicioStr)
         const fixEndDate = fixStringDate(fechaFinStr);
-        let fechaInicio = new Date(fixStartDate);
-        let fechaFin = new Date(fixEndDate); 
+        let fechaInicio = new Date();
+        let fechaFin = new Date(); 
 
         fechaInicio.setMonth(fechaInicio.getMonth() - 1);
 
-        fechaInicio = stringToDate(fechaInicioStr);
-        fechaFin = stringToDate(fechaFinStr); 
+        // fechaInicio = stringToDate(fechaInicioStr);
+        // fechaFin = stringToDate(fechaFinStr); 
 
         let casos = [];
         try {

@@ -95,6 +95,17 @@ contextBridge.exposeInMainWorld('api', {
 
   selectExcelPath : async ()=> ipcRenderer.invoke('select-excel-path'),
 
+  searchRepeatedCases: async (excelBase, excelNuevo) => {
+    try {
+      const result = await ipcRenderer.invoke('search-repeated-cases', excelBase, excelNuevo);
+      console.log("Resultados de la busqueda de casos repetidos:", result);
+      return result;
+    } catch (error) {
+      console.error('Error al buscar casos repetidos:', error);
+      throw error; // Re-lanzar el error para manejarlo en el lugar donde se llama
+    }
+  }
+
 });
 
 

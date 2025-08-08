@@ -2,8 +2,10 @@ const { getCausaVoluntaria } = require('../economico/datosRemateEmol');
 const Caso = require('./caso');
 
 class CasoBuilder{
-    constructor(fechaObtencion){
-        this.caso = new Caso(fechaObtencion);
+    constructor(fechaObtencion,link,origen){
+        console.log("CasoBuilder: ", fechaObtencion, link, origen);
+        this.caso = new Caso(fechaObtencion,null,link,origen);
+        
     }
 
     conCausa(causa){
@@ -25,6 +27,11 @@ class CasoBuilder{
         this.caso.causa = causa;
         this.caso.juzgado = juzgado;
         this.caso.partes = partes;
+        return this;
+    }
+
+    conFechaRemate(fechaRemate){
+        this.caso.fechaRemate = fechaRemate;
         return this;
     }
 
