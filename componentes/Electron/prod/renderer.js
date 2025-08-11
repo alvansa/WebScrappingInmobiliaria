@@ -1,9 +1,12 @@
+const searchButton = document.getElementById('logButton');
 let tribunalesPorCorte  = [];
 async function loadTribunales() {
   tribunalesPorCorte = await window.api.obtainTribunalesJuzgado();
 }
 
-document.getElementById('logButton').addEventListener('click', async () => {
+searchButton.addEventListener('click', async () => {
+
+  searchButton.disabled = true; // Deshabilita el botón al hacer clic
 
   const workingDialog = createDialog();
 
@@ -27,6 +30,7 @@ document.getElementById('logButton').addEventListener('click', async () => {
   } finally {
     // Elimina el diálogo al finalizar
     document.body.removeChild(workingDialog);
+    searchButton.disabled = false; // Habilita el botón nuevamente
   }
 });
 

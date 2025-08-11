@@ -13,6 +13,7 @@ const SELECTORS =
     'CASO_BLOQUE_SELECTOR': 'div.result.row-fluid',
 }
 const EMOL = 1;
+const MAIN_URL = 'https://www.economicos.cl/todo_chile/remates_de_propiedades_el_mercurio';
 
 class Economico{
     constructor(browser,fechaInicio, fechaFin){
@@ -64,6 +65,7 @@ class Economico{
                 this.window.destroy();
             }
         }
+        console.log(`Econtrado ${this.casosARevisar.length} casos en Economicos.cl`);
 
         return this.casosARevisar;
     }
@@ -171,7 +173,7 @@ async getInfoFromSingularPage(caso){
             // Navegar a la página
             await this.page.goto(caso.link, {
                 waitUntil: 'networkidle2',
-                timeout: 30000
+                timeout: 120000
             });
 
             // Esperar a que el elemento esté disponible
@@ -200,7 +202,7 @@ async getInfoFromSingularPage(caso){
 
 async navigateToPage(url){
     try {
-        await this.page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
+        await this.page.goto(url, { waitUntil: 'networkidle2', timeout: 120000 });
     } catch (error) {
         console.error('Error al navegar a la página:', error.message);
         throw error;

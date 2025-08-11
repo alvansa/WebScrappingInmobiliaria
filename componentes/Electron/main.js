@@ -135,6 +135,7 @@ class MainApp{
                 const mainProcess = new scrapeAuction(startDate,endDate,saveFile, checkedBoxes,event,this.mainWindow)
                 const filePath = await mainProcess.startSearch();
                 console.timeEnd("scrapeAuction");
+                console.log(new Date());
                 return filePath;
 
             }catch(error){

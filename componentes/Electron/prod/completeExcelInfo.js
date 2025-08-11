@@ -22,6 +22,8 @@ const LETRA_CAUSA = 'J';
 const LETRA_JUZGADO = 'K';
 const LETRA_PARTES = 'O';
 
+const COLUMNAS_EXCEL = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z','AA', 'AB', 'AC', 'AD', 'AE', 'AF', 'AG', 'AH', 'AI', 'AJ', 'AK', 'AL', 'AM', 'AN', 'AO', 'AP', 'AQ'];
+
 class CompleteExcelInfo{
     constructor(filePath,event,mainWindow){
         this.filePath = filePath;
@@ -146,24 +148,35 @@ class CompleteExcelInfo{
         const wbNew = XLSX.readFile(excelNuevo, {cellDates: true});
         const wsNew = wbNew.Sheets[wbNew.SheetNames[0]];
         let lastRowNew = 6;
-        const causasToSearch = new Set();   
         const findedCausas = [];
-        while(wsNew[`${LETRA_CAUSA}${lastRowNew}`]){
-            const causa = wsNew[`${LETRA_CAUSA}${lastRowNew}`].v.toLowerCase().replace(/\s*/g,'');
-            causasToSearch.add(causa);
+        while(wsNew[`${LETRA_FECHA_DESC}${lastRowNew}`]){
+            const causa = wsNew[`${LETRA_CAUSA}${lastRowNew}`].v.toUpperCase().replace(/\s*/g,'');
+            let juzgado = wsNew[`${LETRA_JUZGADO}${lastRowNew}`];
+            if(!juzgado || typeof juzgado.v != 'string'){
+                console.log(`No se encontró el juzgado en la fila ${lastRowNew}`);
+                lastRowNew++;
+                continue;
+            }
+            juzgado = juzgado.v;
+
             lastRowBase = 2;
             while(wsBase[`${LETRA_FECHA_REM}${lastRowBase}`]){
                 const cellCausa = wsBase[`${LETRA_CAUSA}${lastRowBase}`];
+                const cellCourt = wsBase[`${LETRA_JUZGADO}${lastRowBase}`];
                 // console.log(`Revisando fila ${lastRowBase} del archivo base`)
-                if(!cellCausa ||typeof cellCausa.v != 'string'){
+                if(!cellCausa ||typeof cellCausa.v != 'string' || !cellCourt || typeof cellCourt.v != 'string'){
                     lastRowBase++;
                     continue;
                 }
-                const causaBase = cellCausa.v.toLowerCase().replace(/\s*/g,'');;
+                const causaBase = cellCausa.v.toUpperCase().replace(/\s*/g,'');;
+                const baseCourt = cellCourt.v;
 
                 if(causa == causaBase){
-                    console.log(`Causa repetida: ${causa} fila base: ${lastRowBase} fila nueva: ${lastRowNew}`);
-                    findedCausas.push({causa: causa,linea: lastRowBase});
+                    const matchJuzgado = this.matchJuzgado(baseCourt, juzgado);
+                    if(matchJuzgado){
+                        console.log(`Causa repetida: ${causa} fila base: ${lastRowBase} fila nueva: ${lastRowNew}`);
+                        findedCausas.push({ causa: causa, linea: lastRowBase });
+                    }
                 }
                 lastRowBase++;
             }
@@ -171,7 +184,7 @@ class CompleteExcelInfo{
         }
 
 
-        console.log(`Causas a buscar: ${causasToSearch.size}`);
+        console.log(`Causas a buscar: ${findedCausas.length}`);
         lastRowNew = lastRowNew + 5;
         findedCausas.forEach(causa => {
             console.log(`Causa: ${causa.causa} encontrada en la fila: ${causa.linea}`);
@@ -180,15 +193,96 @@ class CompleteExcelInfo{
             if(newCausaCell){
                 newCausaCell.v = causa.causa;
             }else{
-                wsNew[`${LETRA_CAUSA}${lastRowNew}`] = {v: causa.causa};
+                this.copyRowFromBaseToNew(wsBase, wsNew, causa.linea, lastRowNew);
+                // wsNew[`${LETRA_CAUSA}${lastRowNew}`] = {v: causa.causa};
             }   
             lastRowNew++;
         });
+        this.formatDates(wsNew);
         createExcel.cambiarAnchoColumnas(wsNew);
         wsNew['!ref'] = 'A5:AQ' + lastRowNew;
         const fileName = excelNuevo.split('.')[0];
         const filePath = fileName+'Completo'+'.xlsx';
         XLSX.writeFile(wbNew,filePath, { cellDates: true });
+    }
+
+    static copyRowFromBaseToNew(wsBase, wsNew, baseRow, newRow) {
+        COLUMNAS_EXCEL.forEach(columna => {
+            const baseCell = wsBase[`${columna}${baseRow}`];
+            if (baseCell) {
+                if(baseCell.t === 'd' && baseCell.w){
+                    wsNew[`${columna}${newRow}`] = {
+                        v: baseCell.v,
+                        t: baseCell.t,
+                        w: baseCell.w,
+                        z: 'dd/mm/yyyy' // Mantener el formato de fecha si existe
+                    }
+                }else{
+                    wsNew[`${columna}${newRow}`] = {
+                        v: baseCell.v,
+                        t: baseCell.t,
+                        w: baseCell.w,
+                    }
+                }
+            } else {
+                wsNew[`${columna}${newRow}`] = { v: '' };
+            }
+        });
+        // Copiar el formato de la celda si es necesario
+        if (wsBase[`!cols`]) {
+            wsNew[`!cols`] = wsBase[`!cols`];
+        }
+    }
+
+    static formatDates(ws) {
+        let lastRow = 6;
+        // Formatear las fechas en las columnas específicas
+        while(ws[`${LETRA_FECHA_DESC}${lastRow}`]) {
+            const fechaDescCell = ws[`${LETRA_FECHA_DESC}${lastRow}`];
+            if (fechaDescCell && fechaDescCell.t === 'd') {
+                fechaDescCell.z = 'dd/mm/yyyy'; // Formato de fecha
+            }
+            const fechaRemCell = ws[`${LETRA_FECHA_REM}${lastRow}`];
+            if (fechaRemCell && fechaRemCell.t === 'd') {
+                fechaRemCell.z = 'dd/mm/yyyy'; // Formato de fecha
+            }
+            lastRow++;
+        }
+    }
+
+    static matchJuzgado(shortCourt, longCourt) {
+        // Normaliza ambos textos
+        const corto = this.normalize(shortCourt);
+        const largo = this.normalize(longCourt);
+
+        // Extrae número y ciudad desde el string corto
+        const match = corto.match(/(\d+)[°º]?\s*(\w+)/);
+        if (!match) return false;
+
+        const numero = match[1];
+        const ciudad = match[2];
+
+        const isEqual = largo.includes(numero) && largo.includes(ciudad);
+        
+        console.log(`Comparando juzgados: ${shortCourt} con ${longCourt} => ${isEqual}`);
+        // Verifica si el número y la ciudad están presentes en el string largo
+        return isEqual;
+    }
+
+    static normalize(string) {
+        // Convierte a mayúsculas
+        let texto = string.toUpperCase();
+
+        // Reemplaza acentos
+        texto = texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+        // Unifica los símbolos º y °
+        texto = texto.replace(/º/g, "°");
+
+        // Quita puntuación innecesaria
+        texto = texto.replace(/[^\w\s°]/g, "");
+
+        return texto;
     }
 }
 
