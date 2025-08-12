@@ -19,6 +19,10 @@ class GestorRematesPjud{
             for (let caso of this.casos) {
                 counter++;
                 console.log(`Caso a investigar ${caso.causa} ${caso.juzgado} caso numero ${counter} de ${this.casos.length}`);
+                if(!caso.numeroJuzgado || !caso.corte ){
+                    console.log(`Caso ${caso.causa} no tiene numero de juzgado ni corte, se omite`);
+                    continue;
+                }
                 const result = await this.consultaCausa(caso);
                 if (result) {
                     console.log("Resultados del caso de prueba en pjud: ", caso.toObject());

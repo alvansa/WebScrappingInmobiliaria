@@ -9,8 +9,6 @@ const {writeLine,insertarCasoIntoWorksheet,createExcel} = require('../../excel/c
 const {tribunalesPorCorte, obtainCorteJuzgadoNumbers} = require('../../../utils/corteJuzgado.js');
 const {stringToDate} = require('../../../utils/cleanStrings.js');   
 const config = require('../../../config.js');
-const { type } = require('os');
-const { NormalModuleReplacementPlugin } = require('webpack');
 const PJUD = config.PJUD;
 const EMOL = config.EMOL;
 const LIQUIDACIONES = config.LIQUIDACIONES;
@@ -144,28 +142,67 @@ class CompleteExcelInfo{
 
         const wbBase = XLSX.readFile(excelBase, {cellDates: true});
         const wsBase = wbBase.Sheets[wbBase.SheetNames[0]];
-        let lastRowBase = 6;
         const wbNew = XLSX.readFile(excelNuevo, {cellDates: true});
         const wsNew = wbNew.Sheets[wbNew.SheetNames[0]];
-        let lastRowNew = 6;
+
+        let lastRowNew = this.obtainLastRow(wsNew);
+
+        const findedCausas = this.findRepeatedAuctions(wsBase, wsNew);
+
+        console.log(`Causas a buscar: ${findedCausas.length}`);
+        lastRowNew = lastRowNew + 5;
+        findedCausas.forEach(causa => {
+            // console.log(`Causa: ${causa.causa} encontrada en la fila: ${causa.linea}`);
+            //copiar la fila x en la hoja de excel nueva
+            const newCausaCell = wsNew[`${LETRA_CAUSA}${lastRowNew}`];
+            if(newCausaCell){
+                newCausaCell.v = causa.causa;
+            }else{
+                // console.log('Copiando linea ',lastRowNew)
+                this.copyRowFromBaseToNew(wsBase, wsNew, causa.baseLine, lastRowNew);
+            }   
+            lastRowNew++;
+        });
+        this.saveNewExcel(wbNew, wsNew, lastRowNew, excelNuevo);
+    }
+
+    static saveNewExcel(wb, ws, lastRow, filePath) {
+        this.formatDates(ws);
+        createExcel.cambiarAnchoColumnas(ws);
+        ws['!ref'] = 'A5:AQ' + lastRow;
+        const fileName = filePath.split('.')[0];
+        const newFilePath = fileName+'Completo'+'.xlsx';
+        XLSX.writeFile(wb,newFilePath, { cellDates: true });
+    }
+
+    static obtainLastRow(ws) {
+        let lastRow = 6;
+        while(ws[`${LETRA_FECHA_REM}${lastRow}`]){
+            lastRow++;
+        }
+        return lastRow - 1; // Retorna la última fila con datos
+    }
+
+    static findRepeatedAuctions(wsBase, wsNew) {
         const findedCausas = [];
+        const lastRowBase = this.obtainLastRow(wsBase);
+        let actualRowBase = lastRowBase;
+        let lastRowNew = 6;
         while(wsNew[`${LETRA_FECHA_DESC}${lastRowNew}`]){
-            const causa = wsNew[`${LETRA_CAUSA}${lastRowNew}`].v.toUpperCase().replace(/\s*/g,'');
-            let juzgado = wsNew[`${LETRA_JUZGADO}${lastRowNew}`];
-            if(!juzgado || typeof juzgado.v != 'string'){
-                console.log(`No se encontró el juzgado en la fila ${lastRowNew}`);
+            const {causa, juzgado, isValid} = this.processNewRow(wsNew, lastRowNew);
+            if(!isValid){
                 lastRowNew++;
                 continue;
             }
-            juzgado = juzgado.v;
 
-            lastRowBase = 2;
-            while(wsBase[`${LETRA_FECHA_REM}${lastRowBase}`]){
-                const cellCausa = wsBase[`${LETRA_CAUSA}${lastRowBase}`];
-                const cellCourt = wsBase[`${LETRA_JUZGADO}${lastRowBase}`];
+            actualRowBase = lastRowBase;
+            while(actualRowBase >= 1){
+
+                const cellCausa = wsBase[`${LETRA_CAUSA}${actualRowBase}`];
+                const cellCourt = wsBase[`${LETRA_JUZGADO}${actualRowBase}`];
                 // console.log(`Revisando fila ${lastRowBase} del archivo base`)
                 if(!cellCausa ||typeof cellCausa.v != 'string' || !cellCourt || typeof cellCourt.v != 'string'){
-                    lastRowBase++;
+                    actualRowBase--;
                     continue;
                 }
                 const causaBase = cellCausa.v.toUpperCase().replace(/\s*/g,'');;
@@ -174,36 +211,28 @@ class CompleteExcelInfo{
                 if(causa == causaBase){
                     const matchJuzgado = this.matchJuzgado(baseCourt, juzgado);
                     if(matchJuzgado){
-                        console.log(`Causa repetida: ${causa} fila base: ${lastRowBase} fila nueva: ${lastRowNew}`);
-                        findedCausas.push({ causa: causa, linea: lastRowBase });
+                        console.log(`Causa repetida: ${causa} fila base: ${actualRowBase} fila nueva: ${lastRowNew}`);
+                        findedCausas.push({ causa: causa, baseLine: actualRowBase, newLine:lastRowNew });
+                        // break;
                     }
                 }
-                lastRowBase++;
+                actualRowBase--;
             }
             lastRowNew++;
         }
+        return findedCausas;
+    }
 
-
-        console.log(`Causas a buscar: ${findedCausas.length}`);
-        lastRowNew = lastRowNew + 5;
-        findedCausas.forEach(causa => {
-            console.log(`Causa: ${causa.causa} encontrada en la fila: ${causa.linea}`);
-            //copiar la fila x en la hoja de excel nueva
-            const newCausaCell = wsNew[`${LETRA_CAUSA}${lastRowNew}`];
-            if(newCausaCell){
-                newCausaCell.v = causa.causa;
-            }else{
-                this.copyRowFromBaseToNew(wsBase, wsNew, causa.linea, lastRowNew);
-                // wsNew[`${LETRA_CAUSA}${lastRowNew}`] = {v: causa.causa};
-            }   
-            lastRowNew++;
-        });
-        this.formatDates(wsNew);
-        createExcel.cambiarAnchoColumnas(wsNew);
-        wsNew['!ref'] = 'A5:AQ' + lastRowNew;
-        const fileName = excelNuevo.split('.')[0];
-        const filePath = fileName+'Completo'+'.xlsx';
-        XLSX.writeFile(wbNew,filePath, { cellDates: true });
+    static processNewRow(wsNew, rowNum){
+        let isValid = true;
+        const causa = wsNew[`${LETRA_CAUSA}${rowNum}`].v.toUpperCase().replace(/\s*/g, '');
+        let juzgado = wsNew[`${LETRA_JUZGADO}${rowNum}`];
+        if (!juzgado || typeof juzgado.v != 'string') {
+            console.log(`No se encontró el juzgado en la fila ${rowNum}`);
+            isValid = false;
+        }
+        juzgado = juzgado.v;
+        return { causa, juzgado, isValid };
     }
 
     static copyRowFromBaseToNew(wsBase, wsNew, baseRow, newRow) {
@@ -226,6 +255,28 @@ class CompleteExcelInfo{
                 }
             } else {
                 wsNew[`${columna}${newRow}`] = { v: '' };
+            }
+            if(columna == 'H'){
+                // console.log("Escribiendo fila ", newRow)
+                const BColumn = wsBase[`B${baseRow}`];
+                const EColumn = wsBase[`E${baseRow}`];
+                const HColumn = wsBase[`H${baseRow}`];
+                let text = 'Ya aparecio(';
+                // let text = '';
+                if(BColumn){
+                    text += BColumn.v + ' ';
+                }
+                if(EColumn){
+                    text += EColumn.v + ' ';
+                }
+                if(HColumn){
+                    text += HColumn.v;
+                }
+                text += ')';
+                wsNew[`H${newRow}`] = {
+                    v: text,
+                    t: 's',
+                }
             }
         });
         // Copiar el formato de la celda si es necesario
@@ -250,23 +301,24 @@ class CompleteExcelInfo{
         }
     }
 
-    static matchJuzgado(shortCourt, longCourt) {
-        // Normaliza ambos textos
-        const corto = this.normalize(shortCourt);
-        const largo = this.normalize(longCourt);
+    static matchJuzgado(str1, str2) {
+        // Normalizar: quitar acentos, símbolos, palabras irrelevantes y convertir a minúsculas
+        const normalizar = (str) => {
+            return str
+                .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Quitar acentos
+                .replace(/[º°]/g, '') // Reemplazar º y ° por nada
+                // .replace(/[^a-z0-9\s]/g, '') // Quitar otros símbolos
+                .replace(/(juzgado|del|letras|de|las|los|civil)/gi, '') // Eliminar palabras comunes
+                .replace(/\s+/g, ' ') // Reducir espacios múltiples
+                .trim() // Quitar espacios al inicio/fin
+                .toLowerCase();
+        };
 
-        // Extrae número y ciudad desde el string corto
-        const match = corto.match(/(\d+)[°º]?\s*(\w+)/);
-        if (!match) return false;
+        const normalizado1 = normalizar(str1);
+        const normalizado2 = normalizar(str2);
+        console.log(str1, str2, normalizado1 === normalizado2)
 
-        const numero = match[1];
-        const ciudad = match[2];
-
-        const isEqual = largo.includes(numero) && largo.includes(ciudad);
-        
-        console.log(`Comparando juzgados: ${shortCourt} con ${longCourt} => ${isEqual}`);
-        // Verifica si el número y la ciudad están presentes en el string largo
-        return isEqual;
+        return normalizado1 === normalizado2;
     }
 
     static normalize(string) {

@@ -341,4 +341,19 @@ CUADRADOS,  QUE  CORRESPONDE  AL  LOTE  NÚMERO  SEIS,  HOY  UBICADO
 AVENIDA  ESTADIO  NÚMERO  QUINIENTOS  DIEZ,  DE  LA  CIUDAD  Y  COMUNA  DE
 RENAICO.-`;
 
-module.exports = {bf2201, bf1341, notBf, bf1750, BF2452, BF2055, BF199, CertificadoBF};
+const NotBF1439 = `Registro de Propiedad
+Certificado Bien Familiar
+En relación a los inmuebles y Derecho inscritos a fojas 7.635 N° 3.547 en el Registro de
+Propiedad a mí cargo correspondiente al año 2.021; a nombre de don JUAN ESTEBAN
+LAVANCHY CARRASCO; que corresponden a DEPARTAMENTO número MIL CIENTO DIEZ,
+del décimo primer piso, la BODEGA número CIENTO DIECIOCHO del subterráneo,  y el
+Derecho de Uso y Goce Exclusivo del Estacionamiento número Doscientos sesenta y dos,
+todos del Edificio Jardín Del Mar I, con acceso por Avenida Costanera número cinco mil
+cuatrocientos veinticinco, de la ciudad y Comuna de Coquimbo.-
+CERTIFICO: Que los inmuebles y Derecho singularizados, no se encuentran afectos a
+declaración de Bien Familiar.-
+mnv.-
+Los derechos registrales correspondientes a esta actuación ascienden a la suma de $5.000.
+Carátula 704811CBR Coquimbo, 22 de Mayo de 2024`;
+
+module.exports = {bf2201, bf1341, notBf, bf1750, BF2452, BF2055, BF199, CertificadoBF, NotBF1439};

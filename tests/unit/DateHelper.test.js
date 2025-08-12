@@ -69,6 +69,12 @@ describe('Fechas en pjud', () => {
         const resFecha = DateHelper.normalize(fecha,null);
         expect(resFecha).toEqual(new Date('2024/12/25'));
     });
+
+    test('Caso con fecha en numero y palabras emol', ()=>{
+        const fecha = '3 de septiembre 2025';
+        const resFecha = DateHelper.normalize(fecha,null);
+        expect(resFecha).toEqual(new Date('2025/09/03'));
+    });
 })
 
 // describe('normalizarFechaRemate', ()=>{

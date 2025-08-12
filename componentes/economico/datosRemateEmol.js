@@ -83,6 +83,7 @@ function procesarDatosRemate(caso) {
     }
 
     if (fechaRemate) {
+        console.log("Fecha del remate: ", fechaRemate[0]);
         caso.fechaRemate = fechaRemate[0];
     }
 
@@ -634,10 +635,10 @@ function checkBienFamiliar(text,tipoDerecho){
     const regexNotBienFamiliar = [
         /v\.-\s*bien\s*familia.*no\s*registra\s*anotacione?s?/i,
         /no\shay\sconstancia\sde\shaberse\sdeclarado\sbien\sfamiliar/gi,
-        /no\s*se\s*encuentran?\s*afecto\s*a\s(?:la\s*)*declaracion\s*de\s*bien\s*familiar/i,
+        /no\s*se\s*encuentran?\s*afectos?\s*a\s(?:la\s*)*declaracion\s*de\s*bien\s*familiar/i,
         /no\s*hay\s*constancia\s*de\s*haberse\s*anotado\s*declaracion\s*de\s*bien\s*familiar/i,
         /a\s*la\s*expedicion\s*del\s*presente\s*certificado\s*no\s*consta\s*marginalmente\s*la\s*declaracion\s*de\s*bien\s*familiar/i,
-        /no\s*existe\s*anotaci[o|ó].*sobre\s*declaraci[o|ó]n\s*de\s*bien\s*familiar/i,
+        /no\s*(?:existe|tiene|consta)\s*anotaci[o|ó].*(?:sobre|de)\s*declaraci[o|ó]n\s*de\s*bien\s*familiar/i,
         /no\s*registra\s*anotacion.*de\s*bien\s*familiar/i,
         /no\s*existe\s*declaraci[o|ó]n\s*de\s*bien\s*familiar/i,
     ];

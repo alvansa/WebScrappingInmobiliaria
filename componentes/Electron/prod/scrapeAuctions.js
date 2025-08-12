@@ -20,7 +20,7 @@ const {tribunalesPorCorte, obtainCorteJuzgadoNumbers} = require('../../../utils/
 const { fakeDelay, delay } = require('../../../utils/delay.js');
 
 class scrapeAuction {
-    constructor(startDate,endDate,saveFile, checkedBoxes,event,mainWindow) {
+    constructor(startDate,endDate,saveFile, checkedBoxes,event,mainWindow,isTestMode = false){
         this.startDate = startDate;
         this.endDate = endDate;
         this.saveFile = saveFile;
@@ -29,6 +29,7 @@ class scrapeAuction {
         this.emptyMode = false;
         this.browser = null;
         this.mainWindow = mainWindow; // Guardar la referencia a la ventana principal
+        this.isTestMode = isTestMode; // Indica si se está en modo desarrollo
     }
 
     async startSearch() {
@@ -50,18 +51,19 @@ class scrapeAuction {
             casosBoletin = await this.getCasosBoletin(this.startDate, this.endDate, fechaHoy, this.checkedBoxes.liquidaciones),
             casosPYL = await this.getPublicosYLegales(this.startDate, this.endDate, fechaHoy, this.checkedBoxes.PYL),
 
-            casos = [...casosEconomico, ...casosPreremates, ...casosBoletin, ...casosPYL, ...casosPJUD];
-            await this.obtainMapasSIIInfo(casos);
+            casos = [...casosPreremates, ...casosBoletin, ...casosPYL, ...casosPJUD];
             
             //Luego de obtener los casos de emol se revisaran los casos obtenidos en pjud
-            await this.searchEmolAuctionsInPjud(casos);
+            await this.searchEmolAuctionsInPjud(casosEconomico);
+            casos = [...casosEconomico, ...casos];
+            await this.obtainMapasSIIInfo(casos);
         }
 
         if(casos.length === 0){
             console.log("No se encontraron datos");
             return 5;
         }
-        const createExcelFile = new createExcel(this.saveFile,this.startDate,this.endDate,this.emptyMode);
+        const createExcelFile = new createExcel(this.saveFile,this.startDate,this.endDate,this.emptyMode,null, this.isTestMode);
         const filePath = createExcelFile.writeData(casos);
         return filePath;
     }
@@ -82,8 +84,10 @@ class scrapeAuction {
 
         fechaInicio.setMonth(fechaInicio.getMonth() - 1);
 
-        fechaInicio = stringToDate(fechaInicioStr);
-        fechaFin = stringToDate(fechaFinStr); 
+        if(this.isTestMode){
+            fechaInicio = stringToDate(fechaInicioStr);
+            fechaFin = stringToDate(fechaFinStr); 
+        }
 
         let casos = [];
         try {

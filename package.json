@@ -5,6 +5,7 @@
   "main": "componentes/Electron/main.js",
   "scripts": {
     "start": "electron .",
+    "start:test": "electron . --test",
     "rebuild": "electron-rebuild -f -w better-sqlite3",
     "make": "electron-builder",
     "makeWindows": "electron-builder --win --x64",

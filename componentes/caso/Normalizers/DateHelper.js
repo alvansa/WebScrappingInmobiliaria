@@ -70,19 +70,24 @@ class DateHelper{
         }
 
         // Si el origen es Emol, puede venir con formato de palabras
-        let splitDate = fecha.split("de");
-        if(splitDate.length < 3 && splitDate.length > 1) {
-            return null;
-        }else if (splitDate.length !== 3) {
-            splitDate = fecha.split(" ");
-            if(splitDate.length !== 3) {
-                return null;
-            }
-        }
+        // let splitDate = fecha.split("de");
+        // if(splitDate.length < 3 && splitDate.length > 1) {
+        //     return null;
+        // }else if (splitDate.length !== 3) {
+        //     splitDate = fecha.split(" ");
+        //     if(splitDate.length !== 3) {
+        //         return null;
+        //     }
+        // }
 
-        const dia = this.getDia(splitDate[0]);
-        const mes = this.getMes(splitDate[1]);
-        const anno = this.getAnno(splitDate[2]);
+        // const dia = this.getDia(splitDate[0]);
+        // const mes = this.getMes(splitDate[1]);
+        // const anno = this.getAnno(splitDate[2]);
+
+        const dia = this.getDia(fecha);
+        const mes = this.getMes(fecha);
+        const anno = this.getAnno(fecha);
+
         if (dia && mes && anno) {
             const newFecha = new Date(anno, mes - 1, dia);
             return newFecha;
@@ -101,14 +106,20 @@ class DateHelper{
         }
         fecha = fecha.toLowerCase().trim();
         const dias = ['uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve','diez','once','doce','trece','catorce','quince','dieciseis','diecisiete','dieciocho','diecinueve','veinte','veintiuno','veintidos','veintitres','veinticuatro','veinticinco','veintiseis','veintisiete','veintiocho','veintinueve','treinta','treinta y uno'];
-        const diaRegex = /(\d{1,2})/g;
+        const diaRegex = /\b(\d{1,2})\b/;
         const diaRemate = fecha.match(diaRegex);
         if(diaRemate){
             return diaRemate[0];
         }
-        for(let dia of dias){
-            if(fecha.toLowerCase() == dia){
-                return this.palabraADia(dia);
+        const fechaSplit = fecha.split(" ");
+        if (!fechaSplit || fechaSplit.length === 0) {
+            return null;
+        }
+        for (let parte of fechaSplit) {
+            parte = parte.trim();
+            const index = dias.indexOf(parte);
+            if (index !== -1) {
+                return (index + 1).toString();
             }
         }
         return null;

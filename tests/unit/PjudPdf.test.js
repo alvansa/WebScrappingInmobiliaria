@@ -13,7 +13,7 @@ const {diario2484, ex1341, diario1341, diario3354_1, diario3354_2} = require('..
 const textosDV = require('../textos/DV');
 const AR = require('../textos/ActaRemate');
 const {ex1666, ex800, ex2240, ex2226} = require('../textos/Extracto'); 
-const {bf2201, bf1341, notBf, bf1750, BF2452, BF2055,BF199, CertificadoBF} = require('../textos/BF');
+const BF = require('../textos/BF');
 const {dm1056, dm1138} = require('../textos/DM');
 const {obtainCorteJuzgadoNumbers} = require('../../utils/corteJuzgado');
 
@@ -177,7 +177,7 @@ describe('obtainDerecho', () => {
     });
 
     test('Texto de bien familiar que dice no consta con', ()=>{
-        const info = testPjudPdf.normalizeInfo(bf2201);
+        const info = testPjudPdf.normalizeInfo(BF.bf2201);
         const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
         expect(tipoDerecho).toBeNull();
     });
@@ -191,19 +191,19 @@ describe('obtainDerecho', () => {
     });
 
     test('Test de Bien familiar definitivo', ()=>{
-        const info = testPjudPdf.normalizeInfo(bf1341);
+        const info = testPjudPdf.normalizeInfo(BF.bf1341);
         const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
         expect(tipoDerecho).toEqual('bien familiar');
     });
 
     test('Test Nulo basico Bien familiar no registra anotaciones', ()=>{
-        const info = testPjudPdf.normalizeInfo(notBf);
+        const info = testPjudPdf.normalizeInfo(BF.notBf);
         const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
         expect(tipoDerecho).toBeNull();
     });
 
     test('Test de tipo de texto que dice no se encuentra afecto a bf', ()=>{
-        const info = testPjudPdf.normalizeInfo(bf1750);
+        const info = testPjudPdf.normalizeInfo(BF.bf1750);
         const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
         expect(tipoDerecho).toBeNull();
     });
@@ -215,29 +215,35 @@ describe('obtainDerecho', () => {
     });
 
     test('Test de tipo de texto que dice no se encuentra afecto a bf', ()=>{
-        const info = testPjudPdf.normalizeInfo(BF2452);
+        const info = testPjudPdf.normalizeInfo(BF.BF2452);
         const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
         expect(tipoDerecho).toBeNull();
     });
 
     test('Test de tipo de texto que dice no existe declaracion de bf', ()=>{
-        const info = testPjudPdf.normalizeInfo(BF2055);
+        const info = testPjudPdf.normalizeInfo(BF.BF2055);
         const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
         expect(tipoDerecho).toBeNull();
     });
 
     test('Test de tipo de texto que dice Consta que no tiene anotaciones de bien familiar', ()=>{
-        const info = testPjudPdf.normalizeInfo(BF199);
+        const info = testPjudPdf.normalizeInfo(BF.BF199);
         const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
-        // expect(tipoDerecho).toBeNull();
+        expect(tipoDerecho).toBeNull();
     });
 
     test('Test de tipo de texto donde solo dice certificado BF', ()=>{
-        const info = testPjudPdf.normalizeInfo(CertificadoBF);
+        const info = testPjudPdf.normalizeInfo(BF.CertificadoBF);
         const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
-        // expect(tipoDerecho).toBeNull();
+        expect(tipoDerecho).toBeNull();
     });
 
+    test('Test de tipo de texto donde solo dice certificado BF', ()=>{
+        const info = testPjudPdf.normalizeInfo(BF.NotBF1439);
+        console.log(info);
+        const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
+        expect(tipoDerecho).toBeNull();
+    });
 });
 
 describe('obtainComuna', () => {

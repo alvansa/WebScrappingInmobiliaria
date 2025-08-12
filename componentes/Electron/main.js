@@ -10,22 +10,16 @@ const fs = require('fs')
 const scrapeAuction = require('./prod/scrapeAuctions.js');
 const CompleteExcelInfo = require('./prod/completeExcelInfo.js');
 const Economico = require('../economico/Economico.js');
-const {getDatosRemate,emptyCaseEconomico} = require('../economico/datosRemateEmol.js');
-const {PreRemates} = require('../preremates/obtenerPublicaciones.js');
-const MapasSII = require('../mapasSII/MapasSII.js');
 const ProcesarBoletin = require('../liquidaciones/procesarBoletin.js');
-const PublicosYLegales = require('../publicosYlegales/publicosYLegales.js');
 const Pjud = require('../pjud/getPjud.js');
 const {createExcel} = require('../excel/createExcel.js');
 const Caso = require('../caso/caso.js')
 const ConsultaCausaPjud = require('../pjud/consultaCausaPjud.js');
-const PjudPdfData = require('../pjud/PjudPdfData.js');
 const config = require('../../config.js');
-const {testTexto,testTextoArgs} = require('../economico/testEconomico.js');
-const {downloadPdfFromUrl,checkUserAgent} = require('../pjud/downloadPDF.js');
 const { fakeDelay, delay } = require('../../utils/delay.js');
 const {tribunalesPorCorte, obtainCorteJuzgadoNumbers} = require('../../utils/corteJuzgado.js');
 const {stringToDate} = require('../../utils/cleanStrings.js');
+const testUnitarios = require('./dev/testUnitarios.js');
 
 
 const Causas = require('../../model/Causas.js');
@@ -33,6 +27,7 @@ const Causas = require('../../model/Causas.js');
 
 const isDevMode = process.argv.includes('--dev');
 const emptyMode = process.argv.includes('--empty');
+const isTestMode = process.argv.includes('--test');
 
 const devMode = true;
 
@@ -132,7 +127,7 @@ class MainApp{
             console.log("handle start-proccess starDate: ", startDate, " endDate: ", endDate, " saveFile: ", saveFile, " checkedBoxes: ", checkedBoxes);
             try{
                 console.time("scrapeAuction");
-                const mainProcess = new scrapeAuction(startDate,endDate,saveFile, checkedBoxes,event,this.mainWindow)
+                const mainProcess = new scrapeAuction(startDate,endDate,saveFile, checkedBoxes,event,this.mainWindow,isTestMode)
                 const filePath = await mainProcess.startSearch();
                 console.timeEnd("scrapeAuction");
                 console.log(new Date());
@@ -161,8 +156,9 @@ class MainApp{
         // Funcion utilizada para crear varias pruebas.
         ipcMain.handle('testEconomico', async (event,args) => {
             try{
-                await this.testEconomico(event,args)
-
+                const test = new testUnitarios(app,event,args);
+                await test.mainFunction();
+                // await this.testEconomico(event,args)
             }catch(error){
                 console.error('Error al obtener resultados:', error);
             }
@@ -322,113 +318,6 @@ class MainApp{
     }
 
     async testEconomico(event,args){
-        await this.launchPuppeteer_inElectron();
-        const arg = args[0];
-        let result;
-        if (arg === 'imbeddedText') {
-            result = testTexto();
-            console.log("Resultados del texto hardCodded: ",result);
-
-        }else if(arg === 'uploadedText'){
-            result = testTextoArgs(args[1]);
-
-        }else if(arg === 'downloadPDF'){
-            console.log("Descargando PDF ubicado en: ",args[1]);  
-            result = await downloadPdfFromUrl(this.browser,args[1]);
-
-        }else if(arg === 'testConsultaCausa'){
-            const caso = crearCasoPrueba();
-            result = await consultaCausa(caso);
-            console.log("Resultados del caso de prueba en pjud: ",result.toObject());
-            console.log(new Date().toString());
-
-        }else if(arg === 'readPdf'){
-            const newExcel = args[2];
-            console.time("readPdf");
-            const caso = crearCasoPrueba();
-            const processPDF = new PjudPdfData(caso,null,devMode);
-            for(let pdf of args[1]){
-                console.log("Leyendo PDF ubicado en: ",pdf);
-                result = await ProcesarBoletin.convertPdfToText(pdf,1);
-                // console.log("Resultados del texto introducido: ",result);
-                processPDF.processInfo(result);
-            }
-            if(newExcel){
-                const downloadPath = path.join(os.homedir(), "Documents", "infoRemates");
-                const excel = new createExcel(downloadPath,null,null,false,"one");
-                await excel.writeData(caso,`PDF-${caso.causa}`);
-            }
-
-            console.debug("Resultados del texto introducido: ", caso.toObject());
-                console.timeEnd("readPdf"); 
-
-        }else if(arg === 'consultaMultipleCases'){
-            console.log("Consultando multiples casos"); 
-            const casos = [];
-            const caso1 = this.createCaso("C-2396-2022","2° JUZGADO DE LETRAS DE OSORNO");
-            casos.push(caso1);
-            const caso2 = this.createCaso("C-3541-2024","2° JUZGADO DE LETRAS DE OSORNO");
-            casos.push(caso2);
-            const caso3 = this.createCaso("C-417-2025","1° JUZGADO DE LETRAS DE BUIN");
-            casos.push(caso3);
-            const caso4 = this.createCaso("C-46-2025","3° JUZGADO DE LETRAS DE COQUIMBO");
-            casos.push(caso4);
-            const caso5 = this.createCaso("C-6-2025","3° JUZGADO CIVIL DE SAN MIGUEL");
-            casos.push(caso5);
-            const caso6 = this.createCaso("C-373-2025","1° JUZGADO DE LETRAS DE LOS ANDES");
-            casos.push(caso6);
-            const caso7 = this.createCaso("C-4829-2025","9° JUZGADO CIVIL DE SANTIAGO");
-            casos.push(caso7);
-            const caso8 = this.createCaso("C-5479-2024","1° JUZGADO CIVIL DE PUENTE ALTO");
-            casos.push(caso8);
-            const caso9 = this.createCaso("C-572-2025","13° JUZGADO CIVIL DE SANTIAGO");
-            casos.push(caso9);
-            const caso10 = this.createCaso("C-7697-2024","12° JUZGADO CIVIL DE SANTIAGO");
-            casos.push(caso10);
-            const caso11 = this.createCaso("C-397-2025","4° JUZGADO DE LETRAS DE TALCA");
-            casos.push(caso11);
-            const caso12 = this.createCaso("C-4160-2024","1° JUZGADO CIVIL DE SAN MIGUEL");
-            casos.push(caso12);
-            const caso13 = this.createCaso("C-6328-2025","21° JUZGADO CIVIL DE SANTIAGO");
-            casos.push(caso13);
-            const caso14 = this.createCaso("C-898-2025","2° JUZGADO DE LETRAS DE IQUIQUE");
-            casos.push(caso14);
-            const caso15 = this.createCaso("C-96-2025","1° JUZGADO CIVIL DE VALPARAISO");
-            casos.push(caso15);
-            obtainCorteJuzgadoNumbers(casos);
-            const result = await this.obtainDataFromCases(casos,event);
-            console.log("Resultados de los casos en la funcion de llamada: ",casos.length);
-            const downloadPath = path.join(os.homedir(), "Documents", "infoRemates");
-            const excel = new createExcel(downloadPath,new Date(),new Date(),false,"oneDay");
-            await excel.writeData(casos,`${casos[0].causa}`);
-
-        }else if(arg === 'consultaDia'){
-            console.log("Consultando casos por dia 6 de junio");
-            const casos = await this.searchCasesByDay();
-            console.log("Resultados de los casos en la funcion de llamada: ",casos.length);
-            const result = await this.obtainDataFromCases(casos,event);
-            console.log("Resultados de los casos en la funcion de llamada: ",casos.length);
-            const downloadPath = path.join(os.homedir(), "Documents", "infoRemates");
-            const excel = new createExcel(downloadPath,new Date(),new Date(),false,"oneDay");
-            await excel.writeData(casos,"Remates-6-junio");
-
-        }else if(arg === 'testEconomicoPuppeteer'){
-            const fechaInicio = new Date("2025/05/22");
-            const fechaFin = new Date("2025/05/23");
-            const economico = new Economico(this.browser, fechaInicio, fechaFin);
-            const casos = await economico.getCases();
-            console.log(casos.map(caso => caso.toObject()));
-        }else if(arg === 'testPdfTesseract'){
-            console.time("testPdfTesseract");
-            const convertData = await this.processTeseract(args[1]);
-            console.log("Resultados del texto introducido: ", convertData);
-            const caso = this.createCaso("C-321-2024","1º JUZGADO DE LETRAS DE ANGOL");
-            const processPDF = new PjudPdfData(caso);
-            console.log("Procesnado el caso leido con Tesseract: ");
-            processPDF.processInfo(convertData);
-            console.log("Resultados del caso procesado: ", caso.toObject());
-            console.timeEnd("testPdfTesseract");
-        }
     }
 
     async processTeseract(filePath) {

@@ -304,7 +304,7 @@ const tribunalesPorCorte = {
     { value: '1403', nombre: '2º Juzgado de Letras de San Bernardo Ex 3°' }
   ],
 }
-function obtainCorteJuzgadoNumbers(casos) {
+function obtainCorteJuzgadoNumbers(casos,isDev = false) {
   for (let caso of casos) {
     if(!caso.juzgado || caso.numeroJuzgado){
       continue;
@@ -325,10 +325,16 @@ function obtainCorteJuzgadoNumbers(casos) {
     const result = searchTribunalPorNombre(juzgado);
     if (result) {
       caso.corte = result.corte;
-      caso.numeroJuzgado = result.value;
+      caso.numeroJuzgado = result.numeroJuzgado;
+      if(isDev){
+        console.log(`Caso: ${caso.id} - Juzgado: ${juzgado} - Corte: ${result.corte} - Número Juzgado(value): ${result.numeroJuzgado} - Índice: ${result.index}`);
+      }
     }
   }
 }
+// Esta función busca un tribunal por su nombre normalizado
+// y devuelve un objeto con la corte(numero), numeroJuzgado y el índice del tribunal en referencia a su corte.
+// Si no se encuentra, devuelve null.
 function searchTribunalPorNombre(nombreTribunal) {
   const tribunalesPorCorteNormalized = normalizeTribunalesPorCorte(tribunalesPorCorte);
   for (const corte in tribunalesPorCorteNormalized) {
@@ -338,7 +344,7 @@ function searchTribunalPorNombre(nombreTribunal) {
         if (tribunales[i].nombre.toLowerCase() === nombreTribunal) {
           return {
             corte: corte,
-            value: tribunales[i].value,
+            numeroJuzgado: tribunales[i].value,
             index: i
           };
         }
@@ -366,4 +372,4 @@ function normalizeTribunalesPorCorte(tribunalesPorCorte) {
   return normalized;
 }
 
-module.exports = { tribunalesPorCorte , obtainCorteJuzgadoNumbers}
+module.exports = { tribunalesPorCorte , obtainCorteJuzgadoNumbers, searchTribunalPorNombre}

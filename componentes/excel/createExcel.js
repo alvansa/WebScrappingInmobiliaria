@@ -15,7 +15,7 @@ const PREREMATES = config.PREREMATES;
 const RANGO_EXCEL = 'A5:AQ';
 
 class createExcel {
-    constructor(saveFile, startDate, endDate, emptyMode, type) {
+    constructor(saveFile, startDate, endDate, emptyMode, type, isTestMode = false) {
         this.saveFile = saveFile;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -25,6 +25,7 @@ class createExcel {
         this.fixedEndDate = new Date(fixStringDate(endDate));
         this.causaDB = new Causas();
         this.comunas = this.causaDB.obtainComunasFromDB();
+        this.isTestMode = isTestMode; // Indica si se está en modo desarrollo
 
     }
 
@@ -163,7 +164,7 @@ class createExcel {
             if (caso.fechaPublicacion === "N/A" || caso.fechaPublicacion == null) {
                 caso.fechaPublicacion = fechaMenosUno(this.endDate);
             }
-            if(this.getValidAuctions(caso, remates)){
+            if(this.getValidAuctions(caso, remates) || this.isTestMode){
                 this.addObjectToSet(remates,caso);
             }
         }
@@ -387,7 +388,6 @@ function insertarCasoIntoWorksheet(caso, ws, currentRow) {
             ws['Z' + currentRow] = { v: parseFloat(caso.montoMinimo), t: 'n', z: '#,##0.0000' };
         }
         else if (caso.moneda == 'Pesos') {
-            console.log("leyo que la moneda es pesos", caso.moneda);
             ws['Z' + currentRow] = { v: parseFloat(caso.montoMinimo), t: 'n', z: '#,##0' };
         }
         writeLine(ws, 'AA', currentRow, caso.moneda, 's');
@@ -400,6 +400,7 @@ function insertarCasoIntoWorksheet(caso, ws, currentRow) {
     if (caso.montoCompra && caso.montoCompra.monto) {
         ws['AG' + currentRow] = { v: caso.montoCompra.monto, t: 'n' };
     }
+    writeLine(ws, "AH", currentRow, caso.anno, "n");
     writeLine(ws, "AQ", currentRow, caso.deudaHipotecaria, "n");
     // ws['AG' + currentRow ] = {v: 'año compr ant ', t: 's'};
     // ws['AH' + currentRow ] = {v: 'precio venta nos ', t: 's'};
