@@ -46,7 +46,7 @@ class Economico{
                     console.log("No se pudo obtener la descripción para el caso: ", caso);
                 }
                 if(counter % 5 == 0){
-                    await fakeDelay(120, 240,true);
+                    await fakeDelay(80, 240,true);
                     await this.changeUserAgent();
                 }
             }

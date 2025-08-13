@@ -140,9 +140,10 @@ class DateHelper{
 
     // Obtiene el año de la fecha de cuando se realizara el remate.
     static getAnno(fecha){
-        const annoRegex = /(\d{4})/g;
+        const annoRegex = /(\d{4}|\d{1,3}\.\d{1,3})/g;
         const annoRemate = fecha.match(annoRegex);
         if(annoRemate){
+            annoRemate[0] = annoRemate[0].replace(/\./g, ''); // Elimina puntos si existen
             return annoRemate[0];
         }
         const annoPalabras = /dos\smil\s(veinticuatro|veinticinco|veintiséis|veintisiete|veintiocho|veintinueve|treinta|treinta y uno|treinta y dos|treinta y tres|treinta y cuatro|treinta y cinco)/i;

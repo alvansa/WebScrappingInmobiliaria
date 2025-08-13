@@ -16,6 +16,33 @@ function areEqualText(texto1, texto2) {
     return ordenarCaracteres(texto1Normalizado) === ordenarCaracteres(texto2Normalizado);
 }
 
+function matchJuzgado(str1, str2) {
+    if(!str1 && !str2) {
+        return true;
+    }else if(!str1 || !str2) {
+        return false;
+    }
+    // Normalizar: quitar acentos, símbolos, palabras irrelevantes y convertir a minúsculas
+    const normalizar = (str) => {
+        return str
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Quitar acentos
+            .replace(/[º°]/g, '') // Reemplazar º y ° por nada
+            // .replace(/[^a-z0-9\s]/g, '') // Quitar otros símbolos
+            .replace(/(juzgado|del|letras|de|las|los|civil)/gi, '') // Eliminar palabras comunes
+            .replace(/\s+/g, ' ') // Reducir espacios múltiples
+            .trim() // Quitar espacios al inicio/fin
+            .toLowerCase();
+    };
+
+    const normalizado1 = normalizar(str1);
+    const normalizado2 = normalizar(str2);
+    console.log(str1, str2, normalizado1 === normalizado2)
+
+    return normalizado1 === normalizado2;
+}
+
+
 module.exports = {
-    areEqualText
+    areEqualText,
+    matchJuzgado
 };

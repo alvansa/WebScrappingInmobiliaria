@@ -75,6 +75,18 @@ describe('Fechas en pjud', () => {
         const resFecha = DateHelper.normalize(fecha,null);
         expect(resFecha).toEqual(new Date('2025/09/03'));
     });
+
+    test('Caso con fecha en numero, palabras emol y ano con punto', ()=>{
+        const fecha = '29 de Agosto de 2.025';
+        const resFecha = DateHelper.normalize(fecha,null);
+        expect(resFecha).toEqual(new Date('2025/08/29'));
+    });
+
+    test('Caso con fecha 20 de agosto de 2025', ()=>{
+        const fecha = '20 de agosto de 2025';
+        const resFecha = DateHelper.normalize(fecha,null);
+        expect(resFecha).toEqual(new Date('2025/08/20'));
+    });
 })
 
 // describe('normalizarFechaRemate', ()=>{

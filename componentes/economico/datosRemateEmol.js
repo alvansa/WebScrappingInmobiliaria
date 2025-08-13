@@ -83,7 +83,6 @@ function procesarDatosRemate(caso) {
     }
 
     if (fechaRemate) {
-        console.log("Fecha del remate: ", fechaRemate[0]);
         caso.fechaRemate = fechaRemate[0];
     }
 
@@ -328,17 +327,26 @@ function getFormatoEntrega(data) {
 
 // Obtiene la fecha del remate.
 function getFechaRemate(data) {
+    
     const regexs = [
-        /(\d{1,2})\s*(de\s+)?(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)[\s]*((de|del)\s+)?(año\s+)?(\d{4})/i,
+        /(\d{1,2})º?\s*(de\s+)?(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)\s*(del?\s+)?(año\s+)?(\d{4}|\d{1,3}(\.\d{1,3}))/i,
         /(lunes|martes|miércoles|jueves|viernes|sábado|domingo)?\s*([a-zA-Záéíóú]*\s+)(de\s+)?(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)(\s+de)\s+(dos mil (veinticuatro|veinticinco|veintiseis|veintisiete|veintiocho|veintinueve|treinta|treinta y uno)?)?/i,
         /(?:rematar[a|á])?\s*el\s*(?:d[i|í]a\s*)?(\d{1,2}\/\d{1,2}\/\d{4})/i,
-        /(\d{1,2}-\d{1,2}-\d{4})\s*a\s*las\s*\d{1,2}:\d{1,2}/i
+        /(\d{1,2}-\d{1,2}-\d{4})\s*a\s*las\s*\d{1,2}:\d{1,2}/i,
     ];
     for (let regex of regexs) {
         const fechaRemate = data.match(regex);
         if (fechaRemate) {
             return fechaRemate;
         }
+    }
+
+    const regexFechaSinAnno = /rematar[a|á]\s*(\d{1,2}\s*de\s*(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre))/i;
+    const fechaRemate = data.match(regexFechaSinAnno);  
+    if (fechaRemate) {
+        const anno = new Date().getFullYear().toString();
+        const fechaConAnno = fechaRemate[1] + ' de ' + anno;
+        return [fechaConAnno];
     }
     return null;
 }
@@ -424,27 +432,27 @@ function getComuna(data, isPjud = false) {
     // console.log("Data en getComuna:  :)", data);
     const dataNormalizada = data.toLowerCase();
     // console.log("Data normalizada en getComuna: ",dataNormalizada);
-    for (let comuna of comunas) {
-        comuna = comuna.toLowerCase();
-        const listaPreFrases = [
-            "comuna de ",
-            "comuna ",
-            "comuna y provincia de ",
-            "comuna: "
-        ];
-        if(!isPjud) {
-            const listaExtra = [
-            "conservador de bienes raíces de ", 
-            "conservador bienes raíces ", 
-            "registro de propiedad de ", 
+    const listaPreFrases = [
+        "comuna de ",
+        "comuna ",
+        "comuna y provincia de ",
+        "comuna: "
+    ];
+    if (!isPjud) {
+        const listaExtra = [
+            "conservador de bienes raíces de ",
+            "conservador bienes raíces ",
+            "registro de propiedad de ",
             "registro propiedad ",
             "registro propiedad cbr ",
             "Registro de Propiedad del CBR de ",
-            ]
-            listaPreFrases.push(...listaExtra);
-        }
+        ]
+        listaPreFrases.push(...listaExtra);
+    }
+    for (let preFrase of listaPreFrases) {
 
-        for (let preFrase of listaPreFrases) {
+        for (let comuna of comunas) {
+            comuna = comuna.toLowerCase();
             const comunaPreFrase = preFrase + comuna;
             const regexComuna = new RegExp(`${preFrase}${comuna}(\\b|,)`, 'i');
             const comunaSinEspacio = comunaPreFrase.replace(/\s*/g, '');

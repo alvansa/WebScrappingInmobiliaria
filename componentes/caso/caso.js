@@ -564,7 +564,7 @@ class Caso{
         if(this.#causa.includes('N/A') || this.#causa == null){
             return null;
         }
-        const causa = this.#causa.split('-');
+        const causa = this.normalizarCausa(this.#causa).split('-');
         return causa[1];
     }
 
@@ -574,7 +574,7 @@ class Caso{
             return null;
         }
             
-        const causa = this.#causa.split('-');
+        const causa = this.normalizarCausa(this.#causa).split('-');
         return causa[2];
     }
    

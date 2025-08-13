@@ -8,6 +8,7 @@ const GestorRematesPjud = require('../../pjud/GestorRematesPjud.js');
 const {writeLine,insertarCasoIntoWorksheet,createExcel} = require('../../excel/createExcel')
 const {tribunalesPorCorte, obtainCorteJuzgadoNumbers} = require('../../../utils/corteJuzgado.js');
 const {stringToDate} = require('../../../utils/cleanStrings.js');   
+const {matchJuzgado} = require('../../../utils/compareText.js');
 const config = require('../../../config.js');
 const PJUD = config.PJUD;
 const EMOL = config.EMOL;
@@ -209,7 +210,7 @@ class CompleteExcelInfo{
                 const baseCourt = cellCourt.v;
 
                 if(causa == causaBase){
-                    const matchJuzgado = this.matchJuzgado(baseCourt, juzgado);
+                    const matchJuzgado = matchJuzgado(baseCourt, juzgado);
                     if(matchJuzgado){
                         console.log(`Causa repetida: ${causa} fila base: ${actualRowBase} fila nueva: ${lastRowNew}`);
                         findedCausas.push({ causa: causa, baseLine: actualRowBase, newLine:lastRowNew });
@@ -301,41 +302,7 @@ class CompleteExcelInfo{
         }
     }
 
-    static matchJuzgado(str1, str2) {
-        // Normalizar: quitar acentos, símbolos, palabras irrelevantes y convertir a minúsculas
-        const normalizar = (str) => {
-            return str
-                .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Quitar acentos
-                .replace(/[º°]/g, '') // Reemplazar º y ° por nada
-                // .replace(/[^a-z0-9\s]/g, '') // Quitar otros símbolos
-                .replace(/(juzgado|del|letras|de|las|los|civil)/gi, '') // Eliminar palabras comunes
-                .replace(/\s+/g, ' ') // Reducir espacios múltiples
-                .trim() // Quitar espacios al inicio/fin
-                .toLowerCase();
-        };
-
-        const normalizado1 = normalizar(str1);
-        const normalizado2 = normalizar(str2);
-        console.log(str1, str2, normalizado1 === normalizado2)
-
-        return normalizado1 === normalizado2;
-    }
-
-    static normalize(string) {
-        // Convierte a mayúsculas
-        let texto = string.toUpperCase();
-
-        // Reemplaza acentos
-        texto = texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-
-        // Unifica los símbolos º y °
-        texto = texto.replace(/º/g, "°");
-
-        // Quita puntuación innecesaria
-        texto = texto.replace(/[^\w\s°]/g, "");
-
-        return texto;
-    }
+    
 }
 
 module.exports = CompleteExcelInfo;

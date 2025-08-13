@@ -1,5 +1,6 @@
 const Caso = require('../../componentes/caso/caso');
 const {procesarDatosRemate, normalizeDescription} = require('../../componentes/economico/datosRemateEmol');
+const {obtainCorteJuzgadoNumbers} = require('../../utils/corteJuzgado');
 
 const Extractos = require('../textos/Extracto');
 
@@ -60,6 +61,82 @@ describe('procesarDatosRemate',()=>{
         expect(caso18731.porcentaje).toEqual(10);
         expect(caso18731.anno).toEqual(2006);
         expect(caso18731.juzgado).toEqual('16° JUZGADO CIVIL DE SANTIAGO')
+    });
+
+    test('Caso C-10926-2024', () => {
+        const caso10926 = new Caso();
+        const normalizedText = normalizeDescription(Extractos.ex10926);
+        caso10926.texto = normalizedText;
+        procesarDatosRemate(caso10926);
+        const casos = [caso10926];
+        obtainCorteJuzgadoNumbers(casos);
+        expect(caso10926.formatoEntrega).toEqual('vale vista');
+        expect(caso10926.causa).toEqual('C-10926-2024');
+        expect(caso10926.porcentaje).toEqual(10);
+        expect(caso10926.anno).toEqual(2014);
+        expect(caso10926.juzgado).toEqual('14° JUZGADO CIVIL DE SANTIAGO')
+        expect(caso10926.fechaRemate).toEqual(new Date('2025/08/27'));
+        expect(caso10926.comuna).toEqual('santiago');
+        expect(caso10926.corte).toEqual('90');
+        expect(caso10926.numeroJuzgado).toEqual('272');
+        expect(caso10926.getCausaPjud()).toEqual('10926');
+    });
+
+    test('Caso C-345-2019', () => {
+        const caso345 = new Caso();
+        const normalizedText = normalizeDescription(Extractos.ex345);
+        caso345.texto = normalizedText;
+        procesarDatosRemate(caso345);
+        const casos = [caso345];
+        obtainCorteJuzgadoNumbers(casos);
+        expect(caso345.formatoEntrega).toEqual('vale vista');
+        expect(caso345.causa).toEqual('C-345-2019');
+        expect(caso345.anno).toEqual(2002);
+        expect(caso345.juzgado).toEqual('JUZGADO DE LETRAS DE ILLAPEL')
+        expect(caso345.fechaRemate).toEqual(new Date('2025/08/29'));
+        expect(caso345.comuna).toEqual('salamanca');
+        expect(caso345.corte).toEqual('25');
+        expect(caso345.numeroJuzgado).toEqual('52');
+        expect(caso345.getCausaPjud()).toEqual('345');
+        expect(caso345.montoMinimo).toEqual({
+            "moneda" : "Pesos",
+            "monto" : 39084038
+        });
+    });
+
+    test('Caso C-156-2023',()=>{
+        const caso156 = new Caso();
+        const normalizedText = normalizeDescription(Extractos.exV156);
+        caso156.texto = normalizedText;
+        procesarDatosRemate(caso156);
+        expect(caso156.formatoEntrega).toEqual('vale vista');
+        // expect(caso156.causa).toEqual('C-156-2023');
+        // expect(caso156.porcentaje).toEqual(10);
+        // expect(caso156.anno).toEqual(2011);
+        expect(caso156.juzgado).toEqual('24° JUZGADO CIVIL DE SANTIAGO')
+        expect(caso156.fechaRemate).toEqual(new Date('2025/08/20'));
+    });
+
+    test('Caso C-11613-2024', () => {
+        const caso11613 = new Caso();
+        const normalizedText = normalizeDescription(Extractos.ex11613);
+        caso11613.texto = normalizedText;
+        procesarDatosRemate(caso11613);
+        const casos = [caso11613];
+        obtainCorteJuzgadoNumbers(casos);
+        expect(caso11613.formatoEntrega).toEqual('vale vista');
+        expect(caso11613.causa).toEqual('C-11613-2024');
+        expect(caso11613.anno).toEqual(2021);
+        expect(caso11613.juzgado).toEqual('22° JUZGADO CIVIL DE SANTIAGO')
+        expect(caso11613.fechaRemate).toEqual(new Date('2025/09/01'));
+        expect(caso11613.comuna).toEqual("ñuñoa");
+        expect(caso11613.corte).toEqual('90');
+        expect(caso11613.numeroJuzgado).toEqual('280');
+        expect(caso11613.getCausaPjud()).toEqual('11613');
+        expect(caso11613.montoMinimo).toEqual({
+            "moneda" : "Pesos",
+            "monto" : 118639031
+        });
     });
 
     test('Caso con texto nulo con toObject()',()=>{

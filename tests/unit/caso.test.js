@@ -366,6 +366,8 @@ describe('Obtener corte y numero de juzgado', ()=>{
         expect(casos[0].corte).toEqual('90');
         expect(casos[0].numeroJuzgado).toEqual('259');
     });
+
+
 });
 
 

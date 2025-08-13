@@ -1043,7 +1043,6 @@ class PjudPdfData {
     }
 
     obtainDireccionActaRemate(info) {
-        console.log("BUSCANDO DIRECCION EN ACTA REMATE");
         let startText = "ubicados en:";
         let startIndex = info.indexOf(startText);
         if (startIndex === -1) {

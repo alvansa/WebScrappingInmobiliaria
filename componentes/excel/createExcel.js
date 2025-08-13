@@ -212,9 +212,8 @@ class createExcel {
                 return false;
             }
         }
-        // console.log(`------------\ncausa ${currentCase.causa} fecha remate ${currentCase.fechaRemate} fecha inicio ${this.fixedStartDate} y fecha final ${this.fixedEndDate}`);
         // Si la fecha de remate es menor a la fecha de inicio, o mayor a la final
-        if (currentCase.fechaRemate < this.fixedStartDate || currentCase.fechaRemate > this.fixedEndDate ) {
+        if (currentCase.fechaRemate && (currentCase.fechaRemate < this.fixedStartDate || currentCase.fechaRemate > this.fixedEndDate )) {
             // console.log(`No guardado por fecha remate ${currentCase.causa}`);
             return false;
         }
