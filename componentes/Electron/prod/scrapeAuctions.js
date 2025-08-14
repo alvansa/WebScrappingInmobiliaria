@@ -82,7 +82,7 @@ class scrapeAuction {
         let fechaInicio = new Date();
         let fechaFin = new Date(); 
 
-        fechaInicio.setMonth(fechaInicio.getMonth() - 1);
+        fechaInicio.setDate(fechaInicio.getDate() - 21);
 
         if(this.isTestMode){
             fechaInicio = stringToDate(fechaInicioStr);
@@ -136,10 +136,15 @@ class scrapeAuction {
         // const startDate = stringToDate(fechaInicioStr);
         // const endDate = stringToDate(fechaFinStr);
         // let endDate = stringToDate(fechaInicioStr); 
-        let startDate = stringToDate(fechaInicioStr);
-        let endDate = stringToDate(fechaFinStr); 
+        let startDate = new Date();
+        let endDate = new Date(); 
 
         startDate.setMonth(startDate.getMonth() - 1);
+        if(this.isTestMode){
+            startDate = stringToDate(fechaInicioStr);
+            endDate = stringToDate(fechaFinStr);
+        }
+        console.log("Obteniendo casos de boletin desde: ", startDate, " hasta: ", endDate);
        try{
             const window = new BrowserWindow({ show: true });
             const url = 'https://www.boletinconcursal.cl/boletin/remates';
@@ -255,33 +260,33 @@ class scrapeAuction {
     async searchEmolAuctionsInPjud(casos){
         if (!casos || casos.length === 0) {
             console.log("No hay casos para buscar en Pjud");
-            return;
+            return [];
         }
 
         obtainCorteJuzgadoNumbers(casos);
 
         const fixedStartDate = this.startDate.replace(/-/g,'/');
         const fixedEndDate = this.endDate.replace(/-/g,'/');
-        console.log(`fecha inicio : ${fixedStartDate}, fecha fin: ${fixedEndDate} en Date format: ${new Date(fixedStartDate)}, ${new Date(fixedEndDate)}`);
+        // console.log(`fecha inicio : ${fixedStartDate}, fecha fin: ${fixedEndDate} en Date format: ${new Date(fixedStartDate)}, ${new Date(fixedEndDate)}`);
         
-        console.log('------------------------------------------')
-        console.log("Cantidad de casos antes del filtro: ", casos.length);
-        casos.forEach(caso => {
-            console.log("PRE FILTER",caso.fechaRemate, caso.causa, caso.juzgado);
-        });
-        console.log('------------------------------------------')
+        // console.log('------------------------------------------')
+        // console.log("Cantidad de casos antes del filtro: ", casos.length);
+        // casos.forEach(caso => {
+        //     console.log("PRE FILTER",caso.fechaRemate, caso.causa, caso.juzgado);
+        // });
+        // console.log('------------------------------------------')
 
         casos = casos.filter(caso => caso.fechaRemate > new Date(fixedStartDate) && caso.fechaRemate < new Date(fixedEndDate));
 
-        console.log('------------------------------------------')
-        console.log("Cantidad de casos despues del filtro: ", casos.length);
-        casos.forEach(caso => {
-            console.log("POST FILTER",caso.fechaRemate, caso.causa, caso.juzgado);
-        });
-        console.log('------------------------------------------')
+        // console.log('------------------------------------------')
+        // console.log("Cantidad de casos despues del filtro: ", casos.length);
+        // casos.forEach(caso => {
+        //     console.log("POST FILTER",caso.fechaRemate, caso.causa, caso.juzgado);
+        // });
+        // console.log('------------------------------------------')
 
-        // const gestorRemates = new GestorRematesPjud(casos, this.event, this.mainWindow);
-        // const result = await gestorRemates.getInfoFromAuctions();
+        const gestorRemates = new GestorRematesPjud(casos, this.event, this.mainWindow);
+        const result = await gestorRemates.getInfoFromAuctions();
         return casos;
         
     }

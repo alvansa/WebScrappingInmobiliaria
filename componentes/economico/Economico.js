@@ -1,9 +1,11 @@
 const pie = require('puppeteer-in-electron');
 const Caso = require('../caso/caso')
 const {BrowserWindow} = require('electron');
+
 const {delay,fakeDelay} = require('../../utils/delay');
 const {procesarDatosRemate} = require('./datosRemateEmol');
 const listUserAgents = require('../../utils/userAgents.json');
+const {simulateRandomMouseMovement} = require('../../utils/mouseMovement');
 
 require('dotenv').config();
 
@@ -181,6 +183,10 @@ async getInfoFromSingularPage(caso){
 
             // Extraer el texto
             const description = await this.page.$eval('div#description p', el => el.textContent);
+            // console.log(this.page.viewport())
+            // const duration = Math.random() * (4  - 2) + 2; 
+            // const range = Math.random() * (300  - 50) + 50;
+            // await simulateRandomMouseMovement(this.page,duration, range )
             // console.log("Description: ", description);
             // caso.description = description;
 

@@ -88,6 +88,10 @@ class ProcesarBoletin {
                     // Aqui se envian los pdf a el proceso principal para ser convertidos a texto y poder trabajar con ellos.
                     try{
                         texto = await ProcesarBoletin.convertPdfToText(pdfFile);
+                        if(!texto){
+                            console.error("No se pudo procesar el PDF, saltando al siguiente...");
+                            continue;
+                        }
                         const caso = this.getCaso(pdf, casos);
                         this.obtainDataRematesPdf(texto, caso);
                     }catch(error){
@@ -276,12 +280,11 @@ class ProcesarBoletin {
     static async convertPdfToText(filePath) {
         let text;
         try{
-
             text = await ProcesarBoletin.pdfToTextPdfParse(filePath);
-            if(!text){
-                console.error("No se pudo procesar el PDF con pdf-parse, intentando con tesseract...");
-                text = await ProcesarBoletin.pdfToTextPdf2Json(filePath);
-            }
+            // if(!text){
+            //     console.error("No se pudo procesar el PDF con pdf-parse, itentando con pdf2json...");
+            //     text = await ProcesarBoletin.pdfToTextPdf2Json(filePath);
+            // }
             // if(!texto){
             //     console.error("No se pudo procesar el PDF con pdf-parse ni con pdf2json, intentando con tesseract...");
             //     texto = await ProcesarBoletin.pdfToTextTesseract(filePath);
@@ -289,7 +292,8 @@ class ProcesarBoletin {
             return text;
 
        }catch(error){
-
+            console.error("Error al convertir PDF a texto:", error.message);
+            return null;
        }
 
     }
@@ -300,7 +304,8 @@ class ProcesarBoletin {
 
             pdfParser.on('pdfParser_dataError', errData => {
                 console.error('Error al procesar PDF:', errData.parserError);
-                reject(errData.parserError);
+                resolve(null); // Resolviendo con null en caso de error
+
             });
 
             pdfParser.on('pdfParser_dataReady', pdfData => {
