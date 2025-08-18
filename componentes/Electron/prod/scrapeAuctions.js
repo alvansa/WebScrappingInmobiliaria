@@ -276,7 +276,7 @@ class scrapeAuction {
         // });
         // console.log('------------------------------------------')
 
-        casos = casos.filter(caso => caso.fechaRemate > new Date(fixedStartDate) && caso.fechaRemate < new Date(fixedEndDate));
+        // casos = casos.filter(caso => caso.fechaRemate > new Date(fixedStartDate) && caso.fechaRemate < new Date(fixedEndDate));
 
         // console.log('------------------------------------------')
         // console.log("Cantidad de casos despues del filtro: ", casos.length);
@@ -286,7 +286,7 @@ class scrapeAuction {
         // console.log('------------------------------------------')
 
         const gestorRemates = new GestorRematesPjud(casos, this.event, this.mainWindow);
-        const result = await gestorRemates.getInfoFromAuctions();
+        // const result = await gestorRemates.getInfoFromAuctions();
         return casos;
         
     }

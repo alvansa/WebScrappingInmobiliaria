@@ -23,6 +23,8 @@ const LETRA_PARTES = 'O';
 
 const COLUMNAS_EXCEL = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z','AA', 'AB', 'AC', 'AD', 'AE', 'AF', 'AG', 'AH', 'AI', 'AJ', 'AK', 'AL', 'AM', 'AN', 'AO', 'AP', 'AQ'];
 
+const COlUMNAS_MANTENER = ['C', 'D', 'F', 'J', 'K','L', 'Z'];
+
 class CompleteExcelInfo{
     constructor(filePath,event,mainWindow){
         this.filePath = filePath;
@@ -151,6 +153,11 @@ class CompleteExcelInfo{
         const findedCausas = this.findRepeatedAuctions(wsBase, wsNew);
 
         console.log(`Causas a buscar: ${findedCausas.length}`);
+        console.table(findedCausas.map(causa => ({
+            causa: causa.causa,
+            baseLine: causa.baseLine,
+            newLine: causa.newLine
+        })));
         lastRowNew = lastRowNew + 5;
         findedCausas.forEach(causa => {
             // console.log(`Causa: ${causa.causa} encontrada en la fila: ${causa.linea}`);
@@ -160,7 +167,7 @@ class CompleteExcelInfo{
                 newCausaCell.v = causa.causa;
             }else{
                 // console.log('Copiando linea ',lastRowNew)
-                this.copyRowFromBaseToNew(wsBase, wsNew, causa.baseLine, lastRowNew);
+                this.copyRowFromBaseToNew(wsBase, wsNew, causa.baseLine, causa.newLine);
             }   
             lastRowNew++;
         });
@@ -210,8 +217,8 @@ class CompleteExcelInfo{
                 const baseCourt = cellCourt.v;
 
                 if(causa == causaBase){
-                    const matchJuzgado = matchJuzgado(baseCourt, juzgado);
-                    if(matchJuzgado){
+                    const matchedJuzgado = matchJuzgado(baseCourt, juzgado);
+                    if(matchedJuzgado){
                         console.log(`Causa repetida: ${causa} fila base: ${actualRowBase} fila nueva: ${lastRowNew}`);
                         findedCausas.push({ causa: causa, baseLine: actualRowBase, newLine:lastRowNew });
                         // break;
@@ -226,7 +233,8 @@ class CompleteExcelInfo{
 
     static processNewRow(wsNew, rowNum){
         let isValid = true;
-        const causa = wsNew[`${LETRA_CAUSA}${rowNum}`].v.toUpperCase().replace(/\s*/g, '');
+        const causaCell = wsNew[`${LETRA_CAUSA}${rowNum}`];
+        const causa = causaCell ? causaCell.v.toUpperCase().replace(/\s*/g, '') : null;
         let juzgado = wsNew[`${LETRA_JUZGADO}${rowNum}`];
         if (!juzgado || typeof juzgado.v != 'string') {
             console.log(`No se encontró el juzgado en la fila ${rowNum}`);
@@ -239,57 +247,68 @@ class CompleteExcelInfo{
     static copyRowFromBaseToNew(wsBase, wsNew, baseRow, newRow) {
         COLUMNAS_EXCEL.forEach(columna => {
             const baseCell = wsBase[`${columna}${baseRow}`];
-            if (baseCell) {
-                if(baseCell.t === 'd' && baseCell.w){
-                    wsNew[`${columna}${newRow}`] = {
-                        v: baseCell.v,
-                        t: baseCell.t,
-                        w: baseCell.w,
-                        z: 'dd/mm/yyyy' // Mantener el formato de fecha si existe
+            if (!baseCell) {
+                return;
+            }
+            if (!COlUMNAS_MANTENER.includes(columna)) {
+                if(newRow <= 6){
+                    console.log(`Columna ${columna} no está en las columnas a mantener`);
+                }
+                if (columna == 'H') {
+                    // console.log("Escribiendo fila ", newRow)
+                    const BColumn = wsBase[`B${baseRow}`];
+                    const EColumn = wsBase[`E${baseRow}`];
+                    const HColumn = wsBase[`H${baseRow}`];
+                    //Agregar la columna G de Ocupacion
+                    let text = 'Ya aparecio(';
+                    // let text = '';
+                    if (BColumn) {
+                        text += BColumn.v + ' ';
+                    }
+                    if (EColumn) {
+                        text += EColumn.v + ' ';
+                    }
+                    if (HColumn) {
+                        text += HColumn.v;
+                    }
+                    text += ')';
+                    wsNew[`H${newRow}`] = {
+                        v: text,
+                        t: 's',
                     }
                 }else{
-                    wsNew[`${columna}${newRow}`] = {
-                        v: baseCell.v,
-                        t: baseCell.t,
-                        w: baseCell.w,
-                    }
+                    this.writeCell(baseCell, wsNew, columna, newRow);
                 }
-            } else {
-                wsNew[`${columna}${newRow}`] = { v: '' };
-            }
-            if(columna == 'H'){
-                // console.log("Escribiendo fila ", newRow)
-                const BColumn = wsBase[`B${baseRow}`];
-                const EColumn = wsBase[`E${baseRow}`];
-                const HColumn = wsBase[`H${baseRow}`];
-                let text = 'Ya aparecio(';
-                // let text = '';
-                if(BColumn){
-                    text += BColumn.v + ' ';
-                }
-                if(EColumn){
-                    text += EColumn.v + ' ';
-                }
-                if(HColumn){
-                    text += HColumn.v;
-                }
-                text += ')';
-                wsNew[`H${newRow}`] = {
-                    v: text,
-                    t: 's',
-                }
-            }
-        });
+
+            }    
+            });
         // Copiar el formato de la celda si es necesario
         if (wsBase[`!cols`]) {
             wsNew[`!cols`] = wsBase[`!cols`];
         }
     }
 
+    static writeCell(baseCell, wsNew, columna, newRow) {
+        if (baseCell.t === 'd' && baseCell.w) {
+            wsNew[`${columna}${newRow}`] = {
+                v: baseCell.v,
+                t: baseCell.t,
+                w: baseCell.w,
+                z: 'dd/mm/yyyy' // Mantener el formato de fecha si existe
+            }
+        } else {
+            wsNew[`${columna}${newRow}`] = {
+                v: baseCell.v,
+                t: baseCell.t,
+                w: baseCell.w,
+            }
+        }
+}
+
     static formatDates(ws) {
         let lastRow = 6;
         // Formatear las fechas en las columnas específicas
-        while(ws[`${LETRA_FECHA_DESC}${lastRow}`]) {
+        while (ws[`${LETRA_FECHA_DESC}${lastRow}`]) {
             const fechaDescCell = ws[`${LETRA_FECHA_DESC}${lastRow}`];
             if (fechaDescCell && fechaDescCell.t === 'd') {
                 fechaDescCell.z = 'dd/mm/yyyy'; // Formato de fecha
@@ -302,7 +321,7 @@ class CompleteExcelInfo{
         }
     }
 
-    
+
 }
 
 module.exports = CompleteExcelInfo;

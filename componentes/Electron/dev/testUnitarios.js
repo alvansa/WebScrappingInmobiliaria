@@ -7,6 +7,7 @@ const {testTexto,testTextoArgs} = require('../../economico/testEconomico.js');
 const PjudPdfData = require('../../pjud/PjudPdfData.js');
 const ProcesarBoletin = require('../../liquidaciones/procesarBoletin.js');
 
+
 class testUnitarios{
     constructor(app,events,args,devMode=false){
         this.app = app;
@@ -109,11 +110,11 @@ class testUnitarios{
             await excel.writeData(casos,"Remates-6-junio");
 
         }else if(arg === 'testEconomicoPuppeteer'){
-            const fechaInicio = new Date("2025/05/22");
-            const fechaFin = new Date("2025/05/23");
-            const economico = new Economico(this.browser, fechaInicio, fechaFin);
-            const casos = await economico.getCases();
-            console.log(casos.map(caso => caso.toObject()));
+            const fechaInicio = new Date("2025/08/09");
+            const fechaFin = new Date("2025/08/10");
+            // Configuración
+            // console.log(casos.map(caso => caso.toObject()));
+
         }else if(arg === 'testPdfTesseract'){
             console.time("testPdfTesseract");
             const convertData = await this.processTeseract(this.args[1]);

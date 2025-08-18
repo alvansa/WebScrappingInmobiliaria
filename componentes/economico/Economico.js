@@ -5,7 +5,7 @@ const {BrowserWindow} = require('electron');
 const {delay,fakeDelay} = require('../../utils/delay');
 const {procesarDatosRemate} = require('./datosRemateEmol');
 const listUserAgents = require('../../utils/userAgents.json');
-const {simulateRandomMouseMovement} = require('../../utils/mouseMovement');
+const { simulateHumanBehavior } = require('../../utils/stealth');
 
 require('dotenv').config();
 
@@ -47,8 +47,12 @@ class Economico{
                 }else{
                     console.log("No se pudo obtener la descripción para el caso: ", caso);
                 }
+                // if (counter % 200 == 0) {
+                //     console.log("Terminando por ahora para test");
+                //     break;
+                // }
                 if(counter % 5 == 0){
-                    await fakeDelay(80, 240,true);
+                    await fakeDelay(30, 70,true);
                     await this.changeUserAgent();
                 }
             }
@@ -59,6 +63,7 @@ class Economico{
 
 
         }catch(e){
+            if (this.window && !this.window.isDestroyed()) this.window.destroy();
             console.log("Error en getCases: ", e);
             return [];
         }finally{
@@ -87,6 +92,7 @@ class Economico{
         this.window = new BrowserWindow({ show: true });
         await this.window.loadURL(url);
         this.page = await pie.getPage(this.browser, this.window);
+        await this.page.setViewport({ width: 1280, height: 800 });
     }
 
     async obtainDescription(){
@@ -112,7 +118,6 @@ async extractInfoPage() {
         console.error('Error parsing USER_AGENTS from .env, using default agents:', error);
         userAgents = defaultUserAgents;
     }
-    const randomIndex = Math.floor(Math.random() * userAgents.length);
     let customUA;
     let attempt = 0;
     let stopFlag = false;
@@ -121,6 +126,7 @@ async extractInfoPage() {
 
     while (attempt < this.maxRetries) {
         try {
+            const randomIndex = Math.floor(Math.random() * userAgents.length);
             customUA  = userAgents[randomIndex].userAgent;
             await this.page.setUserAgent(customUA);
             await this.navigateToPage(url);
@@ -171,6 +177,7 @@ async extractInfoPage() {
 async getInfoFromSingularPage(caso){
     let attemp = 1;
     while (attemp < this.maxRetries) {
+        await simulateHumanBehavior(this.page, 0.5, 0.5, 0.5, 0.5);
         try {
             // Navegar a la página
             await this.page.goto(caso.link, {
@@ -179,17 +186,10 @@ async getInfoFromSingularPage(caso){
             });
 
             // Esperar a que el elemento esté disponible
-            await this.page.waitForSelector('div#description p', { timeout: 5000 });
+            await this.page.waitForSelector('div[id*="desc"], div[class*="desc"]', { timeout: 5000 });
 
             // Extraer el texto
             const description = await this.page.$eval('div#description p', el => el.textContent);
-            // console.log(this.page.viewport())
-            // const duration = Math.random() * (4  - 2) + 2; 
-            // const range = Math.random() * (300  - 50) + 50;
-            // await simulateRandomMouseMovement(this.page,duration, range )
-            // console.log("Description: ", description);
-            // caso.description = description;
-
             return description;
         } catch (error) {
             if(error.response && error.response.status === 503){

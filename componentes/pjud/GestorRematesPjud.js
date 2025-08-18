@@ -2,14 +2,20 @@ const {app, BrowserWindow, ipcMain, dialog,electron} = require('electron');
 const pie = require('puppeteer-in-electron');
 const puppeteer = require('puppeteer-core');
 const { fakeDelay, delay } = require('../../utils/delay');
+// const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+// const puppeteerExtra = require('puppeteer-extra');
 
 const ConsultaCausaPjud = require('./consultaCausaPjud');
+
+// puppeteerExtra.use(StealthPlugin());
 
 class GestorRematesPjud{
     constructor(casos,event,mainWindow){
         this.casos = casos;
         this.event = event;
         this.mainWindow = mainWindow;
+        this.browser = null;
+        this.activeWindows = new Set();
     }
 
     async getInfoFromAuctions(){
@@ -39,6 +45,7 @@ class GestorRematesPjud{
             console.error("Error al obtener datos de los casos: ", error.message);
         }
     }
+
     async consultaCausa(caso) {
         const browser = await pie.connect(app, puppeteer);
         let window;
