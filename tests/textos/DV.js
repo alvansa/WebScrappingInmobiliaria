@@ -815,6 +815,842 @@ fecha y hora de emisión de este certificado.- En Alto Hospicio,   veintitrés  
 del año dos mil veinticuatro a las 15:35 PM.-   Certificado generado por PAZRE
 Pag: 1/1`;
 
+const dv993 = `CONSERVADOR DE BIENES RAÍCES DE
+CABRERO
+COPIA DE INSCRIPCION REGISTRO DE PROPIEDAD CON
+CERTIFICADOS
+COPIA AUTORIZADA DE INSCRIPCION
+CERTIFICO: Que, la copia precedente es idéntica a su original de COMPRAVENTA inscrito a
+fojas  1948,  Nº  1168  en  el  Registro  de  Propiedad  del  Conservador  de  Bienes  Raíces  a  mi
+cargo correspondiente al año 2021.- Doy Fe.- CABRERO, 05 de agosto del año 2025.-
+CERTIFICADO     DE     DOMINIO     VIGENTE,     HIPOTECAS     Y     GRAVAMENES,     DE
+INTERDICCIONES Y PROHIBICIONES DE ENAJENAR, LITIGIO Y BIEN FAMILIAR respecto
+de  la  Parcela  2-35,  de  una  superficie  de  5.104,55  metros  cuadrados,  que  proviene  de  la
+subdivisión del predio rural que corresponde a la Parcela N°2, de la Colonia Agrícola de Monte
+Águila,  denominado  actualmente  Chacra  May  May,  ubicada  en  la  ciudad  de  Cabrero,
+Provincia  de  Bío  Bío,  Región  del  Bío  Bío,  inscrito  a  fojas  1948,  Nº  1168  en  el  Registro  de
+Propiedad del Conservador de Bienes Raíces a mi cargo correspondiente al año 2021, que en
+copia autorizada precede:
+DOMINIO  VIGENTE:  CERTIFICO,  que  la  inscripción  de  compraventa  recaída  en  el  inmueble
+previamente singularizado, y que se encuentra inscrito a fojas 1948, Nº 1168 en el Registro de
+Propiedad  del  Conservador  de  Bienes  Raíces  a  mi  cargo  correspondiente  al  año  2021,  se
+encuentra VIGENTE a nombre de EMPRESA DE ARRIENDOS Y EQUIPOS, MAQUINARIAS
+Y CONTENEDORA DYD SpA.-
+HIPOTECAS  Y  GRAVAMENES:  Revisados  los  índices  respectivos  desde  el  23  de  Enero  de
+2013,   fecha   de   su   reinscripción   en   este   Conservador   de   Bienes   Raíces   hasta   hoy,
+CERTIFICO: No haber encontrado inscripciones vigentes. -
+PROHIBICIONES  E  INTERDICCIONES:  Revisados  los  índices  respectivos  durante  el  mismo
+Conservador de Bienes Raíces de  de Cabrero ,  05 Agosto de 2025
+Emito  con  firma  electrónica  avanzada  (ley  No19.799,  de  2002)  AA  de
+13/10/2006 de la Excma. Corte Suprema.-
+Certificado Nro 123456807858.- Verifique validez en  www.fojas.cl .-
+
+período, CERTIFICO: Haber encontrado CUATRO inscripciones vigentes:
+1)	EMBARGO,  inscrito  a  fojas  102,  Nº65  en  el  Registro  de  Prohibiciones  de  Conservador  de
+Bienes Raíces a mi cargo, correspondiente al año 2022, a favor de TESORERIA REGIONAL
+CONCEPCION. -
+2)	EMBARGO,  inscrito  a  fojas  103,  Nº66  en  el  Registro  de  Prohibiciones  de  Conservador  de
+Bienes Raíces a mi cargo, correspondiente al año 2022, a favor de TESORERIA REGIONAL
+CONCEPCION. -
+3)	EMBARGO, inscrito a fojas 153 vta., Nº91 en el Registro de Prohibiciones de Conservador
+de  Bienes  Raíces  a  mi  cargo,  correspondiente  al  año  2022,  a  favor  de  TESORERIA
+REGIONAL CONCEPCION. -
+4)	EMBARGO, inscrito a fojas 1332, Nº194 en el Registro de Prohibiciones de Conservador de
+Bienes Raíces a mi cargo, correspondiente al año 2023, a favor de TESORERIA REGIONAL
+CONCEPCION. -
+LITIGIOS:  CERTIFICO,  que  al  margen  de  la  inscripción  de  dominio  citada  NO  EXISTE
+anotación respecto a Litigios ni a Juicios pendientes, no obstante, los embargos trabados por
+procedimiento   tributario   administrativos   mencionados   en   el   acápite   Prohibiciones   e
+interdicciones de esta certificación. -
+A todo lo aquí certificado, Doy fe, en Cabrero, 05 de agosto del año 2025.-
+Conservador de Bienes Raíces de  de Cabrero ,  05 Agosto de 2025
+Emito  con  firma  electrónica  avanzada  (ley  No19.799,  de  2002)  AA  de
+13/10/2006 de la Excma. Corte Suprema.-
+Certificado Nro 123456807858.- Verifique validez en  www.fojas.cl .-
+
+t
+Ernesto Mirunda
+Córdova
+\.
+NOTARIO Y
+CONSERi'ADOR
+C
+A B
+R E R O
+fojasmilnovecientoscuarentayocho(1948)
+t
+Cabrero,
+año dos
+cuatro
+(4)
+de
+Novir>mbre
+del
+{202L)
+.-
+Por
+de fecha
+rni L veintiuno
+escr'tura
+públíca
+veinticuaLrr
+(24)
+de
+Junio def año dos
+mil veintiuno
+(2027),
+otorqada ante
+don Carlos
+Alberto Miranda
+Jíménez.
+Notalio
+púb-ico
+titular de Ccncepción,
+*QUTLODRjA¡{
+Y FERNA¡IDEZ LIMITADA",
+sociedad d'-
+giro
+ínmobíliario, rol
+único tribu:ario
+número
+setenta
+y
+seis
+millones
+ocr'-ocientos ochenta
+y
+dos
+mil
+trescientos
+noventa
+y
+dos
+grión
+ocho
+(76.
+882.392-8)
+,
+representada
+según se
+acreditó en dicha
+escritura,
+por
+don
+FRANCISCO
+.-AVIER GUTIERREZ
+SANDOVAL,
+cédula nac-onal- de identid¿d número
+doce millones seiscientos rioventa
+y
+ocho
+nif
+croscientos
+veintir.no
+guion
+seis
+(11.698.22I-6),
+ingeniero
+comercial,
+casado
+y
+separado
+totalmente de bienes, seqún se
+acreditó en
+dicha escritura, ambos con
+domi,:ilio
+err calle Santa
+María número
+ErrtbiteÉc ;
+Fis
+-
+(sr'1c
+ri-q
+'r>
+$4
+I
+rui
+¿:j
+4¡6
+2f.ZL.
+Eruto¿<bo
+i'¡s-
+C{r{Ao
+o
+Éinr
+{G,
+ü..{g
+bb
+th
+_T;A
+Z6L¿=
+co
+N"1168.-
+2
+REP
+3
+DYD
+DE
+8
+Y
+-A-
+Y
+T
+I
+I
+I
+I
+Y
+Ea;t¡g¡r¡p-t->C
+)
+t^{S-
+c{¿"fC
+\<3
+rra
+,
+*oi
+q
+r't,
+/
+rc
+1nzz-
+C
+"nb-
+(qo
+,
+in
+s¿ri
+-
+:'
+t
+Jo
+o,
+lo lr3
+/332,
+¡'
+/or,Jr
+,
+A¡;
+7Dz3,
+ü
+11
+12
+t3
+14
+15
+16
+17
+1B
+19
+20
+21
+22
+23
+24
+25
+¿6
+27
+28
+29
+30
+I
+cien--o
+doce
+(11),
+Lomas
+(772),
+Casa
+San Sebastián,
+vendió,
+ceció
+y
+transfirió
+DE ARRIEI{DOS Y
+nurlero once
+Cc,ncepción;
+a
+EMPRESA
+EQUIPOS, t'fAQUIli[ARlA,S Y
+SPA/
+del-
+giro
+de su
+rol
+único t
+rrbutario
+CONTENEDORJA DYD
+denominaciói:,
+número
+se,enta
+y
+seis miflones
+t
+
+s etecientos
+novecientos
+{-l^ 7)1
+\
+i
+v.
+¡4 /
+aceptÓ
+veintisrere
+mr
+guron
+U1V L I,
+rd-d c
+114ñ\
+I ñ^i \l-
+'
+i
+.-^
+-
+*,
+:^^
+^l ^-^
+LlUl::d \
+L_CJ
+¡L:U1j
+5_e_e
+2
+3
+v
+933-1)
+,
+par:a
+¡ir: ¿n
+-
+ññrÁ
+vu
+l
+r
+L!rrI !v/
+repta€sentante,
+rii
+cha
+es c ri
+tura
+DIN-AYARCA
+EURGOS,
+iceni:iciad
+número
+adqui :ró
+su
+acreCi
+-ó
+en
+4
+5
+6
+7
+B
+o
+según
+don
+qo
+VICTOR
+HLT'O
+cédula nacicnal
+de
+once m-I-on'-s
+c a:roci-:r:os
+:,ov.]nt-a
+v
+cuatro
+nueve
+casado,
+corresponde
+lr\ r'!a I ¡
+\'/ t
+Dos
+(2)
+,
+cada
+Altos
+de Ch_
+Chiguayante;
+l¿
+Treinta
+y
+Cinco
+;iento
+l-::ernla
+mil
+cuatr
+tcienros
+cai-orce
+11 AQA A1\_A,
+-
+-,t
+Incen.ero
+amlccs
+cr
+i]
+dcmicilic
+en
+)i
+10
+11
+12
+L,la
+j/ante
+¡
+Parce]-a
+comuna de
+13
+14
+t5
+tb
+17
+1B
+19
+20
+zt
+22
+23
+24
+25
+26
+¿t
+28
+30
+de
+la
+subdivisrl'-r
+Dos
+gluion
+(2-35)
+,
+eüe
+pror,'iene
+,..ia
+I
+_
+rr^ i-
+-,,-al
+CU-^
+Pai:ce
+1a núme
+ro dos
+AErlcoLa
+de
+Mcn:e
+acrualmenre
+Chacra
+en ia
+ciudaC
+cie
+de
+Blo
+Bio,
+Región
+Parcela
+Dos
+grrion
+(2-35),
+i-ien:
+una
+fT--
+cier-
+-o
+luat:o
+ts
+1^r'
+-tr\
+,J.lu+rJJ)
+cr nrri anlac
+--:Ys!rirrvr
+en
+cSro
+a .l
+a
+Colc
+ria
+! ,-
+Agur"La,
+denonr:¿:c
+May Vay,
+rbic:
+ja
+Cablero,
+Provin.
+a
+del tsic Bio.
+-
+_a
+Treinta
+y
+Cinc:
+<r¡narf i ¡i a Aa
+C
+:CC
+coma
+cincuenta
+v
+^-'^^^t ^
+!^^
+-..1pd rLcid
+LruD
+q
+u I
+1 O \
+^ ^L
+^ ^
++
+-
+JóJ
+y
+Ocnen:a
+!
+)
+Cf ]ICC
+metros
+cuadrado:,
+,
+con las
+meCidas
+'!
+ces l tces
+:
+NORTE,
+coma
+ochenta
+y
+rreve
+(0,89)
+nretrrs
+ccn
+n
+trei:ta
+'¡
+ociro
+(2-
+uno
+cc)ma c'rcuonta
+y
+
+2
+3
+4
+5
+6
+7
+8
+9
+Ernesto Miranda
+Córdova
+NOTARIO
+Y
+CONSERI.ADOR
+C
+A B R E
+R O
+fojasmilnovecientoscuarentaynueve(1949)
+seis
+(81,56)
+metros con
+parcela
+dos
+guion
+treinca
+y
+nueve
+(2-39);
+SIIR, en
+ochenta
+y
+dos coma cuarenta
+y
+seis
+(82,46)
+metros
+con
+parcela
+dos
+guíon
+treinta
+y
+uno
+(2-3L);
+ORIENTE,
+en
+treint.a
+y
+uno coma cuarenta
+y
+cinco
+(31,45)
+metros con
+parcela
+dos
+gtuion
+cincuenta
+y
+tres
+(2-53)
+y
+treinta
+y
+siete coma cincuenta
+y
+cuatro
+(37,54)
+metros con
+parcela
+dos
+guion
+cincuenta
+y
+dos
+(2-52);
+y
+PONIENTE, en sesenta
+y
+ocho coma
+noventa
+y
+nueve
+metros con
+parcela
+dos
+guion
+treinta
+y
+cuatro
+(2-
+34).-
+Los
+antecedentes relativos a
+la
+subdivisión,
+que
+dio oriqen a la
+Parcela
+Dos
+guion
+freinta
+y
+Cinco
+(2-
+35),
+se encuentran
+agregados al final
+del
+Regiscro de Propiedad del
+Conservador
+de Bienes Raíces de
+Cabrero, ba¡o el nrimero noventa
+y
+tres
+(93)
+correspondíente
+.al
+año dos
+mil
+diecinueve
+(20L9).-
+El titulo de
+dominio,
+a mayor extensión,
+rofa
+inscrito
+a
+fojas miJ' cuatrocientos
+uno
+(1.401)
+wuelta, número
+ochocientos
+veintitrés
+(823),
+efl el
+Registro
+de
+Propiedad del
+Conservador
+de Bienes
+Raices de Cabrero, correspondiente al-
+año dos mi1
+Cieciocho
+(2018)._
+El
+precio
+de
+ia
+compraventa
+fue la
+suma
+10
+11
+12
+13
+14
+15
+16
+17
+,18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+
+total de
+trece
+miflones de
+pesos
+(
+$13.
+000 . 000
+) ,
+¡
+agados en
+1a forma
+señalada
+en
+la
+escritura.
+-
+La
+propiedad
+rol ma.-riz número dosc.Lentos
+seis
+guion
+vei rte
+QA6-24)
+cle
+la
+comuna de Cabrer
+,
+se encuentra
+¿rfecta
+al
+pago
+Raíces
+año dos
+el segundo
+ve ntiuno
+semestre del
+(2027),
+según
+de contr
+-bucrones
+a
+los l3ienes
+para
+mi1
+certificado de
+a'-alúo
+f
+scaf
+,
+registra
+deuda
+cert i
+ficado
+tenido a
+por
+tal
+tenido a
+)
+10
+11
+12
+13
+14
+15
+to
+tt
+18
+19
+20
+21
+22
+24
+25
+26
+27
+28
+la vista;
+concepto,
+la vista.
+-
+yno
+según
+El ro- de avalúo en trámite
+asiqnado
+fa
+y
+Cínco
+Doy
+Parcela Dos
+gruion
+Treinta
+doscientos
+seis
+guion
+ochocientos
+veintiséis
+(206-326)
+de
+fa
+comL,na de
+Cabrero, segú.i
+certificado de
+asignación de
+roles de avalrio
+en
+trámite, emitidc
+por
+eI Servicio de
+Impuestos
+Inte nos, Lenido a
+la
+vísta.- Requierl
+y
+r,o firma
+esta
+inscripción don
+Francisco Gutiérrez.
+-
+(2-35)
+,
+es el
+,rúmero
+/c:¡n\
+-
+/t,vY)-
+I
+z
+3
+4
+A
+o
+7
+B
+ó
+Qa
+UJ
+¿-
+NOTARI
+N
+Dr'
+*
+.L
+B
+R
+É
+R
+s
+JUDiC
+IAL
+30`;
+
 const dv212 = `COPIA DE INSCRIPCION
 
 CERTIFICO: Que la inscripción adjunta de fojas 15.165 N°7.166 del Registro
@@ -1264,6 +2100,115 @@ Documento incorpora Firma
 Electronica Avanzada
 Código de Verificación: cpv16b042f-0`;
 
+const dv9404 = `Registro de Propiedad
+Copia con Vigencia
+Carátula 24144135
+Morandé 440
+Santiago
+Teléfono:
+2 2390 0800
+www.conservador.cl
+info@conservador.cl
+El Conservador de Bienes Raíces de Santiago certifica que la inscripción de fojas
+12174 número 17490 correspondiente al Registro de Propiedad del año 2016,
+adjunta al presente documento, está conforme con su original y se encuentra
+vigente al día 8 de agosto de 2025.
+
+Los derechos registrales correspondientes a esta actuación ascienden a la suma
+de $ 4600.
+asilva
+Santiago, 11 de agosto de 2025.
+Código de verificación: cpv1706907-0
+Documento incorpora firma electrónica avanzada conforme a Ley N°19.799.
+La vigencia de la firma electrónica en el documento, al igual que la integridad
+y autenticidad del mismo, deben ser verificados en www.conservador.cl,
+donde estará disponible por 90 días contados desde la fecha de su emisión.
+Documento impreso es sólo una copia del documento original.
+www.conservador.cl
+página 1 de 2
+
+Nº17490
+PV/GO/HG
+C: 10573947
+COMPRAVENTA
+TRANSPORTES
+KIZUNA LIMITADA
+A
+INMOBILIARIA
+AMÉRICO
+VESPUCIO 1700
+SpA
+REP: 13063
+B: 1620310
+F:
+
+
+Santiago, diecisiete de febrero del año dos mil
+dieciséis.-  Doña  INMOBILIARIA  AMÉRICO  VESPUCIO
+1700  SpA,  de  este  domicilio,  es  dueña  de  la
+propiedad  ubicada  en  Circunvalación  Américo
+Vespucio    número    mil    setecientos,    que
+corresponde al sitio número ciento doce A de la
+subdivisión  del  sitio  número  ciento  doce  del
+plano  respectivo,  Comuna  de  Conchalí,  Región
+Metropolitana, encerrado dentro del polígono E-
+B-C-F-E, que deslinda: NORTE, en setenta y dos
+coma  sesenta  y  siete  metros  con  calle  local
+Américo  Vespucio;  SUR,  en  setenta  y  tres  coma
+noventa  y  cuatro  metros  con  pasaje  Barcelona;
+ORIENTE, en cuarenta y uno coma treinta y tres
+metros  con  calle  Ernesto  Ried;  PONIENTE,  en
+cuarenta y uno coma veintinueve con Lote ciento
+doce B.- La adquirió por compra a la sociedad
+TRANSPORTES KIZUNA LIMITADA, de este domicilio,
+según  escrituras  de  fechas  treinta  y  uno  de
+diciembre  del  año  dos  mil  quince  y  diez  de
+febrero del año dos mil dieciséis, otorgadas en
+la  notaría  de  esta  ciudad,  de  doña  Valeria
+Ronchera  Flores, Repertorios  Números  13568  y
+1314, respectivamente  siendo  la  última  de
+rectificación y complementación.- El precio de
+la  compraventa  es  de  CIENTO  SETENTA  Y  CUATRO
+MIL  SETECIENTAS  CATORCE  UNIDADES  DE  FOMENTO,
+que  se  paga  en  la  forma  y  condiciones
+establecidas  en  la  escritura.-  El  título
+anterior  está  a  Fojas  64885  Número  58911  del
+año   2004.-   Requirente:   Jorge   Torres   S.-
+FRANCISCO BARRIGA V.
+
+Fojas   12174
+página 2 de 2
+Documento incorpora Firma
+Electronica Avanzada
+Código de Verificación: cpv1706907-0`;
+
+const dv6144 = `COPIA DE INSCRIPCION
+REGISTRO DE PROPIEDAD
+El  Conservador  que  suscribe  certifica  que  la  inscripción
+adjunta, y que rola a fojas8688, nº7304, año2015, de
+este  registro,  está  conforme  con  su  original,  y  que  la
+inscripción que consta en ella se encuentra:VIGENTE.-
+San Miguel, 23 de Febrero de 2024.-
+c: 2024026462
+Documento emitido con Firma Electrónica Avanzada.-
+Ley Nº 19.799.- Auto Acordado de la Excma. Corte Suprema de Chile.
+Verifique su validez en www.veridoc.cl.
+Verifique con el código W7OR-1CW1H-28
+
+
+
+
+
+Teléfono  : 554 6645             Llano Subercaseaux 2585
+San Miguel            Fax         : 554 5574
+www.conservadorsanmiguel.cl
+secretaria@conservadorsanmiguel.cl
+C.:
+Con las siguientes Notas Marginales  :
+2024026462
+CONSOLIDACION: Por haberse cancelado el usufructo que gravaba la del centro, se consolida el
+dominio pleno a favor del titular. San Miguel 29 de Agosto de 2016.`;
+
 module.exports = {
     dv356,
     dv23039, 
@@ -1280,5 +2225,8 @@ module.exports = {
     dv11840,
     dv10803,
     dv100,
-    dv1602
+    dv1602,
+    dv9404,
+    dv6144,
+    dv993
     };

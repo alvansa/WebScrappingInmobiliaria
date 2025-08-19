@@ -4,33 +4,28 @@ const Caso = require('../caso/caso.js');
 const { fakeDelay } = require('../../utils/delay.js');
 // const CacheTribunales = require('./cacheTribunales.js');
 
-
-const localTribunales = new Map();
-const cacheInitialized = false;
-const CACHE_KEY = 'tribunales_cache_v1';
-
-async function getDatosRemate(fechaHoy, fechaInicioStr, fechaFinStr, maxRetries) {
-    try {
-        // Obtiene los casos de la pagina de "economico.cl"
-        let caso;
-        const casos = await getPaginas(fechaHoy, fechaInicioStr, fechaFinStr);
-        for (caso of casos) {
-            pagina = caso.link;
-            await fakeDelay(2, 5);
-            const description = await getRemates(pagina, maxRetries);
-            const normalizedDescription = normalizeDescription(description);
-            caso.texto = normalizedDescription;
-        }
-        // Procesa los remates a partir del texto obtenido.
-        for (let caso of casos) {
-            procesarDatosRemate(caso);
-        }
-        return casos;
-    }
-    catch (error) {
-        console.error('Error al obtener resultados en el controlador:', error.message);
-    }
-}
+// async function getDatosRemate(fechaHoy, fechaInicioStr, fechaFinStr, maxRetries) {
+//     try {
+//         // Obtiene los casos de la pagina de "economico.cl"
+//         let caso;
+//         const casos = await getPaginas(fechaHoy, fechaInicioStr, fechaFinStr);
+//         for (caso of casos) {
+//             pagina = caso.link;
+//             await fakeDelay(2, 5);
+//             const description = await getRemates(pagina, maxRetries);
+//             const normalizedDescription = normalizeDescription(description);
+//             caso.texto = normalizedDescription;
+//         }
+//         // Procesa los remates a partir del texto obtenido.
+//         for (let caso of casos) {
+//             procesarDatosRemate(caso);
+//         }
+//         return casos;
+//     }
+//     catch (error) {
+//         console.error('Error al obtener resultados en el controlador:', error.message);
+//     }
+// }
 
 //Funcion que procesa los datos de un remate y obtiene la informacion necesaria
 function procesarDatosRemate(caso) {
@@ -577,111 +572,126 @@ function getTipoPropiedad(data) {
     return propertyType;
 }
 
-function getTipoDerecho(data) {
+function getTipoDerecho(data, isDebug = false) {
     const normalizedData = data.toLowerCase();
     // Primero revisa si hay una propiedad con derecho de usufructo, nuda propiedad o bien familiar
     // de manera mas simple.
-    const regexForeclosure = /(?:posesión|\busufructo\b|nuda propiedad|bien\s*familiar)/i;
-    const tipoDerecho = normalizedData.match(regexForeclosure);
-    const bienFamiliar = checkBienFamiliar(data, tipoDerecho);
-    if (tipoDerecho && bienFamiliar.isBienFamiliar) {
-        return bienFamiliar.text;
-    }
-    // Si no encuentra nada, busca con una lista de posibles maneras de escribir derecho.
-    const multipleRegexForeclosures = [
-        /derechos\s*correspondientes\s*a\s*(\d{1,3}(?:,\d{1,8})?)%/gi,
-        /(\d{1,3}(?:,\d{1,8})?)%\sde\slos\sderechos/gi,
-        /derechos\s*(?:[a-zA-Zñáéíóú,]*\s){1,50}(\d{1,2}(?:,\d{1,8})?)%/gi,
-    ];
-    let foreclosure = [];
-    for (let regex of multipleRegexForeclosures) {
-        const foreclosure = normalizedData.match(regex);
-        if (foreclosure) {
-            foreclosure.push(foreclosure);
+    const derechoMatch = findBasicDerecho(normalizedData)
+    if(derechoMatch){
+        
+        switch(derechoMatch){
+            case 'bien_familiar':
+                const bienFamiliarStatus = checkBienFamiliar(normalizedData)
+                if(bienFamiliarStatus){
+                    return 'bien familiar';
+                }
+                break
+            case 'usufructo':
+                const usufructoStatus = checkUsufructo(normalizedData)
+                if(usufructoStatus){
+                    return 'usufructo';
+                }
+                break
+            default:
+                return derechoMatch.replace("_",' ');
+                break
         }
     }
-    // Luego de agregar todos los posibles derechos, revisa si hay alguno que tenga un porcentaje.
-    // Si hay uno, lo devuleve.
-    if (foreclosure.length > 0) {
-        const foreclosurePercentage = obtainFinalPercentage(derechos);
-        return foreclosurePercentage;
+    const derechoConPorcentaje = findDerechoWithPercentage(normalizedData);
+    if (derechoConPorcentaje) {
+        return derechoConPorcentaje;
     }
-    const regexDerechoSinPorcentaje = [
-        /derechos\s*(:?sobre|en)\s*(:?la|el)?\s*(:?propiedad|departamento|inmueble)/gi
-    ]
-    for (let regex of regexDerechoSinPorcentaje) {
-        const derechoSinPorcentaje = normalizedData.match(regex);
-        if (derechoSinPorcentaje) {
-            return "derecho";
-        }
+    
+    const derechoSimple = findSimpleDerecho(normalizedData);
+    if (derechoSimple) {
+        return "derecho";
     }
     return null;
 }
 
-function checkBienFamiliar(text,tipoDerecho){
-    // console.log("Texto en el tipo de derecho: ", text); 
-    if(!tipoDerecho) {
-        return {
-            text: tipoDerecho,
-            isBienFamiliar: true
-        };
-    }
-    const regexNotValidDerecho = /las\s*partes\s*declaran\s*que\s*a\s*la\s*fecha\s*de\s*esta\s*escritura,\s*no\s*existe\s*ni\s*conocen\s*que\s*actualmente\s*se\s*encuentre\s*entramitacion\s*o\s*en\s*proceso\s*de\s*inscripcion,\s*ningun\s* gravamen\s*o\s*derecho\s*real\s*de\s*usufructo/gi;
-    if (text.match(regexNotValidDerecho)) {
-        return {
-            text: tipoDerecho,
-            isBienFamiliar: false
-        };
-    }
-    if(!tipoDerecho.includes("bien familiar") && !tipoDerecho.includes("bienfamiliar")) {
-        return {
-            text:  tipoDerecho[0],
-            isBienFamiliar: true
-        };
-    }
+function findBasicDerecho(text){
+    const regex = /(posesi[óo]n|\busufructo\b|nuda\s+propiedad|bien\s*familiar)/i;
+    const match = text.match(regex);
 
-    const regexNotBienFamiliar = [
+    if (!match) return null;
+
+    const tipo = match[0].toLowerCase()
+        .replace(/\s+/g, '_')
+        .replace('bienfamiliar', 'bien_familiar');
+
+    return tipo;
+
+}
+
+function checkBienFamiliar(text) {
+    const normalizedText = text.toLowerCase();
+
+    const exclusionRegexes = [
         /v\.-\s*bien\s*familia.*no\s*registra\s*anotacione?s?/i,
         /no\shay\sconstancia\sde\shaberse\sdeclarado\sbien\sfamiliar/gi,
         /no\s*se\s*encuentran?\s*afectos?\s*a\s(?:la\s*)*declaracion\s*de\s*bien\s*familiar/i,
         /no\s*hay\s*constancia\s*de\s*haberse\s*anotado\s*declaracion\s*de\s*bien\s*familiar/i,
         /a\s*la\s*expedicion\s*del\s*presente\s*certificado\s*no\s*consta\s*marginalmente\s*la\s*declaracion\s*de\s*bien\s*familiar/i,
-        /no\s*(?:existe|tiene|consta)\s*anotaci[o|ó].*(?:sobre|de)\s*declaraci[o|ó]n\s*de\s*bien\s*familiar/i,
+        /no\s*(?:existe|tiene|consta)\s*anotaci[oó]n.*(?:sobre|de)\s*declaraci[oó]n\s*de\s*bien\s*familiar/i,
         /no\s*registra\s*anotacion.*de\s*bien\s*familiar/i,
-        /no\s*existe\s*declaraci[o|ó]n\s*de\s*bien\s*familiar/i,
+        /no\s*existe\s*declaraci[oó]n\s*de\s*bien\s*familiar/i,
+        /las\s*partes\s*declaran\s*que\s*a\s*la\s*fecha\s*de\s*esta\s*escritura,\s*no\s*existe\s*ni\s*conocen\s*que\s*actualmente\s*se\s*encuentre\s*entramitacion\s*o\s*en\s*proceso\s*de\s*inscripcion,\s*ningun\s*gravamen\s*o\s*derecho\s*real\s*de\s*usufructo/gi
     ];
-    for(let regex of regexNotBienFamiliar) {
-        const bienFamiliar = text.match(regex);
-        if (bienFamiliar) {
-            return {
-                text:  tipoDerecho,
-                isBienFamiliar: false
-            };
+
+    for (const regex of exclusionRegexes) {
+        if (regex.test(normalizedText)) {
+            return false;
         }
     }
-    const regexBienFamiliar = [
+
+    const inclusionRegexes = [
         /esta\s*declarado\s*bien\s*familiar/gi,
         /declaracion\s*de\s*bien\s*familiar/gi,
         /le\s*afecta\s*bien\s*familiar/gi,
         /bien\s*familiar\s*declarado/gi,
-        /bien\s*familiar.*declaracion\s*:\s*definitiva/gi,
+        /bien\s*familiar.*declaracion\s*:\s*definitiva/gi
     ];
-    for(let regex of regexBienFamiliar) {
-        const bienFamiliar = text.match(regex);
-        if (bienFamiliar) {
-            return {
-                text:  "bien familiar",
-                isBienFamiliar: true
-            };
+    for (const regex of inclusionRegexes) {
+        if (regex.test(normalizedText)) {
+            return true;
         }
     }
+    return false;
+}
 
+function checkUsufructo(text){
+    const isCancelled = text.toLowerCase().includes('por haberse cancelado el usufructo');
+    if(isCancelled){
+        return false;
+    }else{
+        return true;
+    }
 
-    return {
-        text: "bien familiar",
-        isBienFamiliar: false
-    };
+}
+
+function findDerechoWithPercentage(text) {
+    const percentageRegexes = [
+        /derechos\s*correspondientes\s*a\s*(\d{1,3}(?:,\d{1,8})?)%/gi,
+        /(\d{1,3}(?:,\d{1,8})?)%\s*de\s*los\s*derechos/gi,
+        /derechos\s*(?:[a-zñáéíóú,]*\s){1,50}(\d{1,2}(?:,\d{1,8})?)%/gi
+    ];
     
+    for (const regex of percentageRegexes) {
+        const match = text.match(regex);
+        if (match) {
+            return obtainFinalPercentage(match);
+        }
+    }
+    
+    return null;
+}
+
+/**
+ * Encuentra derechos simples sin porcentaje
+ */
+function findSimpleDerecho(text) {
+    const simpleDerechoRegex = /derechos\s*(:?sobre|en)\s*(:?la|el)?\s*(:?propiedad|departamento|inmueble)/gi;
+    return simpleDerechoRegex.test(text);
 }
 
 function obtainFinalPercentage(foreclosures) {
@@ -984,7 +994,7 @@ function convertirANombre(number) {
     }
 }
 module.exports = {
-    getDatosRemate, testUnico, procesarDatosRemate,
+    testUnico, procesarDatosRemate,
     getAnno,
     getCausa,
     getCausaVoluntaria,

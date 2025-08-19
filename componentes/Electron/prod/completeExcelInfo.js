@@ -20,6 +20,7 @@ const LETRA_FECHA_REM = 'F';
 const LETRA_CAUSA = 'J';
 const LETRA_JUZGADO = 'K';
 const LETRA_PARTES = 'O';
+const LETRA_PORCENTAJE = 'AM';
 
 const COLUMNAS_EXCEL = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z','AA', 'AB', 'AC', 'AD', 'AE', 'AF', 'AG', 'AH', 'AI', 'AJ', 'AK', 'AL', 'AM', 'AN', 'AO', 'AP', 'AQ'];
 
@@ -221,7 +222,7 @@ class CompleteExcelInfo{
                     if(matchedJuzgado){
                         console.log(`Causa repetida: ${causa} fila base: ${actualRowBase} fila nueva: ${lastRowNew}`);
                         findedCausas.push({ causa: causa, baseLine: actualRowBase, newLine:lastRowNew });
-                        // break;
+                        break;
                     }
                 }
                 actualRowBase--;
@@ -247,20 +248,20 @@ class CompleteExcelInfo{
     static copyRowFromBaseToNew(wsBase, wsNew, baseRow, newRow) {
         COLUMNAS_EXCEL.forEach(columna => {
             const baseCell = wsBase[`${columna}${baseRow}`];
-            if (!baseCell) {
-                return;
-            }
             if (!COlUMNAS_MANTENER.includes(columna)) {
-                if(newRow <= 6){
-                    console.log(`Columna ${columna} no está en las columnas a mantener`);
-                }
                 if (columna == 'H') {
+                    let text = '';
                     // console.log("Escribiendo fila ", newRow)
+                    const actualValueHCell = wsNew[`H${newRow}`];
                     const BColumn = wsBase[`B${baseRow}`];
                     const EColumn = wsBase[`E${baseRow}`];
                     const HColumn = wsBase[`H${baseRow}`];
+                    const GColumn = wsBase[`G${baseRow}`];
+                    if(actualValueHCell){
+                        text += actualValueHCell.v + ' ';
+                    }
                     //Agregar la columna G de Ocupacion
-                    let text = 'Ya aparecio(';
+                    text += 'Ya aparecio(';
                     // let text = '';
                     if (BColumn) {
                         text += BColumn.v + ' ';
@@ -269,14 +270,22 @@ class CompleteExcelInfo{
                         text += EColumn.v + ' ';
                     }
                     if (HColumn) {
-                        text += HColumn.v;
+                        console.log(HColumn);
+                        text += HColumn.w;
+                    }
+                    if(GColumn){
+                        text += GColumn.v;
                     }
                     text += ')';
+                    console.log('Escribiendo columna ',newRow);
                     wsNew[`H${newRow}`] = {
                         v: text,
                         t: 's',
                     }
-                }else{
+                }else if(baseCell){
+                    //Hay que agregar que si en la celda antigua habia precio minimo revisarlo
+                    // Revisar porque el minimo se escribe en la columna Z, pero si ya habia uno anterior se escirbe en la AA 
+                    // y otro anterior en la AB.
                     this.writeCell(baseCell, wsNew, columna, newRow);
                 }
 
@@ -317,6 +326,13 @@ class CompleteExcelInfo{
             if (fechaRemCell && fechaRemCell.t === 'd') {
                 fechaRemCell.z = 'dd/mm/yyyy'; // Formato de fecha
             }
+
+            const percentajeCell = ws[`${LETRA_PORCENTAJE}${lastRow}`];
+            if(percentajeCell){
+                percentajeCell.t = 'n';
+                percentajeCell.z = '0%';
+            }
+
             lastRow++;
         }
     }

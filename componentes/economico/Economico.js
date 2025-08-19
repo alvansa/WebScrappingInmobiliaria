@@ -232,9 +232,11 @@ async processPage(startDate,endDate,SELECTORS){
 
         for (let element of bloqueCasos) {
             const timeElement = element.querySelector('time.timeago');
-            const dateTimeStr = timeElement ? timeElement.getAttribute('datetime') : null;
+            let dateTimeStr = timeElement ? timeElement.getAttribute('datetime') : null;
+            //El tiempo en Emol aparece con formato => "YYYY-MM-DD"
 
             if (dateTimeStr) {
+                dateTimeStr = dateTimeStr.replace(/-/g,'/');
                 let announcementDate = new Date(dateTimeStr);
 
                 // await logDesdePagina(`fecha actual ${announcementDate} fecha inicio ${fechaInicioDate} y deberia parar ${announcementDate < fechaInicioDate} `);

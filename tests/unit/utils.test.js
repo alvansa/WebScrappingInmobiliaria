@@ -145,4 +145,10 @@ describe('convertWordToNumbers',()=>{
         const result = convertWordToNumbers(numberText);
         expect(result).toEqual(9759327);
     });
+
+    test('Anno con tildes',()=>{
+        const numberText = 'año dos mil dieciséis';
+        const result = convertWordToNumbers(numberText);
+        expect(result).toEqual(2016);
+    });
 });

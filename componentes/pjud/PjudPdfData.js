@@ -259,7 +259,7 @@ class PjudPdfData {
 
     
 
-    obtainTipoDerecho(normalizedInfo){
+    obtainTipoDerecho(normalizedInfo, isDebug = false){
         if (regexMutuoHipotecario.exec(normalizedInfo)) {
             // Si el texto es un mutuo hipotecario no se puede obtener claramente si es un derecho o no
             return;
@@ -272,7 +272,7 @@ class PjudPdfData {
                     continue;
                 }
             }
-            const tipoDerecho = getTipoDerecho(text);
+            const tipoDerecho = getTipoDerecho(text, isDebug);
 
             if (tipoDerecho) {
                 return tipoDerecho;
@@ -285,8 +285,10 @@ class PjudPdfData {
     //Busca el anno de compra del inmueble
     obtainBuyYear(texto,debug= false) {
         //Busca el anno por "adquirio por compra"
+        // debug  = true;
         let anno = this.obtainYearForm1(texto);
         if(anno) {
+            consoleDebug(debug, `anno encontrado por forma 1: ${anno}`);
             return anno;
         }
         //Busca el anno por "con fecha"
@@ -297,16 +299,19 @@ class PjudPdfData {
         //Busca el anno por "registro de propiedad del año".
         anno = this.obtainFromRegistroPropiedad(texto);
         if(anno){
+            consoleDebug(debug, `anno encontrado por registro de propiedad: ${anno}`);
             return anno;
         }
         //Busca el anno por Conservador
         anno = this.obtainFromConvervador(texto);
         if(anno){
+            consoleDebug(debug, `anno encontrado por conservador: ${anno}`);
             return anno;
         }
         //Busca el anno por "inscripcion al año"
         anno = this.obtainYearFromInscripcion(texto);
         if(anno){
+            consoleDebug(debug, `anno encontrado por inscripcion: ${anno}`);
             return anno;
         }
         return null;
@@ -340,6 +345,12 @@ class PjudPdfData {
         }
         const endIndex = endText.index;
         newText = newText.substring(0, endIndex)
+        //Existen casos donde en la inscripcion aparecen dos annos, separados por un "y", en ese caso se toma el primero.
+        if(newText.includes("y")){
+            const parts = newText.split("y");
+            return convertWordToNumbers(parts[0].trim());
+
+        }
         anno = convertWordToNumbers(newText);
         return anno;
     }
@@ -371,10 +382,11 @@ class PjudPdfData {
 
         const registroRegex = /registro\s*(?:de)?\s*propiedad(?:es)?\s*(?:a\s*mi\s*cargo,?\s*)?(?:del?\s*)?(?:correspondiente\s*al\s*)?(?:a(?:n|ñ|fi)o\s*)?((\d{4}|\d{1,3}(\.\d{3})*))/i;
         let registro = texto.match(registroRegex);
+        
         if (registro != null) {
             return registro[1];
         }
-        const regexAnnoParentesis = /registro\s*(?:de)?\s*propiedad(?:es)?\s*(?:del?\s*|a\s*mi\s*cargo,?\s*)?(?:correspondiente\s*al\s*)?(?:a(?:n|ñ|fi)o\s*)?.*\((\d{1,})\)/i;
+        const regexAnnoParentesis = /registro\s*(?:de)?\s*propiedad(?:es)?\s*(?:del?\s*|a\s*mi\s*cargo,?\s*)?(?:correspondiente\s*al\s*)?(?:a(?:n|ñ|fi)o\s*)?.{1,30}\((\d{1,})\)/i;
         registro = texto.match(regexAnnoParentesis);
         if (registro != null) {
             return registro[1];
@@ -1186,6 +1198,12 @@ class PjudPdfData {
 function sendToRenderer(window,msg){
     if(window && !window.isDestroyed()){
         window.webContents.send("electron-log", msg);  
+    }
+}
+
+function consoleDebug(isDebug, msg) {
+    if(isDebug) {
+        console.log(msg);
     }
 }
 module.exports = PjudPdfData;

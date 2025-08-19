@@ -145,7 +145,7 @@ describe('ObtainAvaluoPropiedad', () =>{
 describe('obtainDerecho', () => {
     test('Test basico 1 usufructo ', () =>{
         const info = testPjudPdf.normalizeInfo(textoGP1);
-        const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
+        const tipoDerecho = testPjudPdf.obtainTipoDerecho(info, true);
         expect(tipoDerecho).toEqual('usufructo');
     });
 
@@ -237,6 +237,12 @@ describe('obtainDerecho', () => {
 
     test('Test de tipo de texto donde solo dice certificado BF', ()=>{
         const info = testPjudPdf.normalizeInfo(BF.NotBF1439);
+        const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
+        expect(tipoDerecho).toBeNull();
+    });
+
+    test('Dominio vigente con "Por haberse cancelado el usufructo"', ()=>{
+        const info = testPjudPdf.normalizeInfo(textosDV.dv6144);
         const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
         expect(tipoDerecho).toBeNull();
     });
@@ -382,8 +388,14 @@ describe('ObtainAnno', () => {
 
     test('Obtener el anno de un DV que aparecia 3430',()=>{
         const info = testPjudPdf.normalizeInfo(textosDV.dv11840);
-        const anno = testPjudPdf.obtainAnno(info,true);
+        const anno = testPjudPdf.obtainAnno(info);
         expect(anno).toEqual('2016');
+    });
+
+    test('Obtener el anno de un DV que tiene dos annos asociados a la compra',()=>{
+        const info = testPjudPdf.normalizeInfo(textosDV.dv9404);
+        const anno = testPjudPdf.obtainAnno(info);
+        expect(anno).toEqual(2015);
     });
 });
 

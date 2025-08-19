@@ -15,7 +15,7 @@ class testUnitarios{
         this.args = args;
         this.browser = null;
         this.devMode = true; // Cambiar a false para producción
-        this.devMode = devMode
+        // this.devMode = devMode
     }
 
     async mainFunction(){
