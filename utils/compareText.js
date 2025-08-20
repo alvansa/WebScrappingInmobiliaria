@@ -41,8 +41,44 @@ function matchJuzgado(str1, str2) {
     return normalizado1 === normalizado2;
 }
 
+function matchRol(baseRol, newRol){
+    if(!baseRol || !newRol) return false;
+    const listBaseRol = splitPosiblesRol(baseRol);
+    const listNewRol = splitPosiblesRol(newRol);
+    for(let baseRol of listBaseRol){
+        for(let newRol of listNewRol){
+            if (baseRol === newRol) {
+                return true
+            }
+        }
+    }
 
+    return false;
+}
+
+function splitPosiblesRol(rol){
+    let listRol = [];
+    let finalListRol = [];
+    if(rol.includes('//')){
+       const splitRol = rol.split('//');
+       listRol = [...splitRol];
+    }else{
+        listRol.push(rol);
+    }
+    for(let actualRol of listRol){
+        const splitedRol = actualRol.split('-');
+        splitedRol[0] = splitedRol[0].trim();
+        for(let i = 1; i < splitedRol.length; i++){
+            splitedRol[i] = splitedRol[i].trim();
+            const newRol = splitedRol[0] + '-' + splitedRol[i];
+            finalListRol.push(newRol);
+        }
+    }
+
+    return finalListRol;
+}
 module.exports = {
     areEqualText,
-    matchJuzgado
+    matchJuzgado,
+    matchRol
 };

@@ -180,6 +180,7 @@ class ProcesarBoletin {
     }
 
     getComuna(texto) {
+        console.log(texto)
         const foundComunas = [];
         const indexInicio = texto.indexOf("Detalle");
         texto = texto.slice(indexInicio);
@@ -187,6 +188,10 @@ class ProcesarBoletin {
         for (let comuna of comunas) {
             const comunaMinuscula = comuna.toLowerCase();
             if (texto.includes(comuna) || texto.includes(comunaMinuscula)) {
+                const regexCalleComuna = new RegExp(`calle\\s*${comuna}`,"i");
+                if(regexCalleComuna.test(texto)){
+                    continue;
+                }
                 foundComunas.push(comunaMinuscula);
             }
         }
@@ -197,11 +202,11 @@ class ProcesarBoletin {
             }
         }
         if(comunas.length > 0){
-            const comuna = foundComunas[0];
-            return comuna;
+            return comunas[0]
         }
         return null;
     }
+
     getAnno(data) {
         const detalle = 'detalle';
         const detalleIndex = data.indexOf(detalle);

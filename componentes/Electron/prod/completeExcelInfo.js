@@ -2,13 +2,13 @@ const XLSX = require('xlsx');
 const fs = require('fs');
 const path = require('path');
 
-const Caso = require('../../caso/caso');
-const CasoBuilder = require('../../caso/casoBuilder');
+const Caso = require('../../caso/caso.js');
+const CasoBuilder = require('../../caso/casoBuilder.js');
 const GestorRematesPjud = require('../../pjud/GestorRematesPjud.js');
-const {writeLine,insertarCasoIntoWorksheet,createExcel} = require('../../excel/createExcel')
+const {writeLine,insertarCasoIntoWorksheet,createExcel} = require('../../excel/createExcel.js')
 const {tribunalesPorCorte, obtainCorteJuzgadoNumbers} = require('../../../utils/corteJuzgado.js');
 const {stringToDate} = require('../../../utils/cleanStrings.js');   
-const {matchJuzgado} = require('../../../utils/compareText.js');
+const {matchJuzgado, matchRol} = require('../../../utils/compareText.js');
 const config = require('../../../config.js');
 const PJUD = config.PJUD;
 const EMOL = config.EMOL;
@@ -19,7 +19,9 @@ const LETRA_ORIGEN = 'D';
 const LETRA_FECHA_REM = 'F';
 const LETRA_CAUSA = 'J';
 const LETRA_JUZGADO = 'K';
+const LETRA_COMUNA = 'M';
 const LETRA_PARTES = 'O';
+const LETRA_ROL = 'X';
 const LETRA_PORCENTAJE = 'AM';
 
 const COLUMNAS_EXCEL = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z','AA', 'AB', 'AC', 'AD', 'AE', 'AF', 'AG', 'AH', 'AI', 'AJ', 'AK', 'AL', 'AM', 'AN', 'AO', 'AP', 'AQ'];
@@ -156,6 +158,7 @@ class CompleteExcelInfo{
         console.log(`Causas a buscar: ${findedCausas.length}`);
         console.table(findedCausas.map(causa => ({
             causa: causa.causa,
+            Rol : causa.rol,
             baseLine: causa.baseLine,
             newLine: causa.newLine
         })));
@@ -198,7 +201,7 @@ class CompleteExcelInfo{
         let actualRowBase = lastRowBase;
         let lastRowNew = 6;
         while(wsNew[`${LETRA_FECHA_DESC}${lastRowNew}`]){
-            const {causa, juzgado, isValid} = this.processNewRow(wsNew, lastRowNew);
+            const {causa, juzgado,comuna,rol, isValid} = this.processNewRow(wsNew, lastRowNew);
             if(!isValid){
                 lastRowNew++;
                 continue;
@@ -209,22 +212,11 @@ class CompleteExcelInfo{
 
                 const cellCausa = wsBase[`${LETRA_CAUSA}${actualRowBase}`];
                 const cellCourt = wsBase[`${LETRA_JUZGADO}${actualRowBase}`];
+                const cellComuna = wsBase[`${LETRA_COMUNA}${actualRowBase}`];
+                const cellRol = wsBase[`${LETRA_ROL}${actualRowBase}`];
                 // console.log(`Revisando fila ${lastRowBase} del archivo base`)
-                if(!cellCausa ||typeof cellCausa.v != 'string' || !cellCourt || typeof cellCourt.v != 'string'){
-                    actualRowBase--;
-                    continue;
-                }
-                const causaBase = cellCausa.v.toUpperCase().replace(/\s*/g,'');;
-                const baseCourt = cellCourt.v;
-
-                if(causa == causaBase){
-                    const matchedJuzgado = matchJuzgado(baseCourt, juzgado);
-                    if(matchedJuzgado){
-                        console.log(`Causa repetida: ${causa} fila base: ${actualRowBase} fila nueva: ${lastRowNew}`);
-                        findedCausas.push({ causa: causa, baseLine: actualRowBase, newLine:lastRowNew });
-                        break;
-                    }
-                }
+                if(this.checkCausaJuzgado(causa, juzgado, cellCausa, cellCourt, findedCausas, actualRowBase, lastRowNew)) break;
+                // if(this.checkComunaRol(causa,comuna, rol, cellComuna, cellRol, findedCausas, actualRowBase, lastRowNew)) break;
                 actualRowBase--;
             }
             lastRowNew++;
@@ -235,14 +227,57 @@ class CompleteExcelInfo{
     static processNewRow(wsNew, rowNum){
         let isValid = true;
         const causaCell = wsNew[`${LETRA_CAUSA}${rowNum}`];
+        const comunaCell = wsNew[`${LETRA_COMUNA}${rowNum}`];
+        const rolCell = wsNew[`${LETRA_ROL}${rowNum}`];
+        
         const causa = causaCell ? causaCell.v.toUpperCase().replace(/\s*/g, '') : null;
+        const comuna = comunaCell ? comunaCell.v : null;
+        const rol = rolCell ? rolCell.v : null;
+
         let juzgado = wsNew[`${LETRA_JUZGADO}${rowNum}`];
         if (!juzgado || typeof juzgado.v != 'string') {
             console.log(`No se encontró el juzgado en la fila ${rowNum}`);
             isValid = false;
+            return {causa, juzgado, comuna, rol, isValid}
         }
         juzgado = juzgado.v;
-        return { causa, juzgado, isValid };
+        return { causa, juzgado, comuna, rol, isValid };
+    }
+
+    static checkCausaJuzgado(newCase, newCourt, baseCaseCell, baseCourtCell, findedCausas, actualRowBase, lastRowNew){
+        if (!baseCaseCell || typeof baseCaseCell.v != 'string' || !baseCourtCell || typeof baseCourtCell.v != 'string') {
+            return false;
+        }
+        const causaBase = baseCaseCell.v.toUpperCase().replace(/\s*/g, '');;
+        const baseCourt = baseCourtCell.v;
+
+        if (newCase == causaBase) {
+            const matchedJuzgado = matchJuzgado(baseCourt, newCourt);
+            if (matchedJuzgado) {
+                console.log(`Causa repetida: ${newCase} fila base: ${actualRowBase} fila nueva: ${lastRowNew}`);
+                findedCausas.push({ causa: newCase, rol: null,  baseLine: actualRowBase, newLine: lastRowNew });
+                return true;
+            }
+        }
+    }
+
+    static checkComunaRol(causa,newComuna, newRol, baseComunaCell, baseRolCell,findedCausas, actualRowBase, lastRowNew){
+        if (!baseComunaCell || typeof baseComunaCell.v != 'string' || !baseRolCell || typeof baseRolCell.v != 'string' || !newComuna || !newRol) {
+            return;
+        }
+        const baseComuna = baseComunaCell.v.toLowerCase();
+        const baseRol = baseRolCell.v;
+
+        newComuna = newComuna.toLowerCase();
+
+        if(newComuna == baseComuna){
+            if(matchRol(newRol, baseRol)){
+                console.log(`Causa repetida: ${causa} Rol:${newRol} fila base: ${actualRowBase} fila nueva: ${lastRowNew}`);
+                findedCausas.push({ causa: causa, rol: newRol, baseLine: actualRowBase, newLine: lastRowNew });
+                return true;
+            }
+        }
+
     }
 
     static copyRowFromBaseToNew(wsBase, wsNew, baseRow, newRow) {
@@ -270,14 +305,14 @@ class CompleteExcelInfo{
                         text += EColumn.v + ' ';
                     }
                     if (HColumn) {
-                        console.log(HColumn);
+                        // console.log(HColumn);
                         text += HColumn.w;
                     }
                     if(GColumn){
                         text += GColumn.v;
                     }
                     text += ')';
-                    console.log('Escribiendo columna ',newRow);
+                    // console.log('Escribiendo columna ',newRow);
                     wsNew[`H${newRow}`] = {
                         v: text,
                         t: 's',

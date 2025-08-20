@@ -28,8 +28,9 @@ const { fakeDelay } = require('../../utils/delay.js');
 // }
 
 //Funcion que procesa los datos de un remate y obtiene la informacion necesaria
-function procesarDatosRemate(caso) {
+function procesarDatosRemate(caso, isDebug = false) {
     texto = caso.texto;
+    if(isDebug) console.log(texto);
     const causa = getCausa(texto);
     const juzgado = getJuezPartidor(texto) ? "Juez Partidor" : getJuzgado(texto);
     const porcentaje = getPorcentaje(texto);
@@ -37,7 +38,7 @@ function procesarDatosRemate(caso) {
     const fechaRemate = getFechaRemate(texto);
     const montoMinimo = getMontoMinimo(texto);
     const multiples = getMultiples(texto);
-    const comuna = getComuna(texto);
+    const comuna = getComuna(texto, false,isDebug);
     const foja = getFoja(texto);
     const numero = getNumero(texto);
     const partes = getPartes(texto);
@@ -45,7 +46,7 @@ function procesarDatosRemate(caso) {
     const tipoDerecho = getTipoDerecho(texto);
     const direccion = getDireccion(texto);
     const diaEntrega = getDiaEntrega(texto);
-    const anno = getAnno(texto);
+    const anno = getAnno(texto, isDebug);
     const rolPropiedad = getRolPropiedad(texto);
 
     if (causa) {
@@ -235,7 +236,7 @@ function getJuzgado(data) {
                 return variation;
             })
 
-            // if(tribunal.includes("3° JUZGADO CIVIL DE VIÑA DEL MAR")) {
+            // if(tribunal.includes("21° JUZGADO CIVIL DE SANTIAGO")) {
             //     console.log("Tribunal encontrado: ", variaciones);
             // }
 
@@ -423,10 +424,10 @@ function getMultiples(data) {
 }
 
 // Obtiene la comuna del remate a base de una lista de comunas.
-function getComuna(data, isPjud = false) {
+function getComuna(data, isPjud = false, isDebug = false) {
     // console.log("Data en getComuna:  :)", data);
     const dataNormalizada = data.toLowerCase();
-    // console.log("Data normalizada en getComuna: ",dataNormalizada);
+    if(isDebug) console.log("Data normalizada en getComuna: ",dataNormalizada);
     const listaPreFrases = [
         "comuna de ",
         "comuna ",
@@ -454,13 +455,20 @@ function getComuna(data, isPjud = false) {
 
             const fraseNoValida = new RegExp(`domiciliad[oa]\\s*en\\s*la\\s*comuna\\s*de\\s*${comuna}`, 'i');
 
-            // if(comuna === 'antofagasta')
-            //     console.log("Comuna encontrada: ",regexComuna);
-            //     console.log(`Probadno con comuna ${comuna} y es ${fraseNoValida.test(dataNormalizada)}`);
-            // }
+            if(comuna === 'linares' && isDebug){
+                console.log("Comuna encontrada: ",regexComuna, regexComuna.test(dataNormalizada));
+                console.log(`Probadno con comuna ${comuna} y es ${fraseNoValida.test(dataNormalizada)}`);
+            }
             if ((regexComuna.test(dataNormalizada) || dataNormalizada.includes(comunaSinEspacio)) && !fraseNoValida.test(dataNormalizada)) {
                 return comuna;
             }
+        }
+    }
+
+    for (let comuna of comunas) {
+        const regexEntreComas = new RegExp(`,\\s*${comuna}\\s*,`, "i");
+        if (regexEntreComas.test(dataNormalizada)) {
+            return comuna;
         }
     }
     return null;
@@ -716,10 +724,10 @@ function obtainFinalPercentage(foreclosures) {
 
     return minForeclosure;
 }
-function getAnno(data) {
+function getAnno(data, isDebug) {
     // Busca el año con dependencia de las fojas, "fojas xxxx del año xxxx"
     // console.log("Data en getAnno: ", data);
-    const regexFojasDependiente = /(?:fojas?|fs\.?|fjs).*?(?:del?|a[n|ñ]o)\s*(\b\d{1}(?:\.\d{3})?(?:\b|,)|\d{1,4})/i;
+    const regexFojasDependiente = /(?:fojas?|fs\.?|fjs).{1,200}?(?:del?|a[n|ñ]o)\s*(\b\d{1}(?:\.\d{3})?(?:\b|,)|\d{1,4})/i;
     
     const fojasDependiente = data.match(regexFojasDependiente);
     if (fojasDependiente != null) {
@@ -729,8 +737,9 @@ function getAnno(data) {
         }
     }
     // Busca el año con dependencia del registro de propiedad con regex "registro de propiedad del? ano? xxxx"
-    const registroRegex = /registro\s*(?:de)?\s*propiedad\s*(?:del?\s*)?(?:a[n|ñ]o\s*)?(\d{4})/i;
+    const registroRegex = /registro\s*(?:de)?\s*propiedad\s*(?:del?\s*)?(?:correspondiente\s*al\s*)(?:a[n|ñ]o\s*)?(\b\d{1}(?:\.\d{3})?(?:\b|,)|\d{1,4})/i;
     let registro = data.match(registroRegex);
+    if(isDebug) console.log(`Debio encontrar con registro ${registro}`)
     if (registro != null) {
         return registro[1];
     }
@@ -829,7 +838,7 @@ function getDiaEntrega(data) {
 }
 
 function getRolPropiedad(data) {
-    const regexRolAvaluo = /rol\s*(?:de\s*)?aval[uú]o\s*(?:es\s*)?(?:el\s*)?(?:Nº?°?\s*)?(\d{1,5}\s*-\s*\d{1,5})/i;
+    const regexRolAvaluo = /rol\s*(?:de\s*)?aval[uú]os?\s*(?:n[úu]meros?\s*)?(?:es\s*)?(?:el\s*)?(?:Nº?°?\s*)?(\d{1,5}\s*-\s*\d{1,5})/i;
     const rolAvaluo = data.match(regexRolAvaluo);
 
     if (rolAvaluo) {
@@ -897,7 +906,11 @@ function normalizeDescription(description) {
     if(!description){
         return null;
     }
-    return description.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, ' ').trim();
+    description = description
+        .replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, ' ')
+        .replace(/\s+/g,' ')
+        .trim();
+    return description
 }
 function generateVariations(tribunal) {
     const tribunalNormalized = tribunal
@@ -966,7 +979,7 @@ function convertirANombre(number) {
         18: ["decimoctavo", "decimo octavo"],
         19: ["decimonoveno", "decimo noveno"],
         20: ["vigesimo"],
-        21: ["vigesimoprimero", "vigesimo primero"],
+        21: ["vigesimoprimero", "vigesimo primero", "vigesimo primer"],
         22: ["vigesimosegundo", "vigesimo segundo"],
         23: ["vigesimotercero", "vigesimo tercero", "vigesimo tercer", "vigesimotercer"],
         24: ["vigesimocuarto", "vigesimo cuarto"],

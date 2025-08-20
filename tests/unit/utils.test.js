@@ -1,5 +1,6 @@
-const {matchJuzgado} = require('../../utils/compareText');
+const {matchJuzgado, matchRol} = require('../../utils/compareText');
 const convertWordToNumbers = require('../../utils/convertWordToNumbers');
+
 
 describe('matchJuzgado', () => {
     test('Test con ambos null', ()=>{
@@ -150,5 +151,62 @@ describe('convertWordToNumbers',()=>{
         const numberText = 'año dos mil dieciséis';
         const result = convertWordToNumbers(numberText);
         expect(result).toEqual(2016);
+    });
+});
+
+describe('MatchRol', ()=>{
+    test('Test basico con ambos null',()=>{
+        const result = matchRol(null,null);
+        expect(result).toBe(false);
+    });
+
+    test('Test basico con el primero null',()=>{
+        const result = matchRol(null,'1111-1111');
+        expect(result).toBe(false);
+    });
+
+    test('Test basico con el segundo null',()=>{
+        const result = matchRol('1111-2222',null);
+        expect(result).toBe(false);
+    });
+
+    test('Test basico con el mismo rol',()=>{
+        const result = matchRol('1111-2222','1111-2222');
+        expect(result).toBe(true);
+    });
+
+    test('Test comparacion rol simple con rol doble',()=>{
+        const result = matchRol('1111-1111','1111-1111-2222');
+        expect(result).toBe(true);
+    });
+
+    test('Test comparacion rol doble con rol simple',()=>{
+        const result = matchRol('1111-1111-2222','1111-1111');
+        expect(result).toBe(true);
+    });
+
+    test('Test comparacion rol simple con rol doble diferente',()=>{
+        const result = matchRol('1111-1111','1111-1111//2222-2222');
+        expect(result).toBe(true);
+    });
+
+    test('Test comparacion rol simple con rol doble difernte que esta en el segundo',()=>{
+        const result = matchRol('1111-1111','2222-2222//1111-1111');
+        expect(result).toBe(true);
+    });
+
+    test('Test comparacion rol simple que esta dentro de otro rol',()=>{
+        const result = matchRol('2222-2222//1111-1111','1111-3333-2222-1111');
+        expect(result).toBe(true);
+    });
+
+    test('Test falso con rol que no es exactamente el mismo',()=>{
+        const result = matchRol('1111-1111','2222-2222//1111-111');
+        expect(result).toBe(false);
+    });
+
+    test('Test comparacion rol simple combinado que esta dentro de otro rol combinado',()=>{
+        const result = matchRol('2222-2222-3333-44444','2222-9999-2222-1111');
+        expect(result).toBe(true);
     });
 });

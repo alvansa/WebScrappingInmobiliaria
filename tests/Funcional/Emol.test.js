@@ -1,3 +1,4 @@
+const { normalizeOptions } = require('electron-builder/out/builder');
 const Caso = require('../../componentes/caso/caso');
 const {procesarDatosRemate, normalizeDescription} = require('../../componentes/economico/datosRemateEmol');
 const {obtainCorteJuzgadoNumbers} = require('../../utils/corteJuzgado');
@@ -40,15 +41,60 @@ describe('procesarDatosRemate',()=>{
         // });
     });
 
+    test('Caso C-2226-2023',()=>{
+        const caso2226 = new Caso(new Date(), new Date(), 'emol', 1);
+        const normalizedText = normalizeDescription(Extractos.ex2226);
+        caso2226.texto = normalizedText;
+        procesarDatosRemate(caso2226);
+        expect(caso2226.juzgado).toEqual('2° JUZGADO DE LETRAS DE LINARES');
+        expect(caso2226.fechaRemate).toEqual(new Date('2025/07/15'));
+        expect(caso2226.comuna).toEqual('linares');
+        expect(caso2226.anno).toEqual(2017);
+        expect(caso2226.unitRol).toEqual('1121-2');
+        expect(caso2226.formatoEntrega).toEqual('vale vista');
+        expect(caso2226.causa).toEqual('C-2226-2023');
+        expect(caso2226.montoMinimo).toEqual({
+            monto: 31541959,
+            moneda: 'Pesos'
+        });
+        // expect(caso2226.diaEntrega).toEqual('dia viernes anterior');
+        expect(caso2226.partes).toEqual('banco de credito e inversiones con zavala');
+    });
+
+    test('Caso C-2240-2024',()=>{
+        const caso2240 = new Caso(new Date(), new Date(), 'emol', 1);
+        const normalizedText = normalizeDescription(Extractos.ex2240);
+        caso2240.texto = normalizedText;
+        procesarDatosRemate(caso2240);
+        expect(caso2240.juzgado).toEqual('3° JUZGADO DE LETRAS DE LA SERENA');
+        expect(caso2240.fechaRemate).toEqual(new Date('2025/06/06'));
+        expect(caso2240.comuna).toEqual('coquimbo');
+        expect(caso2240.anno).toEqual(2020);
+        expect(caso2240.unitRol).toEqual('4132-400');
+        expect(caso2240.formatoEntrega).toEqual('vale vista');
+        expect(caso2240.causa).toEqual('C-2240-2024');
+        expect(caso2240.montoMinimo).toEqual({
+            monto: 81520345,
+            moneda: 'Pesos'
+        });
+        expect(caso2240.porcentaje).toEqual(10);
+        expect(caso2240.partes).toEqual('santander-chile con muñoz zepeda”');
+    });
+
+
     test('Caso C-800-2025',()=>{
         const caso800 = new Caso();
         const normalizedText = normalizeDescription(Extractos.ex800);
         caso800.texto = normalizedText;
         procesarDatosRemate(caso800);
+        expect(caso800.juzgado).toEqual("1° JUZGADO DE LETRAS DE LA SERENA");
         expect(caso800.formatoEntrega).toEqual('vale vista');
         expect(caso800.causa).toEqual('C-800-2025');
+        expect(caso800.fechaRemate).toEqual(new Date('2025/07/15'));
         expect(caso800.porcentaje).toEqual(10);
         expect(caso800.anno).toEqual(2005);
+        expect(caso800.unitRol).toEqual('965-296');
+        expect(caso800.partes).toEqual('comunidad edificio alhambra/melendez');
     });
 
     test('Caso C-18731-2007',()=>{
@@ -56,11 +102,37 @@ describe('procesarDatosRemate',()=>{
         const normalizedText = normalizeDescription(Extractos.ex18731);
         caso18731.texto = normalizedText;
         procesarDatosRemate(caso18731);
+        expect(caso18731.juzgado).toEqual('16° JUZGADO CIVIL DE SANTIAGO');
+        expect(caso18731.fechaRemate).toEqual(new Date('2025/08/07'));
         expect(caso18731.formatoEntrega).toEqual('vale vista');
         expect(caso18731.causa).toEqual('C-18731-2007');
         expect(caso18731.porcentaje).toEqual(10);
         expect(caso18731.anno).toEqual(2006);
-        expect(caso18731.juzgado).toEqual('16° JUZGADO CIVIL DE SANTIAGO')
+        expect(caso18731.partes).toEqual('compañía de seguros de vida con escobar fica');
+        expect(caso18731.montoMinimo).toEqual({
+            moneda: "UF",
+            monto: 500
+        });
+    });
+
+    test('Caso C-460-2024 de Emol', ()=>{
+        const caso460 = new Caso();
+        const normalizedText = normalizeDescription(Extractos.ex460);
+        caso460.texto = normalizedText;
+        procesarDatosRemate(caso460);
+        expect(caso460.formatoEntrega).toEqual('vale vista');
+        expect(caso460.juzgado).toEqual('23° JUZGADO CIVIL DE SANTIAGO');
+        expect(caso460.causa).toEqual('C-460-2024');
+        expect(caso460.fechaRemate).toEqual(new Date('2025/08/07'));
+        expect(caso460.comuna).toEqual('Estación Central');
+        expect(caso460.porcentaje).toEqual(10);
+        expect(caso460.anno).toEqual(2019);
+        expect(caso460.montoMinimo).toEqual({
+            monto: 59396684,
+            moneda: 'Pesos'
+        });
+        expect(caso460.fechaRemate).toEqual(new Date('2025/08/07'));
+        expect(caso460.partes).toEqual('banco santander-chile sa/prinea');
     });
 
     test('Caso C-10926-2024', () => {
@@ -80,6 +152,11 @@ describe('procesarDatosRemate',()=>{
         expect(caso10926.corte).toEqual('90');
         expect(caso10926.numeroJuzgado).toEqual('272');
         expect(caso10926.getCausaPjud()).toEqual('10926');
+        expect(caso10926.montoMinimo).toEqual({
+            monto: 33199521,
+            moneda: 'Pesos'
+        });
+        expect(caso10926.partes).toEqual('banco itaú chile contra sanhueza mendoza');
     });
 
     test('Caso C-345-2019', () => {
@@ -110,11 +187,16 @@ describe('procesarDatosRemate',()=>{
         caso156.texto = normalizedText;
         procesarDatosRemate(caso156);
         expect(caso156.formatoEntrega).toEqual('vale vista');
+        expect(caso156.juzgado).toEqual('24° JUZGADO CIVIL DE SANTIAGO');
+        expect(caso156.comuna).toEqual('las condes');
+        expect(caso156.anno).toEqual(2011);
         // expect(caso156.causa).toEqual('C-156-2023');
         // expect(caso156.porcentaje).toEqual(10);
-        // expect(caso156.anno).toEqual(2011);
-        expect(caso156.juzgado).toEqual('24° JUZGADO CIVIL DE SANTIAGO')
         expect(caso156.fechaRemate).toEqual(new Date('2025/08/20'));
+        expect(caso156.montoMinimo).toEqual({
+            monto: 3693,
+            moneda: "UF"
+        });
     });
 
     test('Caso C-11613-2024', () => {
@@ -232,22 +314,7 @@ describe('procesarDatosRemate',()=>{
         expect(caso1666.unitAvaluo).toBeNull();
         expect(caso1666.unitDireccion).toBeNull();
     });
-    test('Caso C-460-2024 de Emol', ()=>{
-        const caso460 = new Caso();
-        const normalizedText = normalizeDescription(Extractos.ex460);
-        caso460.texto = normalizedText;
-        procesarDatosRemate(caso460);
-        expect(caso460.formatoEntrega).toEqual('vale vista');
-        expect(caso460.causa).toEqual('C-460-2024');
-        expect(caso460.porcentaje).toEqual(10);
-        expect(caso460.anno).toEqual(2019);
-        expect(caso460.montoMinimo).toEqual({
-            monto: 59396684,
-            moneda: 'Pesos'
-        });
-        expect(caso460.fechaRemate).toEqual(new Date('2025/08/07'));
-        expect(caso460.partes).toEqual('banco santander-chile sa/prinea');
-    });
+
 });
 
 
