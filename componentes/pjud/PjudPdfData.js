@@ -1,4 +1,5 @@
 const { getMontoMinimo, getFormatoEntrega, getPorcentaje, getAnno, getComuna, getTipoDerecho } = require('../economico/datosRemateEmol');
+const extractor = require('../economico/extractors');
 const convertWordToNumbers = require('../../utils/convertWordToNumbers');
 
 const regexMutuoHipotecario = /mutuo\s*hipotecario/i;
@@ -236,9 +237,9 @@ class PjudPdfData {
     }
 
     obtainFormatoEntrega(info) {
-        const formatoEntrega = getFormatoEntrega(info);
+        const formatoEntrega = extractor.deliveryFormat(info);
         if(formatoEntrega){
-            return formatoEntrega[0];
+            return formatoEntrega;
         }
         return null;
     }
@@ -272,7 +273,7 @@ class PjudPdfData {
                     continue;
                 }
             }
-            const tipoDerecho = getTipoDerecho(text, isDebug);
+            const tipoDerecho = extractor.rightType(text, isDebug);
 
             if (tipoDerecho) {
                 return tipoDerecho;
@@ -463,7 +464,7 @@ class PjudPdfData {
                     continue;
                 }
             }
-            const montoMinimo = getMontoMinimo(text);
+            const montoMinimo = extractor.minAmount(text);
             if (montoMinimo) {
                 // console.log(`-----------------\nmontoMinimo: ${montoMinimo}\n-----------------`);
                 return montoMinimo;
@@ -853,7 +854,7 @@ class PjudPdfData {
         if(info.includes('demanda')){
             return null;        
         }
-        const percentage = getPorcentaje(info);
+        const percentage = extractor.percent(info);
         // console.log("Porcentaje identificado: ", percentage);
         if (!percentage) {
             return null;
@@ -1019,7 +1020,7 @@ class PjudPdfData {
         if (comuna) {
             return comuna;
         }
-        comuna = getComuna(info, true);
+        comuna = extractor.district(info, true);
 
         if (comuna) {
             return comuna;

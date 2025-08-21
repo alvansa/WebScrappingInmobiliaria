@@ -7,7 +7,6 @@ const LIQUIDACIONES = config.LIQUIDACIONES;
 const PREREMATES = config.PREREMATES;
 
 class StringHelper{
-
     static formatoEntrega(formatoEntrega){
         if(formatoEntrega == "N/A" || formatoEntrega == null){
             return null;

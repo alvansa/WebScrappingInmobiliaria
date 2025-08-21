@@ -27,7 +27,7 @@ class ProcesarBoletin {
             return;
         }
         const normalizedData = this.normalizeData(data);
-        console.log("Texto normalizado: ", normalizedData);
+        // console.log("Texto normalizado: ", normalizedData);
 
         const fechaRemate = this.getfechaRemate(normalizedData);
         const causa = this.getCausa(normalizedData);
@@ -180,7 +180,7 @@ class ProcesarBoletin {
     }
 
     getComuna(texto) {
-        console.log(texto)
+        // console.log(texto)
         const foundComunas = [];
         const indexInicio = texto.indexOf("Detalle");
         texto = texto.slice(indexInicio);
@@ -201,7 +201,7 @@ class ProcesarBoletin {
                 return comuna;
             }
         }
-        if(comunas.length > 0){
+        if(foundComunas.length > 0){
             return comunas[0]
         }
         return null;

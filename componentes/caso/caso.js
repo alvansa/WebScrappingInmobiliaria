@@ -618,7 +618,7 @@ class Caso{
         return montoNormalizado;
     }
     normalizarMontoMinimo(){
-        if(this.#montoMinimo == "N/A" || this.#montoMinimo == null){
+        if(this.#montoMinimo == "N/A" || !this.#montoMinimo){
             return {"monto": null, "moneda": null};
         }
         let montoFinal;
@@ -777,7 +777,7 @@ class Caso{
         return parseInt(porcentaje);
     }
 
-    // normalizarFormatoEntrega(){
+    // normalizarFormatoEntrega()new {
     //     if(this.#formatoEntrega == "N/A" || this.#formatoEntrega == null){
     //         return null;
     //     }
@@ -795,7 +795,7 @@ class Caso{
         let causa;
         const valorOriginal = this.#causa;
         
-        if (valorOriginal === "N/A" || valorOriginal === null) {
+        if (valorOriginal === "N/A" || valorOriginal === null || !valorOriginal) {
             return null;
         }
         if(valorOriginal.includes("causa")){

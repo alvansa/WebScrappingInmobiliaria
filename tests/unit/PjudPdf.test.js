@@ -355,7 +355,6 @@ describe('ObtainAnno', () => {
         const anno = testPjudPdf.obtainAnno(info);
         expect(anno).toEqual('2.020');
     });
-
     test('Obtener anno de DV 2',()=>{
         const info = testPjudPdf.normalizeInfo(textosDV.dv212);
         const anno = testPjudPdf.obtainAnno(info);

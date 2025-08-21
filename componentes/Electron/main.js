@@ -21,9 +21,7 @@ const {tribunalesPorCorte, obtainCorteJuzgadoNumbers} = require('../../utils/cor
 const {stringToDate} = require('../../utils/cleanStrings.js');
 const testUnitarios = require('./dev/testUnitarios.js');
 
-
 const Causas = require('../../model/Causas.js');
-
 
 const isDevMode = process.argv.includes('--dev');
 const emptyMode = process.argv.includes('--empty');
@@ -158,7 +156,6 @@ class MainApp{
             try{
                 const test = new testUnitarios(app,event,args);
                 await test.mainFunction();
-                // await this.testEconomico(event,args)
             }catch(error){
                 console.error('Error al obtener resultados:', error);
             }
@@ -315,9 +312,6 @@ class MainApp{
         }catch(error){
             console.error('Error al limpiar antes de salir:', error);
         }
-    }
-
-    async testEconomico(event,args){
     }
 
     async processTeseract(filePath) {

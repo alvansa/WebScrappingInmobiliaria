@@ -221,6 +221,28 @@ describe('procesarDatosRemate',()=>{
         });
     });
 
+    test('Caso C-18187-2017', () => {
+        const caso18187 = new Caso();
+        const normalizedText = normalizeDescription(Extractos.ex18187);
+        caso18187.texto = normalizedText;
+        procesarDatosRemate(caso18187);
+        const casos = [caso18187];
+        obtainCorteJuzgadoNumbers(casos);
+        expect(caso18187.formatoEntrega).toEqual('vale vista');
+        expect(caso18187.causa).toEqual('C-18187-2017');
+        expect(caso18187.anno).toEqual(1992);
+        expect(caso18187.juzgado).toEqual('21° JUZGADO CIVIL DE SANTIAGO')
+        expect(caso18187.fechaRemate).toEqual(new Date('2025/08/28'));
+        expect(caso18187.comuna).toEqual('maipú');
+        expect(caso18187.corte).toEqual('90');
+        expect(caso18187.numeroJuzgado).toEqual('279');
+        expect(caso18187.getCausaPjud()).toEqual('18187');
+        expect(caso18187.montoMinimo).toEqual({
+            "moneda" : "Pesos",
+            "monto" : 47647595
+        });
+    });
+
     test('Caso con texto nulo con toObject()',()=>{
         let caso1666 = new Caso(new Date(), new Date(), 'emol', 1);
         const normalizedText = normalizeDescription(null);

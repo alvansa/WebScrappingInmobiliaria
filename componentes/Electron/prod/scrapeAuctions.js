@@ -10,14 +10,15 @@ const MapasSII = require('../../mapasSII/MapasSII.js');
 const ProcesarBoletin = require('../../liquidaciones/procesarBoletin.js');
 const PublicosYLegales = require('../../publicosYlegales/publicosYLegales.js');
 const {createExcel} = require('../../excel/createExcel.js');
-const Caso = require('../../caso/caso.js')
 const Pjud = require('../../pjud/getPjud.js');
 const GestorRematesPjud = require('../../pjud/GestorRematesPjud.js')
-const ConsultaCausaPjud = require('../../pjud/consultaCausaPjud.js');
-const PjudPdfData = require('../../pjud/PjudPdfData.js');
 const {fixStringDate,stringToDate} = require('../../../utils/cleanStrings.js');
 const {tribunalesPorCorte, obtainCorteJuzgadoNumbers} = require('../../../utils/corteJuzgado.js');
 const { fakeDelay, delay } = require('../../../utils/delay.js');
+
+// const ConsultaCausaPjud = require('../../pjud/consultaCausaPjud.js');
+// const PjudPdfData = require('../../pjud/PjudPdfData.js');
+// const Caso = require('../../caso/caso.js')
 
 class scrapeAuction {
     constructor(startDate,endDate,saveFile, checkedBoxes,event,mainWindow,isTestMode = false){
@@ -276,17 +277,12 @@ class scrapeAuction {
         // });
         // console.log('------------------------------------------')
 
-        casos = casos.filter(caso => caso.fechaRemate > new Date(fixedStartDate) && caso.fechaRemate < new Date(fixedEndDate));
 
-        // console.log('------------------------------------------')
-        // console.log("Cantidad de casos despues del filtro: ", casos.length);
-        // casos.forEach(caso => {
-        //     console.log("POST FILTER",caso.fechaRemate, caso.causa, caso.juzgado);
-        // });
-        // console.log('------------------------------------------')
-
-        const gestorRemates = new GestorRematesPjud(casos, this.event, this.mainWindow);
-        const result = await gestorRemates.getInfoFromAuctions();
+        if(!this.isTestMode){
+            casos = casos.filter(caso => caso.fechaRemate > new Date(fixedStartDate) && caso.fechaRemate < new Date(fixedEndDate));
+            const gestorRemates = new GestorRematesPjud(casos, this.event, this.mainWindow);
+            const result = await gestorRemates.getInfoFromAuctions();
+        }
         return casos;
         
     }
