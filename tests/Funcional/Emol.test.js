@@ -23,6 +23,7 @@ describe('procesarDatosRemate',()=>{
         // expect(caso1857.diaEntrega).toEqual('dia habil anterior');
         expect(caso1857.partes).toEqual('progarantía sagr/ constructora e ingeniería smot');
         expect(caso1857.fechaRemate).toEqual(new Date('2025/07/08'));
+        expect(caso1857.diaEntrega).toEqual('a más tardar a las 14:00 horas del día hábil anterior a la subasta');
     });
 
     test('Caso C-1666-2014',()=>{
@@ -35,6 +36,7 @@ describe('procesarDatosRemate',()=>{
         expect(caso1666.fechaRemate).toEqual(new Date('2025/07/17'));
         // expect(caso1666.diaEntrega).toEqual('dia viernes anterior');
         expect(caso1666.partes).toEqual('fondo de inversion larrain vial con castillo');
+        expect(caso1666.diaEntrega).toEqual('a más tardar el día viernes anterior a la subasta');
         // expect(caso1666.montoMinimo).toEqual({
         //     moneda: 'UF',
         //     monto: 1031.99465
@@ -59,6 +61,7 @@ describe('procesarDatosRemate',()=>{
         });
         // expect(caso2226.diaEntrega).toEqual('dia viernes anterior');
         expect(caso2226.partes).toEqual('banco de credito e inversiones con zavala');
+        expect(caso2226.diaEntrega).toBeNull();
     });
 
     test('Caso C-2240-2024',()=>{
@@ -79,8 +82,8 @@ describe('procesarDatosRemate',()=>{
         });
         expect(caso2240.porcentaje).toEqual(10);
         expect(caso2240.partes).toEqual('santander-chile con muñoz zepeda”');
+        expect(caso2240.diaEntrega).toBeNull();
     });
-
 
     test('Caso C-800-2025',()=>{
         const caso800 = new Caso();
@@ -95,6 +98,7 @@ describe('procesarDatosRemate',()=>{
         expect(caso800.anno).toEqual(2005);
         expect(caso800.unitRol).toEqual('965-296');
         expect(caso800.partes).toEqual('comunidad edificio alhambra/melendez');
+        expect(caso800.diaEntrega).toBeNull();
     });
 
     test('Caso C-18731-2007',()=>{
@@ -113,6 +117,7 @@ describe('procesarDatosRemate',()=>{
             moneda: "UF",
             monto: 500
         });
+        expect(caso18731.diaEntrega).toEqual('día precedente a la fecha de la subasta, entre las 11:00 y 12:00 horas');
     });
 
     test('Caso C-460-2024 de Emol', ()=>{
@@ -133,6 +138,7 @@ describe('procesarDatosRemate',()=>{
         });
         expect(caso460.fechaRemate).toEqual(new Date('2025/08/07'));
         expect(caso460.partes).toEqual('banco santander-chile sa/prinea');
+        expect(caso460.diaEntrega).toEqual('fijado el 04 agosto 2025, entre 09:00 y 11:00 horas');
     });
 
     test('Caso C-10926-2024', () => {
@@ -157,6 +163,7 @@ describe('procesarDatosRemate',()=>{
             moneda: 'Pesos'
         });
         expect(caso10926.partes).toEqual('banco itaú chile contra sanhueza mendoza');
+        expect(caso10926.diaEntrega).toEqual('susceptible de ser endosado al momento de la subasta');
     });
 
     test('Caso C-345-2019', () => {
@@ -179,6 +186,7 @@ describe('procesarDatosRemate',()=>{
             "moneda" : "Pesos",
             "monto" : 39084038
         });
+        expect(caso345.diaEntrega).toBeNull();
     });
 
     test('Caso C-156-2023',()=>{
@@ -197,6 +205,7 @@ describe('procesarDatosRemate',()=>{
             monto: 3693,
             moneda: "UF"
         });
+        expect(caso156.diaEntrega).toBeNull();
     });
 
     test('Caso C-11613-2024', () => {
@@ -219,6 +228,7 @@ describe('procesarDatosRemate',()=>{
             "moneda" : "Pesos",
             "monto" : 118639031
         });
+        expect(caso11613.diaEntrega).toEqual('el día jueves inmediatamente anterior a la fecha de la subasta, entre las 10:00 y las 12:30 horas');
     });
 
     test('Caso C-18187-2017', () => {
@@ -241,6 +251,17 @@ describe('procesarDatosRemate',()=>{
             "moneda" : "Pesos",
             "monto" : 47647595
         });
+        expect(caso18187.diaEntrega).toEqual('los días martes y jueves, anterior a la realización de la subasta, según correspondiere, entre las 10:00 y las 12:00 horas');
+    });
+
+    test('Caso C-3252-2024', ()=>{
+        const caso3252 = new Caso();
+        const normalizedText = normalizeDescription(Extractos.ex3252);
+        caso3252.texto = normalizedText;
+        procesarDatosRemate(caso3252);
+        expect(caso3252.causa).toEqual('C-3252-2024');
+        expect(caso3252.diaEntrega).toEqual('día lunes 25 de agosto de 2025, entre las 09:00 y las 11:00 horas');
+
     });
 
     test('Caso con texto nulo con toObject()',()=>{

@@ -4,7 +4,7 @@ const { comunas} = require('../../caso/datosLocales.js');
 function extractDistrict(data, isPjud = false, isDebug = false) {
     // console.log("Data en getComuna:  :)", data);
     const dataNormalizada = data.toLowerCase();
-    if(isDebug) console.log("Data normalizada en getComuna: ",dataNormalizada);
+    // if(isDebug) console.log("Data normalizada en getComuna: ",dataNormalizada);
     const listaPreFrases = [
         "comuna de ",
         "comuna ",
@@ -32,10 +32,10 @@ function extractDistrict(data, isPjud = false, isDebug = false) {
 
             const fraseNoValida = new RegExp(`domiciliad[oa]\\s*en\\s*la\\s*comuna\\s*de\\s*${comuna}`, 'i');
 
-            if(comuna === 'linares' && isDebug){
-                console.log("Comuna encontrada: ",regexComuna, regexComuna.test(dataNormalizada));
-                console.log(`Probadno con comuna ${comuna} y es ${fraseNoValida.test(dataNormalizada)}`);
-            }
+            // if(comuna === 'linares' && isDebug){
+            //     console.log("Comuna encontrada: ",regexComuna, regexComuna.test(dataNormalizada));
+            //     console.log(`Probadno con comuna ${comuna} y es ${fraseNoValida.test(dataNormalizada)}`);
+            // }
             if ((regexComuna.test(dataNormalizada) || dataNormalizada.includes(comunaSinEspacio)) && !fraseNoValida.test(dataNormalizada)) {
                 return comuna;
             }

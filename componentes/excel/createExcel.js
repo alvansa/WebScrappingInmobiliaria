@@ -149,6 +149,7 @@ class createExcel {
     }
 
     async insertarCasosExcel(casos, ws) {
+        console.log("Fechas en el exccel: ",fixStringDate(this.startDate),fixStringDate(this.endDate),this.fixedStartDate, this.fixedEndDate)
         let remates = new Map();
         let currentRow = 6;
 
@@ -212,8 +213,10 @@ class createExcel {
                 return false;
             }
         }
+        const fechaInicioTest = new Date('2025/09/02');
         // Si la fecha de remate es menor a la fecha de inicio, o mayor a la final
         if (currentCase.fechaRemate && (currentCase.fechaRemate < this.fixedStartDate || currentCase.fechaRemate > this.fixedEndDate )) {
+        // if (currentCase.fechaRemate && (currentCase.fechaRemate < fechaInicioTest || currentCase.fechaRemate > fechaInicioTest )) {
             // console.log(`No guardado por fecha remate ${currentCase.causa}`);
             return false;
         }

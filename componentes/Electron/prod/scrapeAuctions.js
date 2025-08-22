@@ -259,6 +259,10 @@ class scrapeAuction {
     }
 
     async searchEmolAuctionsInPjud(casos){
+        const fixedStartDate = this.startDate.replace(/-/g,'/');
+        const fixedEndDate = this.endDate.replace(/-/g,'/');
+        console.log("Fechas para descartar casos economico: ",fixedStartDate, fixedEndDate, new Date(fixedStartDate), new Date(fixedEndDate));
+
         if (!casos || casos.length === 0) {
             console.log("No hay casos para buscar en Pjud");
             return [];
@@ -266,20 +270,26 @@ class scrapeAuction {
 
         obtainCorteJuzgadoNumbers(casos);
 
-        const fixedStartDate = this.startDate.replace(/-/g,'/');
-        const fixedEndDate = this.endDate.replace(/-/g,'/');
         // console.log(`fecha inicio : ${fixedStartDate}, fecha fin: ${fixedEndDate} en Date format: ${new Date(fixedStartDate)}, ${new Date(fixedEndDate)}`);
         
+        // const fechaTest = new Date('2025/09/02');
         // console.log('------------------------------------------')
-        // console.log("Cantidad de casos antes del filtro: ", casos.length);
+        // console.log("Cantidad de casos pre filtro: ", casos.length);
         // casos.forEach(caso => {
         //     console.log("PRE FILTER",caso.fechaRemate, caso.causa, caso.juzgado);
         // });
         // console.log('------------------------------------------')
 
+        // casos = casos.filter(caso => caso.fechaRemate >= fechaTest && caso.fechaRemate <=  fechaTest );
 
+        // console.log('------------------------------------------')
+        // console.log("Cantidad de casos post filtro: ", casos.length);
+        // casos.forEach(caso => {
+        //     console.log("POST FILTER",caso.fechaRemate, caso.causa, caso.juzgado);
+        // });
+        // console.log('------------------------------------------')
         if(!this.isTestMode){
-            casos = casos.filter(caso => caso.fechaRemate > new Date(fixedStartDate) && caso.fechaRemate < new Date(fixedEndDate));
+            casos = casos.filter(caso => caso.fechaRemate >= new Date(fixedStartDate) && caso.fechaRemate <= new Date(fixedEndDate));
             const gestorRemates = new GestorRematesPjud(casos, this.event, this.mainWindow);
             const result = await gestorRemates.getInfoFromAuctions();
         }
