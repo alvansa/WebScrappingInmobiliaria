@@ -9,11 +9,13 @@ function extractDistrict(data, isPjud = false, isDebug = false) {
         "comuna de ",
         "comuna ",
         "comuna y provincia de ",
-        "comuna: "
+        "comuna: ",
+        // 'en '
     ];
     if (!isPjud) {
         const listaExtra = [
             "conservador de bienes raíces de ",
+            'conservador de bienes raices de ',
             "conservador bienes raíces ",
             "registro de propiedad de ",
             "registro propiedad ",
@@ -22,6 +24,7 @@ function extractDistrict(data, isPjud = false, isDebug = false) {
         ]
         listaPreFrases.push(...listaExtra);
     }
+
     for (let preFrase of listaPreFrases) {
 
         for (let comuna of comunas) {

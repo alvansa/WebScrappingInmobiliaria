@@ -2209,6 +2209,116 @@ Con las siguientes Notas Marginales  :
 CONSOLIDACION: Por haberse cancelado el usufructo que gravaba la del centro, se consolida el
 dominio pleno a favor del titular. San Miguel 29 de Agosto de 2016.`;
 
+const dv2114 = `COPIA AUTORIZADA
+Conservador de Bienes Raíces de Quilpué
+Certifico  que  el  presente  documento  electrónico  es  copia  fiel  e  íntegra  de  su
+original, reproducido en las siguientes páginas.
+  Conservador  de  Bienes  Raíces  de  Quilpué  certifica  que  la  copia  de  la
+inscripción   de   fojas   3100   número   2079   correspondiente   al   Registro   de
+Propiedad  del  año  2020,  adjunta  al  presente  documento,  está  conforme  con
+su original
+Conservador de Bienes Raíces de Quilpué.-
+Errázuriz 842.-
+Registro de Propiedad Fs 3100 Nro 2079-2020.-
+Cantidad páginas documento (incluida la presente): 3
+Carátula  Nro 242556.- Código retiro 30e5a
+Certificado Nro 624100.-
+Quilpué, 05 de Mayo de 2025.-
+Emito  el  presente  documento  con  firma  electrónica  avanzada  (ley  No19.799,  de
+2002), conforme al procedimiento establecido por Auto Acordado de 13/10/2006 de la
+Excma. Corte Suprema.-
+Certificado Nro 624100.- Verifique validez en www.fojas.cl.-
+Nro Certificado 624100.-
+www.fojas.cl
+
+CONSERVADOR DE BIENES RAICES DE QUILPUé
+JOSé MANUEL RODRIGUEZ QUIRóS
+Copia Autorizada Fs 3100  Nro 2079 de 2020, Registro de Propiedad.
+Nº 2079
+COMPRAVENTA
+MACARENA DEL CARMEN
+HERRERA OLMOS
+-
+INMOBILIARIA PROYECTO
+LAS ROSAS TRES
+LIMITADA
+Repertorio 3233
+FR 37736603
+C 152220
+HADRIASOLA
+H. 3670-1248-2014
+H. 3911-1343-2014
+H. 313-301-2020
+H. 660-631-2020
+H. 813-774-2020
+H. 1339-1259-2020
+P. 2363v-1474-2020
+P. 903-322-2025
+En Quilpué, a ocho de Septiembre del año dos mil veinte.- Doña
+MACARENA      DEL      CARMEN      HERRERA      OLMOS,
+empresaria,  casada  en  régimen  de  separación  total  de  bienes,
+Rut:  13.762.799  –K,  domiciliada  en  La  ligua,  es  dueña  del
+departamento  número  C  setecientos  dos  ubicado  en  el  quinto
+piso,  del  Edificio  C,  y  del  derecho  de  uso  y  goce  exclusivo  del
+estacionamiento   nueve,   de   la   planta   emplazamiento,   del
+Conjunto  Residencial  Valle  del  Sol  III,  Etapa  II,  Edificios
+Arenas de Quilpué I, ubicado en calle Alto Manquehue tres mil
+ciento noventa y cuatro, de esta ciudad, individualizados en los
+planos archivados bajo los números mil quince y mil veintiuno,
+en  el  Registro  de  Documentos  del  año  dos  mil  veinte.-  Se
+incluye  en  la  venta  los  derechos  de  dominio,  uso  y  goce  que
+corresponden  a  lo  vendido  en  el  terreno  y  demás  bienes  que  se
+reputan  comunes.-  El  terreno  donde  se  construyó  el  citado
+Condominio,   corresponde   al   lote   uno   de   la   manzana   G,
+individualizado   en   el   plano   archivado   bajo   el   número   mil
+seiscientos diez, en el Registro de Documentos del año dos mil
+dieciocho,  encerrado  en  el  polígono  1M-  dos-  E-  D-  C-  B-  A-
+cincuenta – cuarenta y nueve – Ñ uno – tres M- dos M- uno M,
+con una superficie de doce mil noventa y cuatro coma ochenta y
+tres   metros   cuadrados,   cuyos   deslindes   son   los   siguientes:
+NORTE,  trazo  uno  M  al  dos,  en  doscientos  veintidós  coma
+setenta y ocho metros en línea curva, con calle Alto Manquehue;
+SUR,  trazo  del  cuarenta  y  nueve  al  cincuenta,  en  seis  coma
+sesenta metros y cincuenta al A, en seis coma trece metros con
+lote  uno  A-  cuatro  A;  trazo  B  al  C,  en  diecinueve  metros  con
+otros  propietarios;  trazo  D  al  E,  en  once  metros  con  calle
+Glaciar Echaurren, y trazo uno M al dos M, en tres coma treinta
+y  seis  metros  con  Lote  de  Equipamiento;  ORIENTE,  trazo  del
+
+CONSERVADOR DE BIENES RAICES DE QUILPUé
+JOSé MANUEL RODRIGUEZ QUIRóS
+Copia Autorizada Fs 3100  Nro 2079 de 2020, Registro de Propiedad.
+dos  M  guión  tres  M  en  ochenta  coma  dieciocho  metros  con
+Zona de Equipamiento Municipal; trazo tres M guión Ñ uno en
+ciento  treinta  y  dos  coma  treinta  y  siete  metros  con  otros
+propietarios  y  trazo  Ñ  uno  guión  cuarenta  y  nueve  en  catorce
+coma    setenta    y    nueve    metros    con    otros    propietarios;
+PONIENTE, trazo del dos al E en ocho coma cuatro metros con
+Talud BNUP, trazo del C al D en cinco coma cuarenta y nueve
+metros con calle Glaciar Echaurren, y trazo del B al A, en ciento
+veintiuno  coma  sesenta  y  siete  metros  con  otros  propietarios.-
+Lo   adquirió   por   compra   que   hizo   a   la   INMOBILIARIA
+PROYECTO     LAS     ROSAS     TRES     LIMITADA,     Rut:
+76.379.596-9,    ésta    representada    por    don    FRANCISCO
+ANDRES      SALAS      RIQUELME,      casado,      constructor,
+domiciliados  en  la  comuna  de  Vitacura,  Región  Metropolitana,
+en la suma equivalente en pesos de tres mil quinientas treinta y
+nueve  Unidades  de  Fomento,  al  contado.-  Así  consta  de  la
+escritura  otorgada  en  la  Notaria  de  Viña  del  Mar,  de  don  Luis
+Enrique Fischer Yavar, con fecha veintitrés de Julio de dos mil
+veinte, Repertorio Nº 13162-2020.- El titulo anterior de dominio
+se  encuentra  inscrito  a  fojas  mil  cuatrocientos  cincuenta  y  uno
+(1451)  número  mil  trescientos  cuarenta  y  nueve  (1349)  del
+Registro   de   Propiedad   del   año   dos   mil   dieciséis   (2016).-
+Requirió:  doña  Daniela  Muñoz  Almonacid.-  En  comprobante
+firmo.-
+CERTIFICO: Que la presente copia es testimonio fiel de su original , la que a la
+fecha se encuentra vigente.- Quilpué, 05 de Mayo del año 2025.-
+Certificado emitido con Firma Electronica Avanzada.-
+Ley Nro 19.799 - Autoacordado  de la Excma Corte Suprema de Chile.-
+Cert Nro 624100, Carátula Nº 242556.- Código retiro 30e5a
+Verifique validez en www.fojas.cl`;
+
 module.exports = {
     dv356,
     dv23039, 
@@ -2228,5 +2338,6 @@ module.exports = {
     dv1602,
     dv9404,
     dv6144,
-    dv993
+    dv993,
+    dv2114
     };

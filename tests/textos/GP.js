@@ -309,4 +309,41 @@ DE 2025.-
 Verifique este documento en https://ajs.cl con el código adjunto.
 CVE: 097-2025032009580731`;
 
-module.exports = {textoGP1, textoGP2, textoGP3, textoGP4, textoGP5, texto12Santiago, GP1435}
+const GP15491 = `Morandé 440     Teléfono:      www.conservador.cl
+Santiago         22390 0800    info@conservador.cl
+*5A15-7B81-1638-578B*
+*5A15-7B81-1638-578B*
+5a15-7b81-1638-578b
+Consulte validez en www.conservador.cl
+Documento incorpora firma electrónica  avanzada  conforme a Ley Nº 19.799. La vigencia
+de  la  firma  electrónica  en  el documento, al  igual  que  la integridad  y autenticidad  del
+mismo, deben  ser  verificados  en  www.conservador.cl, donde estará  disponible por 90
+días contados  desde  la  fecha  de  su  emisión. Documento  impreso  es sólo  una copia
+del documento original.
+Certificado de Hipotecas, Gravámenes, Interdicciones y Prohibiciones de Enajenar
+1/1
+Del  inmueble  inscrito  a  Fojas   31255    Número   45835    del   Registro   de  Propiedad
+del  año  2021   ubicado  en  la comuna de SANTIAGO  que corresponde a: departamento
+número  treinta  y  uno  del  tercer  piso,  de  calle  Eyzaguirre  número mil ciento veintidós
+de propiedad de CASTILLO ZAPATA NELSON LUIS.
+Registro de Hipotecas y Gravámenes
+Revisados  los  índices  del  Registro  de  Hipotecas  y  Gravámenes durante CINCUENTA
+Y  CINCO  años  a  la  fecha,  certifico  que  la propiedad individualizada precedentemente
+tiene en dicho periodo DOS inscripción(es) vigente(s).-
+1)  REGLAMENTO : a Fs. 7836  Nro. 12489  del Año 1970
+2)  USUFRUCTO  :  a  Fs.  40098   Nro.  44553   del  Año  2018    por   $1.000.000   en  favor
+de Sylvia Eliana Oyarzún Donoso.
+Registro de Interdicciones y Prohibiciones de Enajenar
+Revisados  igualmente  durante  CINCUENTA  Y  CINCO  años  los  índices   del  Registro
+de  Interdicciones  y  Prohibiciones   de   Enajenar,   certifico   que   la   referida  propiedad
+tiene en dicho periodo UN inscripción(es) vigente(s).-
+1)  EMBARGO  :  a  Fs.  32027  Nro.  48200    del   Año   2024     decretado   por  el   Décimo
+Cuarto    Juzgado    Civil   de   Santiago   Rol   N°   C-15491-2024,a   solicitud   de   Banco
+de Chile.  Sobre la nuda propiedad
+Santiago,  13 de diciembre del  2024
+Derechos $ 6.600.-
+ D.RAROJAS
+ B.1118115
+ C.23061316`
+
+module.exports = {textoGP1, textoGP2, textoGP3, textoGP4, textoGP5, texto12Santiago, GP1435, GP15491}

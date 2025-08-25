@@ -306,6 +306,15 @@ describe('obtainComuna', () => {
         expect(resAnno).toEqual("maipú");
     });
 
+    test('Test comuna de quilpue y vitacura del vendedor', ()=>{
+        const normalizeInfo = testPjudPdf.normalizeInfo(textosDV.dv2114);
+        const spanishNormalization = testPjudPdf.normalizeSpanish(textosDV.dv2114)
+        console.log(normalizeInfo)
+        const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
+        expect(resAnno).toEqual("quilpue");
+        
+    });
+
 });
 
 describe('ObtainDireccion', () => {

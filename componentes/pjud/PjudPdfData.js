@@ -1015,6 +1015,7 @@ class PjudPdfData {
             console.log(info);
             console.log(infoNormalized);
         }
+
         // console.log("info en comuna: ", info);
         let comuna = obtainComunaByIndex(infoNormalized);
         if (comuna) {
@@ -1163,8 +1164,14 @@ class PjudPdfData {
             const endIndex = matchSpanish.index;
             info = info.substring(0,endIndex);
         }
+        const regexCasoComprador = /Lo\s+adquiri[oó]\s+(.*?)(?=\.\s*\-|\.[\s]*$|$)/i;
+        const matchedText = info.match(regexCasoComprador);
+        if(matchedText){
+            info = info.replace(matchedText[0],'');
+        }
         return info
     }
+    //Obtener la comuna del documento de avaluo fiscal
     function obtainComunaByIndex(info) {
         const startText = "comuna:";
         const startIndex = info.indexOf(startText);

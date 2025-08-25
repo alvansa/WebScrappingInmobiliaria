@@ -10,6 +10,7 @@ function extractCourt(data) {
         .replace(/de\s*/g, '')
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
+        .replace(/'/g,"")
         .replace(/\bstgo\b/g, "santiago")
         .replace(/\s+/, ' ');
 
