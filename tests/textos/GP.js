@@ -346,4 +346,38 @@ Derechos $ 6.600.-
  B.1118115
  C.23061316`
 
-module.exports = {textoGP1, textoGP2, textoGP3, textoGP4, textoGP5, texto12Santiago, GP1435, GP15491}
+const GP299 = `Certificado de Hipotecas y Prohibiciones
+Inmueble: CALLE o PASAJE BOLIVIA Nº 2971, SITIO Nº 19 DE LA MANZANA 5,
+POBLACION BOLIVIA, ubicado en la comuna de LA SERENA, de propiedad de
+JOSE LUIS AHUMADA TIRADO.
+
+Revisados los índices del Registro de Hipotecas y Gravámenes durante TREINTA Y
+CINCO años a la fecha certifico que al inmueble singularizado precedentemente, no
+le afecta ninguna hipoteca ni gravamen.
+
+Revisados igualmente durante TREINTA Y CINCO años, los índices del Registro de
+Interdicciones y Prohibiciones de Enajenar, certifico que al inmueble singularizado
+precedentemente, solamente le afecta lo siguiente:
+
+UNA PROHIBICION en que se obliga a habitar personalmente y/o su grupo familiar
+por cinco años, asimismo, durante el mismo plazo no podrá enajenar y celebrar acto
+o contrato alguno que importe cesión de uso y goce ya sea a título gratuito u
+oneroso, sin previa autorización escrita del SERVIU REGION DE COQUIMBO.
+Inscrita a fs 1356 N° 888 de 2015.
+
+UN EMBARGO decretado en la causa Rol N° C-299-2024, seguido ante el
+SEGUNDO JUZGADO DE LETRAS DE LA SERENA, caratulada: "BANCO DEL
+ESTADO DE CHILE CON AHUMADA". Inscrita a fs 5942 N° 3013 de
+2024.
+
+EL TÍTULO DE DOMINIO SE ENCUENTRA INSCRITO A FOJAS 2165 N° 1502 DEL
+
+REGISTRO DE PROPIEDAD, CORRESPONDIENTE AL AÑO 2015.
+
+Los derechos registrales correspondientes a esta actuación ascienden a la suma de
+$6.600.
+CBR La Serena, 9 de Enero de 2025, Hora: 16:08Carátula 1118880 - SGB
+Documento incorpora Firma Electrónica Avanzada
+Código de verificación: 0000301497página 2 de 2`;
+
+module.exports = {textoGP1, textoGP2, textoGP3, textoGP4, textoGP5, texto12Santiago, GP1435, GP15491, GP299};

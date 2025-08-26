@@ -4,7 +4,7 @@ const Caso = require('../../componentes/caso/caso');
 // const Causas = require('../../model/Causas');
 
 const {textoEstacionamiento1,textoHabitacional1, textoBodegaMultiple, textoEstacionamientoMultiple, textoHabitacionMultiple} = require('../textos/Avaluo');
-const {textoGP1, textoGP2, textoGP3, textoGP4, textoGP5, texto12Santiago, GP1435} = require('../textos/GP');
+const textosGP = require('../textos/GP');
 const {diario2484, ex1341, diario1341, diario3354_1, diario3354_2} = require('../textos/diario');
 
 const textosDV = require('../textos/DV');
@@ -67,7 +67,7 @@ describe('obtainRolPropiedad', () => {
     });
 
     test('Deberia retornar null cuando no encuentra algo parecido', () => {
-        const textoNormalizado = testPjudPdf.normalizeInfo(textoGP1);
+        const textoNormalizado = testPjudPdf.normalizeInfo(textosGP.textoGP1);
         const resRol = testPjudPdf.obtainRolPropiedad(textoNormalizado);
         expect(resRol).toBeNull();
     });
@@ -135,7 +135,7 @@ describe('ObtainAvaluoPropiedad', () =>{
     });
 
     test('Prueba con gp para obtener nulo', ()=>{
-        const textoNormalizado = testPjudPdf.normalizeInfo(textoGP1);
+        const textoNormalizado = testPjudPdf.normalizeInfo(textosGP.textoGP1);
         const resAvaluo = testPjudPdf.obtainAvaluoPropiedad(textoNormalizado);
         expect(resAvaluo).toBeNull();
     });
@@ -144,31 +144,31 @@ describe('ObtainAvaluoPropiedad', () =>{
 
 describe('obtainDerecho', () => {
     test('Test basico 1 usufructo ', () =>{
-        const info = testPjudPdf.normalizeInfo(textoGP1);
+        const info = testPjudPdf.normalizeInfo(textosGP.textoGP1);
         const tipoDerecho = testPjudPdf.obtainTipoDerecho(info, true);
         expect(tipoDerecho).toEqual('usufructo');
     });
 
     test('Test de nuda propiedad', () => {
-        const info = testPjudPdf.normalizeInfo(textoGP2);
+        const info = testPjudPdf.normalizeInfo(textosGP.textoGP2);
         const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
         expect(tipoDerecho).toEqual('nuda propiedad');
     });
 
     test('Test de bien familiar', () =>{
-        const info = testPjudPdf.normalizeInfo(textoGP3);
+        const info = testPjudPdf.normalizeInfo(textosGP.textoGP3);
         const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
         expect(tipoDerecho).toEqual('bien familiar');
     });
 
     test('Test nulo "no se encuentra afecto a bien familiar" ', () => {
-        const info = testPjudPdf.normalizeInfo(textoGP4);
+        const info = testPjudPdf.normalizeInfo(textosGP.textoGP4);
         const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
         expect(tipoDerecho).toBeNull();
     });
 
     test('Test nulo "No registra anotaciones"', () => {
-        const info = testPjudPdf.normalizeInfo(textoGP5);
+        const info = testPjudPdf.normalizeInfo(textosGP.textoGP5);
         const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
         expect(tipoDerecho).toBeNull();
     });
@@ -206,7 +206,7 @@ describe('obtainDerecho', () => {
     });
 
     test('Test de tipo de texto que dice no se encuentra afecto a bf', ()=>{
-        const info = testPjudPdf.normalizeInfo(GP1435);
+        const info = testPjudPdf.normalizeInfo(textosGP.GP1435);
         const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
         expect(tipoDerecho).toBeNull();
     });
@@ -265,8 +265,8 @@ describe('obtainComuna', () => {
     });
 
     test('Test con obtencion de comuna con GP', () => {
-        const normalizeInfo = testPjudPdf.normalizeInfo(texto12Santiago);
-        const spanishNormalization = testPjudPdf.normalizeSpanish(texto12Santiago)
+        const normalizeInfo = testPjudPdf.normalizeInfo(textosGP.texto12Santiago);
+        const spanishNormalization = testPjudPdf.normalizeSpanish(textosGP.texto12Santiago)
         const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
         expect(resAnno).toEqual("estación central");
     });
@@ -311,10 +311,66 @@ describe('obtainComuna', () => {
         const spanishNormalization = testPjudPdf.normalizeSpanish(textosDV.dv2114)
         console.log(normalizeInfo)
         const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
-        expect(resAnno).toEqual("quilpue");
-        
+        expect(resAnno).toEqual("quilpué");
     });
 
+    test('Test comuna buscado en GP', ()=>{
+        const normalizeInfo = testPjudPdf.normalizeInfo(textosGP.GP15491);
+        const spanishNormalization = testPjudPdf.normalizeSpanish(textosGP.GP15491)
+        console.log(normalizeInfo)
+        const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
+        expect(resAnno).toEqual("santiago");
+    });
+
+    test('Otra prueba de obtener la comuna en GP', ()=>{
+        const normalizeInfo = testPjudPdf.normalizeInfo(textosGP.GP1435);
+        const spanishNormalization = testPjudPdf.normalizeSpanish(textosGP.GP1435)
+        console.log(normalizeInfo)
+        const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
+        expect(resAnno).toEqual("lota");
+    });
+
+    test('Test comuna GP viña del mar', () => {
+        const normalizeInfo = testPjudPdf.normalizeInfo(textosGP.textoGP5);
+        const spanishNormalization = testPjudPdf.normalizeSpanish(textosGP.textoGP5)
+        const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
+        expect(resAnno).toEqual("viña del mar");
+    });
+
+    test('Test comuna GP coquimbo', () => {
+        const normalizeInfo = testPjudPdf.normalizeInfo(textosGP.textoGP4);
+        const spanishNormalization = testPjudPdf.normalizeSpanish(textosGP.textoGP4)
+        const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
+        expect(resAnno).toEqual("coquimbo");
+    });
+
+    test('Test comuna GP la florida', () => {
+        const normalizeInfo = testPjudPdf.normalizeInfo(textosGP.textoGP3);
+        const spanishNormalization = testPjudPdf.normalizeSpanish(textosGP.textoGP3)
+        const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
+        expect(resAnno).toEqual("la florida");
+    });
+
+    test('Test comuna GP teno', () => {
+        const normalizeInfo = testPjudPdf.normalizeInfo(textosGP.textoGP2);
+        const spanishNormalization = testPjudPdf.normalizeSpanish(textosGP.textoGP2)
+        const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
+        expect(resAnno).toEqual("teno");
+    });
+
+    test('Test comuna GP null', () => {
+        const normalizeInfo = testPjudPdf.normalizeInfo(textosGP.textoGP1);
+        const spanishNormalization = testPjudPdf.normalizeSpanish(textosGP.textoGP1)
+        const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
+        expect(resAnno).toBeNull();
+    });
+
+    test('Test comuna GP la serena', () => {
+        const normalizeInfo = testPjudPdf.normalizeInfo(textosGP.GP299);
+        const spanishNormalization = testPjudPdf.normalizeSpanish(textosGP.GP299)
+        const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
+        expect(resAnno).toEqual('la serena');
+    });
 });
 
 describe('ObtainDireccion', () => {
@@ -343,7 +399,7 @@ describe('ObtainAnno', () => {
     });
 
     test('test negativo null, con lectura GP', () =>{
-        const normalizeInfo = testPjudPdf.normalizeInfo(textoGP1);
+        const normalizeInfo = testPjudPdf.normalizeInfo(textosGP.textoGP1);
         const resAnno = testPjudPdf.obtainAnno(normalizeInfo);
         expect(resAnno).toBeNull();
     });

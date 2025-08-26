@@ -109,8 +109,8 @@ class PjudPdfData {
         }
     }
 
-    processPropertyInfo(info, normalizedInfo) {
-        if(this.isDemanda(info)){
+    processPropertyInfo(spanishInfo, normalizedInfo) {
+        if(this.isDemanda(spanishInfo)){
             // Si no es una demanda, entonces no se procesan los datos de la propiedad
             return; 
         }
@@ -145,7 +145,7 @@ class PjudPdfData {
 
         //Obtener comuna
         if (!this.caso.comuna) {
-            let comuna = this.findValueGeneric(info, normalizedInfo, this.obtainComuna);
+            let comuna = this.obtainComuna(spanishInfo, normalizedInfo);
             if (comuna) {
                 console.log(`\n-----------------------------\nComuna ${comuna}\n----------------------------- `);
                 sendToRenderer(this.mainWindow, `Causa: ${this.caso.causa} Comuna obtenida: ${comuna}`);
@@ -785,11 +785,11 @@ class PjudPdfData {
 
     
 
-    findValueGeneric(info, normalizedInfo, lambda){
+    findValueGeneric(spanishInfo, normalizedInfo, lambda){
         const textRemate = this.splitTextFromPaper(normalizedInfo);
         if (textRemate.length === 1) {
             // console.log("Buscando en singular")
-            const value = lambda(info,normalizedInfo);
+            const value = lambda(spanishInfo,normalizedInfo);
             if (value) {
                 return value;
             }
@@ -1001,19 +1001,19 @@ class PjudPdfData {
         return null;
     }
 
-    obtainComuna(info, infoNormalized,logData = false) {
+    obtainComuna(spanishInfo, infoNormalized,logData = false) {
         const regexDominio = /dominio\s*con\s*vigencia/gi;
         //No se obtiene la comuna de la inscripcion porque en esta aparecen varias comunas
         //Del comprador, vendedor, inmobiliaria, juzgado, etc
-        if (regexDominio.test(info)) {
+        if (regexDominio.test(spanishInfo)) {
             console.log("Incluye dominio con vigencia, no se puede obtener la comuna");
             return null;
         }
-        info = normalizeInfoForComuna(info);
+        spanishInfo = normalizeInfoForComuna(spanishInfo);
         infoNormalized = normalizeInfoForComuna(infoNormalized) 
         if(logData){
-            console.log(info);
-            console.log(infoNormalized);
+            console.log("normalizada spanish" ,spanishInfo);
+            console.log("normalizada natural ",infoNormalized);
         }
 
         // console.log("info en comuna: ", info);
@@ -1021,7 +1021,7 @@ class PjudPdfData {
         if (comuna) {
             return comuna;
         }
-        comuna = extractor.district(info, true);
+        comuna = extractor.district(spanishInfo, true,logData);
 
         if (comuna) {
             return comuna;

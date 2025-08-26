@@ -24,6 +24,7 @@ describe('procesarDatosRemate',()=>{
         expect(caso1857.partes).toEqual('progarantía sagr/ constructora e ingeniería smot');
         expect(caso1857.fechaRemate).toEqual(new Date('2025/07/08'));
         expect(caso1857.diaEntrega).toEqual('a más tardar a las 14:00 horas del día hábil anterior a la subasta');
+        expect(caso1857.direccion).toEqual(`propiedad corresponde a la casa número cincuenta y siete, del 'condominio san marcos la portada, lote sm siete', cuyo ingreso es por calle los conquistadores número trece mil novecientos sesenta, comuna y región de antofagasta`);
     });
 
     test('Caso C-1666-2014',()=>{
@@ -41,6 +42,7 @@ describe('procesarDatosRemate',()=>{
         //     moneda: 'UF',
         //     monto: 1031.99465
         // });
+        expect(caso1666.direccion).toEqual('propiedad ubicada en el sitio 10 de la manzana d-1, ubicado en calle 4 arnaldo toro godoy n° 01241 del conjunto habitacional arturo alessandri palma ii de la ciudad de linares comuna de linares');
     });
 
     test('Caso C-2226-2023',()=>{
@@ -62,6 +64,7 @@ describe('procesarDatosRemate',()=>{
         // expect(caso2226.diaEntrega).toEqual('dia viernes anterior');
         expect(caso2226.partes).toEqual('banco de credito e inversiones con zavala');
         expect(caso2226.diaEntrega).toBeNull();
+        expect(caso2226.direccion).toEqual('casa y sitio ubicado en pasaje los planetas nº0466, que corresponde al sitio nº 2 de la manzana 2 del plano de loteo respectivo del conjunto habitacional denominado nemesio antúnez 1 etapa, de la comuna de linares')
     });
 
     test('Caso C-2240-2024',()=>{
@@ -83,6 +86,7 @@ describe('procesarDatosRemate',()=>{
         expect(caso2240.porcentaje).toEqual(10);
         expect(caso2240.partes).toEqual('santander-chile con muñoz zepeda”');
         expect(caso2240.diaEntrega).toBeNull();
+        expect(caso2240.direccion).toEqual('inmueble consistente en el departamento n°1104, situado en la planta o piso 11, la bodega n°140, ubicada en la planta subterráneo, ambos del edificio ii, y el Est de superficie n°e-381, ubicado en el área del terreno común destinado a estacionamientos, todos del condominio alto hacienda, etapa 2, con acceso principal por avenida rené schneider n°2031, de la comuna de coquimbo')
     });
 
     test('Caso C-800-2025',()=>{
@@ -99,6 +103,7 @@ describe('procesarDatosRemate',()=>{
         expect(caso800.unitRol).toEqual('965-296');
         expect(caso800.partes).toEqual('comunidad edificio alhambra/melendez');
         expect(caso800.diaEntrega).toBeNull();
+        expect(caso800.direccion).toEqual('propiedad del departamento numero cuarenta y seis del cuarto piso y el Est cubierto número veinticuatro, del edificio “la alhambra”, ubicado en avenida del mar numero dos mil quinientos cincuenta de la serena e inscrito a fojas 3043 número 2791 del registro de propiedad del conservador de bienes raíces')
     });
 
     test('Caso C-18731-2007',()=>{
@@ -118,6 +123,7 @@ describe('procesarDatosRemate',()=>{
             monto: 500
         });
         expect(caso18731.diaEntrega).toEqual('día precedente a la fecha de la subasta, entre las 11:00 y 12:00 horas');
+        expect(caso18731.direccion).toEqual('inmueble ubicado en calle gran bretaña nº 3079, población armando alarcón del canto, hualpén, inscrito a fojas 1621, nº 1265 del registro propiedad año 2006, conservador bienes raíces talcahuano.')
     });
 
     test('Caso C-460-2024 de Emol', ()=>{
@@ -139,6 +145,7 @@ describe('procesarDatosRemate',()=>{
         expect(caso460.fechaRemate).toEqual(new Date('2025/08/07'));
         expect(caso460.partes).toEqual('banco santander-chile sa/prinea');
         expect(caso460.diaEntrega).toEqual('fijado el 04 agosto 2025, entre 09:00 y 11:00 horas');
+        expect(caso460.direccion).toEqual('departamento nº 1317 y derechos comunes, ubicado en conde del maule nº 4470, estación central, región metropolitana, inscrita a fs.');
     });
 
     test('Caso C-10926-2024', () => {
@@ -164,6 +171,7 @@ describe('procesarDatosRemate',()=>{
         });
         expect(caso10926.partes).toEqual('banco itaú chile contra sanhueza mendoza');
         expect(caso10926.diaEntrega).toEqual('susceptible de ser endosado al momento de la subasta');
+        expect(caso10926.direccion).toEqual('departamento nº 2406 (dos mil cuatrocientos seis) del vigésimo cuarto piso, del edificio conexión, con acceso por calle san diego nº 255 (doscientos cincuenta y cinco), comuna de santiago');
     });
 
     test('Caso C-345-2019', () => {
@@ -187,6 +195,7 @@ describe('procesarDatosRemate',()=>{
             "monto" : 39084038
         });
         expect(caso345.diaEntrega).toBeNull();
+        expect(caso345.direccion).toEqual('inmueble: sitio n, ubicado en batuco, comuna de salamanca, provincia del choapa, región de coquimbo');
     });
 
     test('Caso C-156-2023',()=>{
@@ -206,6 +215,7 @@ describe('procesarDatosRemate',()=>{
             moneda: "UF"
         });
         expect(caso156.diaEntrega).toBeNull();
+        expect(caso156.direccion).toEqual('inmueble ubicado calle homs n° 6945 depto. 205, estac. 58 y bg. 44 del 2° subterráneo, comuna las');
     });
 
     test('Caso C-11613-2024', () => {
@@ -229,6 +239,7 @@ describe('procesarDatosRemate',()=>{
             "monto" : 118639031
         });
         expect(caso11613.diaEntrega).toEqual('el día jueves inmediatamente anterior a la fecha de la subasta, entre las 10:00 y las 12:30 horas');
+        expect(caso11613.direccion).toEqual('departamento 206, estacionamiento 33 y bodega 31, todos del edificio tempo, con acceso por los aliaga 5500, comuna de');
     });
 
     test('Caso C-18187-2017', () => {
@@ -252,6 +263,7 @@ describe('procesarDatosRemate',()=>{
             "monto" : 47647595
         });
         expect(caso18187.diaEntrega).toEqual('los días martes y jueves, anterior a la realización de la subasta, según correspondiere, entre las 10:00 y las 12:00 horas');
+        expect(caso18187.direccion).toEqual('propiedad ubicada pasaje constantino número mil ciento noventa y uno, que corresponde al lote número treinta y nueve de la manzana d del plano de loteo respectivo, comuna de maip');
     });
 
     test('Caso C-3252-2024', ()=>{
@@ -261,7 +273,28 @@ describe('procesarDatosRemate',()=>{
         procesarDatosRemate(caso3252);
         expect(caso3252.causa).toEqual('C-3252-2024');
         expect(caso3252.diaEntrega).toEqual('día lunes 25 de agosto de 2025, entre las 09:00 y las 11:00 horas');
+        expect(caso3252.direccion).toEqual('inmueble ubicado en puente alto, provincia cordillera, calle v centenario nº 2570, que corresponde al lote 3, de la manzana i, construido en calle ángel pimentel número 064, que corresponde al lote a reserva propietario, proveniente de la subdivisión del lote vii, de la subdivisión del resto del inmueble de mayor extensión compuesto por dos lotes que forman un solo paño de terreno ubicado en la población granjas, ex fundo el peñón. el título de dominio se encuentra inscrito a fojas 189 vuelta número 237, del registro de propiedad del conservador de bienes raíces');
+    });
 
+    test('Caso C-12068-2023', ()=>{
+        const caso12068 = new Caso();
+        const normalizedText = normalizeDescription(Extractos.ex12068);
+        caso12068.texto = normalizedText;
+        procesarDatosRemate(caso12068);
+        expect(caso12068.causa).toEqual('C-12068-2023');
+        expect(caso12068.diaEntrega).toEqual('día precedente a la fecha fijada para la realización de la subasta, entre las 11:00 y 12:00 horas');
+        expect(caso12068.direccion).toEqual('inmueble ubicado en la comuna de puente alto, provincia cordillera, pasaje el quetru nº 4661, que corresponde al sitio nº 30 de la manzana 33, etapa w, del conjunto habitacional las perdices ii, que según plano archivado bajo el nº 2483 al final del registro del conservador de bienes raíces');
+    });
+
+    test('Caso C-939-2023', ()=>{
+        const caso939 = new Caso();
+        const normalizedText = normalizeDescription(Extractos.ex939);
+        caso939.texto = normalizedText;
+        console.log(normalizedText);
+        procesarDatosRemate(caso939);
+        expect(caso939.causa).toEqual('C-939-2023');
+        expect(caso939.diaEntrega).toEqual('con 48 horas de antelación a la subasta');
+        expect(caso939.direccion).toEqual('parcela nº 80, resultante de la división de los siguientes predios: a) fundo denominado actualmente puerta de hierro; b) parcela nº 39 del proyecto de parcelación viluco, santa julia, la esperanza, los encinos y los carolinos; y c) parcela nº 40, del proyecto de parcelación denominado parte de la hijuela santa julia de viluco, san andrés de viluco, santa eugenia de cervera, santa maría de cervera y san luis de cervera, de la comuna de buin');
     });
 
     test('Caso con texto nulo con toObject()',()=>{

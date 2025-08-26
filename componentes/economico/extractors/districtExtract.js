@@ -4,6 +4,11 @@ const { comunas} = require('../../caso/datosLocales.js');
 function extractDistrict(data, isPjud = false, isDebug = false) {
     // console.log("Data en getComuna:  :)", data);
     const dataNormalizada = data.toLowerCase();
+        
+    if(isDebug){
+        console.log("Data normalizada en el extract district", dataNormalizada)
+        console.log("Esta activo el debug ", isDebug)
+    }
     // if(isDebug) console.log("Data normalizada en getComuna: ",dataNormalizada);
     const listaPreFrases = [
         "comuna de ",
@@ -12,7 +17,7 @@ function extractDistrict(data, isPjud = false, isDebug = false) {
         "comuna: ",
         // 'en '
     ];
-    if (!isPjud) {
+    // if (!isPjud) {
         const listaExtra = [
             "conservador de bienes raíces de ",
             'conservador de bienes raices de ',
@@ -23,22 +28,22 @@ function extractDistrict(data, isPjud = false, isDebug = false) {
             "Registro de Propiedad del CBR de ",
         ]
         listaPreFrases.push(...listaExtra);
-    }
+    // }
 
     for (let preFrase of listaPreFrases) {
 
         for (let comuna of comunas) {
-            comuna = comuna.toLowerCase();
+            comuna = comuna.toLowerCase()
             const comunaPreFrase = preFrase + comuna;
-            const regexComuna = new RegExp(`${preFrase}${comuna}(\\b|,)`, 'i');
+            const regexComuna = new RegExp(`${preFrase}${comuna}(\\b|,|\\s)`, 'i');
             const comunaSinEspacio = comunaPreFrase.replace(/\s*/g, '');
 
             const fraseNoValida = new RegExp(`domiciliad[oa]\\s*en\\s*la\\s*comuna\\s*de\\s*${comuna}`, 'i');
 
-            // if(comuna === 'linares' && isDebug){
-            //     console.log("Comuna encontrada: ",regexComuna, regexComuna.test(dataNormalizada));
-            //     console.log(`Probadno con comuna ${comuna} y es ${fraseNoValida.test(dataNormalizada)}`);
-            // }
+            if(comuna === 'quilpué' && isDebug){
+                console.log("Comuna encontrada: ",regexComuna, regexComuna.test(dataNormalizada));
+                console.log(`Probadno con comuna ${comuna} y es ${fraseNoValida.test(dataNormalizada)}`);
+            }
             if ((regexComuna.test(dataNormalizada) || dataNormalizada.includes(comunaSinEspacio)) && !fraseNoValida.test(dataNormalizada)) {
                 return comuna;
             }
