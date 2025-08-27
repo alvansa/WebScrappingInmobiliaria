@@ -344,7 +344,7 @@ Santiago,  13 de diciembre del  2024
 Derechos $ 6.600.-
  D.RAROJAS
  B.1118115
- C.23061316`
+ C.23061316`;
 
 const GP299 = `Certificado de Hipotecas y Prohibiciones
 Inmueble: CALLE o PASAJE BOLIVIA Nº 2971, SITIO Nº 19 DE LA MANZANA 5,
@@ -379,5 +379,6 @@ $6.600.
 CBR La Serena, 9 de Enero de 2025, Hora: 16:08Carátula 1118880 - SGB
 Documento incorpora Firma Electrónica Avanzada
 Código de verificación: 0000301497página 2 de 2`;
+
 
 module.exports = {textoGP1, textoGP2, textoGP3, textoGP4, textoGP5, texto12Santiago, GP1435, GP15491, GP299};

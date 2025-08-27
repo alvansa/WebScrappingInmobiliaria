@@ -7,6 +7,7 @@ const {bf1750} = require('../textos/BF');
 const {ex1666} = require('../textos/Extracto'); 
 const AR = require('../textos/ActaRemate');
 const {textoEstacionamiento1,textoHabitacional1, textoBodegaMultiple, textoEstacionamientoMultiple, textoHabitacionMultiple} = require('../textos/Avaluo');
+const textosGP = require('../textos/GP');
 
 describe('Test de funcionalidad Pjud a normalizacion',() => {
     test('Obtener monto minimo de postura de un extracto', () => {
@@ -44,6 +45,16 @@ describe('Test de funcionalidad Pjud a normalizacion',() => {
         const casoObj = caso4991.toObject();
         expect(casoObj.rolPropiedad).toEqual('03795 - 00302');
         expect(casoObj.avaluoPropiedad).toEqual(59921526);
+    });
+
+    test('Obtencion de GP 15491', ()=>{
+        const caso15491 = new Caso(new Date(), new Date(), 'lgr', 2);
+        const testPjudPdf = new PjudPdfData(caso15491);
+        testPjudPdf.processInfo(textosGP.GP15491);
+        const casoObj = caso15491.toObject();
+        expect(casoObj.comuna).toEqual('santiago');
+        expect(casoObj.tipoDerecho).toEqual('usufructo');
+        expect(casoObj.montoMinimo).toBeNull();
     });
 });
 

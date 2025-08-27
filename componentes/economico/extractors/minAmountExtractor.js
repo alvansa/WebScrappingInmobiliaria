@@ -1,7 +1,6 @@
 
 //Obtiene el monto minimo por el cual iniciara el remate.
 function extractMinAmount(data) {
-    // console.log(data);
     const regexPatronBase = "(?:subasta|m[íi]nim[oa]|rematar|propiedad)\\s*[,a-zA-ZáéíóúÑñ:º0-9\\s]*\\s+";
 
     const regexMontoMinimo = [
@@ -57,7 +56,8 @@ function buscarMontosFinal(regexList, regexMontoMinimo) {
 }
 
 function esMontoValido(monto) {
-    if (monto.includes("no inferior")) {
+    // El 'derechos' es para evitar que obtenga el minimo del costo del GP.
+    if (monto.includes("no inferior") || monto.includes('derechos')) {
         return false;
     }
     return true;

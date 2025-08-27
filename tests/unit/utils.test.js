@@ -209,4 +209,10 @@ describe('MatchRol', ()=>{
         const result = matchRol('2222-2222-3333-44444','2222-9999-2222-1111');
         expect(result).toBe(true);
     });
+
+    test('Test comparacion con dos con varios roles pero que son iguales',()=>{
+        const result = matchRol('231-549-715-785','231-549-715-785');
+        expect(result).toBe(true);
+    });
+
 });

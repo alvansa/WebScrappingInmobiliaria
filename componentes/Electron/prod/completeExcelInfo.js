@@ -216,7 +216,7 @@ class CompleteExcelInfo{
                 const cellRol = wsBase[`${LETRA_ROL}${actualRowBase}`];
                 // console.log(`Revisando fila ${lastRowBase} del archivo base`)
                 if(this.checkCausaJuzgado(causa, juzgado, cellCausa, cellCourt, findedCausas, actualRowBase, lastRowNew)) break;
-                // if(this.checkComunaRol(causa,comuna, rol, cellComuna, cellRol, findedCausas, actualRowBase, lastRowNew)) break;
+                if(this.checkComunaRol(causa,comuna, rol, cellComuna, cellRol, findedCausas, actualRowBase, lastRowNew)) break;
                 actualRowBase--;
             }
             lastRowNew++;
@@ -226,15 +226,32 @@ class CompleteExcelInfo{
 
     static processNewRow(wsNew, rowNum){
         let isValid = true;
+        let juzgado;
+        let comuna;
+        let rol;
         const causaCell = wsNew[`${LETRA_CAUSA}${rowNum}`];
         const comunaCell = wsNew[`${LETRA_COMUNA}${rowNum}`];
         const rolCell = wsNew[`${LETRA_ROL}${rowNum}`];
         
-        const causa = causaCell ? causaCell.v.toUpperCase().replace(/\s*/g, '') : null;
-        const comuna = comunaCell ? comunaCell.v : null;
-        const rol = rolCell ? rolCell.v : null;
+        let causa = causaCell ? causaCell.v.toUpperCase().replace(/\s*/g, '') : null;
+        if(!causa){
+            isValid = false;
+            return {causa, juzgado, comuna, rol, isValid};
+        }   
+        const causaMatch = causa.match(/C-\d+-\d+/);
+        if(!causaMatch){
+            isValid = false;
+            return {causa, juzgado, comuna, rol, isValid};
+        }
+        causa = causaMatch[0]; 
+        if(causa == 'C-7789-2023'){
+            console.log("--------------------\n",causa, causaCell,"\n----------------");
+        }
 
-        let juzgado = wsNew[`${LETRA_JUZGADO}${rowNum}`];
+        comuna = comunaCell ? comunaCell.v : null;
+        rol = rolCell ? rolCell.v : null;
+
+        juzgado = wsNew[`${LETRA_JUZGADO}${rowNum}`];
         if (!juzgado || typeof juzgado.v != 'string') {
             console.log(`No se encontró el juzgado en la fila ${rowNum}`);
             isValid = false;
@@ -248,7 +265,17 @@ class CompleteExcelInfo{
         if (!baseCaseCell || typeof baseCaseCell.v != 'string' || !baseCourtCell || typeof baseCourtCell.v != 'string') {
             return false;
         }
-        const causaBase = baseCaseCell.v.toUpperCase().replace(/\s*/g, '');;
+        let causaBase = baseCaseCell.v.toUpperCase().replace(/\s*/g, '');;
+        if(!causaBase){
+            isValid = false;
+            return false;
+        }   
+        const causaMatch = causaBase.match(/C-\d+-\d+/);
+        if(!causaMatch){
+            return false
+        }
+        causaBase = causaMatch[0]; 
+
         const baseCourt = baseCourtCell.v;
 
         if (newCase == causaBase) {

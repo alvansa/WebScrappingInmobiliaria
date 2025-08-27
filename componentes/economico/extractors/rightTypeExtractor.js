@@ -37,7 +37,7 @@ function extractRightType(data, isDebug = false) {
 }
 
 function findBasicDerecho(text){
-    const regex = /(posesi[óo]n|\busufructo\b|nuda\s+propiedad|bien\s*familiar)/i;
+    const regex = /(\busufructo\b|nuda\s+propiedad|bien\s*familiar)/i;
     const match = text.match(regex);
 
     if (!match) return null;
@@ -126,7 +126,7 @@ function obtainFinalPercentage(foreclosures) {
     let minForeclosure = null;
     const numberRegex = /\d{1,3}(?:,\d{1,8})?/g;
     if (foreclosures.length == 1) {
-        return foreclosures[0][0];
+        return foreclosures[0];
     }
 
     for (let foreclosure of foreclosures) {
