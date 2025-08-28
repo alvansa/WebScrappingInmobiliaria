@@ -6,7 +6,7 @@ const {dv1750, dv4991} = require('../textos/DV');
 const {bf1750} = require('../textos/BF');
 const {ex1666} = require('../textos/Extracto'); 
 const AR = require('../textos/ActaRemate');
-const {textoEstacionamiento1,textoHabitacional1, textoBodegaMultiple, textoEstacionamientoMultiple, textoHabitacionMultiple} = require('../textos/Avaluo');
+const AV = require('../textos/Avaluo');
 const textosGP = require('../textos/GP');
 
 describe('Test de funcionalidad Pjud a normalizacion',() => {
@@ -41,7 +41,7 @@ describe('Test de funcionalidad Pjud a normalizacion',() => {
     test('Obtener el avaluo de habitacional', ()=>{
         const caso4991 = new Caso(new Date(), new Date(), 'lgr', 2);
         const testPjudPdf = new PjudPdfData(caso4991);
-        testPjudPdf.processInfo(textoHabitacionMultiple);
+        testPjudPdf.processInfo(AV.textoHabitacionMultiple);
         const casoObj = caso4991.toObject();
         expect(casoObj.rolPropiedad).toEqual('03795 - 00302');
         expect(casoObj.avaluoPropiedad).toEqual(59921526);
@@ -56,13 +56,38 @@ describe('Test de funcionalidad Pjud a normalizacion',() => {
         expect(casoObj.tipoDerecho).toEqual('usufructo');
         expect(casoObj.montoMinimo).toBeNull();
     });
+
+    test('Obtencion de comuna con normalizacion para incluir tilde concepcion', ()=>{
+        const caso7156 = new Caso(new Date(), new Date(), 'lgr', 2);
+        const testPjudPdf = new PjudPdfData(caso7156);
+        testPjudPdf.processInfo(AV.av7156);
+        const casoObj = caso7156.toObject();
+        expect(casoObj.comuna).toEqual('concepción');
+    });
+
+    test('Obtencion de comuna con normalizacion para incluir tilde concon', ()=>{
+        const caso1028 = new Caso(new Date(), new Date(), 'lgr', 2);
+        const testPjudPdf = new PjudPdfData(caso1028);
+        testPjudPdf.processInfo(AV.av1028);
+        const casoObj = caso1028.toObject();
+        expect(casoObj.comuna).toEqual('concón');
+    });
+
+    test('Obtencion de comuna con normalizacion para incluir tilde copiapo', ()=>{
+        const caso3025 = new Caso(new Date(), new Date(), 'lgr', 2);
+        const testPjudPdf = new PjudPdfData(caso3025);
+        testPjudPdf.processInfo(AV.av3025);
+        const casoObj = caso1028.toObject();
+        expect(casoObj.comuna).toEqual('concón');
+    });
+
 });
 
 describe('Test de Pjud con avaluos', ()=>{
     test('Caso con solo avaluo habitacional', ()=>{
         const caso4991 = new Caso(new Date(), new Date(), 'lgr', 2);
         const testPjudPdf = new PjudPdfData(caso4991);
-        testPjudPdf.processInfo(textoHabitacionMultiple);
+        testPjudPdf.processInfo(AV.textoHabitacionMultiple);
         const casoObj = caso4991.toObject();
         expect(casoObj.unitRol).toEqual('3795-302');
         expect(casoObj.unitAvaluo).toEqual(59921526);
@@ -71,8 +96,8 @@ describe('Test de Pjud con avaluos', ()=>{
     test('Caso con avaluo habitacional y estacionamiento', ()=>{
         const caso4991 = new Caso(new Date(), new Date(), 'lgr', 2);
         const testPjudPdf = new PjudPdfData(caso4991);
-        testPjudPdf.processInfo(textoHabitacionMultiple);
-        testPjudPdf.processInfo(textoEstacionamientoMultiple);
+        testPjudPdf.processInfo(AV.textoHabitacionMultiple);
+        testPjudPdf.processInfo(AV.textoEstacionamientoMultiple);
         const casoObj = caso4991.toObject();
         expect(casoObj.unitRol).toEqual('3795-302-474');
         expect(casoObj.unitAvaluo).toEqual(64348355);
@@ -81,9 +106,9 @@ describe('Test de Pjud con avaluos', ()=>{
     test('Caso con avaluo habitacional, estacionamiento y bodega', ()=>{
         const caso4991 = new Caso(new Date(), new Date(), 'lgr', 2);
         const testPjudPdf = new PjudPdfData(caso4991);
-        testPjudPdf.processInfo(textoHabitacionMultiple);
-        testPjudPdf.processInfo(textoEstacionamientoMultiple);
-        testPjudPdf.processInfo(textoBodegaMultiple);
+        testPjudPdf.processInfo(AV.textoHabitacionMultiple);
+        testPjudPdf.processInfo(AV.textoEstacionamientoMultiple);
+        testPjudPdf.processInfo(AV.textoBodegaMultiple);
         const casoObj = caso4991.toObject();
         expect(casoObj.unitRol).toEqual('3795-302-474-368');
         expect(casoObj.unitAvaluo).toEqual(65214126);
@@ -92,8 +117,8 @@ describe('Test de Pjud con avaluos', ()=>{
     test('Caso con avaluo habitacional, estacionamiento y bodega', ()=>{
         const caso4991 = new Caso(new Date(), new Date(), 'lgr', 2);
         const testPjudPdf = new PjudPdfData(caso4991);
-        testPjudPdf.processInfo(textoHabitacionMultiple);
-        testPjudPdf.processInfo(textoBodegaMultiple);
+        testPjudPdf.processInfo(AV.textoHabitacionMultiple);
+        testPjudPdf.processInfo(AV.textoBodegaMultiple);
         const casoObj = caso4991.toObject();
         expect(casoObj.unitRol).toEqual('3795-302-368');
         expect(casoObj.unitAvaluo).toEqual(60787297);

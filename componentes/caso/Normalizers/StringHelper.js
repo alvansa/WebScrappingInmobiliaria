@@ -72,6 +72,20 @@ class StringHelper{
         return partesNormalizadas.trim().toLocaleLowerCase();
     }
 
+    static comuna(comuna){
+        if(!comuna){
+            return null;
+        }
+        let comunaNormalized;
+        comunaNormalized = comuna.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
+        
+        comunaNormalized = comunaNormalized
+            .replace('cion','ción')
+            .replace('concon','concón')
+            .replace('copiapo','copiapó');
+
+        return comunaNormalized;
+    }
 
 }
 

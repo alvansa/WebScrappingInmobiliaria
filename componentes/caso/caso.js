@@ -525,7 +525,7 @@ class Caso{
             moneda : montoMoneda["moneda"],
             multiples: this.#multiples,
             multiplesFoja : this.#multiplesFoja,
-            comuna: comunaNormalizada,
+            comuna: StringHelper.comuna(this.#comuna),
             foja: this.#foja,
             partes: StringHelper.partes(this.#partes, this.#origen),
             tipoPropiedad: this.#tipoPropiedad,
