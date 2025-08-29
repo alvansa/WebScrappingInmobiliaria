@@ -14,19 +14,23 @@ const PJUD = config.PJUD;
 const EMOL = config.EMOL;
 const LIQUIDACIONES = config.LIQUIDACIONES;
 
+const LETRA_ESTADO = 'B';
+const LETRA_NOTAS = 'E';
 const LETRA_FECHA_DESC = 'C';
 const LETRA_ORIGEN = 'D';
 const LETRA_FECHA_REM = 'F';
-const LETRA_CAUSA = 'J';
-const LETRA_JUZGADO = 'K';
-const LETRA_COMUNA = 'M';
+const LETRA_OCUPACION = 'H'
+const LETRA_MARTILLERO = 'I';
+const LETRA_CAUSA = 'K';
+const LETRA_JUZGADO = 'L';
+const LETRA_COMUNA = 'N';
 const LETRA_PARTES = 'O';
-const LETRA_ROL = 'X';
-const LETRA_PORCENTAJE = 'AM';
+const LETRA_ROL = 'Y';
+const LETRA_PORCENTAJE = 'AN';
 
-const COLUMNAS_EXCEL = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z','AA', 'AB', 'AC', 'AD', 'AE', 'AF', 'AG', 'AH', 'AI', 'AJ', 'AK', 'AL', 'AM', 'AN', 'AO', 'AP', 'AQ'];
+const COLUMNAS_EXCEL = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z','AA', 'AB', 'AC', 'AD', 'AE', 'AF', 'AG', 'AH', 'AI', 'AJ', 'AK', 'AL', 'AM', 'AN', 'AO', 'AP', 'AQ','AR'];
 
-const COlUMNAS_MANTENER = ['C', 'D', 'F', 'J', 'K','L', 'Z'];
+const COlUMNAS_MANTENER = ['C', 'D', 'F', 'K', 'L','M', 'AA'];
 
 class CompleteExcelInfo{
     constructor(filePath,event,mainWindow){
@@ -60,7 +64,7 @@ class CompleteExcelInfo{
         // console.log(this.casos.map(obj => obj.toObject()));
 
         createExcel.cambiarAnchoColumnas(ws);
-        ws['!ref'] = 'A5:AQ' + lastRow;
+        ws['!ref'] = 'A5:AR' + lastRow;
         const fileName = this.filePath.split('.')[0];
         const filePath = fileName+'Completo'+'.xlsx';
         XLSX.writeFile(wb,filePath, { cellDates: true });
@@ -311,14 +315,14 @@ class CompleteExcelInfo{
         COLUMNAS_EXCEL.forEach(columna => {
             const baseCell = wsBase[`${columna}${baseRow}`];
             if (!COlUMNAS_MANTENER.includes(columna)) {
-                if (columna == 'H') {
+                if (columna == LETRA_MARTILLERO) {
                     let text = '';
                     // console.log("Escribiendo fila ", newRow)
-                    const actualValueHCell = wsNew[`H${newRow}`];
-                    const BColumn = wsBase[`B${baseRow}`];
-                    const EColumn = wsBase[`E${baseRow}`];
-                    const HColumn = wsBase[`H${baseRow}`];
-                    const GColumn = wsBase[`G${baseRow}`];
+                    const actualValueHCell = wsNew[`${LETRA_MARTILLERO}${newRow}`];
+                    const BColumn = wsBase[`${LETRA_ESTADO}${baseRow}`];
+                    const EColumn = wsBase[`${LETRA_NOTAS}${baseRow}`];
+                    const HColumn = wsBase[`${LETRA_MARTILLERO}${baseRow}`];
+                    const GColumn = wsBase[`${LETRA_OCUPACION}${baseRow}`];
                     if(actualValueHCell){
                         text += actualValueHCell.v + ' ';
                     }
@@ -340,7 +344,7 @@ class CompleteExcelInfo{
                     }
                     text += ')';
                     // console.log('Escribiendo columna ',newRow);
-                    wsNew[`H${newRow}`] = {
+                    wsNew[`${LETRA_MARTILLERO}${newRow}`] = {
                         v: text,
                         t: 's',
                     }
@@ -394,12 +398,9 @@ class CompleteExcelInfo{
                 percentajeCell.t = 'n';
                 percentajeCell.z = '0%';
             }
-
             lastRow++;
         }
     }
-
-
 }
 
 module.exports = CompleteExcelInfo;

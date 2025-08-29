@@ -1,18 +1,19 @@
 //Necesario si o si
-const XLSX = require('xlsx');
-const fs = require('fs');
-const path = require('path');
-const Causas = require('../../model/Causas.js');
+const XLSX = require(`xlsx`);
+const fs = require(`fs`);
+const path = require(`path`);
+const Causas = require(`../../model/Causas.js`);
 const config = require("../../config.js");
-const Caso = require('../caso/caso.js');
-const {fixStringDate} = require('../../utils/cleanStrings.js');
+const Caso = require(`../caso/caso.js`);
+const {fixStringDate} = require(`../../utils/cleanStrings.js`);
 
 const PJUD = config.PJUD;
 const EMOL = config.EMOL;
 const LIQUIDACIONES = config.LIQUIDACIONES;
 const PREREMATES = config.PREREMATES;
+// const config = config.LETRAS;
 
-const RANGO_EXCEL = 'A5:AQ';
+const RANGO_EXCEL = `${config.INICIO}5:${config.COMENTARIOS3}`;
 
 class createExcel {
     constructor(saveFile, startDate, endDate, emptyMode, type, isTestMode = false) {
@@ -33,92 +34,93 @@ class createExcel {
         // Crea una hoja de cálculo vacía
         const ws = {};
 
-        ws['A5'] = { v: 'vacia', t: 's' };
-        ws['B5'] = { v: 'status', t: 's' };
-        ws['C5'] = { v: 'F.Desc', t: 's' };
-        ws['D5'] = { v: 'origen', t: 's' };
-        ws['E5'] = { v: 'notas', t: 's' };
-        ws['F5'] = { v: 'F. remate', t: 's' };
-        ws['G5'] = { v: 'Ocup', t: 's' };
-        ws['H5'] = { v: 'macal', t: 's' };
-        ws['I5'] = { v: 'direccion', t: 's' };
-        ws['J5'] = { v: 'causa', t: 's' };
-        ws['K5'] = { v: 'tribunal', t: 's' };
-        ws['L5'] = { v: 'comuna tribunal', t: 's' };
-        ws['M5'] = { v: 'comuna propiedad', t: 's' };
-        ws['N5'] = { v: 'año inscripcion', t: 's' };
-        ws['O5'] = { v: 'partes', t: 's' };
-        ws['P5'] = { v: 'dato', t: 's' };
-        ws['Q5'] = { v: 'vale vista o cupon', t: 's' };
-        ws['R5'] = { v: '%', t: 's' };
-        ws['S5'] = { v: 'plazo vv', t: 's' };
-        ws['T5'] = { v: 'tipo derecho', t: 's' };
-        ws['U5'] = { v: 'deuda 1', t: 's' };
-        ws['V5'] = { v: 'deuda 2', t: 's' };
-        ws['W5'] = { v: 'deuda 3', t: 's' };
-        ws['X5'] = { v: 'rol', t: 's' };
-        ws['Y5'] = { v: 'notif', t: 's' };
-        ws['Z5'] = { v: 'preciominimo', t: 's' };
-        ws['AC5'] = { v: 'UF o $', t: 's' };
-        ws['AD5'] = { v: 'avaluo fiscal', t: 's' };
-        ws['AF5'] = { v: 'estado civil', t: 's' };
-        ws['AG5'] = { v: 'Px $ compra ant', t: 's' };
-        ws['AH5'] = { v: 'año compr ant', t: 's' };
-        ws['AJ5'] = { v: 'precio venta nos', t: 's' };
+        ws[`${config.INICIO}5`] = { v: 'vacia', t: 's' };
+        ws[`${config.ESTADO}5`] = { v: 'status', t: 's' };
+        ws[`${config.FECHA_DESC}5`] = { v: 'F.Desc', t: 's' };
+        ws[`${config.ORIGEN}5`] = { v: 'origen', t: 's' };
+        ws[`${config.NOTAS}5`] = { v: 'notas', t: 's' };
+        ws[`${config.FECHA_REM}5`] = { v: 'F. remate', t: 's' };
+        ws[`${config.HORA_REMATE}5`] = { v: 'Hora', t: 's' };
+        ws[`${config.OCUPACION}5`] = { v: 'Ocup', t: 's' };
+        ws[`${config.MARTILLERO}5`] = { v: 'macal', t: 's' };
+        ws[`${config.DIRECCION}5`] = { v: 'direccion', t: 's' };
+        ws[`${config.CAUSA}5`] = { v: 'causa', t: 's' };
+        ws[`${config.TRIBUNAL}5`] = { v: 'tribunal', t: 's' };
+        ws[`${config.COMUNA_TRIBUNAL}5`] = { v: 'comuna tribunal', t: 's' };
+        ws[`${config.COMUNA}5`] = { v: 'comuna propiedad', t: 's' };
+        ws[`${config.ANNO}5`] = { v: 'año inscripcion', t: 's' };
+        ws[`${config.PARTES}5`] = { v: 'partes', t: 's' };
+        ws[`${config.DATO}5`] = { v: 'dato', t: 's' };
+        ws[`${config.VV_O_CUPON}5`] = { v: 'vale vista o cupon', t: 's' };
+        ws[`${config.PORCENTAJE}5`] = { v: '%', t: 's' };
+        ws[`${config.PLAZOVV}5`] = { v: 'plazo vv', t: 's' };
+        ws[`${config.CONTR_Y_ASEO}5`] = { v: 'tipo derecho', t: 's' };
+        ws[`${config.GGCC}5`] = { v: 'deuda 1', t: 's' };
+        ws[`${config.GGCC}5`] = { v: 'deuda 2', t: 's' };
+        ws[`${config.DEUDA2}5`] = { v: 'deuda 3', t: 's' };
+        ws[`${config.DEUDA3}5`] = { v: 'rol', t: 's' };
+        ws[`${config.ROL}5`] = { v: 'notif', t: 's' };
+        ws[`${config.NOTIFICACION}5`] = { v: 'preciominimo', t: 's' };
+        ws[`${config.PRECIO_MINIMO}5`] = { v: 'UF o $', t: 's' };
+        ws[`${config.AVALUO_FISCAL}5`] = { v: 'avaluo fiscal', t: 's' };
+        ws[`${config.ESTADO_CIVIL}5`] = { v: 'estado civil', t: 's' };
+        ws[`${config.PX_COMPRA}5`] = { v: 'Px $ compra ant', t: 's' };
+        ws[`${config.ANNO_COMPRA}5`] = { v: 'año compr ant', t: 's' };
+        ws[`${config.PRECIO_VENTA_NOS}5`] = { v: 'precio venta nos', t: 's' };
 
-        ws['AQ5'] = { v: 'Deuda Hipotecaria', t: 's' };
+        ws[`${config.DEUDA_HIPOTECA}5`] = { v: 'Deuda Hipotecaria', t: 's' };
 
         // Ajusta el ancho de las columnas
         createExcel.cambiarAnchoColumnas(ws);
 
         // Define el rango de la hoja para asegurar que incluya todas las celdas especificadas
-        ws['!ref'] = 'A5:AQ5';
+        ws[`!ref`] = `${config.INICIO}5:${config.COMENTARIOS3}5`;
 
         // Crea un nuevo libro y agrega la hoja
         const wb = XLSX.utils.book_new();
         wb.Props = {
-            Title: 'Remates',
-            Subject: 'Remates'
+            Title: `Remates`,
+            Subject: `Remates`
         };
         // Agrega la hoja al libro de trabajo
-        XLSX.utils.book_append_sheet(wb, ws, 'Remates');
+        XLSX.utils.book_append_sheet(wb, ws, `Remates`);
         // Guarda el archivo
-        XLSX.writeFile(wb, path.join(this.saveFile, 'Remates.xlsx'));
+        XLSX.writeFile(wb, path.join(this.saveFile, `Remates.xlsx`));
     }
 
     async writeData(casos, name = "") {
         console.log("=====================\nEscibiendo informacion en excel\n==============================");
-        let filePath = path.join(this.saveFile, 'Remates.xlsx');
+        let filePath = path.join(this.saveFile, `Remates.xlsx`);
         // Revisa si el archivo base ya existe
-        if (!fs.existsSync(path.join(this.saveFile, 'Remates.xlsx'))) {
+        if (!fs.existsSync(path.join(this.saveFile, `Remates.xlsx`))) {
             this.crearBase(this.saveFile);
-            console.log('Archivo creado');
+            console.log(`Archivo creado`);
         }
         // Lee el archivo base para poder insertar los datos
-        const wb = XLSX.readFile(path.join(this.saveFile, 'Remates.xlsx'));
-        const ws = wb.Sheets['Remates'];
+        const wb = XLSX.readFile(path.join(this.saveFile, `Remates.xlsx`));
+        const ws = wb.Sheets[`Remates`];
         createExcel.cambiarAnchoColumnas(ws);
 
         try {
             if (this.type === "one") {
                 const lastRow = this.fillWithOne(ws, casos);
-                ws['!ref'] = RANGO_EXCEL + lastRow;
-                filePath = path.join(this.saveFile, 'Caso_' + casos.causa + casos.juzgado + '.xlsx');
+                ws[`!ref`] = RANGO_EXCEL + lastRow;
+                filePath = path.join(this.saveFile, `Caso_` + casos.causa + casos.juzgado + '.xlsx');
             } else if (this.type === "oneDay") {
                 let lastRow = this.insertCasos(casos, ws) - 1;
-                ws['!ref'] = RANGO_EXCEL + lastRow;
-                filePath = path.join(this.saveFile, name + '.xlsx');
+                ws[`!ref`] = RANGO_EXCEL + lastRow;
+                filePath = path.join(this.saveFile, name + `.xlsx`);
             } else {
                 let lastRow = await this.insertarCasosExcel(casos, ws) - 1;
-                ws['!ref'] = RANGO_EXCEL + lastRow;
+                ws[`!ref`] = RANGO_EXCEL + lastRow;
                 const fechaInicioDMA = cambiarFormatoFecha(this.startDate);
                 const fechaFinDMA = cambiarFormatoFecha(this.endDate);
-                filePath = path.join(this.saveFile, 'Remates_' + fechaInicioDMA + '_a_' + fechaFinDMA + '.xlsx');
+                filePath = path.join(this.saveFile, `Remates_` + fechaInicioDMA + '_a_' + fechaFinDMA + '.xlsx');
             }
             XLSX.writeFile(wb, filePath, {cellDates: true});
             return filePath;
         } catch (error) {
-            console.error('Error al obtener resultados:', error);
+            console.error(`Error al obtener resultados:`, error);
             return null;
         }
 
@@ -166,6 +168,7 @@ class createExcel {
                 caso.fechaPublicacion = fechaMenosUno(this.endDate);
             }
             if(this.getValidAuctions(caso, remates) || this.isTestMode){
+            // if(this.getValidAuctions(caso, remates)){
                 this.addObjectToSet(remates,caso);
             }
         }
@@ -196,7 +199,7 @@ class createExcel {
 
     getValidAuctions(currentCase, cacheAuctions) {
         if (currentCase.juzgado) {
-            currentCase.juzgado = currentCase.juzgado.replace(/º/g, '°');
+            currentCase.juzgado = currentCase.juzgado.replace(/º/g, `°`);
         }
 
         // Si el caso ya existe en la cache, no se guarda
@@ -213,7 +216,7 @@ class createExcel {
                 return false;
             }
         }
-        const fechaInicioTest = new Date('2025/09/02');
+        const fechaInicioTest = new Date(`2025/09/02`);
         // Si la fecha de remate es menor a la fecha de inicio, o mayor a la final
         if (currentCase.fechaRemate && (currentCase.fechaRemate < this.fixedStartDate || currentCase.fechaRemate > this.fixedEndDate )) {
         // if (currentCase.fechaRemate && (currentCase.fechaRemate < fechaInicioTest || currentCase.fechaRemate > fechaInicioTest )) {
@@ -243,7 +246,7 @@ class createExcel {
     }
 
     static cambiarAnchoColumnas(ws) {
-        ws['!cols'] = [
+        ws[`!cols`] = [
             { wch: 15 },  // A
             { wch: 15 },  // B
             { wch: 20 },  // C
@@ -251,30 +254,30 @@ class createExcel {
             { wch: 25 },  // E
             { wch: 15 },  // F
             { wch: 15 },  // G
-            { wch: 30 },  // H
-            { wch: 20 },  // I
-            { wch: 15 },  // J
-            { wch: 30 },  // K
-            { wch: 15 },  // L
-            { wch: 20 },  // M
-            { wch: 15 },  // N
-            { wch: 60 },  // O
-            { wch: 15 },  // P
-            { wch: 20 },  // Q
-            { wch: 15 },  // R
-            { wch: 30 },  // S
-            { wch: 15 },  // T
-            { wch: 30 },  // U
-            { wch: 10 },  // V
-            { wch: 30 },  // W
-            { wch: 15 },  // X
+            { wch: 15 },  // H
+            { wch: 30 },  // I
+            { wch: 20 },  // J
+            { wch: 15 },  // K
+            { wch: 30 },  // L
+            { wch: 15 },  // M
+            { wch: 20 },  // N
+            { wch: 15 },  // O
+            { wch: 60 },  // P
+            { wch: 15 },  // Q
+            { wch: 20 },  // R
+            { wch: 15 },  // S
+            { wch: 30 },  // T
+            { wch: 15 },  // U
+            { wch: 30 },  // V
+            { wch: 10 },  // W
+            { wch: 30 },  // X
             { wch: 15 },  // Y
             { wch: 15 },  // Z
             { wch: 15 },  // AA
             { wch: 15 },  // AB
             { wch: 15 },  // AC
-            { wch: 25 },  // AD
-            { wch: 15 },  // AE
+            { wch: 15 },  // AD
+            { wch: 25 },  // AE
             { wch: 15 },  // AF
             { wch: 15 },  // AG
             { wch: 15 },  // AH
@@ -286,7 +289,8 @@ class createExcel {
             { wch: 15 },  // AN
             { wch: 15 },  // AO
             { wch: 15 },  // AP
-            { wch: 25 },  // AQ
+            { wch: 15 },  // AQ
+            { wch: 25 },  // AR
         ];
     }
 }
@@ -321,8 +325,8 @@ function formatDateToSQLite(date) {
 
     // Obtener el año, mes y día
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Los meses van de 0 a 11
-    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, `0`); // Los meses van de 0 a 11
+    const day = String(date.getDate()).padStart(2, `0`);
 
     // Formatear como YYYY-MM-DD
     return `${year}-${month}-${day}`;
@@ -342,70 +346,70 @@ function writeLine(ws, row, col, value, type) {
 function insertarCasoIntoWorksheet(caso, ws, currentRow) {
     let newRol = caso.rolPropiedad;
     if (caso.fechaPublicacion && caso.fechaPublicacion instanceof Date) {
-        ws['A' + currentRow] = { v: caso.fechaPublicacion, t: 'd', z: 'dd/mm/yyyy' };
+        ws[`${config.INICIO}` + currentRow] = { v: caso.fechaPublicacion, t: 'd', z: 'dd/mm/yyyy' };
     }
     // console.log("Fecha de obtenion : ", caso.fechaObtencion, "Tipo :", typeof caso.fechaObtencion);
     if (caso.fechaObtencion && caso.fechaObtencion instanceof Date) {
-        ws['C' + currentRow] = { v: caso.fechaObtencion, t: 'd', z: 'dd/mm/yyyy' };
+        ws[`${config.FECHA_DESC}` + currentRow] = { v: caso.fechaObtencion, t: 'd', z: 'dd/mm/yyyy' };
     }
-    writeLine(ws, 'D', currentRow, caso.link, 's');
-    // ws['E'+ currentRow ] = {v: 'notas ', t: 's'};
+    writeLine(ws, `${config.ORIGEN}`, currentRow, caso.link, 's');
+    // ws[`E`+ currentRow ] = {v: 'notas ', t: 's'};
     if (caso.fechaRemate && caso.fechaRemate instanceof Date) {
-        ws['F' + currentRow] = { v: caso.fechaRemate, t: 'd', z: 'DD/MM/YYYY' };
+        ws[`${config.FECHA_REM}` + currentRow] = { v: caso.fechaRemate, t: 'd', z: 'DD/MM/YYYY' };
     }
-    writeLine(ws, 'H', currentRow, caso.martillero, 's');
+    writeLine(ws, `${config.MARTILLERO}`, currentRow, caso.martillero, 's');
     if (caso.tipoDerecho) {
-        writeLine(ws, 'H', currentRow, caso.tipoDerecho, 's');
+        writeLine(ws, `${config.MARTILLERO}`, currentRow, caso.tipoDerecho, 's');
     } else if (caso.isPaid) {
-        writeLine(ws, 'H', currentRow, "(Pagado)", 's');
+        writeLine(ws, `${config.MARTILLERO}`, currentRow, "(Pagado)", 's');
     } else if (caso.isAvenimiento) {
-        writeLine(ws, 'H', currentRow, "(Avenimiento)", 's');
+        writeLine(ws, `${config.MARTILLERO}`, currentRow, "(Avenimiento)", 's');
     }
     // Revisamos si el caso tiene estacionamiento o bodega, y adaptamos la direccion
     // const newDireccion = this.checkEstacionamientoBodega(caso)
-    writeLine(ws, 'I', currentRow, caso.unitDireccion, 's');
+    writeLine(ws, `${config.DIRECCION}`, currentRow, caso.unitDireccion, 's');
 
-    writeLine(ws, 'J', currentRow, caso.causa, 's');
-    writeLine(ws, 'K', currentRow, caso.juzgado, 's');
-    writeLine(ws, 'L', currentRow, getComunaJuzgado(caso.juzgado), 's');
-    writeLine(ws, 'M', currentRow, caso.comuna, 's');
-    writeLine(ws, 'N', currentRow, caso.anno, 'n');
-    writeLine(ws, 'O', currentRow, caso.partes, 's');
-    // ws['O'+ currentRow ] = {v: 'dato ', t: 's'};
-    writeLine(ws, 'Q', currentRow, caso.formatoEntrega, 's');
-    writeLine(ws, 'R', currentRow, caso.porcentaje, 's');
-    writeLine(ws, 'S', currentRow, caso.diaEntrega, 's');
-    // ws['T'+ currentRow ] = {v: caso.rolPropiedad, t: 's'};
-    // ws['U'+ currentRow ] = {v: 'deuda 2 ', t: 's'};
-    // ws['V'+ currentRow ] = {v: 'deuda 3 ', t: 's'};
+    writeLine(ws, `${config.CAUSA}`, currentRow, caso.causa, 's');
+    writeLine(ws, `${config.TRIBUNAL}`, currentRow, caso.juzgado, 's');
+    writeLine(ws, `${config.COMUNA_TRIBUNAL}`, currentRow, getComunaJuzgado(caso.juzgado), 's');
+    writeLine(ws, `${config.COMUNA}`, currentRow, caso.comuna, 's');
+    writeLine(ws, `${config.ANNO}`, currentRow, caso.anno, 'n');
+    writeLine(ws, `${config.PARTES}`, currentRow, caso.partes, 's');
+    // ws[`O`+ currentRow ] = {v: 'dato ', t: 's'};
+    writeLine(ws, `${config.VV_O_CUPON}`, currentRow, caso.formatoEntrega, 's');
+    writeLine(ws, `${config.PORCENTAJE}`, currentRow, caso.porcentaje, 's');
+    writeLine(ws, `$${config.PLAZOVV}`, currentRow, caso.diaEntrega, 's');
+    // ws[`T`+ currentRow ] = {v: caso.rolPropiedad, t: 's'};
+    // ws[`U`+ currentRow ] = {v: 'deuda 2 ', t: 's'};
+    // ws[`V`+ currentRow ] = {v: 'deuda 3 ', t: 's'};
 
     // Union de roles de propiedad, estacionamiento y bodega
     // console.log("Rol adaptado: ", newRol);
-    writeLine(ws, 'X', currentRow, caso.unitRol, 's');
+    writeLine(ws, `${config.ROL}`, currentRow, caso.unitRol, 's');
 
-    // ws['X'+ currentRow ] = {v: 'notif ', t: 's'};
+    // ws[`X`+ currentRow ] = {v: 'notif ', t: 's'};
     // Formato de monto minimo segun el tipo de moneda
     if (caso.montoMinimo > 100) {
-        if (caso.moneda === 'UF') {
-            ws['Z' + currentRow] = { v: parseFloat(caso.montoMinimo), t: 'n', z: '#,##0.0000' };
+        if (caso.moneda === `UF`) {
+            ws[`${config.PRECIO_MINIMO}` + currentRow] = { v: parseFloat(caso.montoMinimo), t: 'n', z: '#,##0.0000' };
         }
-        else if (caso.moneda == 'Pesos') {
-            ws['Z' + currentRow] = { v: parseFloat(caso.montoMinimo), t: 'n', z: '#,##0' };
+        else if (caso.moneda == `Pesos`) {
+            ws[`${config.PRECIO_MINIMO}` + currentRow] = { v: parseFloat(caso.montoMinimo), t: 'n', z: '#,##0' };
         }
-        writeLine(ws, 'AA', currentRow, caso.moneda, 's');
+        writeLine(ws, `${config.PRECIO_MINIMO2}`, currentRow, caso.moneda, 's');
     }
     if (caso.avaluoPropiedad != null) {
         // const sumAvaluo = this.sumAvaluo(caso.avaluoPropiedad, caso.avaluoEstacionamiento, caso.avaluoBodega);
-        ws['AD' + currentRow] = { v: caso.unitAvaluo, t: 'n', z: '#,##0' };
+        ws[`${config.AVALUO_FISCAL}` + currentRow] = { v: caso.unitAvaluo, t: 'n', z: '#,##0' };
     }
-    writeLine(ws, "AF", currentRow, caso.estadoCivil, "s");
+    writeLine(ws, `${config.ESTADO_CIVIL}`, currentRow, caso.estadoCivil, "s");
     if (caso.montoCompra && caso.montoCompra.monto) {
-        ws['AG' + currentRow] = { v: caso.montoCompra.monto, t: 'n' };
+        ws[`${config.PX_COMPRA}` + currentRow] = { v: caso.montoCompra.monto, t: 'n' };
     }
-    writeLine(ws, "AH", currentRow, caso.anno, "n");
-    writeLine(ws, "AQ", currentRow, caso.deudaHipotecaria, "n");
-    // ws['AG' + currentRow ] = {v: 'año compr ant ', t: 's'};
-    // ws['AH' + currentRow ] = {v: 'precio venta nos ', t: 's'};
+    writeLine(ws, `${config.ANNO_COMPRA}`, currentRow, caso.anno, "n");
+    writeLine(ws, `${config.DEUDA_HIPOTECA}`, currentRow, caso.deudaHipotecaria, "n");
+    // ws[`AG` + currentRow ] = {v: 'año compr ant ', t: 's'};
+    // ws[`AH` + currentRow ] = {v: 'precio venta nos ', t: 's'};
 }
 
 

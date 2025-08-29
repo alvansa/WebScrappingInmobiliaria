@@ -8,7 +8,7 @@ const FormData = require('form-data');
 const fs = require('fs')
 
 const scrapeAuction = require('./prod/scrapeAuctions.js');
-const CompleteExcelInfo = require('./prod/completeExcelInfo.js');
+const CompleteExcelInfo = require('./prod/CompleteExcelInfo.js');
 const Economico = require('../economico/Economico.js');
 const ProcesarBoletin = require('../liquidaciones/procesarBoletin.js');
 const Pjud = require('../pjud/getPjud.js');
@@ -24,7 +24,7 @@ const testUnitarios = require('./dev/testUnitarios.js');
 const Causas = require('../../model/Causas.js');
 
 const isDevMode = process.argv.includes('--dev');
-const emptyMode = process.argv.includes('--empty');
+const isEmptyMode = process.argv.includes('--empty');
 const isTestMode = process.argv.includes('--test');
 
 const devMode = true;
@@ -125,7 +125,7 @@ class MainApp{
             console.log("handle start-proccess starDate: ", startDate, " endDate: ", endDate, " saveFile: ", saveFile, " checkedBoxes: ", checkedBoxes);
             try{
                 console.time("scrapeAuction");
-                const mainProcess = new scrapeAuction(startDate,endDate,saveFile, checkedBoxes,event,this.mainWindow,isTestMode)
+                const mainProcess = new scrapeAuction(startDate,endDate,saveFile, checkedBoxes,event,isEmptyMode,this.mainWindow,isTestMode)
                 const filePath = await mainProcess.startSearch();
                 console.timeEnd("scrapeAuction");
                 console.log(new Date());
@@ -204,7 +204,7 @@ class MainApp{
                 console.log('Archivo seleccionado:', filePath);
                 // Llama a tu función que procesa el archivo
                 const caso = crearCasoPrueba();
-                caso.origen = "3";
+                caso.origen = LIQUIDACIONES;
                 caso.causa = null;
                 caso.juzgado = null;
                 const pdfProcess = new ProcesarBoletin(null,null);

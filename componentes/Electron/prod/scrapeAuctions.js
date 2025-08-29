@@ -21,13 +21,13 @@ const { fakeDelay, delay } = require('../../../utils/delay.js');
 // const Caso = require('../../caso/caso.js')
 
 class scrapeAuction {
-    constructor(startDate,endDate,saveFile, checkedBoxes,event,mainWindow,isTestMode = false){
+    constructor(startDate,endDate,saveFile, checkedBoxes,event,isEmptyMode,mainWindow,isTestMode = false){
         this.startDate = startDate;
         this.endDate = endDate;
         this.saveFile = saveFile;
         this.checkedBoxes = checkedBoxes;
         this.event = event;
-        this.emptyMode = false;
+        this.emptyMode = isEmptyMode;
         this.browser = null;
         this.mainWindow = mainWindow; // Guardar la referencia a la ventana principal
         this.isTestMode = isTestMode; // Indica si se está en modo desarrollo

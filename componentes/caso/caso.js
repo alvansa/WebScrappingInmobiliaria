@@ -618,13 +618,19 @@ class Caso{
         return montoNormalizado;
     }
     normalizarMontoMinimo(){
+        try{
+
         if(this.#montoMinimo == "N/A" || !this.#montoMinimo){
             return {"monto": null, "moneda": null};
+        }
+        if((typeof this.#montoMinimo) == 'object'){
+            return this.#montoMinimo;
         }
         let montoFinal;
         let moneda;
         
         if(this.#origen == LIQUIDACIONES){ 
+            console.log(this.#montoMinimo, typeof this.#montoMinimo, this.#link)
             montoFinal = this.#montoMinimo.replaceAll('.','').replaceAll(',','.');
             moneda = "Pesos";
         }else if(this.#montoMinimo !== null){
@@ -636,6 +642,10 @@ class Caso{
             moneda = this.#montoMinimo["moneda"];
         }
         return {"monto": parseFloat(montoFinal), "moneda" : moneda};
+        }catch(error){
+            console.error(error.message, this.#causa);
+            console.error(error);
+        }
     }
 
     // Devuelve el tipo de moneda en que se encuentra el monto mínimo

@@ -5,9 +5,12 @@ const EstadoPropiedad = {"bien familiar" : 1,"derecho": 2, "nuda propiedad" : 3,
 
 class Causas {
     constructor() {
-        this.db = dbmgr.db;
+        this.db = dbmgr?.db ?? null;
     }
     getAllCausas() {
+        if(this.isDbAvailable){
+            return [];
+        }
         const query = `SELECT Ca.*,
                         Ju.nombre AS nombre_juzgado,
                         Co.nombre AS nombre_comuna,
@@ -25,12 +28,18 @@ class Causas {
         return causas;
     }
     getTables() {
+        if(this.isDbAvailable){
+            return [];
+        }
         const query = "SELECT name FROM sqlite_master WHERE type='table';";
         const tables = this.db.prepare(query).all();
         return tables;
     }
 
     getByCausa(causa) {
+        if(this.isDbAvailable){
+            return [];
+        }
         try{
             const query = `SELECT Ca.*,
                         Ju.nombre AS nombre_juzgado,
@@ -50,10 +59,12 @@ class Causas {
             return causas.length > 0 ? causas : null;
         }catch(error){
             return null;
-
         }
     }
     searchCausa(causa,numJuzgado) {
+        if(this.isDbAvailable){
+            return [];
+        }
         try{
             const query = `SELECT Ca.*,
                         Ju.nombre AS nombre_juzgado,
@@ -78,6 +89,9 @@ class Causas {
     }
 
     insertMultipleCases(remates,comunas){
+        if(this.isDbAvailable){
+            return [];
+        }
         const cases = [];
         for(let remate of remates){
             cases.push(remate[1]);
@@ -93,16 +107,25 @@ class Causas {
     }
 
     DeleteAll() {
+        if(this.isDbAvailable){
+            return null;
+        }
         const query = "DELETE FROM Causa;";
         this.db.prepare(query).run();
     }
 
     DropCausa() {
+        if(this.isDbAvailable){
+            return null;
+        }
         const query = "DROP TABLE Causa;";
         this.db.prepare(query).run();
     }
 
     searchByCausa(causa) {
+        if(this.isDbAvailable){
+            return null;
+        }
         const query = "Select * from Causa WHERE causa = ?;";
         const causas = this.db.prepare(query).all(causa);
         return causas;
@@ -110,6 +133,9 @@ class Causas {
 
     //Esta funcion revise el caso como objeto Caso no como la transformacion para mostrar
     insertCase(caso, comunas) {
+        if(this.isDbAvailable){
+            return null;
+        }
         const minimoPostura = caso.montoMinimo?.monto ?? null;
         const montoCompra = caso.montoCompra?.monto ?? null;
 
@@ -163,6 +189,9 @@ class Causas {
     }
 
     obtainComunasFromDB() {
+        if(this.isDbAvailable){
+            return null;
+        }
         const query = 'select * FROM Comuna';
         const comunasDB = this.db.prepare(query).all();
         let comunas = new Map();
@@ -197,6 +226,10 @@ class Causas {
         }else{
             return null;
         }
+    }
+    // Verificar si la base de datos está disponible
+    isDbAvailable() {
+        return this.db !== null;
     }
 }
 module.exports = Causas;

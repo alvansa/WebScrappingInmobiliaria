@@ -9,10 +9,11 @@ const caso = require('../componentes/caso/caso');
 const BD_FK = path.join(os.homedir(),"Documents","infoRemates/BD/BD-FK.db");
 const dir = path.join(os.homedir(),"Documents","infoRemates/BD/BD-FK.db");
 if(!fs.existsSync(BD_FK)){
-    fs.mkdirSync(path.dirname(BD_FK), { recursive: true });
-    const db = new Database(BD_FK);
-    createDB(db);
-    exports.db = db;
+    exports.db = null
+    // fs.mkdirSync(path.dirname(BD_FK), { recursive: true });
+    // const db = new Database(BD_FK);
+    // createDB(db);
+    // exports.db = db;
 }else{
     const db = new Database(BD_FK);
     exports.db = db;
