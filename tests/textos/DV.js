@@ -2319,6 +2319,39 @@ Ley Nro 19.799 - Autoacordado  de la Excma Corte Suprema de Chile.-
 Cert Nro 624100, Carátula Nº 242556.- Código retiro 30e5a
 Verifique validez en www.fojas.cl`;
 
+const dv35 = `Conservador San Javier
+CONFORME CON SU ORIGINAL Foja 481 Número 495 Año 1991 EN EL REGISTRO PROPIEDAD
+302627_2511_F481_N495_A1991
+
+Este documento incorpora Firma Electrónica Avanzada de MARIA VERONICA
+MARTINEZ ABRAHAM, Conservadora San Javier según Ley Nº19.799. Su validez
+puede ser consultada en el sitio web www.conservadorsanjavier.cl con el
+código de verificación indicado sobre estas líneas.
+San Javier, 24 Marzo 2023
+Página 1 de 3
+
+Conservador San Javier
+CONFORME CON SU ORIGINAL Foja 481 Número 495 Año 1991 EN EL REGISTRO PROPIEDAD
+302627_2511_F481_N495_A1991
+
+Este documento incorpora Firma Electrónica Avanzada de MARIA VERONICA
+MARTINEZ ABRAHAM, Conservadora San Javier según Ley Nº19.799. Su validez
+puede ser consultada en el sitio web www.conservadorsanjavier.cl con el
+código de verificación indicado sobre estas líneas.
+San Javier, 24 Marzo 2023
+Página 2 de 3
+
+Conservador San Javier
+CONFORME CON SU ORIGINAL Foja 481 Número 495 Año 1991 EN EL REGISTRO PROPIEDAD
+302627_2511_F481_N495_A1991
+
+Este documento incorpora Firma Electrónica Avanzada de MARIA VERONICA
+MARTINEZ ABRAHAM, Conservadora San Javier según Ley Nº19.799. Su validez
+puede ser consultada en el sitio web www.conservadorsanjavier.cl con el
+código de verificación indicado sobre estas líneas.
+San Javier, 24 Marzo 2023
+Página 3 de 3`;
+
 module.exports = {
     dv356,
     dv23039, 
@@ -2339,5 +2372,6 @@ module.exports = {
     dv9404,
     dv6144,
     dv993,
-    dv2114
+    dv2114,
+    dv35
     };

@@ -309,7 +309,6 @@ describe('obtainComuna', () => {
     test('Test comuna de quilpue y vitacura del vendedor', ()=>{
         const normalizeInfo = testPjudPdf.normalizeInfo(textosDV.dv2114);
         const spanishNormalization = testPjudPdf.normalizeSpanish(textosDV.dv2114)
-        console.log(normalizeInfo)
         const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
         expect(resAnno).toEqual("quilpué");
     });
@@ -317,7 +316,6 @@ describe('obtainComuna', () => {
     test('Test comuna buscado en GP', ()=>{
         const normalizeInfo = testPjudPdf.normalizeInfo(textosGP.GP15491);
         const spanishNormalization = testPjudPdf.normalizeSpanish(textosGP.GP15491)
-        console.log(normalizeInfo)
         const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
         expect(resAnno).toEqual("santiago");
     });
@@ -325,7 +323,6 @@ describe('obtainComuna', () => {
     test('Otra prueba de obtener la comuna en GP', ()=>{
         const normalizeInfo = testPjudPdf.normalizeInfo(textosGP.GP1435);
         const spanishNormalization = testPjudPdf.normalizeSpanish(textosGP.GP1435)
-        console.log(normalizeInfo)
         const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
         expect(resAnno).toEqual("lota");
     });
@@ -460,6 +457,12 @@ describe('ObtainAnno', () => {
         const info = testPjudPdf.normalizeInfo(textosDV.dv9404);
         const anno = testPjudPdf.obtainAnno(info);
         expect(anno).toEqual(2015);
+    });
+
+    test('Obtener el null de un DV que se confundio con el anno',()=>{
+        const info = testPjudPdf.normalizeInfo(textosDV.dv35);
+        const anno = testPjudPdf.obtainAnno(info);
+        expect(anno).toBeNull();
     });
 });
 

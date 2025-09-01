@@ -107,4 +107,24 @@ const ex939 = `Remate. 1º Juzgado de Letras de Buin, autos C-939-2023, caratula
 
 const ex18853 = `Remate Ante el Segundo Juzgado Civil Santiago, Huérfanos 1409, 16º piso, se rematará mediante videoconferencia, el 09 de septiembre de 2025, a las 12:00hrs, el inmueble de propiedad de Patricia Jaqueline Cancino Meza ubicado en la comuna de San José de Maipo, Provincia Cordillera, consistente en el Lote número 2 y del 50% de los derechos del camino interior, provenientes del predio denominado Los Quillayes de Melocotón Alto, entre los kilómetros 38 y 39 del Ferrocarril Militar Puente Alto al Volcán, formada por dos retazos uno y dos, que forman un solo todo. La propiedad se encuentra inscrita a fojas 15828, Nº 10087, del Registro de Propiedad del Conservador de Bienes Raíces de Puente Alto, del año 2010. El mínimo para la subasta será la suma de $ 134.371.562. Precio pagadero al contado dentro del quinto día hábil de efectuado el remate. La subasta se realizará por videoconferencia, mediante la plataforma Zoom. Todo postor deberán rendir la garantía para participar en la subasta, equivalente al 10% del mínimo fijado, mediante vale vista a la orden del Tribunal, tomado por la persona que comparecerá a la subasta, o por el representante legal, en caso de que esta fuera persona jurídica. Los interesados deberán presentar el vale vista en dependencias del tribunal, el día hábil anterior a la fecha fijada para el remate, entre las 12:00 y 14:00 horas, debiendo entregar copia de su carnet de identidad, señalar el nombre completo del postor, su mail y teléfono, a fin de coordinar su participación vía correo electrónico y recibir el link con la invitación del remate a efectuarse por videoconferencia. Demás bases y antecedentes en juicio ejecutivo Rol C-18853-2018, Banco de Chile con Cancino. El Secretario.`;
 
-module.exports = {ex1857, ex1666, ex800, ex2226, ex2240, ex18731, ex460, ex10926, ex345, exV156, ex11613, ex18187, ex3252, ex12068, ex939, ex18853};
+const ex19532 = `Extracto. 10º Juzgado Civil de Santiago, Huérfanos 1409, piso 3, Santiago. El 10 de septiembre de 2025, a las 13:15 horas se rematará el inmueble ubicado en calle San Juan nº 42 de la casa 5 del condominio Jardín de Machalí, comuna de Machalí. La inscripción a nombre de la demandada Karen Constanza Arriagada Villanueva consta a fojas 6582 número 11298 del registro de propiedad correspondiente al año 2018 del Conservador de Bienes Raíces de Rancagua. Mínimo para las posturas 925 ,7465 UF, en su equivalente en pesos a la fecha de la subasta, más $ 232.100 por costas. Precio pagadero dentro de los 5 días hábiles de efectuada la subasta. Todo postor debe acompañar materialmente a título de garantía un vale vista endosable a la orden del Tribunal equivalente al 10% del precio mínimo, para lo cual deberán asistir el día hábil de lunes a viernes, inmediatamente anterior a la subasta entre las 09:00 y las 12:00 horas en el Tribunal, acompañando además copia de la cédula de identidad del postor y del representante legal, si fuera persona jurídica, en la cual deberá señalar un correo electrónico y un número de teléfono para mejor comunicación con el tribunal. Bases y antecedentes en expediente 'Securitizadora con Arriagada Villanueva'. Rol C-19532-2024.secretario.`;
+
+module.exports = {
+    ex1857,
+    ex1666, 
+    ex800, 
+    ex2226, 
+    ex2240, 
+    ex18731, 
+    ex460, 
+    ex10926, 
+    ex345, 
+    exV156, 
+    ex11613, 
+    ex18187, 
+    ex3252, 
+    ex12068, 
+    ex939, 
+    ex18853,
+    ex19532,
+};

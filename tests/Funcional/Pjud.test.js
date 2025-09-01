@@ -77,8 +77,8 @@ describe('Test de funcionalidad Pjud a normalizacion',() => {
         const caso3025 = new Caso(new Date(), new Date(), 'lgr', 2);
         const testPjudPdf = new PjudPdfData(caso3025);
         testPjudPdf.processInfo(AV.av3025);
-        const casoObj = caso1028.toObject();
-        expect(casoObj.comuna).toEqual('concón');
+        const casoObj = caso3025.toObject();
+        expect(casoObj.comuna).toEqual('copiapó');
     });
 
 });

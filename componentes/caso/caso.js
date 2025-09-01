@@ -623,13 +623,16 @@ class Caso{
         if(this.#montoMinimo == "N/A" || !this.#montoMinimo){
             return {"monto": null, "moneda": null};
         }
-        if((typeof this.#montoMinimo) == 'object'){
-            return this.#montoMinimo;
-        }
         let montoFinal;
         let moneda;
         
         if(this.#origen == LIQUIDACIONES){ 
+            // if ((typeof this.#montoMinimo) == 'object') {
+            //     return this.#montoMinimo;
+            // }
+            if(typeof this.#montoMinimo.monto == "number"){
+                return this.#montoMinimo;
+            }
             console.log(this.#montoMinimo, typeof this.#montoMinimo, this.#link)
             montoFinal = this.#montoMinimo.replaceAll('.','').replaceAll(',','.');
             moneda = "Pesos";
@@ -638,6 +641,7 @@ class Caso{
                 return this.#montoMinimo;
             }
             let montominimo = this.#montoMinimo["monto"];
+            if(!montominimo) return {"monto": null, "moneda" : null};
             montoFinal = montominimo.replaceAll('.', '').replaceAll(',', '.').replaceAll(' ', '');
             moneda = this.#montoMinimo["moneda"];
         }

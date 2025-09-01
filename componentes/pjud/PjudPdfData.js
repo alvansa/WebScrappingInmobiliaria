@@ -287,6 +287,7 @@ class PjudPdfData {
     obtainBuyYear(texto,debug= false) {
         //Busca el anno por "adquirio por compra"
         // debug  = true;
+        consoleDebug(debug, texto);
         let anno = this.obtainYearForm1(texto);
         if(anno) {
             consoleDebug(debug, `anno encontrado por forma 1: ${anno}`);
@@ -381,7 +382,7 @@ class PjudPdfData {
 
     obtainFromRegistroPropiedad(texto){
 
-        const registroRegex = /registro\s*(?:de)?\s*propiedad(?:es)?\s*(?:a\s*mi\s*cargo,?\s*)?(?:del?\s*)?(?:correspondiente\s*al\s*)?(?:a(?:n|ñ|fi)o\s*)?((\d{4}|\d{1,3}(\.\d{3})*))/i;
+        const registroRegex = /registro\s*(?:de)?\s*propiedad(?:es)?\s*(?:a\s*mi\s*cargo,?\s*)?(?:del?\s*)?(?:correspondiente\s*al\s*)?(?:a(?:n|ñ|fi)o\s*)?((\d{4}|\d{1,3}(\.\d{3})*)(\b|\s|,))/i;
         let registro = texto.match(registroRegex);
         
         if (registro != null) {
@@ -859,11 +860,7 @@ class PjudPdfData {
         if (!percentage) {
             return null;
         }
-        const numericPercentage = percentage[0].match(/\d{1,2}/g);
-        if (!numericPercentage) {
-            return null
-        }
-        return numericPercentage[0];
+        return percentage;
     }
 
     //Busca el estado civil

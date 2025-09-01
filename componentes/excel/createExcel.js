@@ -54,21 +54,28 @@ class createExcel {
         ws[`${config.VV_O_CUPON}5`] = { v: 'vale vista o cupon', t: 's' };
         ws[`${config.PORCENTAJE}5`] = { v: '%', t: 's' };
         ws[`${config.PLAZOVV}5`] = { v: 'plazo vv', t: 's' };
-        ws[`${config.CONTR_Y_ASEO}5`] = { v: 'tipo derecho', t: 's' };
-        ws[`${config.GGCC}5`] = { v: 'deuda 1', t: 's' };
-        ws[`${config.GGCC}5`] = { v: 'deuda 2', t: 's' };
-        ws[`${config.DEUDA2}5`] = { v: 'deuda 3', t: 's' };
-        ws[`${config.DEUDA3}5`] = { v: 'rol', t: 's' };
-        ws[`${config.ROL}5`] = { v: 'notif', t: 's' };
-        ws[`${config.NOTIFICACION}5`] = { v: 'preciominimo', t: 's' };
-        ws[`${config.PRECIO_MINIMO}5`] = { v: 'UF o $', t: 's' };
+        ws[`${config.CONTR_Y_ASEO}5`] = { v: 'contribu y aseo', t: 's' };
+        ws[`${config.GGCC}5`] = { v: 'GGCC', t: 's' };
+        ws[`${config.DEUDA2}5`] = { v: 'deuda 2', t: 's' };
+        ws[`${config.DEUDA3}5`] = { v: 'deuda 3', t: 's' };
+        ws[`${config.ROL}5`] = { v: 'rol', t: 's' };
+        ws[`${config.NOTIFICACION}5`] = { v: 'notif', t: 's' };
+        ws[`${config.PRECIO_MINIMO}5`] = { v: 'preciominimo', t: 's' };
+        ws[`${config.PRECIO_MINIMO2}5`] = { v: 'UF o $', t: 's' };
         ws[`${config.AVALUO_FISCAL}5`] = { v: 'avaluo fiscal', t: 's' };
         ws[`${config.ESTADO_CIVIL}5`] = { v: 'estado civil', t: 's' };
         ws[`${config.PX_COMPRA}5`] = { v: 'Px $ compra ant', t: 's' };
         ws[`${config.ANNO_COMPRA}5`] = { v: 'año compr ant', t: 's' };
         ws[`${config.PRECIO_VENTA_NOS}5`] = { v: 'precio venta nos', t: 's' };
+        ws[`${config.POSTURA_MAXIMA}5`] = { v: 'max', t: 's' };
+        ws[`${config.PORCENTAJE_POSTURA}5`] = { v: '%', t: 's' };
+        ws[`${config.UF_M}5`] = { v: 'UF/m2', t: 's' };
 
+
+        ws[`${config.DEUDA_BANCO}5`] = { v: 'deuda bco', t: 's' };
         ws[`${config.DEUDA_HIPOTECA}5`] = { v: 'Deuda Hipotecaria', t: 's' };
+        ws[`${config.DEUDA_PAGARE}5`] = { v: 'Deuda pagare', t: 's' };
+        ws[`${config.DEUDA_TGR}5`] = { v: 'Deuda tgr', t: 's' };
 
         // Ajusta el ancho de las columnas
         createExcel.cambiarAnchoColumnas(ws);

@@ -290,7 +290,6 @@ describe('procesarDatosRemate',()=>{
         const caso939 = new Caso();
         const normalizedText = normalizeDescription(Extractos.ex939);
         caso939.texto = normalizedText;
-        console.log(normalizedText);
         procesarDatosRemate(caso939);
         expect(caso939.causa).toEqual('C-939-2023');
         expect(caso939.diaEntrega).toEqual('con 48 horas de antelación a la subasta');
@@ -301,7 +300,6 @@ describe('procesarDatosRemate',()=>{
         const caso18853 = new Caso();
         const normalizedText = normalizeDescription(Extractos.ex18853);
         caso18853.texto = normalizedText;
-        console.log(normalizedText);
         procesarDatosRemate(caso18853);
         expect(caso18853.causa).toEqual('C-18853-2018');
         expect(caso18853.tipoDerecho).toEqual('50% de los derechos')
@@ -309,6 +307,20 @@ describe('procesarDatosRemate',()=>{
         // expect(caso18853.direccion).toEqual('parcela nº 80, resultante de la división de los siguientes predios: a) fundo denominado actualmente puerta de hierro; b) parcela nº 39 del proyecto de parcelación viluco, santa julia, la esperanza, los encinos y los carolinos; y c) parcela nº 40, del proyecto de parcelación denominado parte de la hijuela santa julia de viluco, san andrés de viluco, santa eugenia de cervera, santa maría de cervera y san luis de cervera, de la comuna de buin');
     });
 
+    test('Caso C-19532-2024', ()=>{
+        const caso19532 = new Caso();
+        const normalizedText = normalizeDescription(Extractos.ex19532);
+        caso19532.texto = normalizedText;
+        procesarDatosRemate(caso19532);
+        expect(caso19532.causa).toEqual('C-19532-2024');
+        expect(caso19532.tipoDerecho).toBeNull();
+        expect(caso19532.montoMinimo).toEqual({
+            monto : 925.7465,
+            moneda : 'UF'
+        });
+        // expect(caso18853.diaEntrega).toEqual('con 48 horas de antelación a la subasta');
+        // expect(caso18853.direccion).toEqual('parcela nº 80, resultante de la división de los siguientes predios: a) fundo denominado actualmente puerta de hierro; b) parcela nº 39 del proyecto de parcelación viluco, santa julia, la esperanza, los encinos y los carolinos; y c) parcela nº 40, del proyecto de parcelación denominado parte de la hijuela santa julia de viluco, san andrés de viluco, santa eugenia de cervera, santa maría de cervera y san luis de cervera, de la comuna de buin');
+    });
     test('Caso con texto nulo con toObject()',()=>{
         let caso1666 = new Caso(new Date(), new Date(), 'emol', 1);
         const normalizedText = normalizeDescription(null);

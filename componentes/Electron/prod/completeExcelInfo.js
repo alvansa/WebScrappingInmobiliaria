@@ -14,23 +14,18 @@ const PJUD = config.PJUD;
 const EMOL = config.EMOL;
 const LIQUIDACIONES = config.LIQUIDACIONES;
 
-const LETRA_ESTADO = 'B';
-const LETRA_NOTAS = 'E';
-const LETRA_FECHA_DESC = 'C';
-const LETRA_ORIGEN = 'D';
-const LETRA_FECHA_REM = 'F';
-const LETRA_OCUPACION = 'H'
-const LETRA_MARTILLERO = 'I';
-const LETRA_CAUSA = 'K';
-const LETRA_JUZGADO = 'L';
-const LETRA_COMUNA = 'N';
-const LETRA_PARTES = 'O';
-const LETRA_ROL = 'Y';
-const LETRA_PORCENTAJE = 'AN';
-
 const COLUMNAS_EXCEL = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z','AA', 'AB', 'AC', 'AD', 'AE', 'AF', 'AG', 'AH', 'AI', 'AJ', 'AK', 'AL', 'AM', 'AN', 'AO', 'AP', 'AQ','AR'];
 
-const COlUMNAS_MANTENER = ['C', 'D', 'F', 'K', 'L','M', 'AA'];
+const COlUMNAS_MANTENER = [
+    config.FECHA_DESC,
+    config.ORIGEN,
+    config.FECHA_REM,
+    config.CAUSA, 
+    config.TRIBUNAL,
+    config.COMUNA_TRIBUNAL, 
+    config.PRECIO_MINIMO,
+    config.AVALUO_FISCAL
+];
 
 class CompleteExcelInfo{
     constructor(filePath,event,mainWindow){
@@ -55,7 +50,7 @@ class CompleteExcelInfo{
     
 
         // Process de auctions
-        await this.obtainNewData()
+        // await this.obtainNewData()
 
 
         // Write the new data
@@ -63,23 +58,25 @@ class CompleteExcelInfo{
         console.log('------------------------------------------------------');
         // console.log(this.casos.map(obj => obj.toObject()));
 
-        createExcel.cambiarAnchoColumnas(ws);
-        ws['!ref'] = 'A5:AR' + lastRow;
-        const fileName = this.filePath.split('.')[0];
-        const filePath = fileName+'Completo'+'.xlsx';
-        XLSX.writeFile(wb,filePath, { cellDates: true });
+        CompleteExcelInfo.saveNewExcel(wb,ws,lastRow,this.filePath);
+        // createExcel.cambiarAnchoColumnas(ws);
+
+        // ws['!ref'] = 'A5:AR' + lastRow;
+        // const fileName = this.filePath.split('.')[0];
+        // const filePath = fileName+'Completo'+'.xlsx';
+        // XLSX.writeFile(wb,filePath, { cellDates: true });
         return this.filePath;
     }
 
     getCausasFromExcel(ws,lastRow){
         let origen;
-        while(ws[`${LETRA_CAUSA}${lastRow}`]){
-            let fechaDesc = ws[`${LETRA_FECHA_DESC}${lastRow}`];
-            let link = ws[`${LETRA_ORIGEN}${lastRow}`].v;
-            let fechaRem = ws[`${LETRA_FECHA_REM}${lastRow}`];
-            const causa = ws[`${LETRA_CAUSA}${lastRow}`].v;
-            const juzgado = ws[`${LETRA_JUZGADO}${lastRow}`].v
-            const celdaPartes = ws[`${LETRA_PARTES}${lastRow}`]
+        while(ws[`${config.CAUSA}${lastRow}`]){
+            let fechaDesc = ws[`${config.FECHA_DESC}${lastRow}`];
+            let link = ws[`${config.ORIGEN}${lastRow}`].v;
+            let fechaRem = ws[`${config.FECHA_REM}${lastRow}`];
+            const causa = ws[`${config.CAUSA}${lastRow}`].v;
+            const juzgado = ws[`${config.TRIBUNAL}${lastRow}`].v
+            const celdaPartes = ws[`${config.PARTES}${lastRow}`]
             let partes = null;
             // console.log(`fechaRem type: ${JSON.stringify(fechaRem,null,4)}`);
             if(celdaPartes){
@@ -90,7 +87,6 @@ class CompleteExcelInfo{
             }else{
                 fechaRem = null;
             }
-
             if(fechaDesc){
                 fechaDesc = stringToDate(fechaDesc.w);
             }else{
@@ -136,8 +132,8 @@ class CompleteExcelInfo{
         for (let caso of this.casos) {
             const actualCausa = caso.causa;
             let lastRow = 6;
-            while (ws[`${LETRA_CAUSA}${lastRow}`]) {
-                const celda = ws[`${LETRA_CAUSA}${lastRow}`];
+            while (ws[`${config.CAUSA}${lastRow}`]) {
+                const celda = ws[`${config.CAUSA}${lastRow}`];
                 const causaExcel = celda.v;
                 if(actualCausa == causaExcel){
                     console.log(`Actualizando caso: ${actualCausa} en la fila ${lastRow}`);
@@ -170,7 +166,7 @@ class CompleteExcelInfo{
         findedCausas.forEach(causa => {
             // console.log(`Causa: ${causa.causa} encontrada en la fila: ${causa.linea}`);
             //copiar la fila x en la hoja de excel nueva
-            const newCausaCell = wsNew[`${LETRA_CAUSA}${lastRowNew}`];
+            const newCausaCell = wsNew[`${config.CAUSA}${lastRowNew}`];
             if(newCausaCell){
                 newCausaCell.v = causa.causa;
             }else{
@@ -183,9 +179,9 @@ class CompleteExcelInfo{
     }
 
     static saveNewExcel(wb, ws, lastRow, filePath) {
-        this.formatDates(ws);
+        this.formatCells(ws);
         createExcel.cambiarAnchoColumnas(ws);
-        ws['!ref'] = 'A5:AQ' + lastRow;
+        ws['!ref'] = `${config.INICIO}5:${config.COMENTARIOS3}` + lastRow;
         const fileName = filePath.split('.')[0];
         const newFilePath = fileName+'Completo'+'.xlsx';
         XLSX.writeFile(wb,newFilePath, { cellDates: true });
@@ -193,7 +189,7 @@ class CompleteExcelInfo{
 
     static obtainLastRow(ws) {
         let lastRow = 6;
-        while(ws[`${LETRA_FECHA_REM}${lastRow}`]){
+        while(ws[`${config.FECHA_REM}${lastRow}`]){
             lastRow++;
         }
         return lastRow - 1; // Retorna la última fila con datos
@@ -204,7 +200,7 @@ class CompleteExcelInfo{
         const lastRowBase = this.obtainLastRow(wsBase);
         let actualRowBase = lastRowBase;
         let lastRowNew = 6;
-        while(wsNew[`${LETRA_FECHA_DESC}${lastRowNew}`]){
+        while(wsNew[`${config.FECHA_DESC}${lastRowNew}`]){
             const {causa, juzgado,comuna,rol, isValid} = this.processNewRow(wsNew, lastRowNew);
             if(!isValid){
                 lastRowNew++;
@@ -214,10 +210,10 @@ class CompleteExcelInfo{
             actualRowBase = lastRowBase;
             while(actualRowBase >= 1){
 
-                const cellCausa = wsBase[`${LETRA_CAUSA}${actualRowBase}`];
-                const cellCourt = wsBase[`${LETRA_JUZGADO}${actualRowBase}`];
-                const cellComuna = wsBase[`${LETRA_COMUNA}${actualRowBase}`];
-                const cellRol = wsBase[`${LETRA_ROL}${actualRowBase}`];
+                const cellCausa = wsBase[`${config.CAUSA}${actualRowBase}`];
+                const cellCourt = wsBase[`${config.TRIBUNAL}${actualRowBase}`];
+                const cellComuna = wsBase[`${config.COMUNA}${actualRowBase}`];
+                const cellRol = wsBase[`${config.ROL}${actualRowBase}`];
                 // console.log(`Revisando fila ${lastRowBase} del archivo base`)
                 if(this.checkCausaJuzgado(causa, juzgado, cellCausa, cellCourt, findedCausas, actualRowBase, lastRowNew)) break;
                 if(this.checkComunaRol(causa,comuna, rol, cellComuna, cellRol, findedCausas, actualRowBase, lastRowNew)) break;
@@ -233,9 +229,9 @@ class CompleteExcelInfo{
         let juzgado;
         let comuna;
         let rol;
-        const causaCell = wsNew[`${LETRA_CAUSA}${rowNum}`];
-        const comunaCell = wsNew[`${LETRA_COMUNA}${rowNum}`];
-        const rolCell = wsNew[`${LETRA_ROL}${rowNum}`];
+        const causaCell = wsNew[`${config.CAUSA}${rowNum}`];
+        const comunaCell = wsNew[`${config.COMUNA}${rowNum}`];
+        const rolCell = wsNew[`${config.ROL}${rowNum}`];
         
         let causa = causaCell ? causaCell.v.toUpperCase().replace(/\s*/g, '') : null;
         if(!causa){
@@ -248,14 +244,11 @@ class CompleteExcelInfo{
             return {causa, juzgado, comuna, rol, isValid};
         }
         causa = causaMatch[0]; 
-        if(causa == 'C-7789-2023'){
-            console.log("--------------------\n",causa, causaCell,"\n----------------");
-        }
 
         comuna = comunaCell ? comunaCell.v : null;
         rol = rolCell ? rolCell.v : null;
 
-        juzgado = wsNew[`${LETRA_JUZGADO}${rowNum}`];
+        juzgado = wsNew[`${config.TRIBUNAL}${rowNum}`];
         if (!juzgado || typeof juzgado.v != 'string') {
             console.log(`No se encontró el juzgado en la fila ${rowNum}`);
             isValid = false;
@@ -315,36 +308,36 @@ class CompleteExcelInfo{
         COLUMNAS_EXCEL.forEach(columna => {
             const baseCell = wsBase[`${columna}${baseRow}`];
             if (!COlUMNAS_MANTENER.includes(columna)) {
-                if (columna == LETRA_MARTILLERO) {
+                if (columna == config.MARTILLERO) {
                     let text = '';
                     // console.log("Escribiendo fila ", newRow)
-                    const actualValueHCell = wsNew[`${LETRA_MARTILLERO}${newRow}`];
-                    const BColumn = wsBase[`${LETRA_ESTADO}${baseRow}`];
-                    const EColumn = wsBase[`${LETRA_NOTAS}${baseRow}`];
-                    const HColumn = wsBase[`${LETRA_MARTILLERO}${baseRow}`];
-                    const GColumn = wsBase[`${LETRA_OCUPACION}${baseRow}`];
-                    if(actualValueHCell){
-                        text += actualValueHCell.v + ' ';
+                    const actualValueMartilleroCell = wsNew[`${config.MARTILLERO}${newRow}`];
+                    const estadoColumn = wsBase[`${config.ESTADO}${baseRow}`];
+                    const notasColumn = wsBase[`${config.NOTAS}${baseRow}`];
+                    const martilleroColumn = wsBase[`${config.MARTILLERO}${baseRow}`];
+                    const ocupacionColumn = wsBase[`${config.OCUPACION}${baseRow}`];
+                    if(actualValueMartilleroCell){
+                        text += actualValueMartilleroCell.v + ' ';
                     }
                     //Agregar la columna G de Ocupacion
                     text += 'Ya aparecio(';
                     // let text = '';
-                    if (BColumn) {
-                        text += BColumn.v + ' ';
+                    if (estadoColumn) {
+                        text += estadoColumn.v + ' ';
                     }
-                    if (EColumn) {
-                        text += EColumn.v + ' ';
+                    if (notasColumn) {
+                        text += notasColumn.v + ' ';
                     }
-                    if (HColumn) {
+                    if (martilleroColumn) {
                         // console.log(HColumn);
-                        text += HColumn.w;
+                        text += martilleroColumn.w;
                     }
-                    if(GColumn){
-                        text += GColumn.v;
+                    if(ocupacionColumn){
+                        text += ocupacionColumn.v;
                     }
                     text += ')';
                     // console.log('Escribiendo columna ',newRow);
-                    wsNew[`${LETRA_MARTILLERO}${newRow}`] = {
+                    wsNew[`${config.MARTILLERO}${newRow}`] = {
                         v: text,
                         t: 's',
                     }
@@ -380,23 +373,51 @@ class CompleteExcelInfo{
         }
 }
 
-    static formatDates(ws) {
+    static formatCells(ws) {
         let lastRow = 6;
         // Formatear las fechas en las columnas específicas
-        while (ws[`${LETRA_FECHA_DESC}${lastRow}`]) {
-            const fechaDescCell = ws[`${LETRA_FECHA_DESC}${lastRow}`];
+        while (ws[`${config.FECHA_DESC}${lastRow}`]) {
+            const fechaInicio = ws[`${config.INICIO}${lastRow}`];
+            if (fechaInicio && fechaInicio.t === 'd') {
+                fechaInicio.z = 'dd/mm/yyyy'; // Formato de fecha
+            }
+
+            const fechaDescCell = ws[`${config.FECHA_DESC}${lastRow}`];
             if (fechaDescCell && fechaDescCell.t === 'd') {
                 fechaDescCell.z = 'dd/mm/yyyy'; // Formato de fecha
             }
-            const fechaRemCell = ws[`${LETRA_FECHA_REM}${lastRow}`];
+            const fechaRemCell = ws[`${config.FECHA_REM}${lastRow}`];
             if (fechaRemCell && fechaRemCell.t === 'd') {
                 fechaRemCell.z = 'dd/mm/yyyy'; // Formato de fecha
             }
 
-            const percentajeCell = ws[`${LETRA_PORCENTAJE}${lastRow}`];
+            const minAmountCell = ws[`${config.PRECIO_MINIMO}${lastRow}`];
+            if (minAmountCell && minAmountCell.t === 'n') {
+                minAmountCell.z = '#,##0'; // Formato de fecha
+            }
+
+            const avaluoCell = ws[`${config.AVALUO_FISCAL}${lastRow}`];
+            if (avaluoCell && avaluoCell.t === 'n') {
+                avaluoCell.z = '#,##0'; // Formato de fecha
+            }
+
+            const percentajeCell = ws[`${config.PORCENTAJE}${lastRow}`];
             if(percentajeCell){
+                if(percentajeCell.v == 10 || percentajeCell == 20){
+                    percentajeCell.v = percentajeCell.v / 100;
+                }
                 percentajeCell.t = 'n';
                 percentajeCell.z = '0%';
+            }
+
+            const deudaCell = ws[`${config.DEUDA_HIPOTECA}${lastRow}`];
+            if (deudaCell && deudaCell.t === 'n') {
+                deudaCell.z = '#,##0'; // Formato de fecha
+            }
+
+            const buyAmountCell = ws[`${config.PX_COMPRA}${lastRow}`];
+            if (buyAmountCell && buyAmountCell.t === 'n') {
+                buyAmountCell.z = '#,##0'; // Formato de fecha
             }
             lastRow++;
         }
