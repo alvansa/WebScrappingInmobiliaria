@@ -56,6 +56,7 @@ class Caso{
     #unitAvaluo;
     #unitDireccion;
     #isAvenimiento;
+    #hasChanged
 
     constructor(fechaObtencion, fechaPublicacion = 'N/A',link = 'N/A',origen = null ){    
         this.#fechaPublicacion = fechaPublicacion;
@@ -103,6 +104,7 @@ class Caso{
         this.#unitRol = null;
         this.#unitAvaluo = null;
         this.#unitDireccion = null;
+        this.#hasChanged = false;
 
         this.#origen = origen;
     }
@@ -266,8 +268,13 @@ class Caso{
     set isAvenimiento(isAvenimiento){
         this.#isAvenimiento = isAvenimiento;
     }
+    set hasChanged(changed){
+        this.#hasChanged = changed;
+    }
 
-    
+   get hasChanged(){
+        return this.#hasChanged;
+   } 
     get link(){ 
         return String(this.#link);
     }
@@ -555,7 +562,8 @@ class Caso{
             unitRol: RolHelper.normalizeRol(this.#rolPropiedad, this.#rolEstacionamiento, this.#rolBodega) ,
             unitAvaluo: this.sumAvaluo(),
             unitDireccion : this.checkEstacionamientoBodega(),
-            isAvenimiento : Boolean(this.#isAvenimiento)
+            isAvenimiento : Boolean(this.#isAvenimiento),
+            hasChanged : this.#hasChanged,
         };
     } 
 

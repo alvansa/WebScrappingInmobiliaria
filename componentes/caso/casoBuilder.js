@@ -16,6 +16,12 @@ class CasoBuilder{
         return this;
     }
 
+    conNumeroCorte(numero,corte){
+        this.caso.numeroJuzgado = numero;
+        this.caso.corte = corte;
+        return this;
+    }
+
     conPartes(partes){
         this.caso.partes = partes;
         return this;

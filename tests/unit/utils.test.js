@@ -1,5 +1,7 @@
 const {matchJuzgado, matchRol} = require('../../utils/compareText');
 const convertWordToNumbers = require('../../utils/convertWordToNumbers');
+const {obtainCorteJuzgadoNumbers} = require('../../utils/corteJuzgado');
+const CasoBuilder  = require('../../componentes/caso/casoBuilder');
 
 
 describe('matchJuzgado', () => {
@@ -20,6 +22,15 @@ describe('matchJuzgado', () => {
 
     test('Test comparando entre un juzgado de pjud y como lo escribiria andres 1', ()=>{
         const result = matchJuzgado('1° JUZGADO DE LETRAS DE IQUIQUE', '1 de iquique');
+        expect(result).toBe(true);
+    });
+
+    test('Test comparando entre un juzgado de pjud y como lo escribiria andres 1', ()=>{
+        const result = matchJuzgado('2º Juzgado de Letras de Los Andes', '2 Los Andes');
+        expect(result).toBe(true);
+    });
+    test('Test comparando entre un juzgado de pjud y como lo escribiria andres 1', ()=>{
+        const result = matchJuzgado('3º Juzgado de Letras de la Serena', '3º La Serena');
         expect(result).toBe(true);
     });
 
@@ -215,4 +226,38 @@ describe('MatchRol', ()=>{
         expect(result).toBe(true);
     });
 
+});
+
+describe('ObtainJuzgadoNumber', ()=>{
+    test('Test con varios casos', ()=>{
+        const caso1 = new CasoBuilder(null, null, null, null)
+            .conJuzgado( '3º La Serena')
+            .construir();
+        const caso2 = new CasoBuilder(null, null, null, null)
+            .conJuzgado( '2º Coquimbo')
+            .construir();
+        const caso3 = new CasoBuilder(null, null, null, null)
+            .conJuzgado( '3º Coquimbo')
+            .construir();
+        const caso4 = new CasoBuilder(null, null, null, null)
+            .conJuzgado( '24º Stgo')
+            .construir();
+        const caso5 = new CasoBuilder(null, null, null, null)
+            .conJuzgado( '24º Stgo')
+            .construir();
+        const caso6 = new CasoBuilder(null, null, null, null)
+            .conJuzgado( '15º Santiago')
+            .construir();
+        const caso7 = new CasoBuilder(null, null, null, null)
+            .conJuzgado( '15° JUZGADO CIVIL DE SANTIAGO')
+            .construir();
+        const caso8 = new CasoBuilder(null, null, null, null)
+            .conJuzgado( '1º JUZGADO DE LETRAS DE PUNTA ARENAS')
+            .construir();
+        const casos = [caso1,caso2,caso3, caso4, caso5,caso6,caso7,caso8];
+        obtainCorteJuzgadoNumbers(casos);
+        for(let caso of casos){
+            console.log(caso.toObject())
+        }
+    });
 });

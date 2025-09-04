@@ -56,6 +56,9 @@ contextBridge.exposeInMainWorld('api', {
   //Procesa un archivo pdf seleccionado con el algoritmo del boletin
   processFile: (filePath) => ipcRenderer.invoke('process-file', filePath),
 
+  //Revisar los archivos que le faltan publicaciones
+  checkFPMG: (filePath) => ipcRenderer.invoke('process-FPMG', filePath),
+
   // Busca un caso a partir de sus datos en la pagina del pjud, busca, descarga y procesa los pdf.
   searchCase: async (corte, tribunal,juzgado, rol, year) => {
     result = ipcRenderer.invoke('search-case', corte, tribunal,juzgado, rol, year)

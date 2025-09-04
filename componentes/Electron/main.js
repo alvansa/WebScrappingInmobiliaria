@@ -20,6 +20,7 @@ const { fakeDelay, delay } = require('../../utils/delay.js');
 const {tribunalesPorCorte, obtainCorteJuzgadoNumbers} = require('../../utils/corteJuzgado.js');
 const {stringToDate} = require('../../utils/cleanStrings.js');
 const testUnitarios = require('./dev/testUnitarios.js');
+const checkFPMG = require('../pjud/checkFPMG.js');
 
 const Causas = require('../../model/Causas.js');
 
@@ -141,6 +142,21 @@ class MainApp{
             try{
                 const FillExcel = new CompleteExcelInfo(filePath,event,this.mainWindow);
                 await FillExcel.fillData();
+                this.mainWindow.send("electron-log","En la funcion de completar excel")
+
+                return true;
+
+            }catch(error){
+                console.error('Error al completar la informacion del excel:', error);
+                return null;
+            }
+        });
+
+        // Funcion para buscar la informacion del pjud en pdf en base a una fecha de inicio y final.
+        ipcMain.handle('process-FPMG', async (event, filePath) => {
+            try{
+                const check = new checkFPMG(event, this.mainWindow, filePath);
+                await check.process();
                 this.mainWindow.send("electron-log","En la funcion de completar excel")
 
                 return true;
