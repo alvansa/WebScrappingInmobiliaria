@@ -50,7 +50,7 @@ class CompleteExcelInfo{
     
 
         // Process de auctions
-        // await this.obtainNewData()
+        await this.obtainNewData()
 
 
         // Write the new data
@@ -295,6 +295,7 @@ class CompleteExcelInfo{
         newComuna = newComuna.toLowerCase();
 
         if(newComuna == baseComuna){
+            console.log(baseRol, newRol)
             if(matchRol(newRol, baseRol)){
                 console.log(`Causa repetida: ${causa} Rol:${newRol} fila base: ${actualRowBase} fila nueva: ${lastRowNew}`);
                 findedCausas.push({ causa: causa, rol: newRol, baseLine: actualRowBase, newLine: lastRowNew });

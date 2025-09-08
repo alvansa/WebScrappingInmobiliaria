@@ -1,4 +1,5 @@
-
+const {matchJuzgado} = require('../utils/compareText');
+const {tribunales2} = require('../componentes/caso/datosLocales');
 
 
 const tribunalesPorCorte = {
@@ -309,7 +310,8 @@ function obtainCorteJuzgadoNumbers(casos,isDev = false) {
     if(!caso.juzgado || caso.numeroJuzgado){
       continue;
     }
-    const juzgado = caso.juzgado
+    let juzgado = searchInList(caso.juzgado)
+    juzgado = juzgado
       .toLowerCase()
       .replace(/3er/, "3º")
       .replace(/en\s+lo/, "")
@@ -322,13 +324,18 @@ function obtainCorteJuzgadoNumbers(casos,isDev = false) {
       .replace(/°/g,"º")
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "");
+
+
+      if(isDev){
+        console.log(`Caso: ${caso.id} - Juzgado: ${juzgado}`);
+      }
     const result = searchTribunalPorNombre(juzgado);
     if (result) {
       caso.corte = result.corte;
       caso.numeroJuzgado = result.numeroJuzgado;
-      if(isDev){
-        console.log(`Caso: ${caso.id} - Juzgado: ${juzgado} - Corte: ${result.corte} - Número Juzgado(value): ${result.numeroJuzgado} - Índice: ${result.index}`);
-      }
+      // if(isDev){
+      //   console.log(`Caso: ${caso.id} - Juzgado: ${juzgado} - Corte: ${result.corte} - Número Juzgado(value): ${result.numeroJuzgado} - Índice: ${result.index}`);
+      // }
     }
   }
 }
@@ -372,4 +379,13 @@ function normalizeTribunalesPorCorte(tribunalesPorCorte) {
   return normalized;
 }
 
-module.exports = { tribunalesPorCorte , obtainCorteJuzgadoNumbers, searchTribunalPorNombre}
+function searchInList(juzgado) {
+  for(let tribunal of tribunales2){
+    if(matchJuzgado(juzgado, tribunal)){
+      return tribunal.toLowerCase();
+    }
+  }
+  return juzgado;
+}
+
+module.exports = { tribunalesPorCorte , obtainCorteJuzgadoNumbers, searchTribunalPorNombre, searchInList}

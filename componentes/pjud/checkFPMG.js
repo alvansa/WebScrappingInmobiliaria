@@ -33,7 +33,7 @@ class checkFPMG {
         //Obtain cause and judge
         this.obtainListOfCauses();
         for (let caso of this.casos) {
-            console.log(caso.corte, caso.numeroJuzgado);
+            console.log(caso.causa, caso.corte, caso.numeroJuzgado);
         }
 
         //Search and process each cause
@@ -49,10 +49,11 @@ class checkFPMG {
         this.ws = this.wb.Sheets[this.wb.SheetNames[0]];
         let lastRow = 1;
         while (this.ws[`${config.CAUSA}${lastRow}`]) {
-            const causa = this.ws[`${config.CAUSA}${lastRow}`].v;
+            let causa = this.ws[`${config.CAUSA}${lastRow}`].v;
             const juzgado = this.ws[`${config.TRIBUNAL}${lastRow}`].v
             const fechaDesc = this.ws[`${config.FECHA_DESC}${lastRow}`].v;
             // console.log(`fechaRem type: ${JSON.stringify(fechaRem,null,4)}`);
+            causa = causa.replace(/\(s\)/i,'').replace(/S\/I/ig, '').trim();
             console.log(`cont = ${lastRow} Causa: ${causa} y juzgado: ${juzgado} `);
 
             const casoExcel = new CasoBuilder(new Date(fechaDesc), "PJUD", config.PJUD)
@@ -231,8 +232,9 @@ class checkFPMG {
                 continue;
             }
             console.log('Buscando cuaderno : ',cuaderno.nombre);
-            selectedCuadernos = await this.selectCuaderno();
-            const cuadernoToSearch = selectedCuadernos.find(option => option.text = cuaderno.nombre);
+            // selectedCuadernos = await this.selectCuaderno();
+            const cuadernoToSearch = selectedCuadernos.find(option => option.text === cuaderno.nombre);
+            console.log('Cuaderno a buscar en funcion principal: ', cuadernoToSearch.text, cuadernoToSearch.value);
             changedCuaderno = await this.pressCuaderno(cuadernoToSearch.value);
             cuaderno.buscado = true;
             if(!changedCuaderno){
@@ -276,19 +278,21 @@ class checkFPMG {
     async pressCuaderno(cuaderno){
         const selectorCuaderno = '#selCuaderno'
         await this.page.waitForSelector(selectorCuaderno);
+        // ✅ Verificar que el select tenga opciones
+        await this.page.waitForFunction(
+            selector => document.querySelector(selector).options.length > 0,
+            { timeout: 5000 },
+            selectorCuaderno
+        );
+
         await this.page.select(selectorCuaderno, cuaderno);
         await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
-        const cuadernoValue = await this.page.$eval('#selCuaderno', el => el.value);
-        const cuadernoNombre = await this.page.$eval('#selCuaderno', el => el.textContent);
+        const cuadernoValue = await this.page.$eval(selectorCuaderno, el => el.value);
+        const cuadernoNombre = await this.page.$eval(selectorCuaderno, el => el.textContent);
         console.log('Cuaderno a seleccionar: ', cuaderno);
-        // if(cuadernoValue){
-        //     console.log('Cuaderno actual: ', cuadernoValue, cuadernoNombre)
-        //     if(cuadernoValue === cuaderno){
-        //         return true;
-        //     }
-        // }else{
-        //     return false
-        // }
+        if(cuadernoValue){
+            console.log('Cuaderno actual: ', cuadernoValue)
+        }
         return true;
     }
 
@@ -610,6 +614,9 @@ async setValoresIncialesBusquedaCausa(caso) {
                 }
            } 
             lastRow++;
+        }
+        for(let caso of this.casos){
+            console.log("Revision de casos: ",caso.causa, caso.juzgado, caso.hasChanged);
         }
         const fileName = this.filePath.split('.')[0];
         const newFilePath = fileName+'Completo'+'.xlsx';

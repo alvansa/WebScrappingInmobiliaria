@@ -1,6 +1,6 @@
 const {matchJuzgado, matchRol} = require('../../utils/compareText');
 const convertWordToNumbers = require('../../utils/convertWordToNumbers');
-const {obtainCorteJuzgadoNumbers} = require('../../utils/corteJuzgado');
+const {obtainCorteJuzgadoNumbers, searchInList} = require('../../utils/corteJuzgado');
 const CasoBuilder  = require('../../componentes/caso/casoBuilder');
 
 
@@ -31,6 +31,10 @@ describe('matchJuzgado', () => {
     });
     test('Test comparando entre un juzgado de pjud y como lo escribiria andres 1', ()=>{
         const result = matchJuzgado('3º Juzgado de Letras de la Serena', '3º La Serena');
+        expect(result).toBe(true);
+    });
+    test('24º Stgo vs 24° Juzgado Civil de Santiago', ()=>{
+        const result = matchJuzgado('24º Stgo', '24° JUZGADO CIVIL DE SANTIAGO');
         expect(result).toBe(true);
     });
 
@@ -256,8 +260,27 @@ describe('ObtainJuzgadoNumber', ()=>{
             .construir();
         const casos = [caso1,caso2,caso3, caso4, caso5,caso6,caso7,caso8];
         obtainCorteJuzgadoNumbers(casos);
+        // for(let caso of casos){
+        //     console.log(caso.toObject())
+        // }
+    });
+    test('Test con varios casos', ()=>{
+        const caso1 = new CasoBuilder(null, null, null, null)
+            .conJuzgado( '24º Stgo')
+            .construir();
+        
+        const casos = [caso1];
+        obtainCorteJuzgadoNumbers(casos,true);
         for(let caso of casos){
             console.log(caso.toObject())
         }
     });
+});
+
+describe('SearchInList', ()=>{
+    test('24º Stgo', ()=>{
+        
+        const result = searchInList('24º Stgo');
+        expect(result).toBe('24° juzgado civil de santiago');
+    })
 });

@@ -29,6 +29,7 @@ function matchJuzgado(str1, str2) {
             .replace(/[º°]/g, '') // Reemplazar º y ° por nada
             // .replace(/[^a-z0-9\s]/g, '') // Quitar otros símbolos
             .replace(/(juzgado|del|letras|de|las|los|civil)/gi, '') // Eliminar palabras comunes
+            .replace(/\b(stgo|santiago)\b/gi, 'santiago') // Unificar Santiago
             .replace(/\s+/g, ' ') // Reducir espacios múltiples
             .trim() // Quitar espacios al inicio/fin
             .toLowerCase();
@@ -36,7 +37,7 @@ function matchJuzgado(str1, str2) {
 
     const normalizado1 = normalizar(str1);
     const normalizado2 = normalizar(str2);
-    console.log(str1, str2, normalizado1 === normalizado2)
+    // console.log(str1, str2, normalizado1 === normalizado2)
 
     return normalizado1 === normalizado2;
 }
