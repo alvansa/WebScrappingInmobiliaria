@@ -279,11 +279,28 @@ class checkFPMG {
         const selectorCuaderno = '#selCuaderno'
         await this.page.waitForSelector(selectorCuaderno);
         // ✅ Verificar que el select tenga opciones
-        await this.page.waitForFunction(
+        const optionsLoaded = await this.page.waitForFunction(
             selector => document.querySelector(selector).options.length > 0,
             { timeout: 5000 },
             selectorCuaderno
         );
+        if(!optionsLoaded){
+            console.log(`No se cargaron las opciones en ${selectorCuaderno}`);
+            return false;
+        }
+        
+         // Log detallado opcional
+        const optionsDetails = await this.page.$$eval(`${selectorCuaderno} option`, options =>
+            options.map(opt => ({
+                text: opt.textContent.trim(),
+                value: opt.value
+            }))
+        );
+
+        console.log('Opciones disponibles:');
+        optionsDetails.forEach((opt, i) => {
+            console.log(`  ${i + 1}. ${opt.text} (${opt.value})`);
+        });
 
         await this.page.select(selectorCuaderno, cuaderno);
         await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
@@ -382,7 +399,7 @@ class checkFPMG {
     }
 
 
-async setValoresIncialesBusquedaCausa(caso) {
+    async setValoresIncialesBusquedaCausa(caso) {
         // Primero se revisa que el caso tenga los valores necesarios para la búsqueda
         const valores = this.validateInitialValues(caso);
         if(!valores){ return false;}
@@ -565,10 +582,6 @@ async setValoresIncialesBusquedaCausa(caso) {
             await this.page.click('#btnConConsulta');
             await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
             await this.page.waitForSelector('#dtaTableDetalle tbody tr:first-child', { timeout: 1000 });
-            // el waitForFunction espera a que la tabla se actualice
-            // sus parametros son una función que se ejecuta en el contexto de la página
-            // un objeto con las opciones de timeout
-            // variables adicionales que se quieran utilizar en la funcion de pagina.
             await this.page.waitForFunction(
                 async (lineaAnterior) => {
                     //Selecciona la primera fila de la tabla
@@ -599,16 +612,18 @@ async setValoresIncialesBusquedaCausa(caso) {
         console.log('Escribiendo cambios');
 
         while (this.ws[`${config.CAUSA}${lastRow}`]) {
-            const causa = this.ws[`${config.CAUSA}${lastRow}`].v;
+            let causa = this.ws[`${config.CAUSA}${lastRow}`].v;
             const juzgado = this.ws[`${config.TRIBUNAL}${lastRow}`].v
             const fechaDesc = this.ws[`${config.FECHA_DESC}${lastRow}`].v;
             // console.log(`fechaRem type: ${JSON.stringify(fechaRem,null,4)}`);
             // console.log(`cont = ${lastRow} Causa: ${causa} y juzgado: ${juzgado} `);
+            causa = causa.replace(/\(s\)/i,'').replace(/S\/I/ig, '').trim();
 
            for(let caso of this.casos){
             // console.log("DEL CASO: ",caso.causa, caso.juzgado,"DEL EXCEL: ", causa, juzgado);
                 if(caso.hasChanged){
                     if (caso.causa == causa && matchJuzgado(caso.juzgado,juzgado)) {
+                        // console.log("ESCRIBIENDO CAMBIO EN EXCEL: ",caso.causa, caso.juzgado);
                         this.ws[`A${lastRow}`]= { v: 'CAMBIO', t: 's' };
                     }
                 }

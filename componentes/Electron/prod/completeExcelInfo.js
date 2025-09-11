@@ -47,11 +47,9 @@ class CompleteExcelInfo{
         if(this.casos.length == 0){
             return true;
         }
-    
 
         // Process de auctions
         await this.obtainNewData()
-
 
         // Write the new data
         this.writeData(ws);
@@ -59,12 +57,7 @@ class CompleteExcelInfo{
         // console.log(this.casos.map(obj => obj.toObject()));
 
         CompleteExcelInfo.saveNewExcel(wb,ws,lastRow,this.filePath);
-        // createExcel.cambiarAnchoColumnas(ws);
 
-        // ws['!ref'] = 'A5:AR' + lastRow;
-        // const fileName = this.filePath.split('.')[0];
-        // const filePath = fileName+'Completo'+'.xlsx';
-        // XLSX.writeFile(wb,filePath, { cellDates: true });
         return this.filePath;
     }
 
@@ -101,7 +94,7 @@ class CompleteExcelInfo{
                     origen = LIQUIDACIONES;
                 }
             }
-            console.log(`cont = ${lastRow - 5} Fecha Remate: ${fechaRem} y fecha Desc: ${fechaDesc} `);
+            // console.log(`cont = ${lastRow - 5} Fecha Remate: ${fechaRem} y fecha Desc: ${fechaDesc} `);
             const casoExcel = new CasoBuilder(new Date(fechaDesc),link, origen)
                 .conExcel(causa,juzgado,partes)
                 .conFechaRemate(fechaRem)
@@ -136,7 +129,7 @@ class CompleteExcelInfo{
                 const celda = ws[`${config.CAUSA}${lastRow}`];
                 const causaExcel = celda.v;
                 if(actualCausa == causaExcel){
-                    console.log(`Actualizando caso: ${actualCausa} en la fila ${lastRow}`);
+                    // console.log(`Actualizando caso: ${actualCausa} en la fila ${lastRow}`);
                     insertarCasoIntoWorksheet(caso,ws,lastRow)
                 }
                 lastRow++;
@@ -155,7 +148,7 @@ class CompleteExcelInfo{
 
         const findedCausas = this.findRepeatedAuctions(wsBase, wsNew);
 
-        console.log(`Causas a buscar: ${findedCausas.length}`);
+        // console.log(`Causas a buscar: ${findedCausas.length}`);
         console.table(findedCausas.map(causa => ({
             causa: causa.causa,
             Rol : causa.rol,
@@ -164,8 +157,6 @@ class CompleteExcelInfo{
         })));
         lastRowNew = lastRowNew + 5;
         findedCausas.forEach(causa => {
-            // console.log(`Causa: ${causa.causa} encontrada en la fila: ${causa.linea}`);
-            //copiar la fila x en la hoja de excel nueva
             const newCausaCell = wsNew[`${config.CAUSA}${lastRowNew}`];
             if(newCausaCell){
                 newCausaCell.v = causa.causa;
@@ -278,7 +269,7 @@ class CompleteExcelInfo{
         if (newCase == causaBase) {
             const matchedJuzgado = matchJuzgado(baseCourt, newCourt);
             if (matchedJuzgado) {
-                console.log(`Causa repetida: ${newCase} fila base: ${actualRowBase} fila nueva: ${lastRowNew}`);
+                // console.log(`Causa repetida: ${newCase} fila base: ${actualRowBase} fila nueva: ${lastRowNew}`);
                 findedCausas.push({ causa: newCase, rol: null,  baseLine: actualRowBase, newLine: lastRowNew });
                 return true;
             }
@@ -295,9 +286,9 @@ class CompleteExcelInfo{
         newComuna = newComuna.toLowerCase();
 
         if(newComuna == baseComuna){
-            console.log(baseRol, newRol)
+            // console.log(baseRol, newRol)
             if(matchRol(newRol, baseRol)){
-                console.log(`Causa repetida: ${causa} Rol:${newRol} fila base: ${actualRowBase} fila nueva: ${lastRowNew}`);
+                // console.log(`Causa repetida: ${causa} Rol:${newRol} fila base: ${actualRowBase} fila nueva: ${lastRowNew}`);
                 findedCausas.push({ causa: causa, rol: newRol, baseLine: actualRowBase, newLine: lastRowNew });
                 return true;
             }
@@ -347,6 +338,7 @@ class CompleteExcelInfo{
                     // Revisar porque el minimo se escribe en la columna Z, pero si ya habia uno anterior se escirbe en la AA 
                     // y otro anterior en la AB.
                     this.writeCell(baseCell, wsNew, columna, newRow);
+
                 }
 
             }    
@@ -358,7 +350,15 @@ class CompleteExcelInfo{
     }
 
     static writeCell(baseCell, wsNew, columna, newRow) {
-        if (baseCell.t === 'd' && baseCell.w) {
+        if(baseCell.f && baseCell.f.length > 0){
+            const formula = baseCell.f.replace(/([a-zA-Z]+)\d+/g,`$1${newRow}`);
+            wsNew[`${columna}${newRow}`] = {
+                v: baseCell.v,
+                t: baseCell.t,
+                w: baseCell.w,
+                f : formula,
+            }
+        }else if (baseCell.t === 'd' && baseCell.w) {
             wsNew[`${columna}${newRow}`] = {
                 v: baseCell.v,
                 t: baseCell.t,
