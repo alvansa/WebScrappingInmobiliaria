@@ -286,9 +286,7 @@ class CompleteExcelInfo{
         newComuna = newComuna.toLowerCase();
 
         if(newComuna == baseComuna){
-            // console.log(baseRol, newRol)
             if(matchRol(newRol, baseRol)){
-                // console.log(`Causa repetida: ${causa} Rol:${newRol} fila base: ${actualRowBase} fila nueva: ${lastRowNew}`);
                 findedCausas.push({ causa: causa, rol: newRol, baseLine: actualRowBase, newLine: lastRowNew });
                 return true;
             }
@@ -301,36 +299,9 @@ class CompleteExcelInfo{
             const baseCell = wsBase[`${columna}${baseRow}`];
             if (!COlUMNAS_MANTENER.includes(columna)) {
                 if (columna == config.MARTILLERO) {
-                    let text = '';
-                    // console.log("Escribiendo fila ", newRow)
-                    const actualValueMartilleroCell = wsNew[`${config.MARTILLERO}${newRow}`];
-                    const estadoColumn = wsBase[`${config.ESTADO}${baseRow}`];
-                    const notasColumn = wsBase[`${config.NOTAS}${baseRow}`];
-                    const martilleroColumn = wsBase[`${config.MARTILLERO}${baseRow}`];
-                    const ocupacionColumn = wsBase[`${config.OCUPACION}${baseRow}`];
-                    if(actualValueMartilleroCell){
-                        text += actualValueMartilleroCell.v + ' ';
-                    }
-                    //Agregar la columna G de Ocupacion
-                    text += 'Ya aparecio(';
-                    // let text = '';
-                    if (estadoColumn) {
-                        text += estadoColumn.v + ' ';
-                    }
-                    if (notasColumn) {
-                        text += notasColumn.v + ' ';
-                    }
-                    if (martilleroColumn) {
-                        // console.log(HColumn);
-                        text += martilleroColumn.w;
-                    }
-                    if(ocupacionColumn){
-                        text += ocupacionColumn.v;
-                    }
-                    text += ')';
-                    // console.log('Escribiendo columna ',newRow);
+                    const updatedTextMartillero = this.modifyColumnMartillero(wsNew, newRow, wsBase, baseRow);
                     wsNew[`${config.MARTILLERO}${newRow}`] = {
-                        v: text,
+                        v: updatedTextMartillero,
                         t: 's',
                     }
                 }else if(baseCell){
@@ -347,6 +318,36 @@ class CompleteExcelInfo{
         if (wsBase[`!cols`]) {
             wsNew[`!cols`] = wsBase[`!cols`];
         }
+    }
+
+    static modifyColumnMartillero(wsNew, newRow, wsBase, baseRow){
+        // console.log("Escribiendo fila ", newRow)
+        let text = '';
+        const actualValueMartilleroCell = wsNew[`${config.MARTILLERO}${newRow}`];
+        const estadoColumn = wsBase[`${config.ESTADO}${baseRow}`];
+        const notasColumn = wsBase[`${config.NOTAS}${baseRow}`];
+        const martilleroColumn = wsBase[`${config.MARTILLERO}${baseRow}`];
+        const ocupacionColumn = wsBase[`${config.OCUPACION}${baseRow}`];
+        if (actualValueMartilleroCell) {
+            text += actualValueMartilleroCell.v + ' ';
+        }
+        //Agregar la columna G de Ocupacion
+        text += 'Ya aparecio(';
+        if (estadoColumn) {
+            text += estadoColumn.v + ' ';
+        }
+        if (notasColumn) {
+            text += notasColumn.v + ' ';
+        }
+        if (martilleroColumn) {
+            text += martilleroColumn.w;
+        }
+        if (ocupacionColumn) {
+            text += ocupacionColumn.v;
+        }
+        text += ')';
+
+        return text;
     }
 
     static writeCell(baseCell, wsNew, columna, newRow) {

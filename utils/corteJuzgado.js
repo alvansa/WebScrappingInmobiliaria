@@ -333,9 +333,6 @@ function obtainCorteJuzgadoNumbers(casos,isDev = false) {
     if (result) {
       caso.corte = result.corte;
       caso.numeroJuzgado = result.numeroJuzgado;
-      // if(isDev){
-      //   console.log(`Caso: ${caso.id} - Juzgado: ${juzgado} - Corte: ${result.corte} - Número Juzgado(value): ${result.numeroJuzgado} - Índice: ${result.index}`);
-      // }
     }
   }
 }

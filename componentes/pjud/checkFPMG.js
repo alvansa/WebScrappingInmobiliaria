@@ -32,9 +32,7 @@ class checkFPMG {
     async process() {
         //Obtain cause and judge
         this.obtainListOfCauses();
-        for (let caso of this.casos) {
-            console.log(caso.causa, caso.corte, caso.numeroJuzgado);
-        }
+        console.log("casos revisados : ",this.casos.length);
 
         //Search and process each cause
         await this.processList();
@@ -42,31 +40,84 @@ class checkFPMG {
         //Write each cause that had changes in the last week
         this.writeChanges();
 
+        console.log("Proceso Finalizado")
+        return true;
     }
 
     obtainListOfCauses() {
         this.wb = XLSX.readFile(this.filePath, { cellDates: true });
         this.ws = this.wb.Sheets[this.wb.SheetNames[0]];
+        const lastWrittenRow = XLSX.utils.decode_range(this.ws['!ref']).e.r + 1;
         let lastRow = 1;
-        while (this.ws[`${config.CAUSA}${lastRow}`]) {
-            let causa = this.ws[`${config.CAUSA}${lastRow}`].v;
-            const juzgado = this.ws[`${config.TRIBUNAL}${lastRow}`].v
-            const fechaDesc = this.ws[`${config.FECHA_DESC}${lastRow}`].v;
-            // console.log(`fechaRem type: ${JSON.stringify(fechaRem,null,4)}`);
-            causa = causa.replace(/\(s\)/i,'').replace(/S\/I/ig, '').trim();
-            console.log(`cont = ${lastRow} Causa: ${causa} y juzgado: ${juzgado} `);
+        // console.log(this.ws[`${config.TRIBUNAL}3`].v.toString());
+        while (lastRow <= lastWrittenRow) {
+            let causa, juzgado,fechaDesc;
+            let skipRowOutside = false;
+            [causa, juzgado, fechaDesc,skipRowOutside] = this.obtainDataFromRow(lastRow);
+
+            if(skipRowOutside){
+                lastRow++;
+                continue;
+            }
 
             const casoExcel = new CasoBuilder(new Date(fechaDesc), "PJUD", config.PJUD)
                 .conCausa(causa)
                 .conJuzgado(juzgado)
                 .construir();
 
-
+            console.log(casoExcel.causa, casoExcel.juzgado);
             this.casos.push(casoExcel)
             lastRow++;
         }
         obtainCorteJuzgadoNumbers(this.casos);
+    }
 
+    obtainDataFromRow(lastRow) {
+        let skipRow = false;
+        const [estadoBusqueda, skip0] = this.obtainCellAndState(config.NOTAS, lastRow, skipRow);
+        
+        if (estadoBusqueda) {
+            if (!estadoBusqueda.toLowerCase().includes('fp')) {
+                skipRow = true;
+            }
+        } else {
+            skipRow = true;
+        }
+
+        const estadoRemate = this.ws[`${config.ESTADO}${lastRow}`] ? true : false;
+        if (estadoRemate) {
+            skipRow = true;
+        }
+
+        const [causa, skip1] = this.obtainCellAndState(config.CAUSA, lastRow, skipRow);
+        const [juzgado, skip2] = this.obtainCellAndState(config.TRIBUNAL, lastRow, skipRow)
+        const [fechaDesc, skip3] = this.obtainCellAndState(config.FECHA_DESC, lastRow, skipRow);
+        skipRow = skipRow || skip0 || skip1 || skip2 || skip3;
+
+        //Normalizar el texto de la causa que puede venir modificado por alguien del excel.
+        if(causa){
+            const causaNormalizada = causa.replace(/\(s\)/i, '').replace(/S\/I/ig, '').trim();
+            return [causaNormalizada, juzgado, fechaDesc, skipRow];
+        }else{
+            return [causa, juzgado, fechaDesc, skipRow];
+        }
+
+
+    }
+
+    obtainCellAndState(cell,lastRow,skipRow){
+        let skip = false;
+        let cellValue = this.ws[`${cell}${lastRow}`];
+        if(cellValue) {
+            cellValue = cellValue.v.toString();
+        }else{
+            skip = true;
+            cellValue = "";
+        }
+        skip = skip || skipRow;
+        const result = [cellValue, skip];
+
+        return [cellValue, skip];
     }
 
 
