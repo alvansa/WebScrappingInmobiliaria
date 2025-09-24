@@ -167,6 +167,24 @@ describe('convertWordToNumbers',()=>{
         const result = convertWordToNumbers(numberText);
         expect(result).toEqual(2016);
     });
+
+    test('Test con numero que fallo cambiando direcciones 7311', ()=>{
+        const text = 'siete mil trescientos once,';
+        const result = convertWordToNumbers(text);
+        expect(result).toBe(7311);
+    });
+
+    test('Test con numero que por alguna razon parte con cero ciento ventitres', ()=>{
+        const text = 'cero ciento veintitrés';
+        const result = convertWordToNumbers(text);
+        expect(result).toBe(123);
+    });
+
+    test('Test con numero 123', ()=>{
+        const text = 'ciento veintitrés';
+        const result = convertWordToNumbers(text);
+        expect(result).toBe(123);
+    });
 });
 
 describe('MatchRol', ()=>{
@@ -260,9 +278,6 @@ describe('ObtainJuzgadoNumber', ()=>{
             .construir();
         const casos = [caso1,caso2,caso3, caso4, caso5,caso6,caso7,caso8];
         obtainCorteJuzgadoNumbers(casos);
-        // for(let caso of casos){
-        //     console.log(caso.toObject())
-        // }
     });
     test('Test con varios casos', ()=>{
         const caso1 = new CasoBuilder(null, null, null, null)
@@ -271,15 +286,13 @@ describe('ObtainJuzgadoNumber', ()=>{
         
         const casos = [caso1];
         obtainCorteJuzgadoNumbers(casos,true);
-        for(let caso of casos){
-            console.log(caso.toObject())
-        }
+        expect(caso1.numeroJuzgado).toBe('282');
+        expect(caso1.corte).toBe('90');
     });
 });
 
 describe('SearchInList', ()=>{
     test('24º Stgo', ()=>{
-        
         const result = searchInList('24º Stgo');
         expect(result).toBe('24° juzgado civil de santiago');
     })

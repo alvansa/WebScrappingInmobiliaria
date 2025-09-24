@@ -31,6 +31,7 @@ function convertWordToNumbers(stringNumber) {
       "veintidós": 22,
       "veintidos" : 22,
       "veintitrés": 23,
+      'veintitres' : 23,
       "veinticuatro": 24,
       "veinticinco": 25,
       "veintiséis": 26,
@@ -81,6 +82,7 @@ function convertWordToNumbers(stringNumber) {
     .toLowerCase()
     .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // eliminar acentos
     .replace(/\s+/g, ' ')
+    .replace(/,/g,'')
     .trim();
 
   // Verificar primero números especiales (0-29)
@@ -101,6 +103,7 @@ function convertWordToNumbers(stringNumber) {
   const parts = normalized.split(/\s+|y/); // Separar por espacios o "y"
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i];
+    // if(part == 'cero') continue;
     // console.log("part: ", part)
     
     // 1. Procesar unidades especiales (16-29)
@@ -163,104 +166,3 @@ function convertWordToNumbers(stringNumber) {
 }
 
 module.exports = convertWordToNumbers;
-
-
-//Funcion original
-function convertWordToNumber(stringNumber){
-  const checked = {
-    thousands : false,
-    hundred : false,
-    tens : false,
-    units : false
-  }
-  let total = 0;
-  
-  const units = {
-    "uno" : 1,
-    "dos" : 2,
-    "tres" : 3,
-    "cuatro": 4,
-    "cinco" : 5,
-    "seis" : 6,
-    "siete" : 7,
-    "ocho" : 8,
-    "nueve": 9
-  }
-  const tens = {
-    "dieci": 10,
-    "veinti": 20,
-    "treinta" : 30,
-    "cuarenta" : 40,
-    "cincuenta" : 50,
-    "sesenenta" : 60,
-    "setenta" : 70,
-    "ochenta" : 80,
-    "noventa" : 90
-  }
-  const hundreds = {
-    "ciento" : 100,
-    "doscientos" : 200,
-    "trescientos ":300,
-    "trescientas" : 300,
-    "cuatrocientos" : 400,
-    "quinientos" : 500,
-    "seiscientos" : 600,
-    "setecientos" : 700,
-    "ochocientos" : 800,
-    "novecientos" : 900,
-  }
-  const thousands = {
-    "mil" : 1000,
-    "dosmil" : 2000,
-    "tresmil" : 3000,
-    "cuatromil" : 4000,
-    "cincomil" : 5000,
-    "seismil" : 6000,
-    "sietemil" : 7000,
-    "ochomil" : 8000,
-    "nuevemil" : 9000
-  }
-  
-  const partes = stringNumber.split(" ");
-  const normalizedParts = normalizarPartes(partes);
-  for(let part of normalizedParts){
-    if(!checked.thousands){
-      if(thousands[part]){
-        checked.thousands = true;
-        total += thousands[part];
-      }  
-    }
-    if(!checked.hundreds){
-      if(hundreds[part]){
-        checked.hundreds = true;
-        total += hundreds[part];
-      }
-    }
-    if(!checked.tens){
-      if(tens[part]){
-        checked.tens = true;
-        total += tens[part];
-      }
-    }
-    if(!checked.units){
-      if(units[part]){
-        checked.units = true;
-        total += units[part];
-      }
-    }
-  }
-  console.log(stringNumber,total) 
-}
-
-
-function normalizarPartes(sections){
-  const newSections = []
-  for(let section of sections){  
-    if(section == "mil"){
-      newSections[newSections.length-1] += section;
-      continue
-    }
-    newSections.push(section)
-  }
-    return newSections;
-}

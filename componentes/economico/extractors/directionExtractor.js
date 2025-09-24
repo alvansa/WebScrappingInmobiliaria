@@ -1,10 +1,21 @@
+const convertWordToNumbers = require('../../../utils/convertWordToNumbers');
+
+const NUMBER_CONFIG = {
+    keywords: new Set(['numero', 'número', 'num', 'nro']),
+    specialWords: new Set(['y']),
+    patterns: new Set([
+        'cero','uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve',
+        'diez','once','doce','trece','catorce','quince','vente','veinti',
+        'treinta','cuarenta','cincuenta','sesenta','setenta','ochenta',
+        'noventa','cien','cientos','quinientos','mil','miles'
+    ])
+};
 
 function extractDirection(data) {
     const dataNormalizada = data
         .replace(/(\d+)\.(\d+)/g, '$1$2')
         // .replace(/registro\s*(?:de\s*)?propiedad\s*/i," ")    
         .toLowerCase();
-    // console.log("Data minuscula: ", dataMinuscula);
 
     const palabrasClave = ['propiedad', 'inmueble', 'departamento', 'casa', 'parcela'];
     const regexComuna = /comuna(?:\s*de)?\s*\w{1,}/i;
@@ -119,7 +130,6 @@ function isPrecededByExclusion(texto, currentIndex, indexLength) {
         if ((textLength - currentIndex) >= exclusionLength) {
             const textoPost = texto.substring(currentIndex + indexLength , currentIndex + indexLength + exclusionLength );
             if (textoPost === exclusion) {
-              console.log("texto post: ", textoPost,exclusion)
                 return true; 
             }
         }
@@ -134,7 +144,67 @@ function adaptDirectionToExcel(direction){
     if(matchedEstacionamiento){
         finalDirection = direction.replace(matchedEstacionamiento[0],"Est ");
     }
+    finalDirection = finalDirection.replace(/estacionamiento\b/i,"Est");
 
     return finalDirection
 }
-module.exports = {extractDirection}
+
+function changeWordsToNumbers(phrase) {
+    if (!phrase) return phrase;
+
+    const spacedPhrase = phrase.split(' ');
+    for (let i = 0; i < spacedPhrase.length; i++) {
+        //Se busca por el inicio de un numero descrito por la palabra "numero"
+        if (!isNumberKeyWord(spacedPhrase[i])) {
+            continue;
+        }
+        for (let j = i + 1; j < spacedPhrase.length; j++) {
+            //Si encuntra numero empieza a buscar hasta enonctrar una palabra que no sea numero para delimitar el numero
+            let isNumber = isWordANumber(spacedPhrase[j]);
+            if (spacedPhrase[j].includes(',')) {
+                isNumber = false;
+                j++;
+            }
+            if (isNumber || j - i <= 1) {
+                continue;
+            }
+            //Una vez encontrado el fin del numero procesa la frase y cambia las palabras por numeros
+            phrase = processAndChangeNumberPhrase(phrase, spacedPhrase, i, j);
+            break;
+        }
+    }
+    return phrase;
+}
+
+function normalize(word){
+    return word
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+}
+
+function isNumberKeyWord(word){
+    return NUMBER_CONFIG.keywords.has(normalize(word));
+}
+function processAndChangeNumberPhrase(phrase, spacedPhrase, i, j){
+    const numberArray = spacedPhrase.slice(i + 1, j);
+    const phraseToChange = numberArray.join(' ');
+    const regexPhrase = new RegExp(`n[uú]mero\\s*${phraseToChange}`, "i");
+    const phraseInNumber = convertWordToNumbers(phraseToChange);
+    phrase = phrase.replace(regexPhrase, `n° ${phraseInNumber}`);
+    return phrase;
+}
+
+function isWordANumber(word){
+    const normalized = normalize(word);
+
+
+    if(NUMBER_CONFIG.specialWords.has(normalized)) return true;
+
+    for(const pattern of NUMBER_CONFIG.patterns){
+        if(normalized.includes(pattern)) return true;
+    }
+
+    return false;
+}
+module.exports = {extractDirection,changeWordsToNumbers}

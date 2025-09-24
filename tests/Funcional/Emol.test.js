@@ -239,7 +239,7 @@ describe('procesarDatosRemate',()=>{
             "monto" : 118639031
         });
         expect(caso11613.diaEntrega).toEqual('el día jueves inmediatamente anterior a la fecha de la subasta, entre las 10:00 y las 12:30 horas');
-        expect(caso11613.direccion).toEqual('departamento 206, estacionamiento 33 y bodega 31, todos del edificio tempo, con acceso por los aliaga 5500, comuna de');
+        expect(caso11613.direccion).toEqual('departamento 206, Est 33 y bodega 31, todos del edificio tempo, con acceso por los aliaga 5500, comuna de');
     });
 
     test('Caso C-18187-2017', () => {
