@@ -1,5 +1,7 @@
 const convertWordToNumbers = require('../../../utils/convertWordToNumbers');
 
+let isDev = false;
+
 const NUMBER_CONFIG = {
     keywords: new Set(['numero', 'número', 'num', 'nro']),
     specialWords: new Set(['y']),
@@ -145,28 +147,40 @@ function adaptDirectionToExcel(direction){
         finalDirection = direction.replace(matchedEstacionamiento[0],"Est ");
     }
     finalDirection = finalDirection.replace(/estacionamiento\b/i,"Est");
+    finalDirection = changeWordsToNumbers(finalDirection);
 
     return finalDirection
 }
 
-function changeWordsToNumbers(phrase) {
+function changeWordsToNumbers(phrase,isDevLog = false) {
+    isDev = isDevLog;
     if (!phrase) return phrase;
 
     const spacedPhrase = phrase.split(' ');
     for (let i = 0; i < spacedPhrase.length; i++) {
-        //Se busca por el inicio de un numero descrito por la palabra "numero"
         if (!isNumberKeyWord(spacedPhrase[i])) {
             continue;
         }
         for (let j = i + 1; j < spacedPhrase.length; j++) {
-            //Si encuntra numero empieza a buscar hasta enonctrar una palabra que no sea numero para delimitar el numero
+            const isLiteralNumber = isaNumber(spacedPhrase[j]);
+            if(isLiteralNumber){
+                break;
+            }
+            //Si encuentra numero empieza a buscar hasta enonctrar una palabra que no sea numero para delimitar el numero
             let isNumber = isWordANumber(spacedPhrase[j]);
             if (spacedPhrase[j].includes(',')) {
                 isNumber = false;
                 j++;
             }
-            if (isNumber || j - i <= 1) {
+            if ((isNumber || j - i <= 1) && j < (spacedPhrase.length - 1)) {
                 continue;
+            }
+            //En caso de que la direccion termine con el numero se toma desde el numero hasta el fin de la frase.
+            if(j >= (spacedPhrase.length - 1)){
+                j++;
+            }
+            if(spacedPhrase[(j-1)].toLowerCase() == 'y'){
+                j--;
             }
             //Una vez encontrado el fin del numero procesa la frase y cambia las palabras por numeros
             phrase = processAndChangeNumberPhrase(phrase, spacedPhrase, i, j);
@@ -192,12 +206,20 @@ function processAndChangeNumberPhrase(phrase, spacedPhrase, i, j){
     const regexPhrase = new RegExp(`n[uú]mero\\s*${phraseToChange}`, "i");
     const phraseInNumber = convertWordToNumbers(phraseToChange);
     phrase = phrase.replace(regexPhrase, `n° ${phraseInNumber}`);
+    if(isDev) console.log("Frase a cambiar: ", phrase,"|", i + 1, j)
     return phrase;
+}
+
+function isaNumber(word){
+    
+    if(word.endsWith(',')){
+        word = word.slice(0,-1);
+    }
+    return !isNaN(word);
 }
 
 function isWordANumber(word){
     const normalized = normalize(word);
-
 
     if(NUMBER_CONFIG.specialWords.has(normalized)) return true;
 

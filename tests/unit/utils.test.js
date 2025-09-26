@@ -185,6 +185,12 @@ describe('convertWordToNumbers',()=>{
         const result = convertWordToNumbers(text);
         expect(result).toBe(123);
     });
+
+    test('Test con numero 564', ()=>{
+        const text = 'quinientos sesenta y cuatro';
+        const result = convertWordToNumbers(text);
+        expect(result).toBe(564);
+    });
 });
 
 describe('MatchRol', ()=>{

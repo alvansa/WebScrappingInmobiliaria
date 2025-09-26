@@ -24,7 +24,7 @@ describe('procesarDatosRemate',()=>{
         expect(caso1857.partes).toEqual('progarantía sagr/ constructora e ingeniería smot');
         expect(caso1857.fechaRemate).toEqual(new Date('2025/07/08'));
         expect(caso1857.diaEntrega).toEqual('a más tardar a las 14:00 horas del día hábil anterior a la subasta');
-        expect(caso1857.direccion).toEqual(`propiedad corresponde a la casa número cincuenta y siete, del 'condominio san marcos la portada, lote sm siete', cuyo ingreso es por calle los conquistadores número trece mil novecientos sesenta, comuna y región de antofagasta`);
+        expect(caso1857.direccion).toEqual(`propiedad corresponde a la casa n° 57 del 'condominio san marcos la portada, lote sm siete', cuyo ingreso es por calle los conquistadores n° 13960 comuna y región de antofagasta`);
     });
 
     test('Caso C-1666-2014',()=>{
@@ -103,7 +103,7 @@ describe('procesarDatosRemate',()=>{
         expect(caso800.unitRol).toEqual('965-296');
         expect(caso800.partes).toEqual('comunidad edificio alhambra/melendez');
         expect(caso800.diaEntrega).toBeNull();
-        expect(caso800.direccion).toEqual('propiedad del departamento numero cuarenta y seis del cuarto piso y el Est cubierto número veinticuatro, del edificio “la alhambra”, ubicado en avenida del mar numero dos mil quinientos cincuenta de la serena e inscrito a fojas 3043 número 2791 del registro de propiedad del conservador de bienes raíces')
+        expect(caso800.direccion).toEqual('propiedad del departamento n° 46 del cuarto piso y el Est cubierto n° 24 del edificio “la alhambra”, ubicado en avenida del mar n° 2550 de la serena e inscrito a fojas 3043 número 2791 del registro de propiedad del conservador de bienes raíces')
     });
 
     test('Caso C-18731-2007',()=>{
@@ -263,7 +263,7 @@ describe('procesarDatosRemate',()=>{
             "monto" : 47647595
         });
         expect(caso18187.diaEntrega).toEqual('los días martes y jueves, anterior a la realización de la subasta, según correspondiere, entre las 10:00 y las 12:00 horas');
-        expect(caso18187.direccion).toEqual('propiedad ubicada pasaje constantino número mil ciento noventa y uno, que corresponde al lote número treinta y nueve de la manzana d del plano de loteo respectivo, comuna de maip');
+        expect(caso18187.direccion).toEqual('propiedad ubicada pasaje constantino n° 1191 que corresponde al lote n° 39 de la manzana d del plano de loteo respectivo, comuna de maip');
     });
 
     test('Caso C-3252-2024', ()=>{

@@ -1,3 +1,6 @@
+/*
+El ladrillero
+*/
 const path = require('path');
 const os = require('os');
 const XLSX = require('xlsx');
@@ -271,32 +274,29 @@ class checkFPMG {
             console.error("No se pudo encontrar el enlace del caso");
             return false;
         }
-
         
-        //Se selecciona el cuaderno de apremio o en caso de que no este el principal.
+        //Se buscan los cuadernos posibles para averiguar si hay algun cambio en alguno
         let selectedCuadernos = await this.selectCuaderno();
         const nombresCuadernos = selectedCuadernos.map(obj => ({nombre: obj.text ,buscado: false }));
         
-
         for(let cuaderno of nombresCuadernos){
             if(cuaderno.buscado){
                 continue;
             }
-            console.log('Buscando cuaderno : ',cuaderno.nombre);
             // selectedCuadernos = await this.selectCuaderno();
             const cuadernoToSearch = selectedCuadernos.find(option => option.text === cuaderno.nombre);
-            console.log('Cuaderno a buscar en funcion principal: ', cuadernoToSearch.text, cuadernoToSearch.value);
             changedCuaderno = await this.pressCuaderno(cuadernoToSearch.value);
-            cuaderno.buscado = true;
+            if (changedCuaderno == false) {
+                changedCuaderno = await this.pressCuaderno(cuadernoToSearch.value);
+            }
             if(!changedCuaderno){
                 console.log('No se cambio el cuaderno');
                 return false;
             }
+            cuaderno.buscado = true;
             console.log('cuaderno cambiado exitosamente')
             caseIsFinished = await this.searchInMainTable(caso);
-
         }
-        // Descargar el texto de la demanda.
         return true;
     }
 
@@ -313,11 +313,11 @@ class checkFPMG {
                     value: option.value
                 }));
             });
-            console.log('********************************');
-            for(let i of options){
-                console.log(i.text, i.value);
-            }
-            console.log('********************************');
+            // console.log('********************************');
+            // for(let i of options){
+            //     console.log(i.text, i.value);
+            // }
+            // console.log('********************************');
             return options;
 
         } catch (error) {
@@ -332,7 +332,7 @@ class checkFPMG {
         // ✅ Verificar que el select tenga opciones
         const optionsLoaded = await this.page.waitForFunction(
             selector => document.querySelector(selector).options.length > 0,
-            { timeout: 5000 },
+            { timeout: 10000 },
             selectorCuaderno
         );
         if(!optionsLoaded){

@@ -7,7 +7,7 @@ function extractCourt(data) {
         .replace(/jugado/i,"juzgado")
         .replace(/[.\n]/g, ' ')
         .replace(/,/g,'')
-        .replace(/de\s*/g, '')
+        .replace(/de\s+/g, '')
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
         .replace(/'/g,"")
@@ -62,7 +62,7 @@ function extractCourt(data) {
                 return variation;
             })
 
-            // if(tribunal.includes("21° JUZGADO CIVIL DE SANTIAGO")) {
+            // if(tribunal.includes("10° JUZGADO CIVIL DE SANTIAGO")) {
             //     console.log("Tribunal encontrado: ", variaciones);
             // }
 
