@@ -1,6 +1,7 @@
 
 // Obtiene la fecha del remate.
 function extractAuctionDate(data) {
+    if(!data) return null;
     
     const regexs = [
         /(\d{1,2})º?\s*(de\s+)?(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)\s*(del?\s+)?(año\s+)?(\d{4}|\d{1,3}(\.\d{1,3}))/i,

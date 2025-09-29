@@ -6,6 +6,8 @@ const {delay,fakeDelay} = require('../../utils/delay');
 const {procesarDatosRemate} = require('./datosRemateEmol');
 const listUserAgents = require('../../utils/userAgents.json');
 const { simulateHumanBehavior } = require('../../utils/stealth');
+const {extractAuctionDate} = require('./extractors/auctionDateExtractor');
+const { EvalSourceMapDevToolPlugin } = require('webpack');
 
 require('dotenv').config();
 
@@ -13,12 +15,13 @@ const SELECTORS =
 {
     'NEXT_PAGE_SELECTOR': 'span.pag_bt_result_left.pag_bt_resul_green.pag_bt_pad_r.pag_color_bt_green',
     'CASO_BLOQUE_SELECTOR': 'div.result.row-fluid',
+    'ELEMENTO_TEXTO' : 'div.col2.span6 > a > h3',
 }
 const EMOL = 1;
 const MAIN_URL = 'https://www.economicos.cl/todo_chile/remates_de_propiedades_el_mercurio';
 
 class Economico{
-    constructor(browser,fechaInicio, fechaFin){
+    constructor(browser,fechaInicio, fechaFin, originStartDate, originEndDate){
         this.browser = browser;
         this.page = null;
         this.window = null;
@@ -27,6 +30,8 @@ class Economico{
         this.urlBase = "https://www.economicos.cl";
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
+        this.originStartDate = originStartDate;
+        this.originEndDate = originEndDate;
     }
 
     async getCases(){
@@ -34,9 +39,11 @@ class Economico{
             console.log("Iniciando la búsqueda de casos en Economicos.cl desde ", this.fechaInicio, " hasta ", this.fechaFin);
             await this.createWindow('https://www.economicos.cl/todo_chile/remates_de_propiedades_el_mercurio');
             const result = await this.extractInfoPage();
-            console.log("Casos encontrados: ", this.casosARevisar);
+            console.log(`Casos a revisar : ${this.casosARevisar.length}`)
             await delay(2000);
             let counter = 0;
+            
+
             for(let caso of this.casosARevisar){
                 counter++;
                 const description = await this.getInfoFromSingularPage(caso);
@@ -224,16 +231,25 @@ async check503(){
 }
 
 async processPage(startDate,endDate,SELECTORS){
-    const casosPagina = await this.page.evaluate(async (fechaInicio, fechaFin,SELECTORS ) => {
+    // this.page.on('console', msg =>{console.log("LOG BROWSER: ", msg.text())});
+    await this.page.exposeFunction('extractAuctionDate', extractAuctionDate.bind(extractAuctionDate));
+    const casosPagina = await this.page.evaluate(async (fechaInicio, fechaFin,SELECTORS) => {
         const fechaInicioDate = new Date(fechaInicio);
         const casos = [];
         const bloqueCasos = document.querySelectorAll(SELECTORS.CASO_BLOQUE_SELECTOR)
 
-
         for (let element of bloqueCasos) {
             const timeElement = element.querySelector('time.timeago');
             let dateTimeStr = timeElement ? timeElement.getAttribute('datetime') : null;
+            let auctionDate = null;
             //El tiempo en Emol aparece con formato => "YYYY-MM-DD"
+
+            // obtainPosibleAuctionDate(element);
+            let posibleAuctionDate = element.querySelector(SELECTORS.ELEMENTO_TEXTO);
+            if(posibleAuctionDate){
+                auctionDate = await window.extractAuctionDate(posibleAuctionDate.innerHTML);
+                // console.log(`Mensaje desde el browser ${posibleAuctionDate.innerHTML} fecha encontrada : ${auctionDate}`);
+            }
 
             if (dateTimeStr) {
                 dateTimeStr = dateTimeStr.replace(/-/g,'/');
@@ -247,7 +263,8 @@ async processPage(startDate,endDate,SELECTORS){
                     const announcement = linkElement ? linkElement.getAttribute('href') : null;
                     casos.push({
                         fechaPublicacion: announcementDate.toISOString(),
-                        announcement: announcement
+                        announcement: announcement,
+                        fechaRemate : auctionDate
                     });
                 }
             }
@@ -258,14 +275,30 @@ async processPage(startDate,endDate,SELECTORS){
     return casosPagina;
 }
 
+obtainPosibleAuctionDate(element,SELECTORS,extractAuctionDate){
+    const text = element.querySelector(SELECTORS.ELEMENTO_TEXTO);
+    const auctionDate = extractAuctionDate(text);
+    if(auctionDate){
+        return auctionDate;
+    }
+
+    return null;
+}
 addFoundCases(cases,fechaHoy){
+    console.log(`Fechas base inicio: ${this.originStartDate} fin ${this.originEndDate}`)
     for(let currentCase of cases){
         const announcement = currentCase.announcement ? this.urlBase + currentCase.announcement : null;
         const fechaPublicacion = new Date(currentCase.fechaPublicacion);
         const fechaHoyCaso = fechaHoy;
-        const casoObj = new Caso(fechaHoyCaso, fechaPublicacion, announcement, EMOL);
         
-        this.casosARevisar.push(casoObj);
+        const casoObj = new Caso(fechaHoyCaso, fechaPublicacion, announcement, EMOL);
+        casoObj.fechaRemate = currentCase.fechaRemate;
+
+        if(!casoObj.fechaRemate || (casoObj.fechaRemate >= this.originStartDate && casoObj.fechaRemate <= this.originEndDate )){
+            console.log(`caso agregado ${currentCase.fechaRemate} y en el caso ${casoObj.fechaRemate}`)
+            this.casosARevisar.push(casoObj);
+        }
+        
     }
 }
 

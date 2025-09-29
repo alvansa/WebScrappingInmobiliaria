@@ -77,25 +77,25 @@ class checkFPMG {
 
     obtainDataFromRow(lastRow) {
         let skipRow = false;
-        const [estadoBusqueda, skip0] = this.obtainCellAndState(config.NOTAS, lastRow, skipRow);
+        // const [estadoBusqueda, skip0] = this.obtainCellAndState(config.NOTAS, lastRow, skipRow);
         
-        if (estadoBusqueda) {
-            if (!estadoBusqueda.toLowerCase().includes('fp')) {
-                skipRow = true;
-            }
-        } else {
-            skipRow = true;
-        }
+        // if (estadoBusqueda) {
+        //     if (!estadoBusqueda.toLowerCase().includes('fp')) {
+        //         skipRow = true;
+        //     }
+        // } else {
+        //     skipRow = true;
+        // }
 
-        const estadoRemate = this.ws[`${config.ESTADO}${lastRow}`] ? true : false;
-        if (estadoRemate) {
-            skipRow = true;
-        }
+        // const estadoRemate = this.ws[`${config.ESTADO}${lastRow}`] ? true : false;
+        // if (estadoRemate) {
+        //     skipRow = true;
+        // }
 
         const [causa, skip1] = this.obtainCellAndState(config.CAUSA, lastRow, skipRow);
         const [juzgado, skip2] = this.obtainCellAndState(config.TRIBUNAL, lastRow, skipRow)
         const [fechaDesc, skip3] = this.obtainCellAndState(config.FECHA_DESC, lastRow, skipRow);
-        skipRow = skipRow || skip0 || skip1 || skip2 || skip3;
+        skipRow = skipRow || skip1 || skip2 || skip3;
 
         //Normalizar el texto de la causa que puede venir modificado por alguien del excel.
         if(causa){

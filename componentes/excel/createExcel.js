@@ -166,7 +166,10 @@ class createExcel {
             console.log("No se encontraron datos para insertar.");
             return;
         }
-        console.log("Los casos recibidos son: ", casos.length);
+        console.log("Los casos recibidos son: ", casos.length, " estamos en prueba? ",this.isTestMode);
+        for(let i of casos){
+            console.log(i.texto);
+        }
 
         // Primero se leen todos los casos obtenidos y se verifican para agregarlos,
         // en caso de que ya hayan sido agregados se une la informacion 

@@ -78,8 +78,10 @@ class scrapeAuction {
             return [];
         }
 
-        const fixStartDate = fixStringDate(fechaInicioStr)
-        const fixEndDate = fixStringDate(fechaFinStr);
+        const fixStartDate = stringToDate(fechaInicioStr)
+        const fixEndDate = stringToDate(fechaFinStr);
+        console.log(`Fechas que deberiam ser originales: ${stringToDate(fechaInicioStr)} y final ${stringToDate(fechaFinStr)}`);
+
         let fechaInicio = new Date();
         let fechaFin = new Date(); 
 
@@ -93,7 +95,7 @@ class scrapeAuction {
         let casos = [];
         try {
             console.log("Obteniendo casos de economico desde: ", fechaInicio, " hasta: ", fechaFin);
-            const economico = new Economico(this.browser, fechaInicio, fechaFin);
+            const economico = new Economico(this.browser, fechaInicio, fechaFin, fixStartDate, fixEndDate);
             casos = await economico.getCases() || [];
             
         } catch (error) {

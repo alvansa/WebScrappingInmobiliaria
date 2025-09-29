@@ -1,5 +1,6 @@
 const {changeWordsToNumbers} = require('../../componentes/economico/extractors/directionExtractor');
-
+const {extractAuctionDate} = require('../../componentes/economico/extractors/auctionDateExtractor');
+ 
 
 
 describe('test de convertir frases con numeros escritos en palabras a numeros',()=>{
@@ -103,4 +104,20 @@ describe('test de convertir frases con numeros escritos en palabras a numeros',(
         expect(res).toBe('Parcela numero 345 que colide con edificio tralala y estacionamiento n° 35')
     });
 
+});
+
+describe('test para extraer fecha de remate',()=>{
+
+    test('test prueba para verificar si obtiene del resumen', ()=>{
+        const text = 'Mensaje desde el browser Remate: 19º Juzgado Civil Santiago Huérfanos 1409, Piso 5, en causa Rol C-13993-2023 el 14 octubre 2025 a las 13:00 hrs se realizará subasta vía plataforma videoconferencia Zoom propiedad Pasaje Lloret Nº 8019, Conjunto Habitacional Jardín Poniente, Comuna Renca, inscrito a Fojas 15121 Nº 24089 Regi';
+        const res = extractAuctionDate(text);
+        expect(res).toBe('14 octubre 2025')
+    });
+
+    test('test prueba para verificar si obtiene del resumen', ()=>{
+        const text = 'Remate: Primer Juzgado Civil De Santiago, Huérfanos 1409, piso 15 santiago, rematará 21 de octubre de 2025 a las 14:50 horas, departamento nº 2.619 del 26º piso y de la bodega nº 74 del 1º subterráneo, ambos de la torre oriente del edificio Portal Independencia, 2º etapa, con acceso por Avenida Inde';
+        const res = extractAuctionDate(text);
+        console.log(res)
+        // expect(res)
+    });
 });
