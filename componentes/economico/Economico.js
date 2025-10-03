@@ -32,6 +32,7 @@ class Economico{
         this.fechaFin = fechaFin;
         this.originStartDate = originStartDate;
         this.originEndDate = originEndDate;
+        this.isFunctionSet = false;
     }
 
     async getCases(){
@@ -47,7 +48,6 @@ class Economico{
             for(let caso of this.casosARevisar){
                 counter++;
                 const description = await this.getInfoFromSingularPage(caso);
-                console.log(`Obtienedo caso ${counter} de ${this.casosARevisar.length}`);
                 await fakeDelay(5,10);
                 if(description){
                     caso.texto = description;
@@ -137,6 +137,10 @@ async extractInfoPage() {
             customUA  = userAgents[randomIndex].userAgent;
             await this.page.setUserAgent(customUA);
             await this.navigateToPage(url);
+            if(!this.isFunctionSet){
+                await this.page.exposeFunction('extractAuctionDate', extractAuctionDate.bind(extractAuctionDate));
+                this.isFunctionSet = true;
+            }
 
             if (await this.check503()) {
                 throw new Error('Error 503: Service Unavailable');
@@ -232,7 +236,6 @@ async check503(){
 
 async processPage(startDate,endDate,SELECTORS){
     // this.page.on('console', msg =>{console.log("LOG BROWSER: ", msg.text())});
-    await this.page.exposeFunction('extractAuctionDate', extractAuctionDate.bind(extractAuctionDate));
     const casosPagina = await this.page.evaluate(async (fechaInicio, fechaFin,SELECTORS) => {
         const fechaInicioDate = new Date(fechaInicio);
         const casos = [];
@@ -285,7 +288,6 @@ obtainPosibleAuctionDate(element,SELECTORS,extractAuctionDate){
     return null;
 }
 addFoundCases(cases,fechaHoy){
-    console.log(`Fechas base inicio: ${this.originStartDate} fin ${this.originEndDate}`)
     for(let currentCase of cases){
         const announcement = currentCase.announcement ? this.urlBase + currentCase.announcement : null;
         const fechaPublicacion = new Date(currentCase.fechaPublicacion);
@@ -295,7 +297,6 @@ addFoundCases(cases,fechaHoy){
         casoObj.fechaRemate = currentCase.fechaRemate;
 
         if(!casoObj.fechaRemate || (casoObj.fechaRemate >= this.originStartDate && casoObj.fechaRemate <= this.originEndDate )){
-            console.log(`caso agregado ${currentCase.fechaRemate} y en el caso ${casoObj.fechaRemate}`)
             this.casosARevisar.push(casoObj);
         }
         

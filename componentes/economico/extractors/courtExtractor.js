@@ -12,9 +12,9 @@ function extractCourt(data) {
         .replace(/[\u0300-\u036f]/g, "")
         .replace(/'/g,"")
         .replace(/\bstgo\b/g, "santiago")
+        .replace(/letras\s+santiago/i, 'civil santiago')
         .replace(/\s+/, ' ');
 
-    // console.log("Data normalizada en juzgado: ", normalizedData);
 
     let tribunalAceptado = null;
 
@@ -62,7 +62,7 @@ function extractCourt(data) {
                 return variation;
             })
 
-            // if(tribunal.includes("10° JUZGADO CIVIL DE SANTIAGO")) {
+            // if(tribunal.includes("14° JUZGADO CIVIL DE SANTIAGO")) {
             //     console.log("Tribunal encontrado: ", variaciones);
             // }
 

@@ -15,10 +15,9 @@ const GestorRematesPjud = require('../../pjud/GestorRematesPjud.js')
 const {fixStringDate,stringToDate} = require('../../../utils/cleanStrings.js');
 const {tribunalesPorCorte, obtainCorteJuzgadoNumbers} = require('../../../utils/corteJuzgado.js');
 const { fakeDelay, delay } = require('../../../utils/delay.js');
+const config = require('../../../config.js');
 
-// const ConsultaCausaPjud = require('../../pjud/consultaCausaPjud.js');
-// const PjudPdfData = require('../../pjud/PjudPdfData.js');
-// const Caso = require('../../caso/caso.js')
+const PJUD = config.PJUD;
 
 class scrapeAuction {
     constructor(startDate,endDate,saveFile, checkedBoxes,event,isEmptyMode,mainWindow,isTestMode = false){
@@ -46,7 +45,7 @@ class scrapeAuction {
         if(this.emptyMode){
            casos = emptyCaseEconomico(); 
         }else{
-            casosEconomico = await this.getCasosEconomico(fechaHoy, this.startDate, this.endDate, 3, this.checkedBoxes.economico);
+            casosEconomico = await this.getCasosEconomico(this.startDate, this.endDate, this.checkedBoxes.economico);
             casosPJUD = await this.getCasosPjud(this.startDate, this.endDate, this.checkedBoxes.pjud,this.event)
             // casosPreremates = await this.getCasosPreremates(checkedBoxes.preremates),
             casosBoletin = await this.getCasosBoletin(this.startDate, this.endDate, fechaHoy, this.checkedBoxes.liquidaciones),
@@ -59,6 +58,9 @@ class scrapeAuction {
             casos = [...casosEconomico, ...casos];
             await this.obtainMapasSIIInfo(casos);
         }
+        if(!this.isTestMode){
+            casos = await this.secondRound(casos);
+        }
 
         if(casos.length === 0){
             console.log("No se encontraron datos");
@@ -69,7 +71,32 @@ class scrapeAuction {
         return filePath;
     }
 
-    async getCasosEconomico(fechaHoy, fechaInicioStr, fechaFinStr, maxRetries, economicoChecked) {
+    
+    async secondRound(casos){
+        let countEmptyParts = 0;
+        for(let caso of casos){
+            // caso.partes = null;
+            if(!caso.partes && caso.origen == PJUD){
+                countEmptyParts++;
+            }
+        }
+        //se revisa si de los casos obtenidos 
+        if(countEmptyParts <= Math.floor(casos.length/20)){
+            return casos;
+        }
+        const awaitTime = 60 * 60;
+        this.mainWindow.webContents.send('aviso-espera', [awaitTime, countEmptyParts, casos.length]);
+        await delay(awaitTime * 1000)
+        //Volver a revisar los casos faltantes
+        const gestorRemates = new GestorRematesPjud(casos, this.event, this.mainWindow);
+        const result = await gestorRemates.getInfoFromAuctions({ skipIfHasPartes: true }); 
+        console.log(`-----------\nSegunda Vuelta \n--------------------------`);
+        return casos;
+    }
+
+    
+
+    async getCasosEconomico(fechaInicioStr, fechaFinStr, economicoChecked) {
         if(this.emptyMode){
             return emptyCaseEconomico();
         }
@@ -80,7 +107,6 @@ class scrapeAuction {
 
         const fixStartDate = stringToDate(fechaInicioStr)
         const fixEndDate = stringToDate(fechaFinStr);
-        console.log(`Fechas que deberiam ser originales: ${stringToDate(fechaInicioStr)} y final ${stringToDate(fechaFinStr)}`);
 
         let fechaInicio = new Date();
         let fechaFin = new Date(); 
@@ -94,7 +120,6 @@ class scrapeAuction {
 
         let casos = [];
         try {
-            console.log("Obteniendo casos de economico desde: ", fechaInicio, " hasta: ", fechaFin);
             const economico = new Economico(this.browser, fechaInicio, fechaFin, fixStartDate, fixEndDate);
             casos = await economico.getCases() || [];
             
@@ -136,9 +161,7 @@ class scrapeAuction {
             return [];
         }
         let casos = [];
-        // const startDate = stringToDate(fechaInicioStr);
-        // const endDate = stringToDate(fechaFinStr);
-        // let endDate = stringToDate(fechaInicioStr); 
+
         let startDate = new Date();
         let endDate = new Date(); 
 
@@ -214,14 +237,9 @@ class scrapeAuction {
             const gestorRemates = new GestorRematesPjud(casos,event,this.mainWindow);
             const result = await gestorRemates.getInfoFromAuctions();
             
-            // const result = await this.obtainDataFromCases(casos, event);
-            for (let caso of casos) {
-                console.log("Caso obtenido de pjud: ", caso.fechaRemate);
-            }
             console.log("Cantidad de casos obtenidos de pjud: ", casos.length);
         } catch (error) {
             console.error("Error en el pjud :", error.message);
-            console.error("Error en el pjud :", error);
         }
 
         return casos;
@@ -240,9 +258,7 @@ class scrapeAuction {
             mapasSII = new MapasSII(page);
             await mapasSII.init();
             for (let caso of casos) {
-                console.log("Buscando info del caso ", caso.causa)
                 if (caso.rolPropiedad !== null && caso.comuna !== null && !caso.avaluoPropiedad && caso.origen != 2){
-                    console.log(caso.causa, caso.rolPropiedad, caso.comuna, caso.link);
                     await fakeDelay(1, 3);
                     await mapasSII.obtainDataOfCause(caso);
                     await new Promise(resolve => setTimeout(resolve, 1000));
@@ -321,30 +337,6 @@ class scrapeAuction {
         return casos;
 
     }
-
-    // async obtainDataFromCases(casos,event){
-    //     const mainWindow = BrowserWindow.fromWebContents(event.sender);
-    //     let counter = 0;
-    //     try{
-    //         for (let caso of casos) {
-    //             counter++;
-    //             console.log(`Caso a investigar ${caso.causa} ${caso.juzgado} caso numero ${counter} de ${casos.length}`);
-    //             const result = await consultaCausa(caso);
-    //             if (result) {
-    //                 console.log("Resultados del caso de prueba en pjud: ", caso.toObject());
-    //             }
-
-    //             if ((counter + 1) < casos.length) {
-    //                 const awaitTime = Math.random() * (90 - 30) + 30; // Genera un número aleatorio entre 30 y 90
-    //                 mainWindow.webContents.send('aviso-espera', [awaitTime, counter + 1, casos.length]);
-    //                 console.log(`Esperando ${awaitTime} segundos para consulta numero ${counter + 1} de ${casos.length}`);
-    //                 await delay(awaitTime * 1000);
-    //             }
-    //         }
-    //     }catch (error) {
-    //         console.error("Error al obtener datos de los casos: ", error.message);
-    //     }
-    // }
 
     //Funcion para lanzar el navegador estandar de electron sin proxy
     async launchPuppeteer_inElectron(){

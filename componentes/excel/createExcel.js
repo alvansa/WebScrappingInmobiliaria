@@ -158,17 +158,12 @@ class createExcel {
     }
 
     async insertarCasosExcel(casos, ws) {
-        console.log("Fechas en el exccel: ",fixStringDate(this.startDate),fixStringDate(this.endDate),this.fixedStartDate, this.fixedEndDate)
         let remates = new Map();
         let currentRow = 6;
 
         if (!Array.isArray(casos) || casos.length === 0) {
             console.log("No se encontraron datos para insertar.");
             return;
-        }
-        console.log("Los casos recibidos son: ", casos.length, " estamos en prueba? ",this.isTestMode);
-        for(let i of casos){
-            console.log(i.texto);
         }
 
         // Primero se leen todos los casos obtenidos y se verifican para agregarlos,

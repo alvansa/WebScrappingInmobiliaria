@@ -58,6 +58,43 @@ const LETRAS = {
     COMENTARIOS3 : 'AZ',
 }
 
+// Funciones utilitarias
+const funcionesColumnas = {
+    // Obtener número desde clave
+    obtenerNumero(clave) {
+        const letras = Object.values(LETRAS);
+        const letra = LETRAS[clave];
+        return letras.indexOf(letra);
+    },
+    
+    // Obtener letra desde número
+    obtenerLetra(numero) {
+        const letras = Object.values(LETRAS);
+        return letras[numero] || null;
+    },
+    
+    // Obtener referencia Excel (A1, B2, etc.)
+    obtenerReferencia(clave, fila = 1) {
+        const letra = LETRAS[clave];
+        const numero = this.obtenerNumero(clave);
+        return `${letra}${fila + numero}`;
+    },
+    
+    // Obtener todas las letras con sus números
+    obtenerTodasLasColumnas() {
+        return Object.keys(LETRAS).map(clave => ({
+            clave,
+            letra: LETRAS[clave],
+            numero: this.obtenerNumero(clave)
+        }));
+    },
+    
+    // Buscar clave por letra
+    obtenerClavePorLetra(letra) {
+        return Object.keys(LETRAS).find(clave => LETRAS[clave] === letra);
+    }
+};
+
 const baseConfig = {
     EMOL: 1,
     PJUD: 2,
@@ -99,7 +136,8 @@ const environmentConfig = {
 const config = {
     ...baseConfig,
     ...environmentConfig.DESARROLLO,
-    ...LETRAS
+    ...LETRAS,
+    ...funcionesColumnas
 };
 
 

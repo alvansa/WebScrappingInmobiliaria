@@ -61,7 +61,7 @@ document.getElementById('ExcelNuevo').addEventListener('click',async ()=>{
     }
 });
 document.getElementById('compararExcel').addEventListener('click', async ()=>{
-    if(!pathExcelBase|| !pathExcelNuevo){
+    if(!pathExcelNuevo){
         alert("Debe seleccionar ambos archivos");
         return;
     }

@@ -45,8 +45,20 @@ function stringToDate(fecha) {
     }
 }
 
+function formatDateToDDMMAA(date) {
+  if(date instanceof Date == false){
+    return null
+  }
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = String(date.getFullYear()).slice(-2);
+    
+    return `${day}-${month}-${year}`;
+}
+
 module.exports = {
     cleanInitialZeros,
     fixStringDate,
-    stringToDate
+    stringToDate,
+    formatDateToDDMMAA
 };

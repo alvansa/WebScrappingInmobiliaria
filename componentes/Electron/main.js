@@ -137,7 +137,6 @@ class MainApp{
             };
         });
 
-        // Funcion para buscar la informacion del pjud en pdf en base a una fecha de inicio y final.
         ipcMain.handle('complete-info-excel', async (event, filePath) => {
             try{
                 const FillExcel = new CompleteExcelInfo(filePath,event,this.mainWindow);
@@ -295,7 +294,8 @@ class MainApp{
 
         ipcMain.handle('search-repeated-cases', async (event, excelBase, excelNuevo) => {
             try {
-                const result = CompleteExcelInfo.searchRepeatedCases(excelBase, excelNuevo);
+                const result = await CompleteExcelInfo.searchRepeatedCases(excelBase, excelNuevo,isDevMode);
+                // const result = await CompleteExcelInfo.newSearchRepeatedCases(excelNuevo,isDevMode);
                 console.log("Resultados de la busqueda de casos repetidos:", result);
                 return result;
             } catch (error) {

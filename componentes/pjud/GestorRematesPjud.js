@@ -18,13 +18,24 @@ class GestorRematesPjud{
         this.activeWindows = new Set();
     }
 
-    async getInfoFromAuctions(){
+    async getInfoFromAuctions(options = {}){
+        let secondlap = ''
+        const { skipIfHasPartes = false } = options;
+        if(skipIfHasPartes){
+            secondlap = 'en segunda vuelta';
+        }
         const mainWindow = BrowserWindow.fromWebContents(this.event.sender);
         let counter = 0;
         try{
             for (let caso of this.casos) {
                 counter++;
-                console.log(`Caso a investigar ${caso.causa} ${caso.juzgado} caso numero ${counter} de ${this.casos.length}`);
+                // console.log(`Caso a investigar ${caso.causa} ${caso.juzgado} caso numero ${counter} de ${this.casos.length}`);
+                if (skipIfHasPartes && caso.partes) {
+
+                    console.log(`Caso ${caso.causa} ya tiene partes, se omite`);
+                    continue;
+                }
+
                 if(!caso.numeroJuzgado || !caso.corte ){
                     console.log(`Caso ${caso.causa} no tiene numero de juzgado ni corte, se omite`);
                     continue;
@@ -37,7 +48,7 @@ class GestorRematesPjud{
                 if ((counter + 1) < this.casos.length) {
                     const awaitTime = Math.random() * (90 - 30) + 30; // Genera un número aleatorio entre 30 y 90
                     mainWindow.webContents.send('aviso-espera', [awaitTime, counter + 1, this.casos.length]);
-                    console.log(`Esperando ${awaitTime} segundos para consulta numero ${counter + 1} de ${this.casos.length}`);
+                    console.log(`Esperando ${awaitTime} segundos para consulta numero ${counter + 1} de ${this.casos.length} ${secondlap}`);
                     await delay(awaitTime * 1000);
                 }
             }

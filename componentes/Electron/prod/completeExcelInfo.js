@@ -5,11 +5,14 @@ const path = require('path');
 const Caso = require('../../caso/caso.js');
 const CasoBuilder = require('../../caso/casoBuilder.js');
 const GestorRematesPjud = require('../../pjud/GestorRematesPjud.js');
+const SpreadSheetManager = require('../../spreadSheet/SpreadSheetManager.js')
 const {writeLine,insertarCasoIntoWorksheet,createExcel} = require('../../excel/createExcel.js')
 const {tribunalesPorCorte, obtainCorteJuzgadoNumbers} = require('../../../utils/corteJuzgado.js');
-const {stringToDate} = require('../../../utils/cleanStrings.js');   
+const {stringToDate,formatDateToDDMMAA} = require('../../../utils/cleanStrings.js');   
 const {matchJuzgado, matchRol} = require('../../../utils/compareText.js');
 const config = require('../../../config.js');
+const { consultaCausa } = require('../dev/testUnitarios.js');
+
 const PJUD = config.PJUD;
 const EMOL = config.EMOL;
 const LIQUIDACIONES = config.LIQUIDACIONES;
@@ -20,6 +23,7 @@ const COlUMNAS_MANTENER = [
     config.FECHA_DESC,
     config.ORIGEN,
     config.FECHA_REM,
+    config.OCUPACION,
     config.CAUSA, 
     config.TRIBUNAL,
     config.COMUNA_TRIBUNAL, 
@@ -28,11 +32,12 @@ const COlUMNAS_MANTENER = [
 ];
 
 class CompleteExcelInfo{
-    constructor(filePath,event,mainWindow){
+    constructor(filePath,event,mainWindow,mode=false){
         this.filePath = filePath;
         this.mainWindow = mainWindow;
         this.event = event;
         this.casos = [];
+        this.mode = mode;
     }
 
     async fillData(){
@@ -137,16 +142,22 @@ class CompleteExcelInfo{
         }
     }
 
-    static searchRepeatedCases(excelBase, excelNuevo) {
+    static async searchRepeatedCases(excelBase, excelNuevo, isDevMode) {
 
         const wbBase = XLSX.readFile(excelBase, {cellDates: true});
         const wsBase = wbBase.Sheets[wbBase.SheetNames[0]];
+        
         const wbNew = XLSX.readFile(excelNuevo, {cellDates: true});
         const wsNew = wbNew.Sheets[wbNew.SheetNames[0]];
 
         let lastRowNew = this.obtainLastRow(wsNew);
+        // console.log("Esta en modo desarrolaldor? :",isDevMode);
+        const baseInfo = await SpreadSheetManager.processData(isDevMode);
+        console.log("largo de los datos obtenidos: ", baseInfo.length)
 
         const findedCausas = this.findRepeatedAuctions(wsBase, wsNew);
+        // const findedCausas = this.newFindRepeatedAuctions(baseInfo, wsNew, isDevMode);
+        // return 0;
 
         // console.log(`Causas a buscar: ${findedCausas.length}`);
         console.table(findedCausas.map(causa => ({
@@ -155,6 +166,7 @@ class CompleteExcelInfo{
             baseLine: causa.baseLine,
             newLine: causa.newLine
         })));
+
         lastRowNew = lastRowNew + 5;
         findedCausas.forEach(causa => {
             const newCausaCell = wsNew[`${config.CAUSA}${lastRowNew}`];
@@ -167,6 +179,17 @@ class CompleteExcelInfo{
             lastRowNew++;
         });
         this.saveNewExcel(wbNew, wsNew, lastRowNew, excelNuevo);
+    }
+
+    static async newSearchRepeatedCases(newInfo,isDevMode){
+        const wbNew = XLSX.readFile(newInfo, {cellDates: true});
+        const wsNew = wbNew.Sheets[wbNew.SheetNames[0]];
+
+        const baseInfo = await SpreadSheetManager.processData(isDevMode);
+        console.log("largo de los datos obtenidos: ", baseInfo.length)
+
+        const findedCausas = this.newFindRepeatedAuctions(baseInfo, wsNew, isDevMode);
+        return 0;
     }
 
     static saveNewExcel(wb, ws, lastRow, filePath) {
@@ -191,6 +214,7 @@ class CompleteExcelInfo{
         const lastRowBase = this.obtainLastRow(wsBase);
         let actualRowBase = lastRowBase;
         let lastRowNew = 6;
+
         while(wsNew[`${config.FECHA_DESC}${lastRowNew}`]){
             const {causa, juzgado,comuna,rol, isValid} = this.processNewRow(wsNew, lastRowNew);
             if(!isValid){
@@ -214,6 +238,79 @@ class CompleteExcelInfo{
         }
         return findedCausas;
     }
+
+    static newFindRepeatedAuctions(baseInfo, newInfo,isDevMode){
+        let findedAuctions;
+
+        findedAuctions = this.obtainNewAuctionsFromExcel(newInfo);
+        let cont = 1;
+        // console.log(findedAuctions);
+        // for(let newAuction of findedAuctions.keys()){
+        //     const newData = findedAuctions.get(newAuction)
+        //     findedAuctions.set(newAuction,{...newData,cont})
+        //     cont++;
+        // }
+        let index = 0;
+        for(let auction of baseInfo){
+            index++;
+            const {causa, juzgado,comuna, rol, isValid} = this.obtainDataLine(auction)
+            
+            if(!isValid){
+                continue;
+            }
+            if(findedAuctions.has(causa)){
+                console.log("Encontrada ",findedAuctions.get(causa));
+                console.log(`Econtrada causa ${baseInfo[index][10]}`);
+            }
+
+        }
+    }
+
+    static obtainDataLine(auction){
+        let isValid = true;
+        const indexCausa = config.obtenerNumero('CAUSA');
+        const indexJuzgado = config.obtenerNumero('TRIBUNAL');
+        const indexComuna = config.obtenerNumero('COMUNA');
+        const indexRol = config.obtenerNumero('ROL');
+
+        const datos = {
+            causa : auction[indexCausa],
+            juzgado : auction[indexJuzgado],
+            comuna : auction[indexComuna],
+            rol : auction[indexRol],
+        }
+        if(!datos.causa || !datos.juzgado){
+            isValid = false;
+            return { ...datos, isValid }
+        }
+
+        const causaMatch = datos.causa.match(/C-\d+-\d+/i);
+        
+        if(!causaMatch){
+            isValid = false;
+            return { ...datos , isValid };
+
+        }
+        datos.causa = causaMatch[0].toUpperCase();
+
+        return { ...datos, isValid };
+    }
+
+    static obtainNewAuctionsFromExcel(wsNew){
+        const auctions = new Map();
+        let lastRow = 6;
+        while(wsNew[`${config.FECHA_DESC}${lastRow}`]){
+            const { causa, juzgado, comuna, rol, isValid } = this.processNewRow(wsNew, lastRow);
+            if (!isValid) {
+                lastRow++;
+                continue;
+            }
+            auctions.set(causa,{'causa': causa,'juzgado' : juzgado,'comuna': comuna,'rol': rol});
+            lastRow++;
+        }
+        return auctions
+    }
+
 
     static processNewRow(wsNew, rowNum){
         let isValid = true;
@@ -323,6 +420,7 @@ class CompleteExcelInfo{
     static modifyColumnMartillero(wsNew, newRow, wsBase, baseRow){
         // console.log("Escribiendo fila ", newRow)
         let text = '';
+        const fechaRemCell = wsBase[`${config.FECHA_REM}${baseRow}`];
         const actualValueMartilleroCell = wsNew[`${config.MARTILLERO}${newRow}`];
         const estadoColumn = wsBase[`${config.ESTADO}${baseRow}`];
         const notasColumn = wsBase[`${config.NOTAS}${baseRow}`];
@@ -331,19 +429,23 @@ class CompleteExcelInfo{
         if (actualValueMartilleroCell) {
             text += actualValueMartilleroCell.v + ' ';
         }
+        if(fechaRemCell){
+            const fecha = formatDateToDDMMAA(fechaRemCell.v)
+            text += fecha +' ';
+        }
         //Agregar la columna G de Ocupacion
-        text += 'Ya aparecio(';
+        text += '(';
         if (estadoColumn) {
-            text += estadoColumn.v + ' ';
+            text += '-' + estadoColumn.v + ' ';
         }
         if (notasColumn) {
             text += notasColumn.v + ' ';
         }
         if (martilleroColumn) {
-            text += martilleroColumn.w;
+            text += '-' + martilleroColumn.w;
         }
         if (ocupacionColumn) {
-            text += ocupacionColumn.v;
+            text += ocupacionColumn.v + '';
         }
         text += ')';
 
