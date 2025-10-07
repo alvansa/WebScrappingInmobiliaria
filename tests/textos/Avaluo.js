@@ -136,4 +136,30 @@ propiedad.
 Por Orden del Director
 CERTIFICADO GRATUITO`;
 
-module.exports = {textoEstacionamiento1, textoHabitacional1, textoBodegaMultiple, textoHabitacionMultiple, textoEstacionamientoMultiple, av7156, av1028, av3025}
+const av2443 = `Fecha de emisión: 09 de Julio de 2025
+CERTIFICADO DE AVALÚO FISCAL
+Avalúos en pesos del SEGUNDO SEMESTRE DE 2025
+Comuna: CHILLAN
+Número de ROL de Avalúo: 04808-00079
+Dirección: RIO LAS MINAS 3642 DONA ROSA
+Destino del bien raíz: HABITACIONAL
+AVALÚO TOTAL:$27.825.198
+AVALÚO EXENTO DE IMPUESTO:$27.825.198
+AVALÚO AFECTO A IMPUESTO:$0
+NOTA IMPORTANTE: El avalúo que se indica ha sido determinado según el procedimiento de tasación fiscal para el cálculo
+del Impuesto Territorial, de acuerdo a la legislación vigente, y por tanto no corresponde a una tasación comercial de la
+propiedad.
+Por Orden del Director
+CERTIFICADO GRATUITO`;
+
+module.exports = {
+    textoEstacionamiento1,
+    textoHabitacional1, 
+    textoBodegaMultiple, 
+    textoHabitacionMultiple, 
+    textoEstacionamientoMultiple, 
+    av7156, 
+    av1028, 
+    av3025,
+    av2443
+}

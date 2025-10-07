@@ -328,6 +328,7 @@ class ProcesarBoletin {
     }
 
     static async pdfToTextPdfParse(filePath, origen=1){
+        let originalWarn;
         try {
             // if(origen == PJUD){
             //     const tesseractText = await ProcesarBoletin.processWithTesseract(filePath);
@@ -335,11 +336,17 @@ class ProcesarBoletin {
 
             //     return tesseractText;
             // }else{
+                // originalWarn = console.warn;
+                // console.warn = function () {};
+                // console.error = function () {};
                 console.log("leyendo con simple pdf-parse");
 
                 const dataBuffer = fs.readFileSync(filePath);
                 const data = await pdf(dataBuffer);
+                console.log("procesado con pdf-parse :) ");
                 // console.log(data.text);
+                // console.warn = originalWarn;
+                // console.error = originalWarn;
                 return data.text;
             // }
         } catch (error) {
@@ -369,7 +376,6 @@ class ProcesarBoletin {
             return null;
         }
     }
-
 
 }
 

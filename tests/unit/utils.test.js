@@ -295,6 +295,17 @@ describe('ObtainJuzgadoNumber', ()=>{
         expect(caso1.numeroJuzgado).toBe('282');
         expect(caso1.corte).toBe('90');
     });
+
+    test('Test con 8vo santiago', ()=>{
+        const caso1 = new CasoBuilder(null, null, null, null)
+            .conJuzgado( '8º JUZGADO CIVIL DE SANTIAGO')
+            .construir();
+        
+        const casos = [caso1];
+        obtainCorteJuzgadoNumbers(casos,true);
+        expect(caso1.numeroJuzgado).toBe('266');
+        expect(caso1.corte).toBe('90');
+    });
 });
 
 describe('SearchInList', ()=>{

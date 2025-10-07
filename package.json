@@ -17,6 +17,7 @@
     "test:functional": "jest tests/Funcional"
   },
   "author": "Alvaro Soto",
+  "type" : "commonjs",
   "license": "ISC",
   "devDependencies": {
     "@electron/fuses": "^1.8.0",

@@ -258,10 +258,15 @@ class scrapeAuction {
             mapasSII = new MapasSII(page);
             await mapasSII.init();
             for (let caso of casos) {
-                if (caso.rolPropiedad !== null && caso.comuna !== null && !caso.avaluoPropiedad && caso.origen != 2){
-                    await fakeDelay(1, 3);
-                    await mapasSII.obtainDataOfCause(caso);
-                    await new Promise(resolve => setTimeout(resolve, 1000));
+                if (caso.rolPropiedad !== null && caso.comuna !== null) {
+                    try {
+                        await fakeDelay(1, 3);
+                        await mapasSII.obtainDataOfCause(caso);
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                    } catch (error) {
+                        console.error(`Error procesando caso ${caso.rolPropiedad}:`, error.message);
+                        continue;
+                }
                 }
             }
             window.destroy();

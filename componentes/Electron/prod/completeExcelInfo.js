@@ -151,13 +151,7 @@ class CompleteExcelInfo{
         const wsNew = wbNew.Sheets[wbNew.SheetNames[0]];
 
         let lastRowNew = this.obtainLastRow(wsNew);
-        // console.log("Esta en modo desarrolaldor? :",isDevMode);
-        const baseInfo = await SpreadSheetManager.processData(isDevMode);
-        console.log("largo de los datos obtenidos: ", baseInfo.length)
-
         const findedCausas = this.findRepeatedAuctions(wsBase, wsNew);
-        // const findedCausas = this.newFindRepeatedAuctions(baseInfo, wsNew, isDevMode);
-        // return 0;
 
         // console.log(`Causas a buscar: ${findedCausas.length}`);
         console.table(findedCausas.map(causa => ({
@@ -166,7 +160,6 @@ class CompleteExcelInfo{
             baseLine: causa.baseLine,
             newLine: causa.newLine
         })));
-
         lastRowNew = lastRowNew + 5;
         findedCausas.forEach(causa => {
             const newCausaCell = wsNew[`${config.CAUSA}${lastRowNew}`];

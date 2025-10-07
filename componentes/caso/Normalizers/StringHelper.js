@@ -72,19 +72,43 @@ class StringHelper{
         return partesNormalizadas.trim().toLocaleLowerCase();
     }
 
-    static comuna(comuna){
-        if(!comuna){
-            return null;
-        }
-        let comunaNormalized;
-        comunaNormalized = comuna.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
-        
-        comunaNormalized = comunaNormalized
-            .replace('cion','ción')
-            .replace('concon','concón')
-            .replace('copiapo','copiapó');
+    static #comunaCorrections = {
+        'cion': 'ción', 'concon': 'concón', 'copiapo': 'copiapó',
+        'alhue': 'alhué', 'canete': 'cañete', 'chillan': 'chillán',
+        'hualpen': 'hualpén', 'maipu': 'maipú', 'nuble': 'ñuble',
+        'penaflor': 'peñaflor', 'penuelas': 'peñuelas', 'pucon': 'pucón',
+        'vina': 'viña', 'curacavi': 'curacaví', 'curico': 'curicó', 'pte alto': 'puente alto',
+        'quilpue': 'quilpué', 'penalolen': 'peñalolén', 'peñalolen':'peñalolén',
+        'conchali': 'conchalí', 'machali': 'machalí', 'aysen' : 'aysén'
+    };
 
-        return comunaNormalized;
+    static comuna(comuna) {
+        if (!comuna) return null;
+
+        // Limpieza
+        let normalized = comuna
+            // .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Remover tildes
+            .replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '')
+            .trim()
+            .toLowerCase();
+
+        // Aplicar correcciones
+        for (const [wrong, correct] of Object.entries(this.#comunaCorrections)) {
+            if (normalized.includes(wrong)) {
+                normalized = normalized.replace(wrong, correct);
+            }
+        }
+
+        // Reconstruir con tildes correctas y capitalización
+        return this.rebuildWithAccents(normalized);
+    }
+
+    static rebuildWithAccents(comuna) {
+        const words = comuna.split(' ');
+        return words.map(word => {
+            // Capitalizar primera letra
+            return word.charAt(0).toUpperCase() + word.slice(1);
+        }).join(' ');
     }
 
 }

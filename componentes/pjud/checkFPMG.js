@@ -665,7 +665,7 @@ class checkFPMG {
         while (this.ws[`${config.CAUSA}${lastRow}`]) {
             let causa = this.ws[`${config.CAUSA}${lastRow}`].v;
             const juzgado = this.ws[`${config.TRIBUNAL}${lastRow}`].v
-            const fechaDesc = this.ws[`${config.FECHA_DESC}${lastRow}`].v;
+            // const fechaDesc = this.ws[`${config.FECHA_DESC}${lastRow}`].v;
             // console.log(`fechaRem type: ${JSON.stringify(fechaRem,null,4)}`);
             // console.log(`cont = ${lastRow} Causa: ${causa} y juzgado: ${juzgado} `);
             causa = causa.replace(/\(s\)/i,'').replace(/S\/I/ig, '').trim();

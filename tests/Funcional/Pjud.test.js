@@ -52,7 +52,7 @@ describe('Test de funcionalidad Pjud a normalizacion',() => {
         const testPjudPdf = new PjudPdfData(caso15491);
         testPjudPdf.processInfo(textosGP.GP15491);
         const casoObj = caso15491.toObject();
-        expect(casoObj.comuna).toEqual('santiago');
+        expect(casoObj.comuna).toEqual('Santiago');
         expect(casoObj.tipoDerecho).toEqual('usufructo');
         expect(casoObj.montoMinimo).toBeNull();
     });
@@ -62,7 +62,7 @@ describe('Test de funcionalidad Pjud a normalizacion',() => {
         const testPjudPdf = new PjudPdfData(caso7156);
         testPjudPdf.processInfo(AV.av7156);
         const casoObj = caso7156.toObject();
-        expect(casoObj.comuna).toEqual('concepción');
+        expect(casoObj.comuna).toEqual('Concepción');
     });
 
     test('Obtencion de comuna con normalizacion para incluir tilde concon', ()=>{
@@ -70,7 +70,7 @@ describe('Test de funcionalidad Pjud a normalizacion',() => {
         const testPjudPdf = new PjudPdfData(caso1028);
         testPjudPdf.processInfo(AV.av1028);
         const casoObj = caso1028.toObject();
-        expect(casoObj.comuna).toEqual('concón');
+        expect(casoObj.comuna).toEqual('Concón');
     });
 
     test('Obtencion de comuna con normalizacion para incluir tilde copiapo', ()=>{
@@ -78,7 +78,7 @@ describe('Test de funcionalidad Pjud a normalizacion',() => {
         const testPjudPdf = new PjudPdfData(caso3025);
         testPjudPdf.processInfo(AV.av3025);
         const casoObj = caso3025.toObject();
-        expect(casoObj.comuna).toEqual('copiapó');
+        expect(casoObj.comuna).toEqual('Copiapó');
     });
 
 });
@@ -123,6 +123,16 @@ describe('Test de Pjud con avaluos', ()=>{
         expect(casoObj.unitRol).toEqual('3795-302-368');
         expect(casoObj.unitAvaluo).toEqual(60787297);
     });
+
+    test('Caso con comuna de chillan sin tilde', ()=>{
+        const caso2443 = new Caso(new Date(), new Date(), 'lgr', 2);
+        const testPjudPdf = new PjudPdfData(caso2443);
+        testPjudPdf.processInfo(AV.av2443);
+        const casoObj = caso2443.toObject();
+        expect(casoObj.unitRol).toEqual('4808-79');
+        expect(casoObj.unitAvaluo).toEqual(27825198);
+        expect(casoObj.comuna).toEqual('Chillán');
+    });
 });
 
 describe('Test funcional de pjud con rol',()=>{
@@ -136,7 +146,7 @@ describe('Test funcional de pjud con rol',()=>{
         expect(casoObj.unitRol).toEqual('2874-439-173//2864-182');
         expect(casoObj.montoMinimo).toEqual(81100000);
         expect(casoObj.formatoEntrega).toEqual('vale vista');
-        expect(casoObj.comuna).toEqual('santiago');
+        expect(casoObj.comuna).toEqual('Santiago');
         expect(casoObj.direccion).toEqual(`calle santa rosa nº 991: departamento nº 905; estacionamiento nº 234, y bodega nº 173, del tercer subterraneo; todos del proyecto "edificio espacio santa rosa",`)
         expect(casoObj.anno).toEqual(2019);
     });
@@ -150,7 +160,7 @@ describe('Test funcional de pjud con rol',()=>{
         expect(casoObj.unitRol).toEqual('5500-26');
         expect(casoObj.montoMinimo).toEqual(50000000);
         expect(casoObj.formatoEntrega).toEqual('vale vista');
-        expect(casoObj.comuna).toEqual('osorno');
+        expect(casoObj.comuna).toEqual('Osorno');
         expect(casoObj.direccion).toEqual(`la campina sitio nº 26, loteo la campina,`)
         expect(casoObj.anno).toEqual(2022);
         // expect(casoObj.unitAvaluo).toEqual(60787297);

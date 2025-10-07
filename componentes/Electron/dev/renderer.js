@@ -11,20 +11,20 @@ let pathExcelBase, pathExcelNuevo;
 
 let countdownInterval = null;
 
-document.getElementById('imbeddedText').addEventListener('click', () => {
-  const result = window.api.testEconomico(["imbeddedText"]);
-  console.log(result);
-});
+// document.getElementById('imbeddedText').addEventListener('click', () => {
+//   const result = window.api.testEconomico(["imbeddedText"]);
+//   console.log(result);
+// });
 
 document.getElementById('uploadedText').addEventListener('click', () => {
     const text = document.getElementById('textInput').value;
     const result = window.api.testEconomico(["uploadedText", text]);
 });
 
-document.getElementById('downloadPDF').addEventListener('click', () => {
-  const url = document.getElementById('PDFLink').value;
-  const result = window.api.testEconomico(["downloadPDF", url]);
-});
+// document.getElementById('downloadPDF').addEventListener('click', () => {
+//   const url = document.getElementById('PDFLink').value;
+//   const result = window.api.testEconomico(["downloadPDF", url]);
+// });
 
 document.getElementById('readPdf').addEventListener('click', async () => {
   try {
@@ -69,13 +69,13 @@ document.getElementById('compararExcel').addEventListener('click', async ()=>{
 
 });
 
-document.getElementById('testConsultaCausa').addEventListener('click', ()=>{
-  const result = window.api.testEconomico(["testConsultaCausa"]);
-})
+// document.getElementById('testConsultaCausa').addEventListener('click', ()=>{
+//   const result = window.api.testEconomico(["testConsultaCausa"]);
+// })
 
-document.getElementById('consultaDia').addEventListener('click', ()=>{
-  const result = window.api.testEconomico(["consultaDia"]);
-})
+// document.getElementById('consultaDia').addEventListener('click', ()=>{
+//   const result = window.api.testEconomico(["consultaDia"]);
+// })
 
 document.getElementById('testEconomicoPuppeteer').addEventListener('click', ()=>{
   const result = window.api.testEconomico(["testEconomicoPuppeteer"]);
@@ -98,38 +98,23 @@ selectFileBtn.addEventListener('click', async () => {
   }
 });
 
-document.getElementById('consultaMultipleCases').addEventListener('click', async () => {
-  const result = await window.api.testEconomico(['consultaMultipleCases']);
-  showWaitingModal(false);
-});
+// document.getElementById('consultaMultipleCases').addEventListener('click', async () => {
+//   const result = await window.api.testEconomico(['consultaMultipleCases']);
+//   showWaitingModal(false);
+// });
 
-document.getElementById('consultaCausaDB').addEventListener('click', async () => {
-  const query = document.getElementById('textConsultaCausaDB').value;
-  try {
-    const result = await window.api.consultaDB(query);
-    alert("Consulta realizada con éxito\n" + JSON.stringify(result, null, 2));
-    console.log("Resultados de la consulta:", result);
-  } catch (error) {
-    console.error('Error al consultar la base de datos:', error);
-  }
-});
+// document.getElementById('consultaCausaDB').addEventListener('click', async () => {
+//   const query = document.getElementById('textConsultaCausaDB').value;
+//   try {
+//     const result = await window.api.consultaDB(query);
+//     alert("Consulta realizada con éxito\n" + JSON.stringify(result, null, 2));
+//     console.log("Resultados de la consulta:", result);
+//   } catch (error) {
+//     console.error('Error al consultar la base de datos:', error);
+//   }
+// });
 
-document.getElementById('selectFileTesse').addEventListener('click', async () => {
 
-  const filePath = await window.api.openFilesLocal();
-  if (filePath) {
-    fileInfo.textContent = `Archivo seleccionado: ${filePath}`;
-    
-    // Llama a tu función que procesa el archivo
-    window.api.testEconomico(['testPdfTesseract', filePath]);
-  }
-});
-
-document.getElementById('getAllCausasDB').addEventListener('click', async () => {
-
-  const filePath = await window.api.getAllCausas();
-  console.log(filePath);
-});
 
 checkFPMG.addEventListener('click', async () => {
   try {
@@ -183,3 +168,23 @@ function showWaitingModal(show) {
   modal.style.display = show ? 'flex' : 'none';
   if (!show && countdownInterval) clearInterval(countdownInterval);
 }
+
+document.getElementById('testMapas').addEventListener('click', ()=>{
+  const result = window.api.testEconomico(["testMapas"]);
+});
+
+// document.getElementById('getAllCausasDB').addEventListener('click', async () => {
+//   const filePath = await window.api.getAllCausas();
+//   console.log(filePath);
+// });
+
+// document.getElementById('selectFileTesse').addEventListener('click', async () => {
+
+//   const filePath = await window.api.openFilesLocal();
+//   if (filePath) {
+//     fileInfo.textContent = `Archivo seleccionado: ${filePath}`;
+    
+//     // Llama a tu función que procesa el archivo
+//     window.api.testEconomico(['testPdfTesseract', filePath]);
+//   }
+// });

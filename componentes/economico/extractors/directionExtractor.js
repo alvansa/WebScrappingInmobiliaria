@@ -15,7 +15,7 @@ const NUMBER_CONFIG = {
 
 function extractDirection(data) {
     const dataNormalizada = data
-        .replace(/(\d+)\.(\d+)/g, '$1$2')
+        .replace(/(\d+)\.(\d+)/g, '$1$2') // Elimina puntos en números (ej. 1.000 -> 1000)
         // .replace(/registro\s*(?:de\s*)?propiedad\s*/i," ")    
         .toLowerCase();
 

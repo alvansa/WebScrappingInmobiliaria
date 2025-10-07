@@ -175,11 +175,7 @@ class ConsultaCausaPjud{
             await this.page.waitForSelector('#btnConConsulta');
             await this.page.click('#btnConConsulta');
             await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
-            await this.page.waitForSelector('#dtaTableDetalle tbody tr:first-child', { timeout: 1000 });
-            // el waitForFunction espera a que la tabla se actualice
-            // sus parametros son una función que se ejecuta en el contexto de la página
-            // un objeto con las opciones de timeout
-            // variables adicionales que se quieran utilizar en la funcion de pagina.
+            await this.page.waitForSelector('#dtaTableDetalle tbody tr:first-child', { timeout: 30000 });
             await this.page.waitForFunction(
                 async (lineaAnterior) => {
                     //Selecciona la primera fila de la tabla
@@ -222,19 +218,14 @@ class ConsultaCausaPjud{
         console.log('Valores precargados : Listo');
 
         if(!await this.configurateCompetencia()){ return false; }
-        console.log('Competencia : Listo');
 
         if(!await this.configurateCorte(valores.corte)){ return false; }
-        console.log('Corte : Listo');
 
         if(!await this.configurateTribunal2(valores.juzgado)){ return false; }
-        console.log('Tribunal : Listo');
 
         if(!await this.configurateCausa(valores.causa)){ return false; }
-        console.log('Causa : Listo');
 
         if(!await this.configurateAnno(valores.anno)){ return false; }
-        console.log('Año : Listo');
 
         return true;
     }
@@ -316,30 +307,28 @@ class ConsultaCausaPjud{
 
     async checkIfCaseIsConcluded() {
         try {
-            // Esperar a que la tabla esté presente
             await this.page.waitForSelector('.table-titulos', { timeout: 5000 });
-
-            const estado = await this.page.evaluate(() => {
-                const getEstado = () => {
-                    const rows = document.querySelectorAll('.table-titulos tr');
-                    for (const row of rows) {
-                        const cells = row.querySelectorAll('td');
-                        for (const cell of cells) {
-                            if (cell.textContent.includes('Estado Proc.:')) {
-                                return cell.textContent.split('Estado Proc.:')[1].trim();
-                            }
-                        }
-                    }
-                    return null;
-                };
-                return getEstado();
-            });
-
+            const estado = await this.extractCaseStatus();
             return estado;
         } catch (error) {
             console.error('Error al verificar si el caso está concluido:', error.message);
             return false; // Si ocurre un error, asumimos que el caso no está concluido
         }
+
+    }
+
+    async extractCaseStatus() {
+        return await this.page.evaluate(() => {
+            const statusRow = Array.from(document.querySelectorAll('.table-titulos tr'))
+                .find(row => row.textContent.includes('Estado Proc.:'));
+
+            if (!statusRow) return null;
+
+            const statusCell = Array.from(statusRow.querySelectorAll('td'))
+                .find(cell => cell.textContent.includes('Estado Proc.:'));
+
+            return statusCell ? statusCell.textContent.split('Estado Proc.:')[1].trim() : null;
+        });
     }
 
     async searchButtonAuction(){

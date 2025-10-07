@@ -57,6 +57,7 @@ class Caso{
     #unitDireccion;
     #isAvenimiento;
     #hasChanged
+    #coordenadas;
 
     constructor(fechaObtencion, fechaPublicacion = 'N/A',link = 'N/A',origen = null ){    
         this.#fechaPublicacion = fechaPublicacion;
@@ -100,6 +101,7 @@ class Caso{
         this.#deudaHipotecaria = null;
         this.#alreadyAppear = null;
         this.#isAvenimiento = false;
+        this.#coordenadas = null;
 
         this.#unitRol = null;
         this.#unitAvaluo = null;
@@ -270,6 +272,9 @@ class Caso{
     }
     set hasChanged(changed){
         this.#hasChanged = changed;
+    }
+    set coordenadas(coordenadas){
+        this.#coordenadas = coordenadas;
     }
 
    get hasChanged(){
@@ -504,6 +509,9 @@ class Caso{
     get isAvenimiento(){
         return Boolean(this.#isAvenimiento);
     }
+    get coordenadas(){
+        return this.#coordenadas;
+    }
 
 
   
@@ -564,6 +572,7 @@ class Caso{
             unitDireccion : this.checkEstacionamientoBodega(),
             isAvenimiento : Boolean(this.#isAvenimiento),
             hasChanged : this.#hasChanged,
+            coordenadas : this.#coordenadas,
         };
     } 
 

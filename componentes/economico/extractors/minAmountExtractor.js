@@ -2,7 +2,7 @@
 //Obtiene el monto minimo por el cual iniciara el remate.
 function extractMinAmount(data, isDebug = false) {
     // const regexPatronBase = "(?:subasta|m[íi]nim[oa]|rematar|propiedad)\\s*[,a-zA-ZáéíóúÑñ:º0-9\\s]*\\s+";
-    const regexPatronBase = "(?:subasta|m[íi]nim[oa]|rematar|propiedad)(?:,\\s)?(?!más)\\s*[,a-zA-ZáéíóúÑñ:º0-9\\s]*\\s+";
+    const regexPatronBase = "(?:subasta|m[íi]nim[oa]|rematar|propiedad\\b)(?:,\\s)?(?!más)\\s*[,a-zA-ZáéíóúÑñ:º0-9\\s]*\\s+";
 
     const regexMontoMinimo = [
         `${regexPatronBase}(\\d{1,12}\\s*(?:\\.\\d{1,3})*(?:,\\d{1,10})?)\\s*\\.?-?\\s*(?:Unidades de Fomento|UF|U\\.F\\.)`,
@@ -14,7 +14,6 @@ function extractMinAmount(data, isDebug = false) {
     // console.log("RegexList: ",regexList);
     let montoFinal = buscarMontosFinal(regexList, regexMontoMinimo);
     if (montoFinal) {
-        // console.log("Monto final: ",montoFinal);
         return montoFinal;
     }
     return null;
