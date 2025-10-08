@@ -160,8 +160,8 @@ class MapasSII {
         const selectorComuna = '#rolsearch input[data-ng-model="nombreComuna"]';
         await this.page.waitForSelector(selectorComuna);
         await this.page.focus(selectorComuna);
-        const randomDelay = Math.random() * 100 + 100; // Delay entre 50 y 150 ms
-        comuna = comuna.slice(0, -1); // Elimina el último caracter
+        const randomDelay = Math.random() * 100 + 200; // Delay entre 50 y 150 ms
+        // comuna = comuna.slice(0, -1); // Elimina el último caracter
         await this.page.type(selectorComuna, comuna, { delay: randomDelay});
         const dropdownComuna = "#rolsearch ul.dropdown-menu";
         await this.page.waitForSelector(dropdownComuna, { visible: true });
@@ -211,7 +211,9 @@ class MapasSII {
                 coordenadas = coordenadas.replace(/\s+/g," ").trim();
             }
 
-            caso.avaluoPropiedad = avaluoTotal;
+            if(caso.avaluoPropiedad){
+                caso.avaluoPropiedad = avaluoTotal;
+            }
             caso.coordenadas = coordenadas;
             delay(500);
 

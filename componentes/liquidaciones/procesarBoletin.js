@@ -78,6 +78,8 @@ class ProcesarBoletin {
         let casos = [];
         let texto = "";
         try {
+            this.deleteFiles();
+            // return;
             const boletin = new BoletinConcursal(this.browser,this.page);
             await boletin.getDatosBoletin(fechaInicio, fechaFin, casos, fechaHoy);
             const pdfs = fs.readdirSync(this.downloadPath);
