@@ -9,6 +9,7 @@ const PjudPdfData = require('../../pjud/PjudPdfData.js');
 const ProcesarBoletin = require('../../liquidaciones/procesarBoletin.js');
 // const ConsultaCausaPjud = require('../../pjud/ConsultaCausaPjud.js');
 const MapasSII = require('../../mapasSII/MapasSII.js');
+const { fakeDelay } = require('../../../utils/delay.js');
 
 
 class testUnitarios{
@@ -61,9 +62,20 @@ class testUnitarios{
             // Configuración
             // console.log(casos.map(caso => caso.toObject()));
         }else if(arg === 'testMapas'){
-            const caso = this.crearCasoPrueba();
-            caso.comuna = "Concepción";
-            caso.rolPropiedad = "7811-3";
+            const caso1 = this.crearCasoPrueba();
+            caso1.comuna = "Renca";
+            caso1.rolPropiedad = "1715-20";
+            // const caso2 = this.crearCasoPrueba();
+            // caso2.comuna = "Peñaflor";
+            // caso2.rolPropiedad = null;
+            // const caso3 = this.crearCasoPrueba();
+            // caso3.comuna = "Providencia";
+            // caso3.rolPropiedad = "1342-209";
+            // const caso4 = this.crearCasoPrueba();
+            // caso4.comuna = "Curacaví";
+            // caso4.rolPropiedad = "63-12";
+            // const casos = [caso1,caso2,caso3,caso4];
+            const casos = [caso1]
             // const window = new BrowserWindow({ show: true });
             // const url = 'https://www4.sii.cl/mapasui/internet/#/contenido/index.html';
             // window.loadURL(url);
@@ -71,10 +83,13 @@ class testUnitarios{
             let page;
             let mapasSII;
             try{
+                
                 mapasSII = new MapasSII(page, this.browser);
                 await mapasSII.Secondinit();
-                await mapasSII.obtainDataOfCause(caso);
-                console.log("Resultados del caso con datos de mapas: ", caso.toObject());
+                for(let caso of casos){
+                    await mapasSII.obtainDataOfCause(caso);
+                    await fakeDelay(2,5);
+                }
             }catch(error){
                 console.error("Error en testMapas: ", error);
             }finally{
@@ -82,7 +97,11 @@ class testUnitarios{
                     await mapasSII.finishPage();
                 }
             }
+        for(let caso of casos){
+            console.log("Resultados del caso: ",caso.toObject());
         }
+        }
+
 
     }
 

@@ -133,6 +133,13 @@ describe('Test de Pjud con avaluos', ()=>{
         expect(casoObj.unitAvaluo).toEqual(27825198);
         expect(casoObj.comuna).toEqual('Chillán');
     });
+
+    test('Caso con comuna de curacavi sin tilde', ()=>{
+        const caso2443 = new Caso(new Date(), new Date(), 'lgr', 2);
+        const testPjudPdf = new PjudPdfData(caso2443);
+        testPjudPdf.processInfo(AV.av1065);
+        expect(caso2443.comuna).toEqual("Curacaví");
+    });
 });
 
 describe('Test funcional de pjud con rol',()=>{

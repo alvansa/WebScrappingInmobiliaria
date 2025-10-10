@@ -274,29 +274,32 @@ class checkFPMG {
             console.error("No se pudo encontrar el enlace del caso");
             return false;
         }
+        // --------------------------------------------------------
         
         //Se buscan los cuadernos posibles para averiguar si hay algun cambio en alguno
-        let selectedCuadernos = await this.selectCuaderno();
-        const nombresCuadernos = selectedCuadernos.map(obj => ({nombre: obj.text ,buscado: false }));
+        // let selectedCuadernos = await this.selectCuaderno();
+        // const nombresCuadernos = selectedCuadernos.map(obj => ({nombre: obj.text ,buscado: false }));
         
-        for(let cuaderno of nombresCuadernos){
-            if(cuaderno.buscado){
-                continue;
-            }
-            // selectedCuadernos = await this.selectCuaderno();
-            const cuadernoToSearch = selectedCuadernos.find(option => option.text === cuaderno.nombre);
-            changedCuaderno = await this.pressCuaderno(cuadernoToSearch.value);
-            if (changedCuaderno == false) {
-                changedCuaderno = await this.pressCuaderno(cuadernoToSearch.value);
-            }
-            if(!changedCuaderno){
-                console.log('No se cambio el cuaderno');
-                return false;
-            }
-            cuaderno.buscado = true;
-            console.log('cuaderno cambiado exitosamente')
-            caseIsFinished = await this.searchInMainTable(caso);
-        }
+        // for(let cuaderno of nombresCuadernos){
+        //     if(cuaderno.buscado){
+        //         continue;
+        //     }
+        //     // selectedCuadernos = await this.selectCuaderno();
+        //     const cuadernoToSearch = selectedCuadernos.find(option => option.text === cuaderno.nombre);
+        //     changedCuaderno = await this.pressCuaderno(cuadernoToSearch.value);
+        //     if (changedCuaderno == false) {
+        //         changedCuaderno = await this.pressCuaderno(cuadernoToSearch.value);
+        //     }
+        //     if(!changedCuaderno){
+        //         console.log('No se cambio el cuaderno');
+        //         return false;
+        //     }
+        //     cuaderno.buscado = true;
+        //     console.log('cuaderno cambiado exitosamente')
+        //     caseIsFinished = await this.searchInMainTable(caso);
+        // }
+        // ---------------------------------------------------------
+        await this.newPressNotebook(caso);
         return true;
     }
 
@@ -348,20 +351,42 @@ class checkFPMG {
             }))
         );
 
-        console.log('Opciones disponibles:');
-        optionsDetails.forEach((opt, i) => {
-            console.log(`  ${i + 1}. ${opt.text} (${opt.value})`);
-        });
-
         await this.page.select(selectorCuaderno, cuaderno);
         await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
         const cuadernoValue = await this.page.$eval(selectorCuaderno, el => el.value);
-        const cuadernoNombre = await this.page.$eval(selectorCuaderno, el => el.textContent);
-        console.log('Cuaderno a seleccionar: ', cuaderno);
-        if(cuadernoValue){
-            console.log('Cuaderno actual: ', cuadernoValue)
-        }
         return true;
+    }
+
+    async newPressNotebook(caso){
+        const selectorCuaderno = '#selCuaderno';
+        await this.page.waitForSelector(selectorCuaderno);
+        const notebooks = await this.page.evaluate(() => {
+            const selectElement = document.querySelector('#selCuaderno');
+            return Array.from(selectElement.options).map(option => option.value);
+        });
+        if(!notebooks || notebooks.length < 1){
+            console.log("No hay cuadernos para seleccionar");
+            return false;
+        }
+        const countNotebooks = notebooks.length;
+        for(let i = 0; i < countNotebooks; i++){    
+            await this.page.evaluate((counter) => {
+                const selectElement = document.querySelector('#selCuaderno');
+                if (selectElement && selectElement.options.length > 1) {
+                    selectElement.selectedIndex = counter; // Selecciona la segunda opción (índice 1)
+                    const event = new Event('change', { bubbles: true });
+                    selectElement.dispatchEvent(event); // Dispara el evento 'change'
+                }
+            }, i);
+
+            await this.searchInMainTable(caso);
+            await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
+
+            console.log("Buscando en no resueltos");
+            await this.searchInMainTable(caso, 'notResolved');
+            await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
+        }
+
     }
 
     async searchButtonAuction() {
@@ -383,13 +408,19 @@ class checkFPMG {
             return false;
         }
     }
-    async searchInMainTable(caso) {
+    async searchInMainTable(caso, table = 'main') {
         let caseIsFinished = false;
         let isDone;
+        let selector;
+        if(table == 'main'){
+            selector = '#historiaCiv';
+        }else{
+            selector = '#EscritosCiv';
+        }
         try {
-            await this.page.waitForSelector("#historiaCiv", { timeout: 10000 });
+            await this.page.waitForSelector(selector, { timeout: 10000 });
             // Get all rows from the table
-            const rows = await this.page.$$('#historiaCiv .table tbody tr');
+            const rows = await this.page.$$(`${selector} .table tbody tr`);
             
             for (const row of rows) {
                 // Track if the row is processed successfull
@@ -397,7 +428,11 @@ class checkFPMG {
                     if (caseIsFinished) {
                         return true; // Si ya se obtuvo todo lo necesario del caso, salimos del bucle
                     }
-                    caseIsFinished = await this.searchForDirectory(row,caso);
+                    if(table == 'main'){
+                        caseIsFinished = await this.searchForDirectory(row, caso);
+                    }else{
+                        caseIsFinished = await this.searchForDirectoryNotResolved(row, caso);
+                    }
                     return false;
                 } catch (error) {
                     console.error(`Error processing row on attempt : ${error.message}`);
@@ -441,6 +476,32 @@ class checkFPMG {
         }
     }
 
+    async searchForDirectoryNotResolved(row,caso) {
+        const dateToday = new Date();
+        dateToday.setDate(dateToday.getDate() - 7);
+        try {
+            const [number, uselessFile, date,type,lawyer] = await Promise.all([
+                row.$eval('td:nth-child(1)', el => el.textContent.trim()),
+                row.$eval('td:nth-child(2)', el => el.textContent.trim()),
+                row.$eval('td:nth-child(3)', el => el.textContent.trim()),
+                row.$eval('td:nth-child(4)', el => el.textContent.trim()),
+                row.$eval('td:nth-child(5)', el => el.textContent.trim()),
+            ]);
+            console.log(stringToDate(date), date, dateToday);
+            if(stringToDate(date) >= dateToday){
+                caso.hasChanged = true;
+                console.log("EXITO")
+            }
+
+            console.log('Fila:', number, uselessFile, date, type, lawyer);
+            console.log('---------------------------------------------------------');
+
+            return false;
+        } catch (error) {
+            console.error('Error al obtener los datos de la fila:', error.message);
+            return false;
+        }
+    }
     openWindow(window) {
         const isVisible = true;
         window = new BrowserWindow({

@@ -58,6 +58,7 @@ class Caso{
     #isAvenimiento;
     #hasChanged
     #coordenadas;
+    #linkMap;
 
     constructor(fechaObtencion, fechaPublicacion = 'N/A',link = 'N/A',origen = null ){    
         this.#fechaPublicacion = fechaPublicacion;
@@ -276,6 +277,9 @@ class Caso{
     set coordenadas(coordenadas){
         this.#coordenadas = coordenadas;
     }
+    set linkMap(linkMap){
+        this.#linkMap = linkMap;
+    }
 
    get hasChanged(){
         return this.#hasChanged;
@@ -320,7 +324,7 @@ class Caso{
         if(this.#comuna == null){
             return null;
         }
-        return this.normalizarComuna();
+        return StringHelper.comuna(this.#comuna);
     }
     get rolPropiedad(){
         if(this.#rolPropiedad == null){
@@ -512,6 +516,9 @@ class Caso{
     get coordenadas(){
         return this.#coordenadas;
     }
+    get linkMap(){
+        return this.#linkMap;
+    }
 
 
   
@@ -573,6 +580,7 @@ class Caso{
             isAvenimiento : Boolean(this.#isAvenimiento),
             hasChanged : this.#hasChanged,
             coordenadas : this.#coordenadas,
+            linkMap : this.#linkMap
         };
     } 
 

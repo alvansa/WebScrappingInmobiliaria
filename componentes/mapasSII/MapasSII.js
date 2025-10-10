@@ -38,11 +38,13 @@ class MapasSII {
 
     async obtainDataOfCause(caso) {
         const comuna = caso.comuna;
-        const [manzana, predio] = caso.getRolPropiedad();
-        console.log("comuna: ", comuna, "manzana y predio: ", manzana, predio);
-        if (!manzana || !predio || !comuna) {
-            return null;
+        const roles = caso.getRolPropiedad();
+        if(!roles || !comuna){
+            return null
         }
+        const manzana = roles[0];
+        const predio = roles[1];
+        console.log("comuna: ", comuna, "manzana y predio: ", manzana, predio);
         console.log("Rellenando formulario");
         // const predio = "12345678";
         const selectorManzana = 'input[data-ng-model="manzana"]';
@@ -173,6 +175,7 @@ class MapasSII {
         const divResultado = "strong.col-xs-6 + div.col-xs-6 span.pull-right.ng-binding";
         const divError = "span.modal-title.ng-binding";
         const botonCerrar = "div.modal-footer.ng-scope button.btn.btn-warning";
+        const baseLink = 'https://www.google.com/maps/place/';
         try {
             // busca el elemento de resultado o error
             await this.page.waitForSelector(`${divResultado},${divError}`);
@@ -191,7 +194,7 @@ class MapasSII {
                     } else {
                         console.log("No se encontró el botón de cerrar.");
                     }
-                    caso.avaluoPropiedad = null; // O puedes asignar un valor por defecto
+                    // caso.avaluoPropiedad = null; // O puedes asignar un valor por defecto
                     console.log("1");
                     delay(500);
                     return; // Salir de la función si hay un error
@@ -202,6 +205,7 @@ class MapasSII {
                 const element = document.querySelector("strong.col-xs-6 + div.col-xs-6 span.pull-right.ng-binding");
                 return element ? element.innerText.replace(/\D/g, '') : null;
             });
+            await this.page.waitForSelector("#mapaid > div.leaflet-pane.leaflet-map-pane > div.leaflet-pane.leaflet-popup-pane > div > div.leaflet-popup-content-wrapper > div > font:nth-child(3) > center");
             let coordenadas = await this.page.evaluate(() =>{
                 const element = document.querySelector("#mapaid > div.leaflet-pane.leaflet-map-pane > div.leaflet-pane.leaflet-popup-pane > div > div.leaflet-popup-content-wrapper > div > font:nth-child(3) > center");
                 return element ? element.innerText : null;
@@ -209,9 +213,13 @@ class MapasSII {
             console.log("Coordenadas: ", coordenadas);
             if(coordenadas){
                 coordenadas = coordenadas.replace(/\s+/g," ").trim();
+                console.log("Coordenadas limpias: ", coordenadas);
+                const [lat, long] = coordenadas.split(" ");
+                caso.linkMap = `${baseLink}${lat},${long}`;
+                console.log("Link de Google Maps: ", caso.linkMap);
             }
 
-            if(caso.avaluoPropiedad){
+            if(!caso.avaluoPropiedad){
                 caso.avaluoPropiedad = avaluoTotal;
             }
             caso.coordenadas = coordenadas;

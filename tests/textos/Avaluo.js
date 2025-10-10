@@ -152,6 +152,23 @@ propiedad.
 Por Orden del Director
 CERTIFICADO GRATUITO`;
 
+const av1065 = `Fecha de emisión: 04 de Octubre de 2024
+CERTIFICADO DE AVALÚO FISCAL
+Avalúos en pesos del SEGUNDO SEMESTRE DE 2024
+Comuna: CURACAVI
+Número de ROL de Avalúo: 00063-00012
+Dirección: CARLOS BRULL 2117
+Destino del bien raíz: HABITACIONAL
+AVALÚO TOTAL:$19.752.719
+AVALÚO EXENTO DE IMPUESTO:$19.752.719
+AVALÚO AFECTO A IMPUESTO:$0
+NOTA IMPORTANTE: El avalúo que se indica ha sido determinado según el procedimiento de tasación fiscal para el cálculo
+del Impuesto Territorial, de acuerdo a la legislación vigente, y por tanto no corresponde a una tasación comercial de la
+propiedad.
+Por Orden del Director
+CERTIFICADO GRATUITO
+`;
+
 module.exports = {
     textoEstacionamiento1,
     textoHabitacional1, 
@@ -161,5 +178,6 @@ module.exports = {
     av7156, 
     av1028, 
     av3025,
-    av2443
+    av2443,
+    av1065
 }

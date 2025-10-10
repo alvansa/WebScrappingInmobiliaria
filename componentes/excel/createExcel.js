@@ -165,6 +165,7 @@ class createExcel {
             console.log("No se encontraron datos para insertar.");
             return;
         }
+        console.log('Casos a procesar:', casos.length);
 
         // Primero se leen todos los casos obtenidos y se verifican para agregarlos,
         // en caso de que ya hayan sido agregados se une la informacion 
@@ -413,7 +414,7 @@ function insertarCasoIntoWorksheet(caso, ws, currentRow) {
     }
     writeLine(ws, `${config.ANNO_COMPRA}`, currentRow, caso.anno, "n");
     writeLine(ws, `${config.DEUDA_HIPOTECA}`, currentRow, caso.deudaHipotecaria, "n");
-    writeLine(ws, `${config.OTRA_DEUDA}`, currentRow, caso.coordenadas, "s");
+    writeLine(ws, `${config.OTRA_DEUDA}`, currentRow, caso.linkMap, "s");
     // ws[`AG` + currentRow ] = {v: 'año compr ant ', t: 's'};
     // ws[`AH` + currentRow ] = {v: 'precio venta nos ', t: 's'};
 }

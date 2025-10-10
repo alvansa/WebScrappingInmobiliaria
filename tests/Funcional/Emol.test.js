@@ -13,7 +13,7 @@ describe('procesarDatosRemate',()=>{
         procesarDatosRemate(caso1857);
         expect(caso1857.formatoEntrega).toEqual('vale vista');
         expect(caso1857.causa).toEqual('C-1857-2024');
-        expect(caso1857.comuna).toEqual('antofagasta');
+        expect(caso1857.comuna).toEqual('Antofagasta');
         expect(caso1857.anno).toEqual(2013);
         expect(caso1857.montoMinimo).toEqual({
             monto: 83547301,
@@ -52,7 +52,7 @@ describe('procesarDatosRemate',()=>{
         procesarDatosRemate(caso2226);
         expect(caso2226.juzgado).toEqual('2° JUZGADO DE LETRAS DE LINARES');
         expect(caso2226.fechaRemate).toEqual(new Date('2025/07/15'));
-        expect(caso2226.comuna).toEqual('linares');
+        expect(caso2226.comuna).toEqual('Linares');
         expect(caso2226.anno).toEqual(2017);
         expect(caso2226.unitRol).toEqual('1121-2');
         expect(caso2226.formatoEntrega).toEqual('vale vista');
@@ -74,7 +74,7 @@ describe('procesarDatosRemate',()=>{
         procesarDatosRemate(caso2240);
         expect(caso2240.juzgado).toEqual('3° JUZGADO DE LETRAS DE LA SERENA');
         expect(caso2240.fechaRemate).toEqual(new Date('2025/06/06'));
-        expect(caso2240.comuna).toEqual('coquimbo');
+        expect(caso2240.comuna).toEqual('Coquimbo');
         expect(caso2240.anno).toEqual(2020);
         expect(caso2240.unitRol).toEqual('4132-400');
         expect(caso2240.formatoEntrega).toEqual('vale vista');
@@ -161,7 +161,7 @@ describe('procesarDatosRemate',()=>{
         expect(caso10926.anno).toEqual(2014);
         expect(caso10926.juzgado).toEqual('14° JUZGADO CIVIL DE SANTIAGO')
         expect(caso10926.fechaRemate).toEqual(new Date('2025/08/27'));
-        expect(caso10926.comuna).toEqual('santiago');
+        expect(caso10926.comuna).toEqual('Santiago');
         expect(caso10926.corte).toEqual('90');
         expect(caso10926.numeroJuzgado).toEqual('272');
         expect(caso10926.getCausaPjud()).toEqual('10926');
@@ -186,7 +186,7 @@ describe('procesarDatosRemate',()=>{
         expect(caso345.anno).toEqual(2002);
         expect(caso345.juzgado).toEqual('JUZGADO DE LETRAS DE ILLAPEL')
         expect(caso345.fechaRemate).toEqual(new Date('2025/08/29'));
-        expect(caso345.comuna).toEqual('salamanca');
+        expect(caso345.comuna).toEqual('Salamanca');
         expect(caso345.corte).toEqual('25');
         expect(caso345.numeroJuzgado).toEqual('52');
         expect(caso345.getCausaPjud()).toEqual('345');
@@ -205,7 +205,7 @@ describe('procesarDatosRemate',()=>{
         procesarDatosRemate(caso156);
         expect(caso156.formatoEntrega).toEqual('vale vista');
         expect(caso156.juzgado).toEqual('24° JUZGADO CIVIL DE SANTIAGO');
-        expect(caso156.comuna).toEqual('las condes');
+        expect(caso156.comuna).toEqual('Las Condes');
         expect(caso156.anno).toEqual(2011);
         // expect(caso156.causa).toEqual('C-156-2023');
         // expect(caso156.porcentaje).toEqual(10);
@@ -230,7 +230,7 @@ describe('procesarDatosRemate',()=>{
         expect(caso11613.anno).toEqual(2021);
         expect(caso11613.juzgado).toEqual('22° JUZGADO CIVIL DE SANTIAGO')
         expect(caso11613.fechaRemate).toEqual(new Date('2025/09/01'));
-        expect(caso11613.comuna).toEqual("ñuñoa");
+        expect(caso11613.comuna).toEqual("Ñuñoa");
         expect(caso11613.corte).toEqual('90');
         expect(caso11613.numeroJuzgado).toEqual('280');
         expect(caso11613.getCausaPjud()).toEqual('11613');
@@ -254,7 +254,7 @@ describe('procesarDatosRemate',()=>{
         expect(caso18187.anno).toEqual(1992);
         expect(caso18187.juzgado).toEqual('21° JUZGADO CIVIL DE SANTIAGO')
         expect(caso18187.fechaRemate).toEqual(new Date('2025/08/28'));
-        expect(caso18187.comuna).toEqual('maipú');
+        expect(caso18187.comuna).toEqual('Maipú');
         expect(caso18187.corte).toEqual('90');
         expect(caso18187.numeroJuzgado).toEqual('279');
         expect(caso18187.getCausaPjud()).toEqual('18187');

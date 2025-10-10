@@ -79,7 +79,8 @@ class StringHelper{
         'penaflor': 'peñaflor', 'penuelas': 'peñuelas', 'pucon': 'pucón',
         'vina': 'viña', 'curacavi': 'curacaví', 'curico': 'curicó', 'pte alto': 'puente alto',
         'quilpue': 'quilpué', 'penalolen': 'peñalolén', 'peñalolen':'peñalolén',
-        'conchali': 'conchalí', 'machali': 'machalí', 'aysen' : 'aysén'
+        'conchali': 'conchalí', 'machali': 'machalí', 'aysen' : 'aysén', 
+        'valparaíso': 'valparaiso'
     };
 
     static comuna(comuna) {
