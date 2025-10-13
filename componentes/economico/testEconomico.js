@@ -116,6 +116,13 @@ async function main(){
     }else if(args[0] === "-searchCausa"){
         const causa = new Causas();
         console.log(causa.searchByCausa(args[1]));
+    }else if(args[0] === "-testMacal"){
+        logger.info("Iniciando test de MacalService");
+        console.log("Iniciando test de MacalService");
+        // const result = await MacalService.searchPropertiesWithFilters({
+        //     page: 1,
+        // });
+        // logger.info("Resultado de MacalService: ", result); 
     }else{
         use();
     }

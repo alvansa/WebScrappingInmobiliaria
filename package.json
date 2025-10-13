@@ -10,14 +10,14 @@
     "make": "electron-builder",
     "makeWindows": "electron-builder --win --x64",
     "postinstall": "electron-rebuild",
-    "dev": "electron . --dev",
+    "dev": "LOG_LEVEL=debug electron . --dev",
     "empty": "electron . --empty",
     "test": "jest",
     "test:unit": "jest tests/unit",
     "test:functional": "jest tests/Funcional"
   },
   "author": "Alvaro Soto",
-  "type" : "commonjs",
+  "type": "commonjs",
   "license": "ISC",
   "devDependencies": {
     "@electron/fuses": "^1.8.0",
@@ -34,12 +34,14 @@
     "cheerio": "^1.0.0",
     "dotenv": "^16.4.7",
     "googleapis": "^105.0.0",
+    "joi": "^18.0.1",
     "node-fetch": "^3.3.2",
     "pdf-parse": "^1.1.1",
     "pdf2json": "^3.1.4",
     "puppeteer-core": "^24.4.0",
     "puppeteer-in-electron": "^3.0.5",
     "webpack": "^5.96.1",
+    "winston": "^3.18.3",
     "xlsx": "^0.18.5"
   },
   "build": {

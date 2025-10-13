@@ -173,6 +173,9 @@ document.getElementById('testMapas').addEventListener('click', ()=>{
   const result = window.api.testEconomico(["testMapas"]);
 });
 
+document.getElementById('testApiMacal').addEventListener('click', ()=>{
+  const result = window.api.testEconomico(["testMacal"]);
+});
 // document.getElementById('getAllCausasDB').addEventListener('click', async () => {
 //   const filePath = await window.api.getAllCausas();
 //   console.log(filePath);

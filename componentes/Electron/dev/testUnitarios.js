@@ -9,6 +9,8 @@ const PjudPdfData = require('../../pjud/PjudPdfData.js');
 const ProcesarBoletin = require('../../liquidaciones/procesarBoletin.js');
 // const ConsultaCausaPjud = require('../../pjud/ConsultaCausaPjud.js');
 const MapasSII = require('../../mapasSII/MapasSII.js');
+const MacalService = require('../../macal/macalService.js');
+const logger = require('../../../utils/logger.js');
 const { fakeDelay } = require('../../../utils/delay.js');
 
 
@@ -24,6 +26,7 @@ class testUnitarios{
     async mainFunction(){
         await this.launchPuppeteer_inElectron();
         const arg = this.args[0];
+        logger.debug("Argumentos recibidos: ", this.args, arg);
         let result;
         if (arg === 'imbeddedText') {
             result = testTexto();
@@ -97,9 +100,18 @@ class testUnitarios{
                     await mapasSII.finishPage();
                 }
             }
-        for(let caso of casos){
-            console.log("Resultados del caso: ",caso.toObject());
-        }
+            for (let caso of casos) {
+                console.log("Resultados del caso: ", caso.toObject());
+            }
+        }else if(arg === "testMacal"){
+            logger.info("Iniciando test de MacalService");
+            console.log("Iniciando test de MacalService");
+            const result = await MacalService.searchPropertiesWithFilters({
+                page: 1,
+            });
+            // logger.info("Resultado de MacalService: ", result); 
+        } else { 
+            logger.warn("No se ha especificado un test valido");
         }
 
 

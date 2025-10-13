@@ -4,17 +4,18 @@ const puppeteer = require('puppeteer-core');
 
 
 const Economico = require('../../economico/Economico.js');
-const {getDatosRemate,emptyCaseEconomico} = require('../../economico/datosRemateEmol.js');
-const {PreRemates} = require('../../preremates/obtenerPublicaciones.js');
 const MapasSII = require('../../mapasSII/MapasSII.js');
 const ProcesarBoletin = require('../../liquidaciones/procesarBoletin.js');
 const PublicosYLegales = require('../../publicosYlegales/publicosYLegales.js');
-const {createExcel} = require('../../excel/createExcel.js');
 const Pjud = require('../../pjud/getPjud.js');
 const GestorRematesPjud = require('../../pjud/GestorRematesPjud.js')
-const {fixStringDate,stringToDate} = require('../../../utils/cleanStrings.js');
-const {tribunalesPorCorte, obtainCorteJuzgadoNumbers} = require('../../../utils/corteJuzgado.js');
+const {stringToDate} = require('../../../utils/cleanStrings.js');
+const {createExcel} = require('../../excel/createExcel.js');
+const {obtainCorteJuzgadoNumbers} = require('../../../utils/corteJuzgado.js');
 const { fakeDelay, delay } = require('../../../utils/delay.js');
+const {emptyCaseEconomico} = require('../../economico/datosRemateEmol.js');
+const {PreRemates} = require('../../preremates/obtenerPublicaciones.js');
+const logger = require('../../../utils/logger.js');
 const config = require('../../../config.js');
 
 const PJUD = config.PJUD;
@@ -41,7 +42,8 @@ class scrapeAuction {
         let casosPJUD = [];
         const fechaHoy = new Date();
         await this.launchPuppeteer_inElectron();
-        console.log(`Iniciando la inserción de datos desde ${this.startDate} hasta ${this.endDate} y tipos ${typeof this.startDate} y ${typeof this.endDate}`);
+        // console.log(`Iniciando la inserción de datos desde ${this.startDate} hasta ${this.endDate} y tipos ${typeof this.startDate} y ${typeof this.endDate}`);
+        logger.info(`Iniciando la inserción de datos desde ${this.startDate} hasta ${this.endDate} y tipos ${typeof this.startDate} y ${typeof this.endDate}`);
         if(this.emptyMode){
            casos = emptyCaseEconomico(); 
         }else{
@@ -63,7 +65,8 @@ class scrapeAuction {
         }
 
         if(casos.length === 0){
-            console.log("No se encontraron datos");
+            // console.log("No se encontraron datos");
+            logger.warn("No se encontraron datos");
             return 5;
         }
         const createExcelFile = new createExcel(this.saveFile,this.startDate,this.endDate,this.emptyMode,null, this.isTestMode);
@@ -90,7 +93,8 @@ class scrapeAuction {
         //Volver a revisar los casos faltantes
         const gestorRemates = new GestorRematesPjud(casos, this.event, this.mainWindow);
         const result = await gestorRemates.getInfoFromAuctions({ skipIfHasPartes: true }); 
-        console.log(`-----------\nSegunda Vuelta \n--------------------------`);
+        // console.log(`-----------\nSegunda Vuelta \n--------------------------`);
+        logger.info(`-----------\nSegunda Vuelta \n--------------------------`);
         return casos;
     }
 
@@ -133,7 +137,6 @@ class scrapeAuction {
         if (!prerematesChecked) {
             return [];
         }
-        console.log("Obteniendo casos de preremates");
         let casos = [];
         const EMAIL = config.EMAIL;
         const PASSWORD = config.PASSWORD;
@@ -170,7 +173,8 @@ class scrapeAuction {
             startDate = stringToDate(fechaInicioStr);
             endDate = stringToDate(fechaFinStr);
         }
-        console.log("Obteniendo casos de boletin desde: ", startDate, " hasta: ", endDate);
+        // console.log("Obteniendo casos de boletin desde: ", startDate, " hasta: ", endDate);
+        logger.info("Obteniendo casos de boletin desde: ", startDate, " hasta: ", endDate);
        try{
             const window = new BrowserWindow({ show: true });
             const url = 'https://www.boletinconcursal.cl/boletin/remates';
@@ -237,7 +241,8 @@ class scrapeAuction {
             const gestorRemates = new GestorRematesPjud(casos,event,this.mainWindow);
             const result = await gestorRemates.getInfoFromAuctions();
             
-            console.log("Cantidad de casos obtenidos de pjud: ", casos.length);
+            // console.log("Cantidad de casos obtenidos de pjud: ", casos.length);
+            logger.info("Cantidad de casos obtenidos de pjud: ", casos.length);
         } catch (error) {
             console.error("Error en el pjud :", error.message);
         }
@@ -250,7 +255,8 @@ class scrapeAuction {
         let mapasSII = null;
         let window = null;
         try {
-            console.log("Obteniendo datos de Mapas SII");
+            // console.log("Obteniendo datos de Mapas SII");
+            logger.info("Obteniendo datos de Mapas SII");
             window = new BrowserWindow({ show: true });
             const url = 'https://www4.sii.cl/mapasui/internet/#/contenido/index.html';
             await window.loadURL(url);
@@ -271,8 +277,9 @@ class scrapeAuction {
             }
             window.destroy();
         } catch (error) {
-            console.error('Error al obtener resultados en Mapas:', error);
-            console.log("valor del mapasSII cuando es error", mapasSII);
+            // console.error('Error al obtener resultados en Mapas:', error);
+            // console.log("valor del mapasSII cuando es error", mapasSII);
+            logger.warn('Error al obtener resultados en Mapas:', error);
         } finally {
             if (window && !window.isDestroyed()) {
                 window.destroy();
@@ -284,10 +291,12 @@ class scrapeAuction {
     async searchEmolAuctionsInPjud(casos){
         const fixedStartDate = this.startDate.replace(/-/g,'/');
         const fixedEndDate = this.endDate.replace(/-/g,'/');
-        console.log("Fechas para descartar casos economico: ",fixedStartDate, fixedEndDate, new Date(fixedStartDate), new Date(fixedEndDate));
+        // console.log("Fechas para descartar casos economico: ",fixedStartDate, fixedEndDate, new Date(fixedStartDate), new Date(fixedEndDate));
+        logger.info("Fechas para descartar casos economico: ",fixedStartDate, fixedEndDate, new Date(fixedStartDate), new Date(fixedEndDate));
 
         if (!casos || casos.length === 0) {
-            console.log("No hay casos para buscar en Pjud");
+            // console.log("No hay casos para buscar en Pjud");
+            logger.warn("No hay casos para buscar en Pjud");
             return [];
         }
 
@@ -346,7 +355,8 @@ class scrapeAuction {
     //Funcion para lanzar el navegador estandar de electron sin proxy
     async launchPuppeteer_inElectron(){
         this.browser = await pie.connect(app, puppeteer);
-        console.log("Browser launched");
+        // console.log("Browser launched");
+        logger.info("Browser launched");
     }
 }
 
@@ -355,7 +365,6 @@ function openWindow(window, useProxy){
     if(useProxy){
         const proxyData = JSON.parse(process.env.PROXY_DATA);
         const randomIndex = Math.floor(Math.random() * proxyData.length); 
-        console.log("Se lanza el navegador con proxy");
         window = new BrowserWindow({
             show: isVisible,// Ocultar ventana para procesos en background
             proxy :{
