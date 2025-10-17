@@ -1,5 +1,6 @@
 // parsers/propertyParser.js
-const Property = require('./PropertyValidator.js');
+const Property = require('./models/PropertyValidator.js');
+const enrichedProperty = require('./models/EnrichedPropertyValidator.js');
 const logger = require('../../utils/logger.js');
 
 class PropertyParser {
@@ -54,7 +55,8 @@ class PropertyParser {
 
                 // Calcular campos computados
                 computed: {
-                    area_square_meters: this.parseAreaToSquareMeters(entry.property_dimensions),
+                    // area_square_meters: this.parseAreaToSquareMeters(entry.property_dimensions),
+                    area_square_meters: entry.property_dimensions,
                     auction_days_remaining: this.calculateDaysUntilAuction(entry.auction?.auction_date),
                     has_visit_available: Boolean(entry.visit_available),
                     is_metro_nearby: entry.metro || false
@@ -65,10 +67,60 @@ class PropertyParser {
         } catch (error) {
             logger.warn('Failed to parse property entry:', {
                 id: entry.id,
+                property_type : entry.property_type,
                 error: error.message,
-                entry: JSON.stringify(entry).substring(0, 200) // Log partial entry for debugging
+                // entry: JSON.stringify(entry).substring(0, 200) // Log partial entry for debugging
+                entry : JSON.stringify(entry)
             });
             return null;
+        }
+    }
+
+    static enrichPropertyDetails(property, details) {
+        try {
+            if (!property || !details) return property;
+
+            const enrichedData = {
+                ...property,
+                url_warranty: details.url_warranty,
+                description: details.property_description?.trim(),
+                general_features: details.general_features?.map(feature => ({
+                    label: feature.label?.trim(),
+                    value: feature.value?.trim(),
+                    id: feature.id || null
+                })) || [],
+
+                other_features: details.other_features?.map(feature => {
+                    // Si es la propiedad "disponibilidad", la extraemos por separado
+                    if (feature.label?.trim().toLowerCase() === 'disponibilidad') {
+                        return {
+                            label: feature.label?.trim(),
+                            value: feature.value?.trim(),
+                            id: feature.id || null
+                        };
+                    }
+                    return {
+                        label: feature.label?.trim(),
+                        value: feature.value?.trim(),
+                        id: feature.id || null
+                    };
+                }) || [],
+                // Propiedad específica para disponibilidad
+                disponibilidad: details.other_features?.find(feature =>
+                    feature.label?.trim().toLowerCase() === 'disponibilidad'
+                )?.value?.trim() || null
+            };
+
+            logger.info(`Successfully enriched property ID ${property.id} with additional details.`);
+            return new enrichedProperty(enrichedData);
+        }catch(error){
+            logger.warn('Failed to enrich property details:', {
+                id: property?.id,
+                error: error.message,
+                property: JSON.stringify(property).substring(0, 200), // Log partial property for debugging
+                details: JSON.stringify(details).substring(0, 200) // Log partial details for debugging
+            });
+            return property; 
         }
     }
 
@@ -98,9 +150,13 @@ class PropertyParser {
     static parseAreaToSquareMeters(dimensions) {
         if (!dimensions) return null;
 
+        dimensions = dimensions.replace(/,/g, '.'); // Reemplaza comas por puntos para decimales
         try {
             const match = dimensions.match(/([\d\.]+)\s*(m2|ha)/i);
             if (!match) return null;
+            // if(match[1].includes(",")){
+            //     match[1] = match[1].replace(/\./g,"").replace(/,/g,".");
+            // }
 
             const value = parseFloat(match[1]);
             const unit = match[2].toLowerCase();
@@ -111,7 +167,7 @@ class PropertyParser {
 
             return value;
         } catch (error) {
-            logger.warn(`Failed to parse dimensions: ${dimensions}`, error);
+            logger.warn(`Failed to parse dimensions: ${dimensions} FALLANDO ACA`, error);
             return null;
         }
     }

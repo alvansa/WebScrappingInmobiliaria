@@ -5,7 +5,7 @@ const path = require(`path`);
 const Causas = require(`../../model/Causas.js`);
 const config = require("../../config.js");
 const Caso = require(`../caso/caso.js`);
-const {fixStringDate} = require(`../../utils/cleanStrings.js`);
+const {fixStringDate, transformDateString} = require(`../../utils/cleanStrings.js`);
 
 const PJUD = config.PJUD;
 const EMOL = config.EMOL;
@@ -117,13 +117,21 @@ class createExcel {
                 let lastRow = this.insertCasos(casos, ws) - 1;
                 ws[`!ref`] = RANGO_EXCEL + lastRow;
                 filePath = path.join(this.saveFile, name + `.xlsx`);
-            } else {
+            }else if (this.type === "macal") {
+
+                // let lastRow = await this.insertarCasosExcel(casos, ws) - 1;
+                let lastRow = this.insertMacal(casos,ws);
+                ws[`!ref`] = RANGO_EXCEL + lastRow;
+                const dateToday = `1-1-25`
+                filePath = path.join(this.saveFile, `Remates_macal_` + dateToday + '.xlsx');
+            }else {
                 let lastRow = await this.insertarCasosExcel(casos, ws) - 1;
                 ws[`!ref`] = RANGO_EXCEL + lastRow;
                 const fechaInicioDMA = cambiarFormatoFecha(this.startDate);
                 const fechaFinDMA = cambiarFormatoFecha(this.endDate);
                 filePath = path.join(this.saveFile, `Remates_` + fechaInicioDMA + '_a_' + fechaFinDMA + '.xlsx');
             }
+            console.log(`Guardando archivo en : ${filePath}`);
             XLSX.writeFile(wb, filePath, {cellDates: true});
             return filePath;
         } catch (error) {
@@ -142,7 +150,105 @@ class createExcel {
         return currentRow;
     }
 
+    insertMacal(casos, ws) {
+        let currentRow = 6;
+        for(let caso of casos){
+            // writeLine(ws, `${config.INICIO}`, currentRow, caso.causa, 's');
+            writeLine(ws, `${config.ORIGEN}`, currentRow, `https://www.macal.cl/propiedades/${caso.id}`, 's');
+            writeLine(ws, `${config.MARTILLERO}`, currentRow, 'MACAL', 's');
+            writeLine(ws, `${config.DIRECCION}`, currentRow, caso.property_name, 's');
 
+            const fechaRemateFixed = transformDateString(caso.auction.auction_date);    
+
+            if(fechaRemateFixed){
+                writeLine(ws, `${config.FECHA_REM}`, currentRow, fechaRemateFixed, 'd');
+            }
+
+            // writeLine(ws, `${config.DATO}`, currentRow, caso.property_dimensions, 'n');
+
+            writeLine(ws, `${config.PRECIO_MINIMO}`, currentRow, caso.property_price.price, 'n');
+            // writeLine(ws, `${config.AVALUO_FISCAL}`, currentRow, caso.avaluoFiscal, 'n');
+            if(caso.property_location){
+                writeLine(ws, `${config.COMUNA}`, currentRow, caso.property_location.commune, 's');
+            }
+            if(caso.property_location){
+                const lat = caso.property_location.lat || null;
+                const lon = caso.property_location.lng || null;
+                const link = `https://www.google.com/maps/place/${lat},${lon}`;
+                writeLine(ws, `${config.OTRA_DEUDA}`, currentRow, link, 's');
+            }
+
+            if(caso.general_features){
+                const featuresSummary = this.createFeaturesSummary(caso.general_features);
+                writeLine(ws, `${config.DATO}`, currentRow, featuresSummary, 's');
+            }
+
+            if(caso.other_features){
+                const rol = caso.other_features.find(feat => feat.label.toLowerCase().includes('rol de '));
+                if(rol){
+                    writeLine(ws, `${config.ROL}`, currentRow, rol.value, 's');
+                }
+                const estado_ocupacion = caso.other_features.find(feat => feat.label.toLowerCase().includes('disponibilidad'));
+                if(estado_ocupacion){
+                    writeLine(ws, `${config.OCUPACION}`, currentRow, estado_ocupacion.value, 's');
+                }
+                const rolCausa = caso.other_features.find(feat => feat.label.toLowerCase().includes('causa'));
+                if(rolCausa){
+                    writeLine(ws, `${config.CAUSA}`, currentRow, rolCausa.value, 's');
+                }
+                const mandante = caso.other_features.find(feat => feat.label.toLowerCase().includes('mandante'));
+                if(mandante){
+                    writeLine(ws, `${config.TRIBUNAL}`, currentRow, mandante.value, 's');
+
+                }
+            }
+            currentRow = currentRow + 1;
+        }
+        return currentRow;
+    }
+
+    createFeaturesSummary(generalFeatures) {
+        if (!Array.isArray(generalFeatures)) return '';
+
+        const features = {};
+        const mappings = {
+            'dormitorio': 'd', 'dormitorios': 'd',
+            'baño': 'b', 'baños': 'b', 'bano': 'b', 'banos': 'b',
+            'estacionamiento': 'est',
+            'bodega': 'bod',
+            'superficie': 'm2', 'superficie útil': 'm2', 'terreno': 'm2'
+        };
+
+        generalFeatures.forEach(({ label, value }) => {
+            const labelLower = label?.toLowerCase();
+            if (!labelLower || !value) return;
+
+            for (const [key, abbr] of Object.entries(mappings)) {
+                if (labelLower.includes(key)) {
+                    if (abbr === 'm2') {
+                        // Para metros: limpiar y mantener formato
+                        if(value.toLowerCase().includes('m2')){
+                            const cleanValue = value.replace(/[^\d\s]2/g, '').trim();
+                            features[abbr] = cleanValue ? cleanValue + 'm2' : value;
+                        }else{
+                            const numericValue = value.replace(/[^\d]/g, '');
+                            if (numericValue) features[abbr] = numericValue + 'ha';
+                        }
+                    } else {
+                        // Para otras: solo el número
+                        const numericValue = value.replace(/[^\d]/g, '');
+                        if (numericValue) features[abbr] = numericValue + abbr;
+                    }
+                    break;
+                }
+            }
+        });
+
+        return ['d', 'b', 'est', 'bod', 'm2']
+            .map(abbr => features[abbr])
+            .filter(Boolean)
+            .join('-');
+    }
     fillWithOne(ws, casos) {
         // Agregar la busqueda de casos en DB y union si existe ya en la DB
         const caseDB = this.isCaseInDB(casos);

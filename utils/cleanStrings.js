@@ -56,9 +56,22 @@ function formatDateToDDMMAA(date) {
     return `${day}-${month}-${year}`;
 }
 
+function transformDateString(fechaString) {
+    if(!fechaString){
+        return null;
+    }
+    if(fechaString instanceof Date){
+        return fechaString;
+    }
+    const [year, month, day] = fechaString.split('T')[0].split('-');
+    return new Date(`${year}/${month}/${day}`)
+
+}
+
 module.exports = {
     cleanInitialZeros,
     fixStringDate,
     stringToDate,
-    formatDateToDDMMAA
+    formatDateToDDMMAA,
+    transformDateString
 };

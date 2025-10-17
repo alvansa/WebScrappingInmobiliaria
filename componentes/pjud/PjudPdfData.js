@@ -1,6 +1,6 @@
-const { getMontoMinimo, getFormatoEntrega, getPorcentaje, getAnno, getComuna, getTipoDerecho } = require('../economico/datosRemateEmol');
 const extractor = require('../economico/extractors');
 const convertWordToNumbers = require('../../utils/convertWordToNumbers');
+const logger = require('../../utils/logger.js');
 
 const regexMutuoHipotecario = /mutuo\s*hipotecario/i;
 
@@ -21,19 +21,18 @@ class PjudPdfData {
             return false;
         }
         if(this.isDev){
-            console.log(data);
+            logger.debug(data);
         }
 
         if (!this.checkIfValidDoc(data)) {
-            console.log("Documento no valido")
+            logger.info("Documento no valido")
             return false;
         }
         let normalizeInfo = this.normalizeInfo(data);
-        // console.log(normalizeInfo)
         let spanishNormalization = this.normalizeSpanish(data);
 
         if (this.isCaseComplete()) {
-            console.log("Caso completo");
+            logger.info("Caso completo");
             return true;
         }
 
@@ -62,7 +61,7 @@ class PjudPdfData {
         }
         for (const doc of docNotValid) {
             if (doc.test(item)) {
-                console.log("Documento no valido, no contiene informacion relevante");
+                logger.info("Documento no valido, no contiene informacion relevante");
                 return false;
             }
         }
@@ -86,7 +85,7 @@ class PjudPdfData {
             const rolPropiedad = this.obtainRolPropiedad(info,PROPIEDAD);
             if (rolPropiedad) {
                 if (!rolPropiedad.tipo.includes("estacionamiento") && !rolPropiedad.tipo.includes("bodega")) {
-                    console.log(`\n-----------------------------\nRol de la propieadad obtenido con ${rolPropiedad}\n---------------------------- `);
+                    logger.info(`--------Rol de la propieadad obtenido con ${rolPropiedad}----------`);
                     this.caso.rolPropiedad = rolPropiedad.rol;
                 }
             }
@@ -95,7 +94,7 @@ class PjudPdfData {
         if (!this.caso.rolEstacionamiento) {
             const rolEstacionamiento = this.obtainRolPropiedad(info,ESTACIONAMIENTO);
             if (rolEstacionamiento && rolEstacionamiento.tipo.includes("estacionamiento")) {
-                console.log(`\n-----------------------------\nRol de la estacionamiento obtenido con ${rolEstacionamiento}\n---------------------------- `);
+                logger.info(`-------Rol de la estacionamiento obtenido con ${rolEstacionamiento}-------`);
                 this.caso.rolEstacionamiento = rolEstacionamiento.rol;
             }
         }
@@ -103,7 +102,7 @@ class PjudPdfData {
         if (!this.caso.rolBodega) {
             const rolBodega = this.obtainRolPropiedad(info,BODEGA);
             if (rolBodega && rolBodega.tipo.includes("bodega")) {
-                console.log(`\n-----------------------------\nRol de la bodega obtenido con ${rolBodega}\n---------------------------- `);
+                logger.info(`-------Rol de la bodega obtenido con ${rolBodega}-------`);
                 this.caso.rolBodega = rolBodega.rol;
             }
         }
@@ -118,7 +117,7 @@ class PjudPdfData {
         if (!this.caso.avaluoPropiedad) {
             const avaluoPropiedad = this.obtainAvaluoPropiedad(normalizedInfo,PROPIEDAD);
             if (avaluoPropiedad && !avaluoPropiedad.tipo.includes("estacionamiento") && !avaluoPropiedad.tipo.includes("bodega")) {
-                console.log(`\n-----------------------------\nAvaluo propiedad ${avaluoPropiedad.avaluo} y ${avaluoPropiedad.tipo}\n----------------------------- `);
+                logger.info(`----------Avaluo propiedad obtenido con ${avaluoPropiedad.avaluo}---------`); 
                 this.caso.avaluoPropiedad = avaluoPropiedad.avaluo;
             }
         }
@@ -127,7 +126,7 @@ class PjudPdfData {
         if (!this.caso.avaluoEstacionamiento) {
             const avaluoEstacionamiento = this.obtainAvaluoPropiedad(normalizedInfo,ESTACIONAMIENTO);
             if (avaluoEstacionamiento && avaluoEstacionamiento.tipo.includes("estacionamiento")) {
-                console.log(`\n-----------------------------\nAvaluo estacionamiento ${avaluoEstacionamiento.avaluo} y ${avaluoEstacionamiento.tipo}\n----------------------------- `);
+                logger.info(`----------Avaluo estacionamiento obtenido con ${avaluoEstacionamiento.avaluo} y ${avaluoEstacionamiento.tipo} ---------`);
                 this.caso.hasEstacionamiento = true;
                 this.caso.avaluoEstacionamiento = avaluoEstacionamiento.avaluo;
             }
@@ -137,7 +136,7 @@ class PjudPdfData {
         if (!this.caso.avaluoBodega) {
             const avaluoBodega = this.obtainAvaluoPropiedad(normalizedInfo,BODEGA);
             if (avaluoBodega && avaluoBodega.tipo.includes("bodega")) {
-                console.log(`\n-----------------------------\nAvaluo bodega ${avaluoBodega}\n----------------------------- `);
+                logger.info(`----------Avaluo bodega obtenido con ${avaluoBodega.avaluo} y ${avaluoBodega.tipo} ---------`);
                 this.caso.hasBodega = true;
                 this.caso.avaluoBodega = avaluoBodega.avaluo;
             }
@@ -147,7 +146,7 @@ class PjudPdfData {
         if (!this.caso.comuna) {
             let comuna = this.obtainComuna(spanishInfo, normalizedInfo);
             if (comuna) {
-                console.log(`\n-----------------------------\nComuna ${comuna}\n----------------------------- `);
+                logger.info(`----------------Causa: ${this.caso.causa} Comuna obtenida: ${comuna}-----------`);    
                 sendToRenderer(this.mainWindow, `Causa: ${this.caso.causa} Comuna obtenida: ${comuna}`);
                 this.caso.comuna = comuna;
             }
@@ -157,7 +156,7 @@ class PjudPdfData {
         if (!this.caso.direccion) {
             const direccion = this.obtainDireccion(normalizedInfo);
             if (direccion && !direccion.tipo.includes("estacionamiento")) {
-                console.log(`\n-----------------------------\nDireccion ${direccion.direccion}\n----------------------------- `);
+                logger.info(`----------------Causa: ${this.caso.causa} Direccion obtenida: ${direccion.direccion}-----------`);
                 this.caso.direccion = direccion.direccion;
             }
         }
@@ -174,7 +173,7 @@ class PjudPdfData {
         if (!this.caso.anno) {
             const anno = this.obtainAnno(normalizedInfo)
                 if (anno) {
-                    console.log(`-----------------\nanno: ${anno}\n-----------------`);
+                    logger.info(`----------------Causa: ${this.caso.causa} Anno de compra obtenido: ${anno}-----------`);
                     this.caso.anno = anno;
                 }
         }
@@ -186,7 +185,7 @@ class PjudPdfData {
             
             const montoCompra = this.obtainMontoCompra(normalizedInfo);
             if (montoCompra) {
-                console.log("-----------------\nmontoCompra: ", montoCompra, "\n-----------------");
+                logger.info(`----------------Causa: ${this.caso.causa} Monto de compra obtenido: ${montoCompra.monto} ${montoCompra.moneda}-----------`);
                 this.caso.montoCompra = montoCompra;
             }
         }
@@ -194,7 +193,7 @@ class PjudPdfData {
 
     processAuctionInfo(info, normalizedInfo) {
         if (this.isDemanda(info)) {
-            console.log("No se obtiene el monto minimo de la subasta ya que es una demanda");
+            logger.warn("No se obtiene el monto minimo de la subasta ya que es una demanda");
             return;
         }
         //Obtener el monto minimo de la postura
@@ -202,7 +201,7 @@ class PjudPdfData {
 
             const montoMinimo = this.obtainMontoMinimo(normalizedInfo);
             if (montoMinimo) {
-                console.log(`-----------------\nPrecio minimo de subasta: ${montoMinimo.monto} ${montoMinimo.moneda}\n-----------------`);
+                logger.info(`----------------Causa: ${this.caso.causa} Monto minimo de la subasta obtenido: ${montoMinimo.monto} ${montoMinimo.moneda}-----------`);
                 this.caso.montoMinimo = montoMinimo;
             }
         }
@@ -219,7 +218,7 @@ class PjudPdfData {
         if (!this.caso.porcentaje) {
             const percentage = this.getAndProcessPercentage(info);
             if (percentage) {
-                console.log(`-----------------\nporcentaje: ${percentage}\n-----------------`);
+                logger.info(`----------------Causa: ${this.caso.causa} Porcentaje obtenido: ${percentage}-----------`);
                 sendToRenderer(this.mainWindow, `Causa: ${this.caso.causa} Porcentaje obtenido: ${percentage}`);
                 this.caso.porcentaje = percentage ? percentage : null;
             }
@@ -229,7 +228,7 @@ class PjudPdfData {
         if (!this.caso.tipoDerecho) {
             const resultadoDerecho = this.obtainTipoDerecho(normalizedInfo);
             if(resultadoDerecho){
-                    console.log(`-----------------\ntipoDerecho: ${resultadoDerecho}\n-----------------`);
+                    logger.info(`----------------Causa: ${this.caso.causa} Tipo de derecho obtenido: ${resultadoDerecho}-----------`);
                     this.caso.tipoDerecho = resultadoDerecho;
             }
         }
@@ -252,7 +251,7 @@ class PjudPdfData {
             }
             const deuda = this.obtainDeudaHipotecaria(normalizeInfo);
             if (deuda) {
-                console.log(`-----------------\nDeuda : ${deuda}\n-----------------`);
+                logger.info(`----------------Causa: ${this.caso.causa} Deuda hipotecaria obtenida: ${deuda}-----------`);
                 this.caso.deudaHipotecaria = deuda;
             }
         }
@@ -467,7 +466,6 @@ class PjudPdfData {
             }
             const montoMinimo = extractor.minAmount(text);
             if (montoMinimo) {
-                // console.log(`-----------------\nmontoMinimo: ${montoMinimo}\n-----------------`);
                 return montoMinimo;
             }
         }

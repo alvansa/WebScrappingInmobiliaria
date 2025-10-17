@@ -28,7 +28,7 @@ const apiConfig = {
   retries: 3,
   endpoints: {
     properties: {
-      search: '/properties/search',
+      search: '/properties/search?page={page}',
       details : '/properties/details?id={id}' // Ejemplo de endpoint para detalles de propiedad
     },
 

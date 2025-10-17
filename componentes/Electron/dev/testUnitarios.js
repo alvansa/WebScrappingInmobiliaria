@@ -1,6 +1,8 @@
 const pie = require('puppeteer-in-electron');
 const puppeteer = require('puppeteer-core');
 const {app, BrowserWindow, ipcMain, dialog,electron} = require('electron');
+const path = require('path');
+const os = require('os');
 
 const Caso = require('../../caso/caso.js')
 const {downloadPdfFromUrl,checkUserAgent} = require('../../pjud/downloadPDF.js');
@@ -12,6 +14,7 @@ const MapasSII = require('../../mapasSII/MapasSII.js');
 const MacalService = require('../../macal/macalService.js');
 const logger = require('../../../utils/logger.js');
 const { fakeDelay } = require('../../../utils/delay.js');
+const { createExcel } = require('../../excel/createExcel.js');
 
 
 class testUnitarios{
@@ -30,13 +33,13 @@ class testUnitarios{
         let result;
         if (arg === 'imbeddedText') {
             result = testTexto();
-            console.log("Resultados del texto hardCodded: ",result);
+            logger.info("Resultados del texto hardCodded: ",result);
 
         }else if(arg === 'uploadedText'){
             result = testTextoArgs(this.args[1]);
 
         }else if(arg === 'downloadPDF'){
-            console.log("Descargando PDF ubicado en: ",this.args[1]);  
+            logger.info("Descargando PDF ubicado en: ",this.args[1]);
             result = await downloadPdfFromUrl(this.browser,this.args[1]);
 
         }else if(arg === 'readPdf'){
@@ -45,9 +48,8 @@ class testUnitarios{
             const caso = this.crearCasoPrueba();
             const processPDF = new PjudPdfData(caso,null,this.devMode);
             for(let pdf of this.args[1]){
-                console.log("Leyendo PDF ubicado en: ",pdf);
+                logger.info("Leyendo PDF ubicado en: ",pdf);
                 result = await ProcesarBoletin.convertPdfToText(pdf,1);
-                // console.log("Resultados del texto introducido: ",result);
                 processPDF.processInfo(result);
             }
             if(newExcel){
@@ -63,7 +65,6 @@ class testUnitarios{
             const fechaInicio = new Date("2025/08/09");
             const fechaFin = new Date("2025/08/10");
             // Configuración
-            // console.log(casos.map(caso => caso.toObject()));
         }else if(arg === 'testMapas'){
             const caso1 = this.crearCasoPrueba();
             caso1.comuna = "Renca";
@@ -101,15 +102,16 @@ class testUnitarios{
                 }
             }
             for (let caso of casos) {
-                console.log("Resultados del caso: ", caso.toObject());
+                logger.info("Resultados del caso: ", caso.toObject());
             }
         }else if(arg === "testMacal"){
             logger.info("Iniciando test de MacalService");
-            console.log("Iniciando test de MacalService");
-            const result = await MacalService.searchPropertiesWithFilters({
-                page: 1,
-            });
-            // logger.info("Resultado de MacalService: ", result); 
+            const result2 = await MacalService.getPropertiesUntilDate("2025/10/29",{});
+            logger.info("Resultado de MacalService: ", result2.totalPages);
+            //Write to Excel
+            const Excel = new createExcel(path.join(os.homedir(), "Documents", "infoRemates"),null,null,false,"macal");
+            await Excel.writeData(result2.properties,"Remates_macal");
+            console.log("Excel de Macal creado");
         } else { 
             logger.warn("No se ha especificado un test valido");
         }
@@ -140,7 +142,7 @@ class testUnitarios{
 
     async launchPuppeteer_inElectron(){
         this.browser = await pie.connect(this.app, puppeteer);
-        console.log("Browser launched");
+        logger.info("Browser launched");
     }
 }
 
@@ -149,7 +151,6 @@ function openWindow(window, useProxy){
     const randomIndex = Math.floor(Math.random() * proxyData.length); 
     const isVisible = true;
     if(useProxy){
-        console.log("Se lanza el navegador con proxy");
         window = new BrowserWindow({
             show: isVisible,// Ocultar ventana para procesos en background
             proxy :{
