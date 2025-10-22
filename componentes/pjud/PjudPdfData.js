@@ -143,7 +143,7 @@ class PjudPdfData {
         }
 
         //Obtener comuna
-        if (!this.caso.comuna) {
+        if (!this.caso.comuna || this.isAvaluoFiscal(normalizedInfo)) {
             let comuna = this.obtainComuna(spanishInfo, normalizedInfo);
             if (comuna) {
                 logger.info(`----------------Causa: ${this.caso.causa} Comuna obtenida: ${comuna}-----------`);    
@@ -198,7 +198,6 @@ class PjudPdfData {
         }
         //Obtener el monto minimo de la postura
         if (!this.caso.montoMinimo) {
-
             const montoMinimo = this.obtainMontoMinimo(normalizedInfo);
             if (montoMinimo) {
                 logger.info(`----------------Causa: ${this.caso.causa} Monto minimo de la subasta obtenido: ${montoMinimo.monto} ${montoMinimo.moneda}-----------`);
@@ -232,7 +231,28 @@ class PjudPdfData {
                     this.caso.tipoDerecho = resultadoDerecho;
             }
         }
+        if(!this.caso.mortageBank){
+            let part = null;
+            if(this.caso.partes && this.caso.partes.includes('/')){
+                part = this.caso.partes.split('/')[0]
+            }
+            const mortageBank = extractor.mortageBank(info,part,true);
+            if(mortageBank){
+                logger.info(`Banco de la deuda hipotecaria obtenida : ${mortageBank}`)
+                this.caso.mortageBank = mortageBank;
+            }
+        }
 
+    }
+
+    isAvaluoFiscal(text){
+        console.log('Leyendo :', text)
+        if(text.includes('certificado de avaluo fiscal')){
+            console.log("Si es avaluo")
+            return true;
+        }
+        console.log("NO es Avaluo")
+        return false;
     }
 
     obtainFormatoEntrega(info) {

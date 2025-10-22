@@ -69,21 +69,20 @@ class testUnitarios{
             const caso1 = this.crearCasoPrueba();
             caso1.comuna = "Renca";
             caso1.rolPropiedad = "1715-20";
-            // const caso2 = this.crearCasoPrueba();
-            // caso2.comuna = "Peñaflor";
-            // caso2.rolPropiedad = null;
-            // const caso3 = this.crearCasoPrueba();
-            // caso3.comuna = "Providencia";
-            // caso3.rolPropiedad = "1342-209";
-            // const caso4 = this.crearCasoPrueba();
-            // caso4.comuna = "Curacaví";
-            // caso4.rolPropiedad = "63-12";
-            // const casos = [caso1,caso2,caso3,caso4];
-            const casos = [caso1]
-            // const window = new BrowserWindow({ show: true });
-            // const url = 'https://www4.sii.cl/mapasui/internet/#/contenido/index.html';
-            // window.loadURL(url);
-            // const page = await pie.getPage(this.browser, window);
+            const caso2 = this.crearCasoPrueba();
+            caso2.comuna = "Peñaflor";
+            caso2.rolPropiedad = null;
+            const caso3 = this.crearCasoPrueba();
+            caso3.comuna = "Providencia";
+            caso3.rolPropiedad = "1342-209";
+            const caso4 = this.crearCasoPrueba();
+            caso4.comuna = "Curacaví";
+            caso4.rolPropiedad = "63-12";
+            const caso5 = this.crearCasoPrueba();
+            caso5.comuna = 'Talca';
+            caso5.rolPropiedad = '757-31'
+            const casos = [caso1,caso2,caso3,caso4,caso5];
+            // const casos = [caso1]
             let page;
             let mapasSII;
             try{
@@ -92,6 +91,7 @@ class testUnitarios{
                 await mapasSII.Secondinit();
                 for(let caso of casos){
                     await mapasSII.obtainDataOfCause(caso);
+                    logger.info(`Caso de comuna ${caso.comuna} y link de mapa ${caso.linkMap}`);
                     await fakeDelay(2,5);
                 }
             }catch(error){
@@ -101,9 +101,9 @@ class testUnitarios{
                     await mapasSII.finishPage();
                 }
             }
-            for (let caso of casos) {
-                logger.info("Resultados del caso: ", caso.toObject());
-            }
+            // for (let caso of casos) {
+            //     logger.info("Resultados del caso: ", caso.toObject());
+            // }
         }else if(arg === "testMacal"){
             logger.info("Iniciando test de MacalService");
             const result2 = await MacalService.getPropertiesUntilDate("2025/10/29",{});

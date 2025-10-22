@@ -59,6 +59,7 @@ class Caso{
     #hasChanged
     #coordenadas;
     #linkMap;
+    #mortageBank;
 
     constructor(fechaObtencion, fechaPublicacion = 'N/A',link = 'N/A',origen = null ){    
         this.#fechaPublicacion = fechaPublicacion;
@@ -103,6 +104,7 @@ class Caso{
         this.#alreadyAppear = null;
         this.#isAvenimiento = false;
         this.#coordenadas = null;
+        this.#mortageBank = null;
 
         this.#unitRol = null;
         this.#unitAvaluo = null;
@@ -110,6 +112,7 @@ class Caso{
         this.#hasChanged = false;
 
         this.#origen = origen;
+
     }
 
     darfechaPublicacion(fechaPublicacion){
@@ -279,6 +282,9 @@ class Caso{
     }
     set linkMap(linkMap){
         this.#linkMap = linkMap;
+    }
+    set mortageBank(mortageBank){
+        this.#mortageBank = mortageBank;
     }
 
    get hasChanged(){
@@ -519,6 +525,9 @@ class Caso{
     get linkMap(){
         return this.#linkMap;
     }
+    get mortageBank(){
+        return this.#mortageBank;
+    }
 
 
   
@@ -580,7 +589,8 @@ class Caso{
             isAvenimiento : Boolean(this.#isAvenimiento),
             hasChanged : this.#hasChanged,
             coordenadas : this.#coordenadas,
-            linkMap : this.#linkMap
+            linkMap : this.#linkMap,
+            mortageBank : this.#mortageBank,
         };
     } 
 

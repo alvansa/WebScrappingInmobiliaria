@@ -76,7 +76,8 @@ function checkBienFamiliar(text) {
         /declaracion\s*de\s*bien\s*familiar/gi,
         /le\s*afecta\s*bien\s*familiar/gi,
         /bien\s*familiar\s*declarado/gi,
-        /bien\s*familiar.*declaracion\s*:\s*definitiva/gi
+        /bien\s*familiar.*declaracion\s*:\s*definitiva/gi,
+        /se\s*declaro\s*como\s*bien\s*familiar/i
     ];
     for (const regex of inclusionRegexes) {
         if (regex.test(normalizedText)) {

@@ -66,7 +66,7 @@ class MapasSII {
 
             await this.page.click('button[data-ng-click="validaBusqueda()"]');
             console.log("Se hizo click Buscando");
-            await this.obtainTotalValue(caso);
+            await this.obtainMapValues(caso);
         } catch (error) {
             console.error("Error al obtener los datos de la propiedad", error);
             return;
@@ -171,7 +171,7 @@ class MapasSII {
         await this.page.keyboard.press('Enter'); // Seleccionar la opción
     }
 
-    async obtainTotalValue(caso) {
+    async obtainMapValues(caso) {
         const divResultado = "strong.col-xs-6 + div.col-xs-6 span.pull-right.ng-binding";
         const divError = "span.modal-title.ng-binding";
         const botonCerrar = "div.modal-footer.ng-scope button.btn.btn-warning";

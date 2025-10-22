@@ -115,7 +115,7 @@ class scrapeAuction {
         let fechaInicio = new Date();
         let fechaFin = new Date(); 
 
-        fechaInicio.setDate(fechaInicio.getDate() - 21);
+        fechaInicio.setDate(fechaInicio.getDate() - 30);
 
         if(this.isTestMode){
             fechaInicio = stringToDate(fechaInicioStr);
@@ -257,18 +257,19 @@ class scrapeAuction {
         try {
             // console.log("Obteniendo datos de Mapas SII");
             logger.info("Obteniendo datos de Mapas SII");
-            window = new BrowserWindow({ show: true });
-            const url = 'https://www4.sii.cl/mapasui/internet/#/contenido/index.html';
-            await window.loadURL(url);
-            const page = await pie.getPage(this.browser, window);
-            mapasSII = new MapasSII(page);
-            await mapasSII.init();
+            // window = new BrowserWindow({ show: true });
+            // const url = 'https://www4.sii.cl/mapasui/internet/#/contenido/index.html';
+            // await window.loadURL(url);
+            // const page = await pie.getPage(this.browser, window);
+            let page;
+            mapasSII = new MapasSII(page, this.browser);
+            await mapasSII.Secondinit();
             for (let caso of casos) {
                 if (caso.rolPropiedad !== null && caso.comuna !== null) {
                     try {
-                        await fakeDelay(1, 3);
                         await mapasSII.obtainDataOfCause(caso);
-                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        await fakeDelay(2,5);
+                        // await new Promise(resolve => setTimeout(resolve, 1000));
                     } catch (error) {
                         console.error(`Error procesando caso ${caso.rolPropiedad}:`, error.message);
                         continue;
@@ -281,8 +282,8 @@ class scrapeAuction {
             // console.log("valor del mapasSII cuando es error", mapasSII);
             logger.warn('Error al obtener resultados en Mapas:', error);
         } finally {
-            if (window && !window.isDestroyed()) {
-                window.destroy();
+            if (mapasSII) {
+                mapasSII.finishPage()
             }
         }
         return;

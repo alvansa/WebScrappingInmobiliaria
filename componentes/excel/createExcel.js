@@ -520,6 +520,7 @@ function insertarCasoIntoWorksheet(caso, ws, currentRow) {
     }
     writeLine(ws, `${config.ANNO_COMPRA}`, currentRow, caso.anno, "n");
     writeLine(ws, `${config.DEUDA_HIPOTECA}`, currentRow, caso.deudaHipotecaria, "n");
+    writeLine(ws, `${config.DEUDA_BANCO}` , currentRow, caso.mortageBank , 's')
     writeLine(ws, `${config.OTRA_DEUDA}`, currentRow, caso.linkMap, "s");
     // ws[`AG` + currentRow ] = {v: 'año compr ant ', t: 's'};
     // ws[`AH` + currentRow ] = {v: 'precio venta nos ', t: 's'};

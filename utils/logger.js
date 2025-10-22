@@ -1,9 +1,14 @@
 // utils/logger.js
 const winston = require('winston');
 const path = require('path');
+const fs = require('fs')
+const os = require('os')
 
 class Logger {
   constructor() {
+    
+    this.dirPath = path.join(os.homedir(), "Documents", "infoRemates");
+    this.checkDir();
     // Creamos el "logger" con diferentes configuraciones
     const logLevel = process.env.LOG_LEVEL || 'info'; // Nivel de logeo desde variable de entorno o 'info' por defecto
     this.logger = winston.createLogger({
@@ -23,7 +28,7 @@ class Logger {
       transports: [
         // 📄 ARCHIVO para errores graves
         new winston.transports.File({
-          filename: path.join(__dirname, '../logs/error.log'),
+          filename: path.join(this.dirPath, '../logs/error.log'),
           level: 'error', // Solo guarda errores
           maxsize: 5242880, // 5MB máximo por archivo
           maxFiles: 5, // Máximo 5 archivos de error
@@ -31,7 +36,7 @@ class Logger {
         
         // 📄 ARCHIVO para todos los logs
         new winston.transports.File({
-          filename: path.join(__dirname, '../logs/combined.log'),
+          filename: path.join(this.dirPath, '../logs/combined.log'),
           maxsize: 5242880, // 5MB
           maxFiles: 5,
         }),
@@ -53,10 +58,17 @@ class Logger {
       // 👇 Qué pasa si el logger mismo tiene errores
       exceptionHandlers: [
         new winston.transports.File({ 
-          filename: path.join(__dirname, '../logs/exceptions.log') 
+          filename: path.join(this.dirPath, '../logs/exceptions.log') 
         })
       ]
     });
+
+  }
+
+  checkDir(){
+    if (!fs.existsSync(this.dirPath)) {
+      fs.mkdirSync(this.dirPath, { recursive: true });
+    }
   }
 
   // 🔧 MÉTODOS SIMPLES PARA USAR

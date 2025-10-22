@@ -1,5 +1,9 @@
 const {changeWordsToNumbers} = require('../../componentes/economico/extractors/directionExtractor');
 const {extractAuctionDate} = require('../../componentes/economico/extractors/auctionDateExtractor');
+const {extractBankMortage} = require('../../componentes/economico/extractors/mortageBankExtractor');
+
+const txGP = require('../textos/GP');
+const { experiments } = require('webpack');
  
 
 
@@ -17,7 +21,6 @@ describe('test de convertir frases con numeros escritos en palabras a numeros',(
     test('Test numero dos con varias direcciones' , ()=>{
         const texto = 'inmuebles de calle el parrón número doscientos veinticuatro, doscientos cuarenta y cuatro, doscientos sesenta y cuatro- a y doscientos sesenta y cuatro-b, de la comuna de la';
         const res = changeWordsToNumbers(texto);
-        console.log(res);
     });
 
     test('Test numero tres con varias direcciones' , ()=>{
@@ -65,13 +68,11 @@ describe('test de convertir frases con numeros escritos en palabras a numeros',(
     test('Otro test con causa de emol C-6782-2025 4/11' , ()=>{
         const texto = 'departamento número mil ciento siete del piso undécimo y del Est número e cero veintiuno del piso primero, ambos del conjunto habitacional denominado edificio novo, con ingreso por calle santa petronila número treinta y ocho, comuna de estaci';
         const res = changeWordsToNumbers(texto);
-        console.log(res)
     });
 
     test('Otro test con causa de emol C-12721-2024 4/11' , ()=>{
         const texto = 'departamento número setecientos seis del séptimo piso y el Est número veintidós en conjunto con la bodega número treinta y tres, ambos del primer subterráneo, todos del edificio denominado plaza de agua o edificio argomedo trescientos veinte con acceso principal por calle argomedo número trescientos veinte, comuna de santiago';
         const res = changeWordsToNumbers(texto);
-        console.log(res)
     });
 
     test('Test artificial para numero x' , ()=>{
@@ -117,7 +118,64 @@ describe('test para extraer fecha de remate',()=>{
     test('test prueba para verificar si obtiene del resumen', ()=>{
         const text = 'Remate: Primer Juzgado Civil De Santiago, Huérfanos 1409, piso 15 santiago, rematará 21 de octubre de 2025 a las 14:50 horas, departamento nº 2.619 del 26º piso y de la bodega nº 74 del 1º subterráneo, ambos de la torre oriente del edificio Portal Independencia, 2º etapa, con acceso por Avenida Inde';
         const res = extractAuctionDate(text);
-        console.log(res)
         // expect(res)
     });
+});
+
+describe('test para extraer el banco que tiene la hipoteca del GP', ()=>{
+
+    test('Test para obtener el banco Security', ()=>{
+        const text = txGP.textoGP1;
+        const banco = extractBankMortage(text);
+        expect(banco).toBe('security');
+    })
+
+    test('Test para obtener el banco de credito e inversiones', ()=>{
+        const text = txGP.textoGP2;
+        const banco = extractBankMortage(text);
+        expect(banco).toBe('BCI');
+    })
+
+    test('Test para obtener el banco cuando no lo encuentra y es nulo', ()=>{
+        const text = txGP.textoGP3;
+        const banco = extractBankMortage(text);
+        expect(banco).toBeNull();
+    })
+    
+    test('Test para obtener el banco bbva o bilbao vizcaya argentaria', ()=>{
+        const text = txGP.textoGP5;
+        const banco = extractBankMortage(text);
+        expect(banco).toBe('BBVA');
+    })
+
+    test('Test para obtener el banco santander sin espacios', ()=>{
+        const text = txGP.texto12Santiago;
+        const banco = extractBankMortage(text);
+        expect(banco).toBe('scotiabank');
+    })
+
+    test('Test para obtener el banco BCI con una "hipoteca en favor"', ()=>{
+        const text = txGP.GP668;
+        const banco = extractBankMortage(text);
+        expect(banco).toBe('BCI');
+    })
+
+    test('Test para obtener el banco estado', ()=>{
+        const text = txGP.GP6562;
+        const banco = extractBankMortage(text);
+        expect(banco).toBe('estado');
+    })
+
+    test('Test para obtener el banco estado', ()=>{
+        const text = txGP.GP546;
+        const parte = 'FONDO DE INVERSION ACTIVA DEUDA HIPOTECARIA CON SUBSIDIO HABITACIONAL II';
+        const banco = extractBankMortage(text, parte);
+        expect(banco).toBe('fondo de inversion activa deuda hipotecaria con subsidio habitacional ii');
+    })
+
+    test('Test para obtener el banco falabella con el acreedor y no punto', ()=>{
+        const text = txGP.GP1361;
+        const banco = extractBankMortage(text);
+        expect(banco).toBe('falabella');
+    })
 });

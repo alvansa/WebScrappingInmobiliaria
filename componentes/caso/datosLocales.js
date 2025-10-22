@@ -878,6 +878,32 @@ const tribunales2 = ["1° JUZGADO DE LETRAS DE ARICA",
       "Juzgado de Letras de Puente Alto",
     ]
 
-    const BANCOS = ["scotiabank","dresdner","bci","corpbanca","bice","edwards","republic","citibank","santander","itau","sudameris","american express","abn","security","falabella","ripley","bbva","tanner","consorcio","metlife","avla"]
+const BANCOS = [
+  "scotiabank",
+  "dresdner",
+  "bci",
+  "corpbanca",
+  "bice",
+  "edwards",
+  "republic",
+  "citibank",
+  "santander",
+  "itau",
+  "sudameris",
+  "american express",
+  "abn",
+  "security",
+  "falabella",
+  "ripley",
+  "bbva",
+  "tanner",
+  "consorcio",
+  "metlife",
+  "avla",
+  "credito e inversiones",
+  "bilbao vizcaya argentaria",
+  "estado"
+];
+
 module.exports = {comunas, tribunales2, BANCOS};
   

@@ -380,5 +380,206 @@ CBR La Serena, 9 de Enero de 2025, Hora: 16:08Carátula 1118880 - SGB
 Documento incorpora Firma Electrónica Avanzada
 Código de verificación: 0000301497página 2 de 2`;
 
+const GP668 = `Certificado de Hipotecas y Prohibiciones
+Inmueble: CASA Nº 44, AVENIDA GUILLERMO ULRIKSEN Nº 1799, CONDOMINIO
+LOTE "A-2", ubicado en la comuna de LA SERENA, de propiedad de FERNANDA
+SOFIA CATALAN LIRA.
 
-module.exports = {textoGP1, textoGP2, textoGP3, textoGP4, textoGP5, texto12Santiago, GP1435, GP15491, GP299};
+Revisados los índices del Registro de Hipotecas y Gravámenes durante TREINTA
+años a la fecha certifico que al inmueble singularizado precedentemente, solamente
+le afecta lo siguiente:
+
+UN REGLAMENTO DE COPROPIEDAD del Conjunto Mirador del Valle, Condominio
+Lote "A 2" La Serena. Inscrita a fs 2572 N° 1420 de 2013.
+
+UNA SERVIDUMBRE recíproca continuas y aparentes sobre los siguientes servicios,
+en los términos de los artículos 880 y 881 del Código Civil, los que tendrán el
+carácter de gratuitos, perpetuos, irrevocables y recíprocos de manera que los Lotes
+"A1" y "A2", tendrán la calidad de predio sirviente y dominante a la vez: 1º) Servicio
+continuo y aparente de tránsito, circulación y acceso; 2º) Servicio continuo y
+aparente de infraestructura; y 3º) Servicio continuo aparente de uso de instalaciones
+y ocupación de suelo para desarrollo de áreas verdes. Inscrita a fs 2953 N° 1633 de
+2013.
+
+UNA SERVIDUMBRE de ocupación y tránsito eléctrica, con el carácter de gratuita,
+en en favor de la COMPAÑIA NACIONAL DE FUERZA ELECTRICA S.A., sobre el
+Lote "A 2" de la subdivisión del Lote "A" de un área de 12.111 metros cuadrados,
+aproximadamente. Inscrita a fs 3145 N° 1730 de 2013.
+
+
+UNA SERVIDUMBRE de tránsito y una servidumbre de canal y acueducto a favor de
+la Comunidad MARCO PARTIDOR DE AGUAS DE RIEGO SANTA ROSA de la
+Asociación de Canalistas del Canal Bellavista. Inscrita a fs 3785 N° 2114 de
+2013.
+
+UNA PRIMERA HIPOTECA constituida en favor del BANCO DE CREDITO E
+INVERSIONES, con el objeto de garantizarle la devolución de un préstamo que
+dicho Banco le otorgó a PAMELA ESTEFANIA LIRA ESPEJO, ascendente a la
+cantidad de 3.836,7 Unidades de Fomento. Inscrita a fs 8043 N° 4361 de
+2014.
+
+Revisados igualmente durante TREINTA años, los índices del Registro de
+Interdicciones y Prohibiciones de Enajenar, certifico que al inmueble singularizado
+precedentemente, solamente le afecta lo siguiente:
+
+UNA PROHIBICION de enajenar, gravar y celebrar contratos de arrendamiento por
+escritura pública, sin previo consentimiento del BANCO DE CREDITO E
+INVERSIONES. Inscrita a fs 7731 N° 5163 de 2014.
+
+UNA MEDIDA PRECAUTORIA de prohibición de celebrar actos y contratos,
+decretada en los autos Rol Nº C-668-2022, seguidos ante el TERCER JUZGADO DE
+LETRAS DE LA SERENA, caratulados: "BANCO DE CREDITO E INVERSIONES
+CON CATALAN". Inscrita a fs 5214 N° 2993 de 2022.
+
+Documento incorpora Firma Electrónica Avanzada
+Código de verificación: 0000346318página 2 de 3
+
+EL TÍTULO DE DOMINIO SE ENCUENTRA INSCRITO A FOJAS 6672 N° 4499 DEL
+REGISTRO DE PROPIEDAD, CORRESPONDIENTE AL AÑO 2021.
+
+Los derechos registrales correspondientes a esta actuación ascienden a la suma de
+$6.600.
+CBR La Serena, 26 de Junio de 2025, Hora: 16:04Carátula 1151021 - MV
+Documento incorpora Firma Electrónica Avanzada
+Código de verificación: 0000346318página 3 de 3`;
+
+const GP6562 = `  CERTIFICADO DE HIPOTECAS Y GRAVAMENES
+Folio Nº:49929.-Carátula Nº:1287538.-
+De (los) inmueble(s) ubicado(s) en la Comuna de RANCAGUA inscrito a fojas 894
+número 1741 del Registro de Propiedad del año 2011, a nombre de ORTIZ ORTIZ
+DANILO ORLANDO.
+Revisados los Indices del Registro de Hipotecas y Gravámenes por un período de
+treinta años a la fecha 20 de Marzo del año 2025, certifico que el(los) inmueble(s)
+referidos precedentemente tiene(n) en dicho período dos inscripciones vigente(s).
+
+1.- REGLAMENTO DE COPROPIEDAD : A fojas 1785 número 2282 del año 2010
+.
+2.- HIPOTECA : A fojas 608 número 839 del año 2011 BANCO DEL ESTADO DE
+CHILE.
+Pag: 1/2
+
+CERTIFICADO DE  INTERDICCIONES Y PROHIBICIONES
+Folio Nº:49929.-Carátula Nº:1287538.-
+De (los) inmueble(s) ubicado(s) en la Comuna de RANCAGUA inscrito a fojas 894
+número 1741 del Registro de Propiedad del año 2011, a nombre de ORTIZ ORTIZ
+DANILO ORLANDO
+Revisados igualmente por un período de treinta años a la fecha 20 de Marzo del
+año  2025  los  Indices  del  Registro  de  Interdicciones  y  Prohibiciones,  certifico  que
+el(los)  inmueble(s)  referidos  precedentemente  tiene(n)  en  dicho  período  tres
+inscripciones vigentes.
+1.- PROHIBICION : A fojas 731 número 1327 del año 2011 BANCO DEL ESTADO
+DE CHILE.
+2.- EMBARGO : A fojas 2358 número 3954 del año 2015 BANCO DEL ESTADO
+DE CHILE.
+3.-  EMBARGO  :  A  fojas  3403  número  5196  del  año  2024  SINDICATO  BASE
+EMPRESA CASINO MONTICELLO.
+
+MO
+Pag: 2/2`;
+
+const GP546 = `Documento suscrito mediante la aplicación de firma electrónica avanzada, por Notario Público de la
+República  de  Chile.  Verificar  su  validez  y  vigencia  en  https://cbrchile.cl  usando  el  código  de
+verificación:  3401819-198a3a4a8db
+Ubicación : Cienfuegos 1290, San Javier
+Teléfono   :  +56 2 28589075
+Email         : contacto@cbrsanjavier.cl
+OT              : 17507 FR: 2136
+Usuario     : 145569478
+Certificado de Hipotecas, Gravámenes y Prohibiciones de
+Enajenar.
+De inmueble inscrito a Fojas: 1052 vuelta Número 1316 del Registro de Propiedad del año
+2020, que corresponde a: inmueble ubicado en Pasaje Bombero Sergio Sepúveda Faúndez
+número 1416, que corresponde al LOTE 27 de la MANZANA C, del Conjunto Habitacional
+"Los  Viñedos  Dos",  de  la  comuna  de  San  Javier,  de  propiedad  de  MINERVA  BEATRIZ
+COFRE MANRIQUEZ
+Registro de Hipotecas y Gravámenes
+Revisados los índices del Registro de Hipotecas y Gravámenes durante 30 años a la fecha,
+certifico  que  la  propiedad  individualizada  precedentemente  tiene  en  dicho  periodo  1
+inscripciones vigentes.-
+1) HIPOTECA en favor de FONDO DE INVERSIÓN ACTIVA DEUDA HIPOTECARIA CON
+SUBSIDIO HABITACIONAL II, Inscrita a Fojas 489, Número 338, Año 2020
+Registro de Interdicciones y Prohibiciones de Enajenar
+Revisados  igualmente  durante  30  años  los  índices  del  Registro  de  Interdicciones  y
+Prohibiciones  de  Enajenar,  certifico  que  la  referida  propiedad  tiene  en  dicho  periodo  1
+inscripciones vigentes.-
+1)  PROHIBICION  en  favor  de  FONDO  DE  INVERSIÓN  ACTIVA  DEUDA  HIPOTECARIA
+CON SUBSIDIÓ HABITACIONAL II, Inscrita a Fojas 366 vuelta, Número 439, Año 2020
+Certificado de Litigios
+Tras revisar las inscripciones de dominio que constituyen los títulos de los últimos 30 años
+hasta la fecha, correspondientes a la propiedad mencionada en los certificados anteriores,
+el  Conservador  de  Bienes  Raices  de  San  Javier,  quien  suscribe,  certifica  que    no  hay
+constancia en ellas de que la propiedad sea objeto de litigios..
+.
+En San Javier, 13 de agosto de 2025`;
+
+const GP1361 = `CERTIFICADO DE HIPOTECAS Y GRAVAMENES
+INTERDICCIONES Y PROHIBICIONES DE ENAJENAR, LITIGIOS
+Y BIEN FAMILIAR
+Folio Nro: 117536.-Carátula Nro:9652833.-
+I.- Singularización del inmueble :
+Ubicación:
+Casa  N°  90  del  Condominio  Parque  Kenrick,  acceso  por  calle  Jorge
+Kenrick 837. Plano Nro 1840 del año 2007
+Comuna:
+VALPARAISO
+II.- Individualización propietario vigente: (1)
+1.- KUIMER SAGREDO PAOLA JEANNETE
+Inscripción: Fs.167 Nro 238 de 2009 , Registro de Propiedad
+ Fecha Inscripción: 14/01/2009
+III.-Limitaciones al dominio durante los ultimos 30 años, revisados los índices desde
+02/07/1995  hasta 02/07/2025:
+Registro de Hipotecas y Gravamenes: (3)
+1.- Clase Inscripción.: REGLAMENTO DE COPROPIEDAD
+CONDOMINIO PARQUE KENRICK
+Inscripción: Fs.4041v Nro 3367  de 2007 Fecha Inscripción: 22/11/2007
+2.- Clase Inscripción.: HIPOTECA
+Constituyente: KUIMER SAGREDO PAOLA JEANNETE.
+Acreedor: BANCO FALABELLA
+Conservador de Bienes Raíces de Valparaiso , 02 Julio de 2025
+Cantidad páginas documento: 2
+Emito  con  firma  electrónica  avanzada  (ley  No19.799,  de  2002)  AA  de
+13/10/2006 de la Excma. Corte Suprema.-
+Certificado Nro 2304266.- Verifique validez en  www.fojas.cl .-
+Pag: 1/2
+
+Inscripción: Fs.57V Nro 66  de 2009 Fecha Inscripción: 14/01/2009
+3.- Clase Inscripción.: HIPOTECA
+Constituyente: KUIMER SAGREDO PAOLA JEANNETE.
+Acreedor: BANCO FALABELLA
+Inscripción: Fs.58V Nro 67  de 2009 Fecha Inscripción: 14/01/2009
+Registro de Interdicciones y Prohibiciones: (2)
+1.- Clase inscripción: PROHIBICION
+Acreedor: BANCO FALABELLA
+Inscripción: Fs.102V Nro 124  de 2009 Fecha Inscripción: 05/01/2009
+2.- Clase inscripción: EMBARGO
+Deudor: PAOLA JEANNETTE KUIMER SAGREDO.
+Acreedor: BANCO FALABELLA
+TERCER JUZGADO CIVIL DE VALPARAISO . Rol: C-1361-2024
+Inscripción: Fs.1302 Nro 1651  de 2025 Fecha Inscripción: 30/05/2025
+IV.- Litigios.:
+No registra Anotaciones o Inscripciones.-
+V.- Bien Familiar (Ley 19335):
+No registra anotaciones.-
+Valparaiso,  dos  de Julio del año dos mil veinticinco.- MMA
+Conservador de Bienes Raíces de Valparaiso , 02 Julio de 2025
+Cantidad páginas documento: 2
+Emito  con  firma  electrónica  avanzada  (ley  No19.799,  de  2002)  AA  de
+13/10/2006 de la Excma. Corte Suprema.-
+Certificado Nro 2304266.- Verifique validez en  www.fojas.cl .-
+Pag: 2/2`;
+
+module.exports = {
+    textoGP1, 
+    textoGP2, 
+    textoGP3, 
+    textoGP4, 
+    textoGP5, 
+    texto12Santiago, 
+    GP1435, 
+    GP15491, 
+    GP299,
+    GP668,
+    GP6562,
+    GP546,
+    GP1361
+};
