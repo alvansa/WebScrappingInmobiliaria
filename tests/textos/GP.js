@@ -568,6 +568,43 @@ Emito  con  firma  electrónica  avanzada  (ley  No19.799,  de  2002)  AA  de
 Certificado Nro 2304266.- Verifique validez en  www.fojas.cl .-
 Pag: 2/2`;
 
+const GP246 = `G.R.S.
+
+
+
+CERTIFICADO DE VIGENCIA – HIPOTECAS Y GRAVAMENES – PROHIBICIONES
+E INTERDICCIONES
+
+ÁLVARO  MAURICIO  TOLEDO  SOTO,  Conservador  de  Bienes  Raíces,  Comercio  y
+Archivero Judicial de la Provincia El Loa - Titular, certifica: que la inscripción rolante
+a fojas 1743 número 978 del Registro de Propiedad a mi cargo, correspondiente al
+año 1985, adjunto al presente  documento, se  encuentra  conforme  con  su original
+y vigente, a nombre de su (sus) titular(es).
+Que revisados  los  libros índices del  Registro  de  Hipotecas  y  Gravámenes desde  30
+años a la fecha, a la propiedad singularizada precedentemente le afecta:
+ Hipoteca inscrita a Fojas 79 N°56, a favor del Banco Bilbao Vizcaya Argentaria,
+Chile, con fecha 14 de enero de 2013.
+
+Que revisados los libros índices del Registro de Prohibiciones e Interdicciones desde
+30 años a la fecha, a la propiedad singularizada precedentemente le afecta:
+
+ Prohibición inscrita a  Fojas 79 N°73,  a  favor del Banco  Bilbao  Vizcaya
+Argentaria, Chile, con fecha 14 de enero de 2013.
+ Embargo inscrito a Fojas 391 N°390, Ordenado por el 2° Juzgado de Letras de
+Calama,  Causa  Rol  C-246-2025,  caratulado “Scotiabank  Chile/Cortés”,  con
+fecha 28 de abril de 2025.
+
+Calama, 10 de julio de 2025.-
+
+
+
+
+CER-139138-13529-235385
+Este  documento  incorpora  una  firma  electrónica  avanzada,  según  lo
+indicado en la Ley Nº19.799 y en el Autoacordado de la Excma. Corte
+Suprema.    Su  validez  puede  ser  consultada  en  el  sitio  Web
+www.cbrchile.cl con el código de verificación indicado junto a estas líneas.`;
+
 module.exports = {
     textoGP1, 
     textoGP2, 
@@ -581,5 +618,6 @@ module.exports = {
     GP668,
     GP6562,
     GP546,
-    GP1361
+    GP1361,
+    GP246
 };

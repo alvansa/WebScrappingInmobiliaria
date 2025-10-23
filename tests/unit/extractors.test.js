@@ -178,4 +178,10 @@ describe('test para extraer el banco que tiene la hipoteca del GP', ()=>{
         const banco = extractBankMortage(text);
         expect(banco).toBe('falabella');
     })
+
+    test('Test para obtener el banco BBVA cuando este fallaba', ()=>{
+        const text = txGP.GP246;
+        const banco = extractBankMortage(text);
+        expect(banco).toBe('BBVA');
+    })
 });

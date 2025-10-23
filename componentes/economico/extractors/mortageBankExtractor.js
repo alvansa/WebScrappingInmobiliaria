@@ -1,16 +1,18 @@
-const { log } = require('winston');
 const {BANCOS} = require('../../caso/datosLocales');
 
 function extractBankMortage(text,demandPart = null, logData = false){
     let banco;
     let alterText, startText;
     let normalizeText = text
-        .replace(/\.(?!\n|-)/g, '')
+        // .replace(/\.(?!\n|-)/g, '')
+        .replace(/\.([\n-\s{2,}])/g, '++')
         .replace(/\n/g, ' ')
         .replace(/\s+/g," ")
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\./g, '')
         .toLowerCase();
+
     let indexHipoteca;
 
     const listadoInicios = [
@@ -44,7 +46,7 @@ function extractBankMortage(text,demandPart = null, logData = false){
         BANCOS.push(demandPart.toLowerCase());
     }
 
-    banco = findBankWithPoint(startText, BANCOS);
+    banco = findBankWithPoint(startText, BANCOS,logData);
 
     if(banco){
         return banco
@@ -58,12 +60,14 @@ function extractBankMortage(text,demandPart = null, logData = false){
     return null;
 }
 
-function findBankWithPoint(text, BANCOS){
-    const endIndex = text.indexOf('.');
+function findBankWithPoint(text, BANCOS,logData){
+    const endIndex = text.indexOf('++');
     if(!endIndex){
         return null;
     }
+
     const alterText = text.substring(0,endIndex);
+    if(logData) console.log(`Texto a buscar el banco: ${alterText}`)
     const banco = searchBank(alterText, BANCOS);
     return banco;
 
