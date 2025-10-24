@@ -605,6 +605,289 @@ indicado en la Ley Nº19.799 y en el Autoacordado de la Excma. Corte
 Suprema.    Su  validez  puede  ser  consultada  en  el  sitio  Web
 www.cbrchile.cl con el código de verificación indicado junto a estas líneas.`;
 
+const GP1655 = `Registro de Propiedad
+Cert. de Hip. y Gravámenes
+En relación al inmueble inscrito a fojas 14.088, Nº 6.783, en el Registro de Propiedad a mi
+cargo, del año 2.017, consistente en el Departamento Nº 704 del séptimo piso, y derecho de
+uso y goce exclusivo del Estacionamiento en Superficie Nº E – 115, todos del denominado
+Edificio Marina Sol III, que tiene su acceso principal por Avenida Los Pescadores Nº 5.451, de
+la comuna de Coquimbo, de dominio de don OSCAR RODRIGO SAN MARTIN ZAGAL.-
+CERTIFICO: Que revisados los Índices del Registro de Hipotecas y Gravámenes, durante 30
+años a la fecha, he encontrado que al inmueble singularizado precedentemente, le afecta lo
+siguiente: a) REGLAMENTO DE COPROPIEDAD, inscrito a fojas 7.800, Nº 3.182, del Registro
+respectivo del año 2.016; b) HIPOTECA DE PRIMER GRADO Y ESPECIFICA, inscrita a fojas
+7.350, Nº 2.944, en el Registro respectivo del año 2.017, a favor del BANCO DEL ESTADO DE
+CHILE.-
+Carátula 773934CBR Coquimbo, 8 de Septiembre de 2025
+
+REGISTRO DE PROHIBICIONES E INTERDICCIONES
+Revisados igualmente los Índices del Registro de Prohibiciones e Interdicciones, durante 30
+años a la fecha, he encontrado que al inmueble singularizado precedentemente, le afecta lo
+siguiente: a) PROHIBICION, inscrita a fojas 9.196, Nº 4.513, en el Registro respectivo del año
+2.017; b) EMBARGO, inscrito a fojas 440, Nº 232, en el Registro respectivo del año 2.024,
+seguido ante el Tercer Juzgado de Letras de Coquimbo, en causa Rol C–537–2023; c)
+EMBARGO, inscrito a fojas 9.781, Nº 5.052, en el Registro respectivo del año 2.024, seguido
+ante el Tercer Juzgado de Letras de La Serena, en causa Rol C–1655–2022; d) EMBARGO,
+inscrito a fojas 890, Nº 439, en el Registro respectivo del año 2.025, seguido ante el Tercer
+Juzgado de Letras de La Serena, en causa Rol C–1396–2023; e) EMBARGO, inscrito a fojas
+2.865, Nº 1.451, en el Registro respectivo del año 2.025, seguido ante el Tercer Juzgado de
+Letras de Coquimbo, en causa Rol C–644–2022, todos a favor de BANCO DEL ESTADO DE
+CHILE.-       Rvv.-
+Los derechos registrales correspondientes a esta actuación ascienden a la suma de $10.000.
+Documento incorpora Firma Electrónica Avanzada
+Código de verificación: 0000128978página 2 de 2`;
+
+const GP3657 = ` TEODORO CROQUEVIELLE BRAND cbr@cbrvaldivia.cl
+        Conservador – Archivero  Fono: 632 213723-632 213219
+                      Valdivia  Arauco 440, Valdivia
+Sol. 443374-RO
+C E R T I F I C A D O
+GRAVÁMENES Y PROHIBICIONES
+
+De la inscripción de fojas 1090 VUELTA bajo el número 1233 del Registro
+de Propiedad del año 2007, que corresponde a un inmueble compuesto de
+casa y sitio ubicado en calle Carlos Anwandter 624, casa cuatro, lote
+D, comuna de VALDIVIA, a nombre de RUBEN CARLOS CUELLAR BURGOS.-
+
+REGISTRO HIPOTECAS Y GRAVAMENES
+
+Revisados los índices del Registro de Hipotecas y Gravámenes durante
+TREINTA años a la fecha, CERTIFICO que la inscripción individualizada
+precedentemente registra en dicho periodo UNA inscripción vigente.-
+
+1. HIPOTECA: a fojas 1378 VUELTA número 1018 del año 2015 en favor
+del BANCO DE CHILE.-
+
+
+REGISTRO PROHIBICIONES E INTERDICCIONES
+
+Revisados los índices del Registro de Prohibiciones e Interdicciones
+durante  TREINTA  años  a  la  fecha,  CERTIFICO  que  la  inscripción
+individualizada  precedentemente  registra  en  dicho  periodo DOS
+inscripciones vigentes.-
+
+1. PROHIBICIÓN: a fojas 1112 número 1094 del año 2015 en favor del
+BANCO DE CHILE.-
+2. EMBARGO: a fojas 2762 número 1888 del año 2024, ordenado en la
+causa rol número 3657-2024 del Primer Juzgado Civil de Valdivia.-
+
+Valdivia, a 24 de enero de 2025.-
+
+
+
+
+
+
+1233-07GP-250124-RO
+   Documento incorpora firma electrónica avanzada
+               consulte validez en www.cbrchile.cl`;
+
+const GP899 = `Registro de Propiedad
+Cert. de Hip. y Gravámenes
+En relación al inmueble inscrito a fojas 3.975 N° 2.134 del Registro de Propiedad a mi cargo,
+correspondiente al año 2.009, ubicado en Pasaje Jorge Riveros Riveros Nº 343, que
+corresponde al Sitio Nº 4 de la Manzana 5, del Loteo denominado Valle Las Cañas, Tercera
+Etapa, de la comuna de Coquimbo, de conformidad al plano agregado bajo el Nº 208, al final
+del Registro de Propiedad del año 2.009, de dominio de don RODRIGO ANDRES YAÑEZ
+YAÑEZ.-
+CERTIFICO: Que revisados los índices del Registro de Hipotecas y Gravámenes, durante 30
+años a la fecha, he encontrado que al inmueble singularizado precedentemente, le afecta lo
+siguiente: a) PRIMERA HIPOTECA, inscrita a fojas 2.325 N° 1.033 del Registro respectivo del
+año 2.009, y b) HIPOTECA DE SEGUNDO GRADO, inscrita a fojas 2.327 N° 1.034 del Registro
+respectivo del año 2.009, ambas en favor del BANCO DEL ESTADO DE CHILE.-
+CERTIFICADO DE PROHIBICIONES E INTERDICCIONES
+Revisados igualmente los índices del Registro de Prohibiciones e Interdicciones, durante 30
+años a la fecha, he encontrado que al inmueble singularizado precedentemente, le afecta lo
+siguiente: a) PROHIBICION, inscrita a fojas 2.819 N° 1.668 del Registro respectivo del año
+2.009, a favor del BANCO DEL ESTADO DE CHILE, y b) EMBARGO, inscrito a fojas 6.679 N°
+3.109 del Registro respectivo del año 2.021, seguido ante el Primer Juzgado de Letras de La
+Serena, en causa Rol C-899-2.021, a favor del BANCO DEL ESTADO DE CHILE.-
+Carátula 761256CBR Coquimbo, 18 de Junio de 2025
+
+EACHR.-
+Los derechos registrales correspondientes a esta actuación ascienden a la suma de $10.000.
+Documento incorpora Firma Electrónica Avanzada
+Código de verificación: 0000119193página 2 de 2`;
+
+const GP973 = `   CECIRA  FIGARI  ROJAS
+CONSERVADOR  DE  BIENES  RAICES
+                   C O Q U I M B O
+
+
+CERTIFICADO DE HIPOTECAS Y GRAVÁMENES Y DE
+  PROHIBICIONES E INTERDICCIONES
+
+
+En relación al inmueble inscrito a fojas 6.654 N° 3.333 del
+Registro  de  Propiedad  a  mí  cargo  correspondiente  al  año
+2.016;  ubicado  en  Pasaje  Cuatro  Curacaví  número  ciento
+veinticuatro,  que  corresponde  al  Sitio  número  diecinueve  de
+la Manzana C, del Loteo denominado Villa Los Canelos, Segunda
+Etapa, de la comuna de Coquimbo, de conformidad al plano de
+loteo  agregado  bajo  el  N°  48,  al  final  del  Registro  de
+Propiedad  a  mi  cargo,  del  año  1.994.,  de  propiedad  de  don
+MAURICIO  DANIEL  MORALEDA  GODOY  y  de  doña  NATALIA  ANDREA
+LISERA GODOY.-
+REGISTRO DE HIPOTECAS Y GRAVAMENES
+
+CERTIFICO:  Que  revisados  los  Indices  del  Registro  de
+Hipotecas  y  Gravámenes,  durante  30  años  a  la  fecha;  he
+encontrado que al inmueble singularizado precedentemente, le
+afecta lo siguiente: a) HIPOTECA DE PRIMER GRADO CON CLAUSULA
+DE  GARANTIA  GENERAL,  inscrita  a  fojas  2.200  N° 1.002  del
+Registro  respetivo,  del  año  2.014,  en  favor  del  BANCO  DE
+CREDITO  E  INVERSIONES;  b)  HIPOTECA  DE  PRIMER  GRADO  Y
+ESPECIFICA,  inscrita  a  fojas  3.503  N°  1.510  del  Registro
+respetivo,  del  año  2.016,  en  favor  del  BANCO  DEL  ESTADO  DE
+CHILE.-
+REGISTRO DE PROHIBICIONES E INTERDICCIONES
+
+Revisados  igualmente  los  Indices  del  Registro  de
+Prohibiciones  e  Interdicciones,  durante  30  años  a  la  fecha;
+he encontrado que al inmueble singularizado precedentemente,
+le  afecta  lo  siguiente:  a)  PROHIBICION,  inscrita  a  fojas
+2.759  N°  1.541,  del  Registro  respectivo  del  año  2.014,  en
+favor  del  BANCO  DE  CREDITO  E  INVERSIONES;  b)  PROHIBICION,
+inscrita a fojas 4.358 N° 2.254, del Registro respectivo del
+año  2.016,  en  favor  del  BANCO  DEL  ESTADO  DE  CHILE;  c)
+EMBARGO,  inscrito  a  fojas  2.652  N°  1.295,  del Registro
+respectivo  del  año  2.022,  en  favor  del  BANCO  DEL  ESTADO  DE
+CHILE, decretado por el Tercer Juzgado de Letras de Coquimbo,
+Causa Rol C-754-2021; d) EMBARGO, inscrito a fojas 2.653 N°
+1.296,  del  Registro  respectivo  del  año  2.022,  en  favor  del
+BANCO DEL ESTADO DE CHILE, decretado por el Segundo Juzgado
+de  Letras  de  Coquimbo,  Causa  Rol  C-973-2021;  e)  EMBARGO
+(sobre  los  derechos  de  don  Mauricio  Daniel  Moraleda  Godoy),
+inscrito a fojas 4.803 N° 2.381, del Registro respectivo del
+año 2.022, en favor del BANCO DEL ESTADO DE CHILE, decretado
+por  el  Segundo  Juzgado  de  Letras  de  Coquimbo,  Causa  Rol  C-
+2029-2019;  d)  EMBARGO  (sobre  los  derechos  de  don  Mauricio
+Daniel Moraleda Godoy), inscrito a fojas 7.955 N° 3934, del
+Registro  respectivo  del  año  2.022,  en  favor  del  BANCO  DEL
+ESTADO DE CHILE, decretado por el Segundo Juzgado de Letras
+de Coquimbo, Causa Rol C-602-2022.-COQUIMBO, 08 de Noviembre
+del año 2.023.- Otorgado a las 09,00 horas.-
+k.n.a.-
+Carátula: 673431.-
+Boleta: 180530.-
+Cert Nº 6734310811231
+Documento  emitido  con  Firma  Electrónica  Avanzada.-
+Ley       19.799        -
+Verifique       Validez       en
+www.conservadorcoquimbo.cl,  donde  estará  disponible`;
+
+const GP33 = `CERTIFICADO DE HIPOTECAS Y GRAVAMENES
+INTERDICCIONES Y PROHIBICIONES DE ENAJENAR
+Folio Nro: 21755.-Carátula Nro:117842.-
+I.- Singularización del inmueble :
+Ubicación:
+Calle Tenerife Nº 2006, que corresponde al sitio 24 de la manzana G del
+plano  del  Conjunto  Habitacional  "Alto  Osorno",  archivado  bajo  la  letra
+Q-993  en  el  archivo  especial  de  planos  de  este  Conservador  de  Bienes
+Raíces.-
+Comuna:
+OSORNO
+II.- Individualización propietario vigente: (1)
+1.- MONSALVE HERNANDEZ CESAR CELINO
+Inscripción: Fs.1516v Nro 1974 de 2002 , Registro de Propiedad
+ Fecha Inscripción: 11/06/2002
+III.-Limitaciones al dominio durante los ultimos 50 años, revisados los índices desde
+06/03/1975  hasta 06/03/2025:
+Registro de Hipotecas y Gravamenes: (1)
+1.- Clase Inscripción.: PRIMERA HIPOTECA
+Constituyente: MONSALVE HERNANDEZ CESAR CELINO.
+Acreedor: BANCO DEL ESTADO DE CHILE
+Inscripción: Fs.1004v Nro 715  de 2009  Fecha Inscripción: 18/05/2009
+Conservador de Bienes Raices de Osorno , 06 Marzo de 2025
+Cantidad páginas documento: 2
+Emito  con  firma  electrónica  avanzada  (ley  No19.799,  de  2002)  AA  de
+13/10/2006 de la Excma. Corte Suprema.-
+Certificado Nro 339731.- Verifique validez en  www.fojas.cl .-
+Pag: 1/2
+
+Registro de Interdicciones y Prohibiciones: (1)
+1.- Clase inscripción: PROHIBICION
+Constituyente: MONSALVE HERNANDEZ CESAR CELINO.
+Acreedor: BANCO DEL ESTADO DE CHILE
+Inscripción: Fs.873v Nro 857  de 2009 Fecha Inscripción: 18/05/2009
+Osorno,  seis  de Marzo del año dos mil veinticinco.- PZ
+Conservador de Bienes Raices de Osorno , 06 Marzo de 2025
+Cantidad páginas documento: 2
+Emito  con  firma  electrónica  avanzada  (ley  No19.799,  de  2002)  AA  de
+13/10/2006 de la Excma. Corte Suprema.-
+Certificado Nro 339731.- Verifique validez en  www.fojas.cl .-
+Pag: 2/2`;
+
+const GP5051 = `Documento incorpora firma electrónica avanzada conforme a Ley N°19.799.
+La vigencia de la firma electrónica en el documento, al igual que la integridad y autenticidad
+del mismo, deben ser verificados en www.cbrtemuco.cl, donde estará disponible por 60 días
+contados desde la fecha de su emisión.
+Documento impreso es sólo una copia del documento original.
+Conservador de Bienes Raíces de Temuco
+Vicuña Mackenna 361, Temuco
+http://www.cbrtemuco.cl
+CERTIFICADO DE HIPOTECAS, GRAVAMENES, INTERDICCIONES Y PROHIBICIONES
+Del inmueble inscrito a Fojas 2266 F número 2429 del Registro de Propiedad del año 2016.
+Código de verificación: phnb5ageau
+Registro de Interdicciones y Prohibiciones
+Revisados igualmente durante TREINTA años los índices del Registro de Interdicciones y Prohibiciones, certifico que la referida propiedad tiene en dicho
+período, las siguiente(es) inscripción(es) vigente(es).
+Temuco, 26 de Agosto del 2024
+1) REGLAMENTO DE COPROPIEDAD: a Fs.6404 V Nro.3063 del Año: 2012 .
+2) HIPOTECAS: a Fs.1638 F Nro.1386 del Año: 2016 En favor de BANCO SANTANDER CHILE.
+1) PROHIBICION: a Fs.1700 V Nro.1894 del Año: 2016 En favor de BANCO SANTANDER CHILE.
+2) EMBARGO: a Fs.461 F Nro.337 del Año: 2024 Impuesto por Banco del Estado de Chile.
+3) EMBARGO: a Fs.1123 V Nro.866 del Año: 2024 Impuesto por Banco del Estado de Chile.
+4) EMBARGO: a Fs.5706 V Nro.2959 del Año: 2024 Impuesto por Tesorería de Temuco.
+5) EMBARGO: a Fs.6880 F Nro.3164 del Año: 2024 Impuesto por Banco del Estado de Chile.
+Revisados los índices del Registro de Hipotecas y Gravámenes durante TREINTA años a la fecha, certifico que la propiedad individualizada
+precedentemente tiene en dicho período, las siguiente(es) inscripción(es) vigente(es).
+Registro de Hipotecas y Gravámenes
+RRG`;
+
+const GP6782 = `Morandé 440     Teléfono:      www.conservador.cl
+Santiago         22390 0800    info@conservador.cl
+*5E68-F371-2A49-CC81*
+*5E68-F371-2A49-CC81*
+5e68-f371-2a49-cc81
+Consulte validez en www.conservador.cl
+Documento incorpora firma electrónica  avanzada  conforme a Ley Nº 19.799. La vigencia
+de  la  firma  electrónica  en  el documento, al  igual  que  la integridad  y autenticidad  del
+mismo, deben  ser  verificados  en  www.conservador.cl, donde estará  disponible por 90
+días contados  desde  la  fecha  de  su  emisión. Documento  impreso  es sólo  una copia
+del documento original.
+Certificado de Hipotecas, Gravámenes, Interdicciones y Prohibiciones de Enajenar
+1/1
+Del  inmueble  inscrito  a  Fojas   43120    Número   62721    del   Registro   de  Propiedad
+del  año  2019   ubicado  en  la  comuna  de   ESTACIÓN   CENTRAL    que   corresponde
+a:  departamento  número  mil  ciento  siete  del   undécimo   piso   y   el   estacionamiento
+número  E  cero  veintiuno  del piso primero, ambos del conjunto habitacional denominado
+"Edificio    Novo",    con    ingreso    por   calle   Santa   Petronila   número   treinta  y  ocho
+de propiedad de RODRIGUEZ GILBERT LUZ MARIA.
+Registro de Hipotecas y Gravámenes
+Revisados  los  índices  del  Registro  de  Hipotecas   y   Gravámenes   durante  TREINTA
+años    a    la    fecha,    certifico    que    la   propiedad   individualizada   precedentemente
+tiene en dicho periodo DOS inscripción(es) vigente(s).-
+1)  REGLAMENTO : a Fs. 20857  Nro. 22651  del Año 2017
+2)  HIPOTECA  :  a  Fs.  30140   Nro.  33102   del  Año   2019    por   2.311,41   UF   en  favor
+de    Creditu    Administradora    de    Mutuos    Hipotecarios   S.a.    Endosado   a  Volcom
+Secularizadora S.A.
+Registro de Interdicciones y Prohibiciones de Enajenar
+Revisados  igualmente  durante  TREINTA  años los índices del Registro de Interdicciones
+y   Prohibiciones   de   Enajenar,   certifico   que   la   referida   propiedad   tiene  en  dicho
+periodo DOS inscripción(es) vigente(s).-
+1)  PROHIBICION  :  a  Fs.   20026   Nro.   32668    del   Año   2019    de   gravar  o  enajenar
+ni    celebrar   actos   o   contratos,     en   favor   de   Creditu   Administradora  de  Mutuos
+Hipotecarios S.a. Endosado a Volcom Securitizadora S.A
+2)  EMBARGO  :  a  Fs.  23249  Nro.  35006   del  Año  2025     decretado   por   el   Vigésimo
+Quinto  Juzgado  Civil  de  Santiago,  Rol  C-6782-2025,   a   solicitud   de    Avla  Seguros
+de Crédito y Garantia S.A.
+Santiago,  19 de agosto del  2025
+Derechos $ 6.600.-
+ D.ACLEMENTE
+ B.1936456
+ C.24168623`;
+
 module.exports = {
     textoGP1, 
     textoGP2, 
@@ -619,5 +902,12 @@ module.exports = {
     GP6562,
     GP546,
     GP1361,
-    GP246
+    GP246,
+    GP1655,
+    GP3657,
+    GP899,
+    GP973,
+    GP33,
+    GP5051,
+    GP6782
 };

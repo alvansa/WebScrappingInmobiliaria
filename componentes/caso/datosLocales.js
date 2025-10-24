@@ -902,7 +902,8 @@ const BANCOS = [
   "avla",
   "credito e inversiones",
   "bilbao vizcaya argentaria",
-  "estado"
+  "estado",
+  "banco de chile"
 ];
 
 module.exports = {comunas, tribunales2, BANCOS};
