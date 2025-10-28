@@ -748,6 +748,7 @@ class PjudPdfData {
         if(!newText){
             return null;
         }
+        console.log("texto en demandaL ",newText)
         const regexNumber = "(\\d{1,}|\\d{1,3}(\\.\\d{1,3})*),?(\\d{1,})?"
         const regexUF = "(u\\.?[fe]\\.?|unidades?\\s*de\\s*fomento)"
         const regexDeudaUF = new RegExp(`(${regexNumber}\\s*(-\\s*)?${regexUF}|${regexUF}\\s*${regexNumber})`, "gi")
@@ -799,7 +800,9 @@ class PjudPdfData {
         if(!endMatch){
             return null;
         }
-        return newText.substring(0,endMatch.index).replace(/\./g,"")
+        return newText.substring(0,endMatch.index)
+            .replace(/\./g,"")
+            .replace(/(\d)\s*(\d)/g,'$1$2')
     }
 
     

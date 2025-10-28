@@ -7,7 +7,7 @@ const NUMBER_CONFIG = {
     specialWords: new Set(['y']),
     patterns: new Set([
         'cero','uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve',
-        'diez','once','doce','trece','catorce','quince','vente','veinti',
+        'diez','once','doce','trece','catorce','quince','veinte','veinti',
         'treinta','cuarenta','cincuenta','sesenta','setenta','ochenta',
         'noventa','cien','cientos','quinientos','mil','miles'
     ])

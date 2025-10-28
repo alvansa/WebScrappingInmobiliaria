@@ -1,9 +1,12 @@
 const {changeWordsToNumbers} = require('../../componentes/economico/extractors/directionExtractor');
 const {extractAuctionDate} = require('../../componentes/economico/extractors/auctionDateExtractor');
 const {extractBankMortage} = require('../../componentes/economico/extractors/mortageBankExtractor');
+const PjudPdfData = require('../../componentes/pjud/PjudPdfData');
 
 const txGP = require('../textos/GP');
+const DEMANDA = require('../textos/DM');
 const { experiments } = require('webpack');
+const { desktopCapturer } = require('electron');
  
 
 
@@ -104,6 +107,13 @@ describe('test de convertir frases con numeros escritos en palabras a numeros',(
         const res = changeWordsToNumbers(texto);
         expect(res).toBe('Parcela numero 345 que colide con edificio tralala y estacionamiento n° 35')
     });
+
+    test('Test artificial para probar numero que incluye un "y" al final de la descripcion del numero' , ()=>{
+        const texto = 'Departamento numero mil quinientos veinte y un estacionamiento numero trescientos dos';
+        const res = changeWordsToNumbers(texto);
+        expect(res).toBe('Departamento n° 1520 y un estacionamiento n° 302')
+    });
+
 
 });
 
@@ -228,3 +238,14 @@ describe('test para extraer el banco que tiene la hipoteca del GP', ()=>{
 
     });
 });
+
+describe('Test para obtener el texto de la demanda', ()=>{
+
+    test('Test para texto de demanda que la deuda esta separada por espacios',()=>{
+        const pjud = new PjudPdfData(null,null,null);
+        const demanda = DEMANDA.dm8094;
+        const deuda = pjud.obtainDeudaHipotecaria(demanda);
+        expect(deuda).toBe('2488,1308 Unidades de Fomento');
+
+    })
+})
