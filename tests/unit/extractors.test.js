@@ -233,7 +233,7 @@ describe('test para extraer el banco que tiene la hipoteca del GP', ()=>{
 
     test('Test para obtener el hipotecario que no es un banco', ()=>{
         const text = txGP.GP6782;
-        const banco = extractBankMortage(text,null,true);
+        const banco = extractBankMortage(text,null);
         console.log(banco)
 
     });

@@ -236,7 +236,7 @@ class PjudPdfData {
             if(this.caso.partes && this.caso.partes.includes('/')){
                 part = this.caso.partes.split('/')[0]
             }
-            const mortageBank = extractor.mortageBank(info,part,true);
+            const mortageBank = extractor.mortageBank(info,part);
             if(mortageBank){
                 logger.info(`Banco de la deuda hipotecaria obtenida : ${mortageBank}`)
                 this.caso.mortageBank = mortageBank;
@@ -748,7 +748,6 @@ class PjudPdfData {
         if(!newText){
             return null;
         }
-        console.log("texto en demandaL ",newText)
         const regexNumber = "(\\d{1,}|\\d{1,3}(\\.\\d{1,3})*),?(\\d{1,})?"
         const regexUF = "(u\\.?[fe]\\.?|unidades?\\s*de\\s*fomento)"
         const regexDeudaUF = new RegExp(`(${regexNumber}\\s*(-\\s*)?${regexUF}|${regexUF}\\s*${regexNumber})`, "gi")
