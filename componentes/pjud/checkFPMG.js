@@ -734,7 +734,7 @@ class checkFPMG {
            for(let caso of this.casos){
             // console.log("DEL CASO: ",caso.causa, caso.juzgado,"DEL EXCEL: ", causa, juzgado);
                 if(caso.hasChanged){
-                    if (caso.causa == causa && matchJuzgado(caso.juzgado,juzgado)) {
+                    if (caso.causa == causa) {
                         // console.log("ESCRIBIENDO CAMBIO EN EXCEL: ",caso.causa, caso.juzgado);
                         this.ws[`A${lastRow}`]= { v: 'CAMBIO', t: 's' };
                     }

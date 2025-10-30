@@ -102,6 +102,11 @@ const baseConfig = {
     PREREMATES: 4,
     OTROS: 0,
 
+    PROPIEDAD : 0,
+    ESTACIONAMIENTO : 1,
+    BODEGA : 2,
+    TODOS : 3,
+
 }
 
 const environmentConfig = {
