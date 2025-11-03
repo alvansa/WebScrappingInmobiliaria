@@ -40,10 +40,10 @@ function extractDistrict(data, isPjud = false, isDebug = false) {
 
             const fraseNoValida = new RegExp(`domiciliad[oa]\\s*en\\s*la\\s*comuna\\s*de\\s*${comuna}`, 'i');
 
-            if(comuna === 'rancagua' && isDebug){
-                console.log("Comuna encontrada: ",regexComuna, regexComuna.test(dataNormalizada));
-                console.log(`Probadno con comuna ${comuna} y es ${fraseNoValida.test(dataNormalizada)}`);
-            }
+            // if(comuna === 'rancagua' && isDebug){
+            //     console.log("Comuna encontrada: ",regexComuna, regexComuna.test(dataNormalizada));
+            //     console.log(`Probadno con comuna ${comuna} y es ${fraseNoValida.test(dataNormalizada)}`);
+            // }
             if ((regexComuna.test(dataNormalizada) || dataNormalizada.includes(comunaSinEspacio)) && !fraseNoValida.test(dataNormalizada)) {
 
                 return comuna;

@@ -1,10 +1,4 @@
-// const { getPaginas, getRemates } = require('./getNextPage.js');
-// const CacheTribunales = require('./cacheTribunales.js');
-
-const {tribunales2} = require('../caso/datosLocales.js');
 const Caso = require('../caso/caso.js');
-const { fakeDelay } = require('../../utils/delay.js');
-
 const extractor = require('./extractors');
 
 //Funcion que procesa los datos de un remate y obtiene la informacion necesaria
@@ -25,7 +19,6 @@ function procesarDatosRemate(caso, isDebug = false) {
     caso.rolPropiedad = extractor.propertyId(texto);
     caso.partes = extractor.parties(texto);
     caso.foja = getFoja(texto);
-    const multiples = getMultiples(texto);
     const numero = getNumero(texto);
     const tipoPropiedad = getTipoPropiedad(texto);
 
@@ -42,20 +35,6 @@ function procesarDatosRemate(caso, isDebug = false) {
 }
 
 //FUNCIONES PARA OBTENER INFORMACION DE LOS REMATES
-//crea una funcion que revise en la descripcion a base de regex el juzgado
-
-//Funcion para buscar si hay multiples propiedades en la publicacion del remate
-function getMultiples(data) {
-    const regex = /([a-zA-ZáéíóúñÑ])*(propiedades|inmuebles)/;
-    const regexFojas = /(fojas|fs)(.)?\s+(N°\s+)?((\d{1,3}.)*)(\d{1,3})/ig;
-    const multiples = data.match(regex);
-    if (multiples != null) {
-        return true;
-    } else {
-        return false
-    }
-}
-
 // Obtiene la foja del remate.
 function getFoja(data) {
     const regexFoja = /(fojas|fs|fjs)(.)?\s*(N°\s+)?((\d{1,3}.)*)(\d{1,3})/ig;
@@ -115,7 +94,6 @@ function normalizeDescription(description) {
 module.exports = {
     testUnico, procesarDatosRemate,
     getFoja,
-    getMultiples,
     getNumero,
     getTipoPropiedad,
     emptyCaseEconomico,

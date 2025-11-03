@@ -1,5 +1,6 @@
 const extractors = require('./extractors');
 const config = require('../../config');
+const { extractRightType } = require('../economico/extractors/rightTypeExtractor');
 
 const PROPIEDAD = config.PROPIEDAD;
 const ESTACIONAMIENTO = config.ESTACIONAMIENTO;
@@ -48,10 +49,16 @@ class PdfProccess{
         if(!this.caso.avaluoBodega){
             this.caso.avaluoBodega = extractors.propertyValuation(text, BODEGA);
         }
+        if(!this.caso.direccion){
+            this.caso.direccion = extractors.address(text,PROPIEDAD);
+        }
+        if(!this.caso.direccionEstacionamiento){
+            this.caso.direccionEstacionamiento = extractors.address(text,ESTACIONAMIENTO);
+        }
+        if(!this.caso.comuna){
+            this.caso.comuna = extractors.district(text,spanishText)
+        }
 
-        this.caso.comuna = extractors.district(text);
-        this.caso.direccion = extractors.propertyAddress(text);
-        this.caso.direccionEstacionamiento = extractors.parkingAddress(text);
     }
 
     static obtainPropertyInfo(){

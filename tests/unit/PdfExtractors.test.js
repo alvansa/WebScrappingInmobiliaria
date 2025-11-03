@@ -1,9 +1,11 @@
 const extractor = require('../../componentes/pdfProcesors/extractors');
-const {normalizeText}  = require('../../utils/textNormalizers');
+const {normalizeText, normalizeTextSpanish}  = require('../../utils/textNormalizers');
 const config = require('../../config');
 
 
 const AV = require('../textos/Avaluo');
+const GP = require('../textos/GP');
+const AR = require('../textos/ActaRemate');
 
 const PROPIEDAD = config.PROPIEDAD;
 const ESTACIONAMIENTO = config.ESTACIONAMIENTO;
@@ -59,5 +61,94 @@ describe('Test de obtencion de valores de avaluo ',()=>{
         const normText = normalizeText(AV.textoEstacionamientoMultiple)
         const result = extractor.propertyValuation(normText,BODEGA);
         expect(result).toBeNull();
+    });
+});
+
+describe('Obtener comunas', ()=>{
+    test('Obtener comuna de GP', ()=>{
+        const texto = GP.GP15491;
+        const norm = normalizeText(texto);
+        const spa = normalizeTextSpanish(texto);
+        const comuna = extractor.district(spa, norm);
+        expect(comuna).toEqual('santiago');
+    });
+
+    test('Obtener comuna de Avaluo 1', ()=>{
+        const texto = AV.av7156;
+        const norm = normalizeText(texto);
+        const spa = normalizeTextSpanish(texto);
+        const comuna = extractor.district(spa, norm);
+        expect(comuna).toEqual('concepcion');
+    });
+
+    test('Obtener comuna de Avaluo 2', ()=>{
+        const texto = AV.av1028;
+        const norm = normalizeText(texto);
+        const spa = normalizeTextSpanish(texto);
+        const comuna = extractor.district(spa, norm);
+        expect(comuna).toEqual('concon');
+    });
+
+    test('Obtener comuna de Avaluo 3', ()=>{
+        const texto = AV.av3025;
+        const norm = normalizeText(texto);
+        const spa = normalizeTextSpanish(texto);
+        const comuna = extractor.district(spa, norm);
+        expect(comuna).toEqual('copiapo');
+    });
+
+    test('Obtener comuna de Avaluo 4', ()=>{
+        const texto = AV.av2443;
+        const norm = normalizeText(texto);
+        const spa = normalizeTextSpanish(texto);
+        const comuna = extractor.district(spa, norm);
+        expect(comuna).toEqual('chillan');
+    });
+
+    test('Obtener comuna de Avaluo 5', ()=>{
+        const texto = AV.av1065;
+        const norm = normalizeText(texto);
+        const spa = normalizeTextSpanish(texto);
+        const comuna = extractor.district(spa, norm);
+        expect(comuna).toEqual('curacavi');
+    });
+
+    test('Obtener comuna de Acta de remate', ()=>{
+        const texto = AR.AR572;
+        const norm = normalizeText(texto);
+        const spa = normalizeTextSpanish(texto);
+        const comuna = extractor.district(spa, norm);
+        expect(comuna).toEqual('santiago');
+    });
+});
+
+describe('Prueba para obtener direccion de inmueble y estacionamiento', ()=>{
+
+    test('Direccion de inmueble de acta de remate', ()=>{
+        const texto = AR.AR2396;
+        const norm = normalizeText(texto)
+        const direccion = extractor.address(norm, PROPIEDAD);
+        expect(direccion).toBe(`la campina sitio nº 26, loteo la campina,`);
+    });
+
+    test('Direccion de Estacionamiento deberia ser null, acta remate', ()=>{
+        const texto = AR.AR2396;
+        const norm = normalizeText(texto)
+        const direccion = extractor.address(norm, ESTACIONAMIENTO);
+        expect(direccion).toBeNull();
+    });
+
+    test('Direccion de inmueble de acta de remate 2', ()=>{
+        const texto = AR.AR572;
+        const norm = normalizeText(texto)
+        const direccion = extractor.address(norm, PROPIEDAD);
+        expect(direccion).toBe(`calle santa rosa nº 991: departamento nº 905; estacionamiento nº 234, y bodega nº 173, del tercer subterraneo; todos del proyecto "edificio espacio santa rosa",`);
+    });
+
+    test('Direccion de inmueble de avaluo', ()=>{
+        const texto = AV.textoHabitacional1;
+        const norm = normalizeText(texto)
+        const direccion = extractor.address(norm, PROPIEDAD);
+        expect(direccion).toBe('carlos pezoa veliz 0143 dp 603 ed pezoa veliz');
     });
 });

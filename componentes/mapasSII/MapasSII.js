@@ -154,8 +154,10 @@ class MapasSII {
     }
 
     async clickSearchButton() {
-        await this.page.waitForSelector(".glyphicon.glyphicon-search");
-        await this.page.click(".glyphicon.glyphicon-search");
+        // await this.page.waitForSelector(".glyphicon.glyphicon-search");
+        // await this.page.click(".glyphicon.glyphicon-search");
+        await this.page.waitForSelector("#titulo > div:nth-child(8) > i");
+        await this.page.click("#titulo > div:nth-child(8) > i");
     }
 
     async completarComuna(comuna) {
