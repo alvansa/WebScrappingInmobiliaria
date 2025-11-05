@@ -1111,6 +1111,7 @@ class PjudPdfData {
         }
         return null;
     }
+
     adaptTextIfGP(texto) {
         const regexGP = /certificado\s*de\s*hipotecas/gi;
         if (regexGP.test(texto)) {
@@ -1159,6 +1160,7 @@ class PjudPdfData {
         }
         return false
     }
+
     isDemanda(text){
         if(text.match(/demanda(?:\b|,)/i)){
             return true;

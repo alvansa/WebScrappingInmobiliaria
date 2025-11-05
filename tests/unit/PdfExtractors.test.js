@@ -6,6 +6,7 @@ const config = require('../../config');
 const AV = require('../textos/Avaluo');
 const GP = require('../textos/GP');
 const AR = require('../textos/ActaRemate');
+const DV = require('../textos/DV');
 
 const PROPIEDAD = config.PROPIEDAD;
 const ESTACIONAMIENTO = config.ESTACIONAMIENTO;
@@ -152,3 +153,17 @@ describe('Prueba para obtener direccion de inmueble y estacionamiento', ()=>{
         expect(direccion).toBe('carlos pezoa veliz 0143 dp 603 ed pezoa veliz');
     });
 });
+
+describe('Pruebas de obtencion de anno de compra', ()=>{})
+
+describe('Pruebas de obtencion de monto de compra', ()=>{
+
+    test('Obtener monto de compra de DV con en la suma', ()=>{
+
+        const text = DV.dv2114;
+        const norm = normalizeText(text);
+        const monto = extractor.housePrice(norm);
+        expect(monto).toEqual(3539);
+
+    })
+})

@@ -14,4 +14,17 @@ function obtainType(info) {
     return null;
 }
 
-module.exports = {obtainType}
+function isLawsuit(text) {
+    if (text.match(/demanda(?:\b|,)/i)) {
+        return true;
+    }
+    return false;
+}
+
+function consoleDebug(isDebug, msg) {
+    if (isDebug) {
+        console.log(msg);
+    }
+}
+
+module.exports = { obtainType, isLawsuit, consoleDebug }
