@@ -116,25 +116,28 @@ class PdfProccess{
     }
 
     static obtainAuctionInfo(){
-        // if(!caso.montoMinimo){
-        //     caso.montoMinimo = extractors.minAmount(text);
-        // }
-        // if(!caso.formatoEntrega){
-        //     caso.formatoEntrega = extractors.deliveryFormat(text)
-        // }
-        // if(!caso.porcentaje){
-        //     caso.porcentaje = extractors.percetange(text);
-        // }
-        // if(!caso.mortageBank){
-        //     caso.mortageBank = extractors.mortageBank(text);
-        // }
+        if(!caso.montoMinimo){
+            caso.montoMinimo = extractors.minAmount(text);
+        }
+        if(!caso.formatoEntrega){
+            caso.formatoEntrega = extractors.deliveryFormat(text)
+        }
+        if(!caso.porcentaje){
+            caso.porcentaje = extractors.percent(text);
+        }
+        if(!caso.mortageBank){
+            caso.mortageBank = extractors.mortageBank(text);
+        }
+        if(!caso.tipoDerecho){
+            caso.tipoDerecho = extractors.extractRightType(text);
+        }
 
     }
 
     static processLawsuit(){
-        // if(!caso.deudaHipotecaria){
-        //     caso.deudaHipotecaria = extractors.mortageDebt(text);
-        // }
+        if(!caso.deudaHipotecaria){
+            caso.deudaHipotecaria = extractors.mortageDebt(text);
+        }
     }
 }
 

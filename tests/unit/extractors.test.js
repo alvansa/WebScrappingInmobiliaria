@@ -1,6 +1,6 @@
 const {changeWordsToNumbers} = require('../../componentes/economico/extractors/directionExtractor');
 const {extractAuctionDate} = require('../../componentes/economico/extractors/auctionDateExtractor');
-const {extractBankMortage} = require('../../componentes/economico/extractors/mortageBankExtractor');
+const {processMortageBank} = require('../../componentes/pdfProcesors/extractors/mortageBank');
 const PjudPdfData = require('../../componentes/pjud/PjudPdfData');
 
 const txGP = require('../textos/GP');
@@ -136,104 +136,104 @@ describe('test para extraer el banco que tiene la hipoteca del GP', ()=>{
 
     test('Test para obtener el banco Security', ()=>{
         const text = txGP.textoGP1;
-        const banco = extractBankMortage(text);
+        const banco = processMortageBank(text);
         expect(banco).toBe('Security');
     });
 
     test('Test para obtener el banco de credito e inversiones', ()=>{
         const text = txGP.textoGP2;
-        const banco = extractBankMortage(text);
+        const banco = processMortageBank(text);
         expect(banco).toBe('BCI');
     });
 
     test('Test para obtener el banco cuando no lo encuentra y es nulo', ()=>{
         const text = txGP.textoGP3;
-        const banco = extractBankMortage(text);
+        const banco = processMortageBank(text);
         expect(banco).toBeNull();
     });
     
     test('Test para obtener el banco bbva o bilbao vizcaya argentaria', ()=>{
         const text = txGP.textoGP5;
-        const banco = extractBankMortage(text);
+        const banco = processMortageBank(text);
         expect(banco).toBe('BBVA');
     });
 
     test('Test para obtener el banco santander sin espacios', ()=>{
         const text = txGP.texto12Santiago;
-        const banco = extractBankMortage(text);
+        const banco = processMortageBank(text);
         expect(banco).toBe('Scotiabank');
     });
 
     test('Test para obtener el banco BCI con una "hipoteca en favor"', ()=>{
         const text = txGP.GP668;
-        const banco = extractBankMortage(text);
+        const banco = processMortageBank(text);
         expect(banco).toBe('BCI');
     });
 
     test('Test para obtener el banco estado', ()=>{
         const text = txGP.GP6562;
-        const banco = extractBankMortage(text);
+        const banco = processMortageBank(text);
         expect(banco).toBe('Estado');
     });
 
     test('Test para obtener el banco estado', ()=>{
         const text = txGP.GP546;
         const parte = 'FONDO DE INVERSION ACTIVA DEUDA HIPOTECARIA CON SUBSIDIO HABITACIONAL II';
-        const banco = extractBankMortage(text, parte);
+        const banco = processMortageBank(text, parte);
         expect(banco).toBe('Fondo De Inversion Activa Deuda Hipotecaria Con Subsidio Habitacional Ii');
     });
 
     test('Test para obtener el banco falabella con el acreedor y no punto', ()=>{
         const text = txGP.GP1361;
-        const banco = extractBankMortage(text);
+        const banco = processMortageBank(text);
         expect(banco).toBe('Falabella');
     });
 
     test('Test para obtener el banco BBVA cuando este fallaba', ()=>{
         const text = txGP.GP246;
-        const banco = extractBankMortage(text);
+        const banco = processMortageBank(text);
         expect(banco).toBe('BBVA');
     });
 
     test('Test para obtener el banco estado con hipoteca de primer grado', ()=>{
         const text = txGP.GP1655;
-        const banco = extractBankMortage(text);
+        const banco = processMortageBank(text);
         expect(banco).toBe('Estado');
     });
     
     test('Test para obtener el banco de Chile', ()=>{
         const text = txGP.GP3657;
-        const banco = extractBankMortage(text);
+        const banco = processMortageBank(text);
         expect(banco).toBe('Banco De Chile');
     });
 
     test('Test para obtener el banco estado con segunda hipoteca', ()=>{
         const text = txGP.GP899;
-        const banco = extractBankMortage(text);
+        const banco = processMortageBank(text);
         expect(banco).toBe('Estado');
     });
 
     test('Test para obtener el banco BCI con puntos de por medio por las fojas', ()=>{
         const text = txGP.GP973;
-        const banco = extractBankMortage(text);
+        const banco = processMortageBank(text);
         expect(banco).toBe('BCI');
     });
 
     test('Test para obtener el banco Estado como primera hipoteca', ()=>{
         const text = txGP.GP33;
-        const banco = extractBankMortage(text);
+        const banco = processMortageBank(text);
         expect(banco).toBe('Estado');
     });
 
     test('Test para obtener el banco Santander con hipotecas', ()=>{
         const text = txGP.GP5051;
-        const banco = extractBankMortage(text);
+        const banco = processMortageBank(text);
         expect(banco).toBe('Santander');
     });
 
     test('Test para obtener el hipotecario que no es un banco', ()=>{
         const text = txGP.GP6782;
-        const banco = extractBankMortage(text,null);
+        const banco = processMortageBank(text,null);
         console.log(banco)
 
     });

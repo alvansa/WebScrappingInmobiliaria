@@ -1,6 +1,8 @@
 const extractor = require('../economico/extractors');
 const convertWordToNumbers = require('../../utils/convertWordToNumbers');
 const logger = require('../../utils/logger.js');
+const { processMortageBank } = require('../pdfProcesors/extractors/mortageBank.js');
+
 
 const regexMutuoHipotecario = /mutuo\s*hipotecario/i;
 
@@ -236,7 +238,7 @@ class PjudPdfData {
             if(this.caso.partes && this.caso.partes.includes('/')){
                 part = this.caso.partes.split('/')[0]
             }
-            const mortageBank = extractor.mortageBank(info,part);
+            const mortageBank = processMortageBank(info,part);
             if(mortageBank){
                 logger.info(`Banco de la deuda hipotecaria obtenida : ${mortageBank}`)
                 this.caso.mortageBank = mortageBank;

@@ -1,6 +1,6 @@
 const {BANCOS} = require('../../caso/datosLocales');
 
-function extractBankMortage(text,demandPart = null, logData = false){
+function processMortageBank(text,demandPart = null, logData = false){
     let banco;
     let alterText, startText;
     let normalizeText = text
@@ -111,4 +111,4 @@ function standarizeName(name){
 
 
 
-module.exports = {extractBankMortage};
+module.exports = {processMortageBank};

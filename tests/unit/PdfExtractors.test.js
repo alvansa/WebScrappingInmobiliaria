@@ -7,6 +7,7 @@ const AV = require('../textos/Avaluo');
 const GP = require('../textos/GP');
 const AR = require('../textos/ActaRemate');
 const DV = require('../textos/DV');
+const EX = require('../textos/Extracto');
 
 const PROPIEDAD = config.PROPIEDAD;
 const ESTACIONAMIENTO = config.ESTACIONAMIENTO;
@@ -163,7 +164,22 @@ describe('Pruebas de obtencion de monto de compra', ()=>{
         const text = DV.dv2114;
         const norm = normalizeText(text);
         const monto = extractor.housePrice(norm);
-        expect(monto).toEqual(3539);
+        expect(monto).toEqual({
+            monto: 3539,
+            moneda: "UF"
+        });
 
     })
 })
+
+describe('Pruebas de obtencion de monto minimo de remate', ()=>{
+    test('Obtener monto minimo de extracto de remate', ()=>{
+        const text = EX.ex1666;
+        const norm = normalizeText(text);
+        const monto = extractor.minAmount(norm);
+        expect(monto).toEqual({
+            monto: '1031,99465',
+            moneda: "UF"
+        });
+    })
+});
