@@ -67,7 +67,7 @@ function obtainComunaByIndex(info, logData = false) {
         return null;
     }
     const comuna = modifiedInfo.substring(startText.length, endIndex).trim();
-    // console.log("comuna by index: ", comuna);
+    console.log("comuna by index: ", comuna);
     return comuna;
 
 }

@@ -8,7 +8,8 @@ const TODOS = config.TODOS;
 
 function obtainPropertyId(info, type){
 
-    const roles = processPropertyId(info)
+    const roles = processPropertyId(info,type)
+    console.log(roles)
 
     if(!roles) return null;
 
@@ -59,22 +60,27 @@ function processPropertyId(info, tipo = TODOS) {
 function obtainRolOfActaRemate(info, tipo) {
     //Obtener de acta de remate
     let searchRol;
+    let searchType;
     if (tipo === PROPIEDAD) {
         searchRol = 'departamento';
+        searchType = 'habitacional';
     } else if (tipo === ESTACIONAMIENTO) {
         searchRol = 'estacionamiento';
+        searchType = 'estacionamiento';
     } else if (tipo === BODEGA) {
         searchRol = 'bodega';
+        searchType = 'bodega';
     } else {
         searchRol = '';
     }
+    console.log("Buscando rol con ", searchRol);
     const rolAvaluo = `rol\\s*de\\s*avaluo\\s*${searchRol}\\s*:\\s*(\\d{1,}-\\d{1,})`;
     const regexAvaluo = new RegExp(rolAvaluo, 'i')
     const matchAvaluoDepartamento = info.match(regexAvaluo);
 
     if (matchAvaluoDepartamento) {
         return {
-            'type': `${searchRol}`,
+            'type': `${searchType}`,
             'rol': matchAvaluoDepartamento[1],
         }
     } else {
@@ -85,7 +91,7 @@ function obtainRolOfActaRemate(info, tipo) {
 
         if (matchAvaluo) {
             return {
-                'type': `Avaluo`,
+                'type': `habitacional`,
                 'rol': matchAvaluo[1],
             }
         }

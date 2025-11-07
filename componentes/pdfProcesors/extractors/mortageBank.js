@@ -16,6 +16,8 @@ function processMortageBank(text,demandPart = null, logData = false){
 
     let indexHipoteca;
 
+    console.log("Texto para buscar banco: ",normalizeText)
+
     const listadoInicios = [
         'hipotecas?\\s*:',
         'hipoteca\\s*inscrita',

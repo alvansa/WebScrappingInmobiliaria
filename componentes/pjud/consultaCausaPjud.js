@@ -12,6 +12,7 @@ require('dotenv').config();
 const {delay,fakeDelay,fakeDelayms} = require('../../utils/delay.js');
 const ProcesarBoletin = require('../liquidaciones/procesarBoletin.js');
 const PjudPdfData = require('./PjudPdfData.js');
+const PdfProccess = require('../pdfProcesors/PdfProccess.js');
 
 const ERROR = 0;
 const EXITO = 1;
@@ -663,6 +664,7 @@ class ConsultaCausaPjud{
             await delay(1000);
             if(resultado){
                 resultOfProcess = this.PjudData.processInfo(resultado);
+                // resultOfProcess = PdfProccess.process(this.caso, resultado)
             }else{
                 return false;
             }

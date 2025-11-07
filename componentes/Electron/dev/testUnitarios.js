@@ -45,28 +45,28 @@ class testUnitarios{
 
         }else if(arg === 'readPdf'){
             const newExcel = this.args[2];
-            // const caso = this.crearCasoPrueba();
-            // const processPDF = new PjudPdfData(caso,null,this.devMode);
-            // for(let pdf of this.args[1]){
-            //     logger.info("Leyendo PDF ubicado en: ",pdf);
-            //     result = await ProcesarBoletin.convertPdfToText(pdf,1);
-            //     processPDF.processInfo(result);
-            // }
-            // if(newExcel){
-            //     const downloadPath = path.join(os.homedir(), "Documents", "infoRemates");
-            //     const excel = new createExcel(downloadPath,null,null,false,"one");
-            //     await excel.writeData(caso,`PDF-${caso.causa}`);
-            // }
-
-            // console.debug("Resultados del texto introducido: ", caso.toObject());
-
-            const testCase = this.crearCasoPrueba();
+            const caso = this.crearCasoPrueba();
+            const processPDF = new PjudPdfData(caso,null,this.devMode);
             for(let pdf of this.args[1]){
-                const text = await ProcesarBoletin.convertPdfToText(pdf, 1);
-                PdfProccess.process(testCase, text, pdf);
+                logger.info("Leyendo PDF ubicado en: ",pdf);
+                result = await ProcesarBoletin.convertPdfToText(pdf,1);
+                processPDF.processInfo(result);
+            }
+            if(newExcel){
+                const downloadPath = path.join(os.homedir(), "Documents", "infoRemates");
+                const excel = new createExcel(downloadPath,null,null,false,"one");
+                await excel.writeData(caso,`PDF-${caso.causa}`);
             }
 
-            console.log("Resultados del caso procesado por PdfProccess: ", testCase.toObject());
+            console.debug("Resultados del texto introducido: ", caso.toObject());
+
+            // const testCase = this.crearCasoPrueba();
+            // for(let pdf of this.args[1]){
+            //     const text = await ProcesarBoletin.convertPdfToText(pdf, 1);
+            //     PdfProccess.process(testCase, text, pdf);
+            // }
+
+            // console.log("Resultados del caso procesado por PdfProccess: ", testCase.toObject());
 
 
         }else if(arg === 'testEconomicoPuppeteer'){

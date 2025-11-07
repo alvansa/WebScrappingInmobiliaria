@@ -31,6 +31,7 @@ class PdfProccess{
     }
 
     static obtainPropertyIds(caso,text, spanishText){
+        const updates = {};
         if(!caso.rolPropiedad){
             console.log("Obteniendo rol propiedad");
 
@@ -45,8 +46,8 @@ class PdfProccess{
         if(!caso.avaluoPropiedad){
             caso.avaluoPropiedad = extractors.propertyValuation(text, PROPIEDAD);
         }
-        if(!caso.avaluoEstacionamineto){
-            caso.avaluoEstacionamineto = extractors.propertyValuation(text, ESTACIONAMIENTO);
+        if(!caso.avaluoEstacionamiento){
+            caso.avaluoEstacionamiento = extractors.propertyValuation(text, ESTACIONAMIENTO);
         }
         if(!caso.avaluoBodega){
             caso.avaluoBodega = extractors.propertyValuation(text, BODEGA);
@@ -58,7 +59,7 @@ class PdfProccess{
             caso.direccionEstacionamiento = extractors.address(text,ESTACIONAMIENTO);
         }
         if(!caso.comuna){
-            caso.comuna = extractors.district(text,spanishText)
+            caso.comuna = extractors.district(spanishText, text)
         }
 
     }
@@ -115,7 +116,7 @@ class PdfProccess{
 
     }
 
-    static obtainAuctionInfo(){
+    static obtainAuctionInfo(caso, text){
         if(!caso.montoMinimo){
             caso.montoMinimo = extractors.minAmount(text);
         }
@@ -129,12 +130,12 @@ class PdfProccess{
             caso.mortageBank = extractors.mortageBank(text);
         }
         if(!caso.tipoDerecho){
-            caso.tipoDerecho = extractors.extractRightType(text);
+            caso.tipoDerecho = extractors.rightType(text);
         }
 
     }
 
-    static processLawsuit(){
+    static processLawsuit(caso, text){
         if(!caso.deudaHipotecaria){
             caso.deudaHipotecaria = extractors.mortageDebt(text);
         }

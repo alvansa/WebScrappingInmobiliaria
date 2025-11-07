@@ -115,7 +115,7 @@ class scrapeAuction {
         let fechaInicio = new Date();
         let fechaFin = new Date(); 
 
-        fechaInicio.setDate(fechaInicio.getDate() - 30);
+        fechaInicio.setDate(fechaInicio.getDate() - 21);
 
         if(this.isTestMode){
             fechaInicio = stringToDate(fechaInicioStr);

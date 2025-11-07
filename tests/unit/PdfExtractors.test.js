@@ -64,6 +64,12 @@ describe('Test de obtencion de valores de avaluo ',()=>{
         const result = extractor.propertyValuation(normText,BODEGA);
         expect(result).toBeNull();
     });
+
+    // test('Avaluo de estacionamiento', ()=>{
+    //     const normText = normalizeText(AV.textoEstacionamientoMultiple)
+    //     const result = extractor.propertyValuation(normText,BODEGA);
+    //     expect(result).toBeNull();
+    // });
 });
 
 describe('Obtener comunas', ()=>{
