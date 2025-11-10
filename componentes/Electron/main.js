@@ -205,7 +205,8 @@ class MainApp{
             const result = await dialog.showOpenDialog(this.mainWindow, {
                 properties: ['openFile'],
                 filters: [
-                  { name: 'Todos los archivos', extensions: ['*.xlsx'] }
+                  { name: 'Todos los archivos', extensions: ['xlsx']},
+                //   { name: 'Todos los archivos', extensions: ['*'] }
                 ]
             });
             return result.filePaths[0] || null;

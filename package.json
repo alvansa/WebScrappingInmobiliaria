@@ -10,7 +10,7 @@
     "make": "electron-builder",
     "makeWindows": "electron-builder --win --x64",
     "postinstall": "electron-rebuild",
-    "dev": "LOG_LEVEL=debug electron . --dev",
+    "dev": "LOG_LEVEL=deb electron . --dev",
     "empty": "electron . --empty",
     "test": "jest",
     "test:unit": "jest tests/unit",

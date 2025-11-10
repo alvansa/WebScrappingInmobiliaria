@@ -178,6 +178,7 @@ class MapasSII {
         const divError = "span.modal-title.ng-binding";
         const botonCerrar = "div.modal-footer.ng-scope button.btn.btn-warning";
         const baseLink = 'https://www.google.com/maps/place/';
+        let coordenadas = null;
         try {
             // busca el elemento de resultado o error
             await this.page.waitForSelector(`${divResultado},${divError}`);
@@ -208,7 +209,7 @@ class MapasSII {
                 return element ? element.innerText.replace(/\D/g, '') : null;
             });
             await this.page.waitForSelector("#mapaid > div.leaflet-pane.leaflet-map-pane > div.leaflet-pane.leaflet-popup-pane > div > div.leaflet-popup-content-wrapper > div > font:nth-child(3) > center");
-            let coordenadas = await this.page.evaluate(() =>{
+            coordenadas = await this.page.evaluate(() =>{
                 const element = document.querySelector("#mapaid > div.leaflet-pane.leaflet-map-pane > div.leaflet-pane.leaflet-popup-pane > div > div.leaflet-popup-content-wrapper > div > font:nth-child(3) > center");
                 return element ? element.innerText : null;
             });
