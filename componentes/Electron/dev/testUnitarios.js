@@ -19,7 +19,8 @@ const { createExcel } = require('../../excel/createExcel.js');
 
 
 class testUnitarios{
-    constructor(app,events,args,devMode=false){
+    constructor(mainWindow, app,events,args,devMode=false){
+        this.mainWindow = mainWindow;
         this.app = app;
         this.events = events;
         this.args = args;
@@ -46,7 +47,8 @@ class testUnitarios{
         }else if(arg === 'readPdf'){
             const newExcel = this.args[2];
             const caso = this.crearCasoPrueba();
-            const processPDF = new PjudPdfData(caso,null,this.devMode);
+            console.log(`Probando si existe la ventana principal en TEST UNITARIOS: ${this.mainWindow ? 'Sí' : 'No'}`);
+            const processPDF = new PjudPdfData(caso,this.mainWindow,this.devMode);
             for(let pdf of this.args[1]){
                 logger.info("Leyendo PDF ubicado en: ",pdf);
                 result = await ProcesarBoletin.convertPdfToText(pdf,1);

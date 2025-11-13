@@ -169,7 +169,7 @@ class MainApp{
         // Funcion utilizada para crear varias pruebas.
         ipcMain.handle('testEconomico', async (event,args) => {
             try{
-                const test = new testUnitarios(app,event,args);
+                const test = new testUnitarios(this.mainWindow,app,event,args);
                 await test.mainFunction();
             }catch(error){
                 console.error('Error al obtener resultados:', error);

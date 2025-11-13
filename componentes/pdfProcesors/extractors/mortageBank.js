@@ -6,7 +6,7 @@ function processMortageBank(text,demandPart = null, logData = false){
     let normalizeText = text
         // .replace(/\.(?!\n|-)/g, '')
         .replace(/\d\.\d/g,'')
-        .replace(/\.([\n-\s{2,}])/g, '++')
+        .replace(/\.([\n-\s{3,}])/g, '++')
         .replace(/\n/g, ' ')
         .replace(/\s+/g," ")
         .normalize("NFD")
@@ -16,7 +16,7 @@ function processMortageBank(text,demandPart = null, logData = false){
 
     let indexHipoteca;
 
-    console.log("Texto para buscar banco: ",normalizeText)
+    if(logData) console.log("Texto para buscar banco: ",normalizeText)
 
     const listadoInicios = [
         'hipotecas?\\s*:',
@@ -24,11 +24,13 @@ function processMortageBank(text,demandPart = null, logData = false){
         'clase\\s*inscripcion\\s*:(\\s*primera)?\\s*hipoteca',
         'hipoteca\\s*constituida\\s*en\\s*favor',
         'hipoteca\\s*en\\s*favor',
-        'hipoteca\\s*de\\s*(primer|segundo)\\s*grado'
+        'hipoteca\\s*de\\s*(primer|segundo)\\s*grado',
+        'solo\\s*tiene\\s*lo\\s*siguiente\\s*:?\\s*hipoteca',
     ]
 
     if(logData) console.log("Texto normalizado: ",normalizeText)
 
+    // console.log("Buscando inicio de hipoteca");
     for (let inicio of listadoInicios) {
         const regex = new RegExp(inicio, 'i'); // 'i' para case insensitive
         if (regex.test(normalizeText)) {

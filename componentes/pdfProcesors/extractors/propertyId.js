@@ -9,7 +9,7 @@ const TODOS = config.TODOS;
 function obtainPropertyId(info, type){
 
     const roles = processPropertyId(info,type)
-    console.log(roles)
+    // console.log(roles)
 
     if(!roles) return null;
 
@@ -73,7 +73,7 @@ function obtainRolOfActaRemate(info, tipo) {
     } else {
         searchRol = '';
     }
-    console.log("Buscando rol con ", searchRol);
+    // console.log("Buscando rol con ", searchRol);
     const rolAvaluo = `rol\\s*de\\s*avaluo\\s*${searchRol}\\s*:\\s*(\\d{1,}-\\d{1,})`;
     const regexAvaluo = new RegExp(rolAvaluo, 'i')
     const matchAvaluoDepartamento = info.match(regexAvaluo);

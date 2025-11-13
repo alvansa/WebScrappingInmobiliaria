@@ -7,7 +7,7 @@ const ESTACIONAMIENTO = config.ESTACIONAMIENTO;
 
 function processAddress(text, type) {
     const direccion = obtainDireccion(text);
-    console.log(direccion)
+    // console.log(direccion)
     if(!direccion) return null;
 
     if (type == PROPIEDAD) {

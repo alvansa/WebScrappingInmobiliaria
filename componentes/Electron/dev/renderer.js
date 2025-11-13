@@ -191,3 +191,8 @@ document.getElementById('testApiMacal').addEventListener('click', ()=>{
 //     window.api.testEconomico(['testPdfTesseract', filePath]);
 //   }
 // });
+ document.addEventListener('DOMContentLoaded', () => {
+  window.api.onShowAlert((event,message) => {
+      alert(`Mensaje recibido: \n ${message}`);
+  });
+ });

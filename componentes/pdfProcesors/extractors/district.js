@@ -5,7 +5,7 @@ function processDistrict(spanishInfo, infoNormalized, logData = false) {
     //No se obtiene la comuna de la inscripcion porque en esta aparecen varias comunas
     //Del comprador, vendedor, inmobiliaria, juzgado, etc
     if (regexDominio.test(spanishInfo)) {
-        console.log("Incluye dominio con vigencia, no se puede obtener la comuna");
+        // console.log("Incluye dominio con vigencia, no se puede obtener la comuna");
         return null;
     }
     spanishInfo = normalizeInfoForComuna(spanishInfo);
@@ -67,7 +67,7 @@ function obtainComunaByIndex(info, logData = false) {
         return null;
     }
     const comuna = modifiedInfo.substring(startText.length, endIndex).trim();
-    console.log("comuna by index: ", comuna);
+    // console.log("comuna by index: ", comuna);
     return comuna;
 
 }

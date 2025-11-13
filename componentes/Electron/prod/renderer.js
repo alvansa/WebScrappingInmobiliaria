@@ -1,5 +1,6 @@
 const searchButton = document.getElementById('logButton');
 let tribunalesPorCorte  = [];
+
 async function loadTribunales() {
   tribunalesPorCorte = await window.api.obtainTribunalesJuzgado();
 }
@@ -222,9 +223,10 @@ window.api.onWaitingNotification((args) => {
   }, 1000);
 });
 
-window.api.electronLog((event, message) => {
-  console.log('Mensaje del proceso principal:', message);
-});
+// window.api.electronLog((event, message) => {
+//   console.log('Mensaje del proceso principal:', message);
+//   alert(`Mensaje del proceso principal:\n${message}`);
+// });
 
 function updateCountdown(data) {
   const seconds = data[0];

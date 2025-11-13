@@ -48,7 +48,7 @@ function obtainMortageDebt(text) {
     const regexDeudaUF = new RegExp(`(${regexNumber}\\s*(-\\s*)?${regexUF}|${regexUF}\\s*${regexNumber})`, "gi")
     const matchNumero = newText.match(regexDeudaUF);
     if (matchNumero) {
-        deuda = this.checkBiggerDebt(matchNumero)
+        deuda = checkBiggerDebt(matchNumero)
         if (deuda.includes("ue")) {
             deuda = deuda.replace("ue", "uf");
         }
@@ -78,6 +78,23 @@ function obtainMortageDebt(text) {
         return newText.substring(0,endMatch.index)
             .replace(/\./g,"")
             .replace(/(\d)\s*(\d)/g,'$1$2')
+    }
+    function checkBiggerDebt(debts){
+        if(debts.size == 1){
+            return debts[0];
+        }
+        let biggerDebt = 0;
+        let indexBiggerDebt = 0;
+        const regexNumber = /(\d{1,}|\d{1,3}(\.\d{1,3})*),?(\d{1,})?/;
+        debts.forEach((debt, index) => {
+            let stringActualDebt = debt.match(regexNumber)[0].replace(/,/g, ".")
+            const actualDebt = Number(stringActualDebt);
+            if (actualDebt > biggerDebt) {
+                biggerDebt = actualDebt;
+                indexBiggerDebt = index;
+            } 
+        });
+        return debts[indexBiggerDebt];
     }
 
 module.exports = { processMortageDebt };

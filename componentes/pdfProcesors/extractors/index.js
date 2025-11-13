@@ -10,6 +10,7 @@ const {processPercent} = require('./percent');
 const {processRightType} = require('./rightType');
 const {processMortageDebt} = require('./mortageDebt');
 const {processMortageBank} = require('./mortageBank')
+const {processPdfType} = require('./pdfType');
 
 
 
@@ -27,4 +28,5 @@ module.exports = {
     rightType : processRightType,
     mortageDebt : processMortageDebt,
     mortageBank : processMortageBank,
+    documentType : processPdfType,
 }

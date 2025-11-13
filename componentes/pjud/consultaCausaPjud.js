@@ -522,6 +522,9 @@ class ConsultaCausaPjud{
                 //Donwload pdf and save it in a specific folder
                 console.log("**********************************************************");
                 // console.log("Trabajando en el documento: ",doc," referencia :", reference);
+                if(this.isTPDocument(reference)){
+                    this.caso.tp = true;
+                }
                 if(this.shouldSkipDoc(reference)){
                     console.log("Saltando el documento: ", reference);
                     continue; // Salta la revision de documento si es un documento que no intersa por ahora.
@@ -611,6 +614,26 @@ class ConsultaCausaPjud{
         return skipReferences.some(ref =>
             words.some(word => word.startsWith(ref))
         );
+    }
+
+    isTPDocument(reference) {
+        const normalizedReference = reference.toLowerCase().trim();
+        // Lista de referencias que indican que es un documento TP
+        const tpReferences = [
+            new RegExp('informe\\s*de\\s*tasacion', 'i'),
+            new RegExp('informe\\s*tasacion', 'i'),
+            new RegExp('informe\\s*pericial', 'i'),
+            new RegExp('Evacúa\\s*informe', 'i'),
+            new RegExp('Acompaña\\s*informe', 'i'),
+            new RegExp('informe\\s*peritaje', 'i'),
+            new RegExp('Tiene\\s*por\\s*evacuado\\s*el\\s*peritaje', 'i'),
+        ];
+        for(let tp of tpReferences){
+            if (tp.test(normalizedReference)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     async downloadPdfFromUrl(url) {

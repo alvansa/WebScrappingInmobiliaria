@@ -91,8 +91,9 @@ contextBridge.exposeInMainWorld('api', {
     }
   },
 
-  electronLog : async  (callback) => {
-    const result = await ipcRenderer.invoke('electron-log', (event, message) => callback(message));
+  onShowAlert : async  (callback) => {
+    ipcRenderer.on('show-alert', callback);
+
   },
 
   selectExcelPath : async ()=> ipcRenderer.invoke('select-excel-path'),

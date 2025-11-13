@@ -25,7 +25,7 @@ class PjudPdfData {
     }
 
     functionA(data){
-        return PdfProccess.process(this.caso,data);
+        return PdfProccess.process(this.caso,data,this.isDev, this.mainWindow);
     }
 //     functionB(data){
 //         if(!data){
