@@ -253,14 +253,10 @@ class scrapeAuction {
 
     async obtainMapasSIIInfo(casos) {
         let mapasSII = null;
-        let window = null;
+        // let window = null;
         try {
             // console.log("Obteniendo datos de Mapas SII");
             logger.info("Obteniendo datos de Mapas SII");
-            // window = new BrowserWindow({ show: true });
-            // const url = 'https://www4.sii.cl/mapasui/internet/#/contenido/index.html';
-            // await window.loadURL(url);
-            // const page = await pie.getPage(this.browser, window);
             let page;
             mapasSII = new MapasSII(page, this.browser);
             await mapasSII.Secondinit();
@@ -276,7 +272,7 @@ class scrapeAuction {
                 }
                 }
             }
-            window.destroy();
+            // window.destroy();
         } catch (error) {
             // console.error('Error al obtener resultados en Mapas:', error);
             // console.log("valor del mapasSII cuando es error", mapasSII);

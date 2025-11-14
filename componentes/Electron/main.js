@@ -21,6 +21,7 @@ const {tribunalesPorCorte, obtainCorteJuzgadoNumbers} = require('../../utils/cor
 const {stringToDate} = require('../../utils/cleanStrings.js');
 const testUnitarios = require('./dev/testUnitarios.js');
 const checkFPMG = require('../pjud/checkFPMG.js');
+const obtainLinkMapa = require('./dev/obtainLinkMapa.js');
 
 const Causas = require('../../model/Causas.js');
 
@@ -155,6 +156,20 @@ class MainApp{
         ipcMain.handle('process-FPMG', async (event, filePath) => {
             try{
                 const check = new checkFPMG(event, this.mainWindow, filePath);
+                await check.process();
+                this.mainWindow.send("electron-log","En la funcion de completar excel")
+
+                return true;
+
+            }catch(error){
+                console.error('Error al completar la informacion del excel:', error);
+                return null;
+            }
+        });
+
+        ipcMain.handle('process-Mapa', async (event, filePath) => {
+            try{
+                const check = new obtainLinkMapa(event, this.mainWindow, filePath);
                 await check.process();
                 this.mainWindow.send("electron-log","En la funcion de completar excel")
 

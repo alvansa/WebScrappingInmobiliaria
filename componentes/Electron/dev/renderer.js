@@ -1,6 +1,7 @@
 
 const selectFileBtn = document.getElementById('selectFileBtn');
 const checkFPMG = document.getElementById('checkFPMG');
+const fillMapa = document.getElementById('fillMapa');
 const fileInfo = document.getElementById('fileInfo');
 const fileInfoPjud = document.getElementById('fileInfoPjud');
 
@@ -125,6 +126,23 @@ checkFPMG.addEventListener('click', async () => {
       
       // Llama a tu función que procesa el archivo
       window.api.checkFPMG(filePath);
+    }
+  } catch (error) {
+    console.error('Error al seleccionar archivo:', error);
+    fileInfo.textContent = 'Error al seleccionar archivo';
+
+  }
+});
+
+fillMapa.addEventListener('click', async () => {
+  try {
+    const filePath = await window.api.openFileLocal();
+    
+    if (filePath) {
+      fileInfo.textContent = `Archivo seleccionado: ${filePath}`;
+      
+      // Llama a tu función que procesa el archivo
+      window.api.fillMapa(filePath);
     }
   } catch (error) {
     console.error('Error al seleccionar archivo:', error);

@@ -43,6 +43,22 @@ class CasoBuilder{
         this.caso.origen = origen;
         return this;
     }
+    conComuna(comuna){
+        this.caso.comuna = comuna;
+        return this;
+    }
+    conRol(rol){
+        this.caso.rolPropiedad = rol;
+        return this;
+    }
+    conAvaluoFiscal(avaluoFiscal){
+        this.caso.avaluoFiscal = avaluoFiscal;
+        return this;
+    }
+    conMapaSII(mapaSII){
+        this.caso.mapaSII = mapaSII;
+        return this;
+    }
 
     construir(){
         return this.caso;

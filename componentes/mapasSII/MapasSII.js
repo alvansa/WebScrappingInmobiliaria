@@ -10,6 +10,7 @@ class MapasSII {
         this.URL = 'https://www4.sii.cl/mapasui/internet/#/contenido/index.html';
         this.page = page;
         this.browser = browser;
+        this.window = null;
     }
 
     async init() {
