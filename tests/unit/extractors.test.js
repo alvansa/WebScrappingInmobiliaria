@@ -1,7 +1,9 @@
 const {changeWordsToNumbers} = require('../../componentes/economico/extractors/directionExtractor');
 const {extractAuctionDate} = require('../../componentes/economico/extractors/auctionDateExtractor');
-const {processMortageBank} = require('../../componentes/pdfProcesors/extractors/mortageBank');
+const {processMortageBank} = require('../../componentes/pdfProcess/extractors/mortageBank');
 const PjudPdfData = require('../../componentes/pjud/PjudPdfData');
+const extractors = require('../../componentes/pdfProcess/extractors/index');
+const {normalizeText} = require('../../utils/textNormalizers');
 
 const txGP = require('../textos/GP');
 const DEMANDA = require('../textos/DM');
@@ -114,6 +116,17 @@ describe('test de convertir frases con numeros escritos en palabras a numeros',(
         expect(res).toBe('Departamento n° 1520 y un estacionamiento n° 302')
     });
 
+    test('Test para probar cuando el numero termina con un "-{letra}"' , ()=>{
+        const texto = 'la propiedad consistente en el departamento número mil ochocientos siete-C';
+        const res = changeWordsToNumbers(texto);
+        expect(res).toBe('la propiedad consistente en el departamento n° 1807 - C')
+    });
+
+    test('Test para probar cuando se mezclan numeros' , ()=>{
+        const texto = 'la propiedad consistente en el departo numero dosmil quinientos';
+        const res = changeWordsToNumbers(texto,true);
+        expect(res).toBe('la propiedad consistente en el departamento n° 2500')
+    });
 
 });
 
@@ -242,10 +255,12 @@ describe('test para extraer el banco que tiene la hipoteca del GP', ()=>{
 describe('Test para obtener el texto de la demanda', ()=>{
 
     test('Test para texto de demanda que la deuda esta separada por espacios',()=>{
-        const pjud = new PjudPdfData(null,null,null);
+        // const pjud = new PjudPdfData(null,null,null);
+
         const demanda = DEMANDA.dm8094;
-        const deuda = pjud.obtainDeudaHipotecaria(demanda);
-        expect(deuda).toBe('2488,1308 Unidades de Fomento');
+        const normDemanda = normalizeText(demanda);
+        const deuda = extractors.mortageDebt(normDemanda);
+        expect(deuda).toBe('2488,1308 unidades de fomento');
 
     })
 })

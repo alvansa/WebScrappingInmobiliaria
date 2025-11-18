@@ -3,6 +3,7 @@ const config = require('../../config');
 const {normalizeText, normalizeTextSpanish} = require('../../utils/textNormalizers');
 const { extractRightType } = require('../economico/extractors/rightTypeExtractor');
 const logger = require('../../utils/logger');
+const { Logform } = require('winston');
 
 const PROPIEDAD = config.PROPIEDAD;
 const ESTACIONAMIENTO = config.ESTACIONAMIENTO;
@@ -15,7 +16,7 @@ class PdfProccess{
         // if(debug){
         //     console.log("Texto a procesar: \n", text);
         // }
-        if(!this.validate(text,mainWindow)){
+        if(!this.validate(text,mainWindow,debug)){
             return false
         }
 
@@ -38,12 +39,11 @@ class PdfProccess{
     }
 
     static obtainPropertyIds(caso,text, spanishText){
-        const updates = {};
         const docType = extractors.documentType(text);
         if(!caso.rolPropiedad){
-            // console.log("Obteniendo rol propiedad");
-
-            caso.rolPropiedad = extractors.propertyId(text, PROPIEDAD);
+            const rolPropiedad = extractors.propertyId(text, PROPIEDAD);
+            this.logNewInfo('Rol propiedad',rolPropiedad)
+            caso.rolPropiedad =   rolPropiedad      
         }
         if(!caso.rolEstacionamiento){
             caso.rolEstacionamiento = extractors.propertyId(text, ESTACIONAMIENTO);
@@ -52,7 +52,9 @@ class PdfProccess{
             caso.rolBodega = extractors.propertyId(text, BODEGA);
         }
         if(!caso.avaluoPropiedad){
-            caso.avaluoPropiedad = extractors.propertyValuation(text, PROPIEDAD);
+            const avaluoPropiedad = extractors.propertyValuation(text, PROPIEDAD);
+            this.logNewInfo('Avaluo Propiedad', avaluoPropiedad);
+            caso.avaluoPropiedad = avaluoPropiedad;
         }
         if(!caso.avaluoEstacionamiento){
             caso.avaluoEstacionamiento = extractors.propertyValuation(text, ESTACIONAMIENTO);
@@ -61,22 +63,24 @@ class PdfProccess{
             caso.avaluoBodega = extractors.propertyValuation(text, BODEGA);
         }
         if(!caso.direccion){
-            caso.direccion = extractors.address(text,PROPIEDAD);
+            const direccion = extractors.address(text,PROPIEDAD);
+            this.logNewInfo('Direccion', direccion);
+            caso.direccion = direccion;
         }
         if(!caso.direccionEstacionamiento){
             caso.direccionEstacionamiento = extractors.address(text,ESTACIONAMIENTO);
         }
         if(!caso.comuna || docType == 'AF'){
             const comuna = extractors.district(spanishText, text);
-            logger.info(`Comuna obtenida ${comuna}`);
+            this.logNewInfo('Comuna', comuna);
             caso.comuna = comuna;
         }
 
     }
 
-    static validate(text,mainWindow){
+    static validate(text,mainWindow, debug){
         if(!text || text.length < 100){
-            mainWindow.webContents.send('show-alert','El documento es inválido: Texto insuficiente o vacío');
+            if(!debug) mainWindow.webContents.send('show-alert','El documento es inválido: Texto insuficiente o vacío');
             return false;
         }
         const docNotValid = [
@@ -88,17 +92,17 @@ class PdfProccess{
         ];
 
         if(text.toLowerCase().includes('bases generales de remate')){
-            mainWindow.webContents.send('show-alert','El documento es inválido: Bases Generales de Remate');
+            if(!debug) mainWindow.webContents.send('show-alert','El documento es inválido: Bases Generales de Remate');
             return true;
         }
         for (const doc of docNotValid) {
             if (doc.test(text)) {
-                mainWindow.webContents.send('show-alert',`El documento es inválido: ${doc}`);
+             if(!debug)   mainWindow.webContents.send('show-alert',`El documento es inválido: ${doc}`);
                 return false;
             }
         }
         if(this.checkIfDiario(text)){
-            mainWindow.webContents.send('show-alert','El documento es inválido: Diario Oficial');
+            if(!debug) mainWindow.webContents.send('show-alert','El documento es inválido: Diario Oficial');
             return false;
         }
 
@@ -121,11 +125,15 @@ class PdfProccess{
 
     static obtainPropertyInfo(caso, text){
         if(!caso.anno){
-            caso.anno = extractors.buyYear(text)
+            const anno = extractors.buyYear(text);
+            this.logNewInfo('Anno compra', anno);
+            caso.anno = anno;
         }
 
         if(!caso.montoCompra){
-           caso.montoCompra = extractors.housePrice(text); 
+            const montoCompra = extractors.housePrice(text); 
+            this.logNewInfo('Monto compra propiedad', montoCompra);
+           caso.montoCompra =  montoCompra;
         }
 
     }
@@ -141,10 +149,14 @@ class PdfProccess{
             caso.porcentaje = extractors.percent(text);
         }
         if(!caso.mortageBank){
-            caso.mortageBank = extractors.mortageBank(text);
+            const mortageBank = extractors.mortageBank(text);
+            this.logNewInfo('Banco hipotecario', mortageBank);
+            caso.mortageBank = mortageBank;
         }
         if(!caso.tipoDerecho){
-            caso.tipoDerecho = extractors.rightType(text);
+            const tipoDerecho = extractors.rightType(text);
+            this.logNewInfo('Tipo derecho', tipoDerecho);
+            caso.tipoDerecho = tipoDerecho;
         }
 
     }
@@ -152,6 +164,12 @@ class PdfProccess{
     static processLawsuit(caso, text){
         if(!caso.deudaHipotecaria){
             caso.deudaHipotecaria = extractors.mortageDebt(text);
+        }
+    }
+
+    static logNewInfo(tipe, info){
+        if(info){
+            logger.info(`${tipe} obtenido: ${info}`);
         }
     }
 }

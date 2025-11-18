@@ -11,7 +11,7 @@ const {extractDeliveryDay} = require('./deliveryDayExtractor');
 const {extractYear} = require('./yearExtractor');
 const {extractPropertyId} = require('./propertyIdExtractor');
 const {extractCourt, extractPartitionJudge} = require('./courtExtractor');
-const {extractBankMortage} = require('../../pdfProcesors/extractors/mortageBank');
+const {extractBankMortage} = require('../../pdfProcess/extractors/mortageBank');
 
 
 module.exports = {

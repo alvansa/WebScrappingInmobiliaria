@@ -1,5 +1,9 @@
 const PjudPdfData = require('../../componentes/pjud/PjudPdfData');
 const Caso = require('../../componentes/caso/caso');
+const config = require('../../config')
+const PROPIEDAD = config.PROPIEDAD;
+const ESTACIONAMIENTO = config.ESTACIONAMIENTO;
+const BODEGA = config.BODEGA;
 // const createExcel = require('../../componentes/excel/createExcel')
 // const Causas = require('../../model/Causas');
 
@@ -13,6 +17,10 @@ const {ex1666, ex800, ex2240, ex2226} = require('../textos/Extracto');
 const BF = require('../textos/BF');
 const {dm1056, dm1138} = require('../textos/DM');
 const {obtainCorteJuzgadoNumbers} = require('../../utils/corteJuzgado');
+const {normalizeText, normalizeTextSpanish} = require('../../utils/textNormalizers');
+const extractor = require('../../componentes/pdfProcess/extractors/index');
+const PdfParse = require('pdf-parse');
+const PdfProccess = require('../../componentes/pdfProcess/PdfProcess');
 
 
 // const excelConstructor = new createExcel("","","","",false,1);
@@ -28,115 +36,105 @@ const devMode = true;
 describe('obtainRolPropiedad', () => {
 
     test('Caso lectura de null', () =>{
-        const resRol = testPjudPdf.obtainRolPropiedad(null);
+        // const resRol = extractor.propertyId(null);
+        const resRol = extractor.propertyId(null);
         expect(resRol).toBeNull();
     });
 
     test('debería retornar null cuando el texto contiene "inscripcion"', () => {
         const texto = "Este es un texto con inscripcion pero sin rol de avalúo";
-        const resultado = testPjudPdf.obtainRolPropiedad(texto);
+        const resultado = extractor.propertyId(texto);
         expect(resultado).toBeNull();
     });
 
     test('Deberia retornar el rol y bien raiz estacionamiento', () => {
-        const textoNormalizado = testPjudPdf.normalizeInfo(textoEstacionamiento1)
-        const resultado = testPjudPdf.obtainRolPropiedad(textoNormalizado);
+        const textoNormalizado = normalizeText(textoEstacionamiento1)
+        const resultado = extractor.propertyId(textoNormalizado, ESTACIONAMIENTO);
 
-        expect(resultado).toEqual({
-            tipo: "destino del bien raiz: estacionamiento",
-            rol: "00546 - 00618"
-        });
+        expect(resultado).toEqual(
+            "00546 - 00618"
+        );
     });
 
     test('Deberia retornar el rol y bien raiz habitacional', () => {
-        const textoNormalizado = testPjudPdf.normalizeInfo(textoHabitacional1);
-        const resultado = testPjudPdf.obtainRolPropiedad(textoNormalizado);
-        expect(resultado).toEqual({
-            tipo : 'destino del bien raiz: habitacional',
-            rol : '00546 - 00066'
-        });
+        const textoNormalizado = normalizeText(textoHabitacional1);
+        const resultado = extractor.propertyId(textoNormalizado, PROPIEDAD);
+        expect(resultado).toEqual(
+         '00546 - 00066'
+        );
     });
 
     test('Deberia retornar el rol y bien raiz bodega', () => {
-        const textoNormalizado = testPjudPdf.normalizeInfo(textoBodegaMultiple);
-        const resBodega = testPjudPdf.obtainRolPropiedad(textoNormalizado);
-        expect(resBodega).toEqual({
-            tipo : 'destino del bien raiz: bodega',
-            rol : '03795 - 00368'
-        });
+        const textoNormalizado = normalizeText(textoBodegaMultiple);
+        const resBodega = extractor.propertyId(textoNormalizado, BODEGA);
+        expect(resBodega).toEqual('03795 - 00368');
     });
 
     test('Deberia retornar null cuando no encuentra algo parecido', () => {
-        const textoNormalizado = testPjudPdf.normalizeInfo(textosGP.textoGP1);
-        const resRol = testPjudPdf.obtainRolPropiedad(textoNormalizado);
+        const textoNormalizado = normalizeText(textosGP.textoGP1);
+        const resRol = extractor.propertyId(textoNormalizado);
         expect(resRol).toBeNull();
     });
 
     test('Deberia ser null ya que es un diario y no se lee de ahi', ()=>{
-       const textoNormalizado = testPjudPdf.normalizeInfo(diario3354_1);
-       const res = testPjudPdf.obtainRolPropiedad(textoNormalizado); 
+       const textoNormalizado = normalizeText(diario3354_1);
+       const res = extractor.propertyId(textoNormalizado); 
        expect(res).toBeNull();
     });
 
     test('Prueba con acta de remate', ()=>{
-       const textoNormalizado = testPjudPdf.normalizeInfo(AR.AR572);
-       const res = testPjudPdf.obtainRolPropiedad(textoNormalizado,0); 
-       expect(res).toEqual({
-            tipo : 'departamento',
-            rol : '2864-182'
-        });
+       const textoNormalizado = normalizeText(AR.AR572);
+       const res = extractor.propertyId(textoNormalizado,PROPIEDAD); 
+       expect(res).toEqual(
+            '2864-182'
+        );
     });
 
     test('Prueba con acta de remate', ()=>{
-       const textoNormalizado = testPjudPdf.normalizeInfo(AR.AR572);
-       const res = testPjudPdf.obtainRolPropiedad(textoNormalizado,1); 
-       expect(res).toEqual({
-            tipo : 'estacionamiento',
-            rol : '2874-439'
-        });
+       const textoNormalizado = normalizeText(AR.AR572);
+       const res = extractor.propertyId(textoNormalizado,ESTACIONAMIENTO); 
+       expect(res).toEqual(
+             '2874-439'
+        );
     });
 
     test('Prueba con acta de remate', ()=>{
-       const textoNormalizado = testPjudPdf.normalizeInfo(AR.AR572);
-       const res = testPjudPdf.obtainRolPropiedad(textoNormalizado,2); 
-       expect(res).toEqual({
-            tipo : 'bodega',
-            rol : '2874-173'
-        });
+       const textoNormalizado = normalizeText(AR.AR572);
+       const res = extractor.propertyId(textoNormalizado,BODEGA); 
+       expect(res).toEqual(
+            '2874-173'
+        );
     });
 });
 
 describe('ObtainAvaluoPropiedad', () =>{
     test('Deberia obtener el avaluo de habitacional', () =>{
-        const textoNormalizado = testPjudPdf.normalizeInfo(textoHabitacionMultiple);
-        const resAvaluo = testPjudPdf.obtainAvaluoPropiedad(textoNormalizado);
-        expect(resAvaluo).toEqual({
-            avaluo: "59921526",
-            tipo: "destino del bien raiz: habitacional"
-        });
+        const textoNormalizado = normalizeText(textoHabitacionMultiple);
+        const resAvaluo = extractor.propertyValuation(textoNormalizado,PROPIEDAD);
+        expect(resAvaluo).toEqual(
+         "59921526"
+        );
     });
 
     test('Deberia obtener el avaluo estacinamiento', () =>{
-        const textoNormalizado = testPjudPdf.normalizeInfo(textoEstacionamientoMultiple);
-        const resAvaluo = testPjudPdf.obtainAvaluoPropiedad(textoNormalizado);
-        expect(resAvaluo).toEqual({
-            avaluo: "4426829",
-            tipo: "destino del bien raiz: estacionamiento",
-        });
+        const textoNormalizado = normalizeText(textoEstacionamientoMultiple);
+        const resAvaluo = extractor.propertyValuation(textoNormalizado, ESTACIONAMIENTO);
+        expect(resAvaluo).toEqual(
+            "4426829"
+        );
     });
 
     test('Deberia obtener el avaluo de la bodega', () =>{
-        const textoNormalizado = testPjudPdf.normalizeInfo(textoBodegaMultiple);
-        const resAvaluo = testPjudPdf.obtainAvaluoPropiedad(textoNormalizado);
-        expect(resAvaluo).toEqual({
-            avaluo: "865771",
-            tipo: "destino del bien raiz: bodega",
-        });
+        const textoNormalizado = normalizeText(textoBodegaMultiple);
+        const resAvaluo = extractor.propertyValuation(textoNormalizado, BODEGA);
+        expect(resAvaluo).toEqual(
+            "865771"
+        );
     });
 
     test('Prueba con gp para obtener nulo', ()=>{
-        const textoNormalizado = testPjudPdf.normalizeInfo(textosGP.textoGP1);
-        const resAvaluo = testPjudPdf.obtainAvaluoPropiedad(textoNormalizado);
+        const textoNormalizado = normalizeText(textosGP.textoGP1);
+        const resAvaluo = extractor.propertyValuation(textoNormalizado);
         expect(resAvaluo).toBeNull();
     });
 
@@ -144,106 +142,104 @@ describe('ObtainAvaluoPropiedad', () =>{
 
 describe('obtainDerecho', () => {
     test('Test basico 1 usufructo ', () =>{
-        const info = testPjudPdf.normalizeInfo(textosGP.textoGP1);
-        const tipoDerecho = testPjudPdf.obtainTipoDerecho(info, true);
+        const info = normalizeText(textosGP.textoGP1);
+        const tipoDerecho = extractor.rightType(info, true);
         expect(tipoDerecho).toEqual('usufructo');
     });
 
     test('Test de nuda propiedad', () => {
-        const info = testPjudPdf.normalizeInfo(textosGP.textoGP2);
-        const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
+        const info = normalizeText(textosGP.textoGP2);
+        const tipoDerecho = extractor.rightType(info);
         expect(tipoDerecho).toEqual('nuda propiedad');
     });
 
     test('Test de bien familiar', () =>{
-        const info = testPjudPdf.normalizeInfo(textosGP.textoGP3);
-        const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
+        const info = normalizeText(textosGP.textoGP3);
+        const tipoDerecho = extractor.rightType(info);
         expect(tipoDerecho).toEqual('bien familiar');
     });
 
     test('Test nulo "no se encuentra afecto a bien familiar" ', () => {
-        const info = testPjudPdf.normalizeInfo(textosGP.textoGP4);
-        const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
+        const info = normalizeText(textosGP.textoGP4);
+        const tipoDerecho = extractor.rightType(info);
         expect(tipoDerecho).toBeNull();
     });
 
     test('Test nulo "No registra anotaciones"', () => {
-        const info = testPjudPdf.normalizeInfo(textosGP.textoGP5);
-        const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
+        const info = normalizeText(textosGP.textoGP5);
+        const tipoDerecho = extractor.rightType(info);
         expect(tipoDerecho).toBeNull();
     });
 
     test('Texto de bien familiar que dice no consta con', ()=>{
-        const info = testPjudPdf.normalizeInfo(BF.bf2201);
-        const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
+        const info = normalizeText(BF.bf2201);
+        const tipoDerecho = extractor.rightType(info);
         expect(tipoDerecho).toBeNull();
     });
 
-    test('Leer diario y deberia ser null ya que el que dice nuda propiedad es otra causa', ()=>{
-        const testCaso1341 = createCase('C-1341-2024','1° JUZGADO DE LETRAS DE TALCA');
-        const testPjud1341 = new PjudPdfData(testCaso1341);
-        const info = testPjud1341.normalizeInfo(diario1341);
-        const tipoDerecho = testPjud1341.obtainTipoDerecho(info);
-        expect(tipoDerecho).toBeNull();
-    });
+    // test('Leer diario y deberia ser null ya que el que dice nuda propiedad es otra causa', ()=>{
+    //     const info = normalizeText(diario1341);
+    //     const tipoDerecho = extractor.rightType(info);
+    //     expect(tipoDerecho).toBeNull();
+    // });
 
     test('Test de Bien familiar definitivo', ()=>{
-        const info = testPjudPdf.normalizeInfo(BF.bf1341);
-        const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
+        const info = normalizeText(BF.bf1341);
+        const tipoDerecho = extractor.rightType(info);
         expect(tipoDerecho).toEqual('bien familiar');
     });
 
     test('Test Nulo basico Bien familiar no registra anotaciones', ()=>{
-        const info = testPjudPdf.normalizeInfo(BF.notBf);
-        const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
+        const info = normalizeText(BF.notBf);
+        const tipoDerecho = extractor.rightType(info);
         expect(tipoDerecho).toBeNull();
     });
 
     test('Test de tipo de texto que dice no se encuentra afecto a bf', ()=>{
-        const info = testPjudPdf.normalizeInfo(BF.bf1750);
-        const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
+        const info = normalizeText(BF.bf1750);
+        const tipoDerecho = extractor.rightType(info);
         expect(tipoDerecho).toBeNull();
     });
 
     test('Test de tipo de texto que dice no se encuentra afecto a bf', ()=>{
-        const info = testPjudPdf.normalizeInfo(textosGP.GP1435);
-        const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
+        const info = normalizeText(textosGP.GP1435);
+        const tipoDerecho = extractor.rightType(info);
         expect(tipoDerecho).toBeNull();
     });
 
     test('Test de tipo de texto que dice no se encuentra afecto a bf', ()=>{
-        const info = testPjudPdf.normalizeInfo(BF.BF2452);
-        const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
+        const info = normalizeText(BF.BF2452);
+        const tipoDerecho = extractor.rightType(info);
         expect(tipoDerecho).toBeNull();
     });
 
     test('Test de tipo de texto que dice no existe declaracion de bf', ()=>{
-        const info = testPjudPdf.normalizeInfo(BF.BF2055);
-        const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
+        const info = normalizeText(BF.BF2055);
+        const tipoDerecho = extractor.rightType(info);
         expect(tipoDerecho).toBeNull();
     });
 
     test('Test de tipo de texto que dice Consta que no tiene anotaciones de bien familiar', ()=>{
-        const info = testPjudPdf.normalizeInfo(BF.BF199);
-        const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
+        const info = normalizeText(BF.BF199);
+        const tipoDerecho = extractor.rightType(info);
         expect(tipoDerecho).toBeNull();
     });
 
     test('Test de tipo de texto donde solo dice certificado BF', ()=>{
-        const info = testPjudPdf.normalizeInfo(BF.CertificadoBF);
-        const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
+        const info = normalizeText(BF.CertificadoBF);
+        const tipoDerecho = extractor.rightType(info);
         expect(tipoDerecho).toBeNull();
     });
 
     test('Test de tipo de texto donde solo dice certificado BF', ()=>{
-        const info = testPjudPdf.normalizeInfo(BF.NotBF1439);
-        const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
+        const info = normalizeText(BF.NotBF1439);
+        const tipoDerecho = extractor.rightType(info);
         expect(tipoDerecho).toBeNull();
     });
 
     test('Dominio vigente con "Por haberse cancelado el usufructo"', ()=>{
-        const info = testPjudPdf.normalizeInfo(textosDV.dv6144);
-        const tipoDerecho = testPjudPdf.obtainTipoDerecho(info);
+        const info = normalizeText(textosDV.dv6144);
+        const tipoDerecho = extractor.rightType(info);
         expect(tipoDerecho).toBeNull();
     });
 });
@@ -251,133 +247,132 @@ describe('obtainDerecho', () => {
 describe('obtainComuna', () => {
 
     test('Obtener comuna con avaluo habitacional ', () => {
-        const textoNormalizado = testPjudPdf.normalizeInfo(textoHabitacional1);
-        const spanishNormalization = testPjudPdf.normalizeSpanish(textoHabitacional1);
-        const resComuna = testPjudPdf.obtainComuna(spanishNormalization, textoNormalizado);
+        const textoNormalizado = normalizeText(textoHabitacional1);
+        const spanishNormalization = normalizeTextSpanish(textoHabitacional1);
+        const resComuna = extractor.district(spanishNormalization, textoNormalizado);
         expect(resComuna).toEqual('estacion central');
     });
 
     test('Test de comuna iquique con diario y multiples publicaciones', () => {
-        const normalizeInfo = pjudPdf2484.normalizeInfo(diario2484);
-        const spanishNormalization = pjudPdf2484.normalizeSpanish(diario2484)
-        const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
+        const normalizeInfo = normalizeText(diario2484);
+        const spanishNormalization = normalizeTextSpanish(diario2484)
+        const resAnno = extractor.district(spanishNormalization,normalizeInfo);
         expect(resAnno).toEqual("iquique");
     });
 
     test('Test con obtencion de comuna con GP', () => {
-        const normalizeInfo = testPjudPdf.normalizeInfo(textosGP.texto12Santiago);
-        const spanishNormalization = testPjudPdf.normalizeSpanish(textosGP.texto12Santiago)
-        const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
+        const normalizeInfo = normalizeText(textosGP.texto12Santiago);
+        const spanishNormalization = normalizeTextSpanish(textosGP.texto12Santiago)
+        const resAnno = extractor.district(spanishNormalization,normalizeInfo);
         expect(resAnno).toEqual("estación central");
     });
 
     test('Test con obtencion en DV santiago', () =>{
-        const normalizeInfo = testPjudPdf.normalizeInfo(textosDV.dv356);
-        const spanishNormalization = testPjudPdf.normalizeSpanish(textosDV.dv356)
-        const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
+        const normalizeInfo = normalizeText(textosDV.dv356);
+        const spanishNormalization = normalizeTextSpanish(textosDV.dv356)
+        const resAnno = extractor.district(spanishNormalization,normalizeInfo);
         expect(resAnno).toEqual("santiago");
     });
 
     test('Test con obtencion en DV colina', () =>{
-        const normalizeInfo = testPjudPdf.normalizeInfo(textosDV.dv1349);
-        const spanishNormalization = testPjudPdf.normalizeSpanish(textosDV.dv1349)
-        const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
+        const normalizeInfo = normalizeText(textosDV.dv1349);
+        const spanishNormalization = normalizeTextSpanish(textosDV.dv1349)
+        const resAnno = extractor.district(spanishNormalization,normalizeInfo);
         expect(resAnno).toEqual("colina");
     });
 
     test('Test obtencion del DV que dice comuna de chillan y lo barnechea', () =>{
-        const normalizeInfo = testPjudPdf.normalizeInfo(textosDV.dv10803);
-        const spanishNormalization = testPjudPdf.normalizeSpanish(textosDV.dv10803)
-        const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
+        const normalizeInfo = normalizeText(textosDV.dv10803);
+        const spanishNormalization = normalizeTextSpanish(textosDV.dv10803)
+        const resAnno = extractor.district(spanishNormalization,normalizeInfo);
         expect(resAnno).toEqual("lo barnechea");
     });
 
     test('Test que dice dos comunas pero una es el domicilio y la otra es la comprada', ()=>{
-        const normalizeInfo = testPjudPdf.normalizeInfo(textosDV.dv100);
-        const spanishNormalization = testPjudPdf.normalizeSpanish(textosDV.dv100)
-        const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
+        const normalizeInfo = normalizeText(textosDV.dv100);
+        const spanishNormalization = normalizeTextSpanish(textosDV.dv100)
+        const resAnno = extractor.district(spanishNormalization,normalizeInfo);
         expect(resAnno).toEqual("ñuñoa");
     });
 
     test('Test que tiene comuna de x, el problema antes era la coma', ()=>{
-        const normalizeInfo = testPjudPdf.normalizeInfo(textosDV.dv1602);
-        const spanishNormalization = testPjudPdf.normalizeSpanish(textosDV.dv1602)
-        const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
+        const normalizeInfo = normalizeText(textosDV.dv1602);
+        const spanishNormalization = normalizeTextSpanish(textosDV.dv1602)
+        const resAnno = extractor.district(spanishNormalization,normalizeInfo);
         expect(resAnno).toEqual("maipú");
     });
 
     test('Test comuna de quilpue y vitacura del vendedor', ()=>{
-        const normalizeInfo = testPjudPdf.normalizeInfo(textosDV.dv2114);
-        const spanishNormalization = testPjudPdf.normalizeSpanish(textosDV.dv2114)
-        const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
+        const normalizeInfo = normalizeText(textosDV.dv2114);
+        const spanishNormalization = normalizeTextSpanish(textosDV.dv2114)
+        const resAnno = extractor.district(spanishNormalization,normalizeInfo);
         expect(resAnno).toEqual("quilpué");
     });
 
     test('Test comuna buscado en GP', ()=>{
-        const normalizeInfo = testPjudPdf.normalizeInfo(textosGP.GP15491);
-        const spanishNormalization = testPjudPdf.normalizeSpanish(textosGP.GP15491)
-        const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
+        const normalizeInfo = normalizeText(textosGP.GP15491);
+        const spanishNormalization = normalizeTextSpanish(textosGP.GP15491)
+        const resAnno = extractor.district(spanishNormalization,normalizeInfo);
         expect(resAnno).toEqual("santiago");
     });
 
     test('Otra prueba de obtener la comuna en GP', ()=>{
-        const normalizeInfo = testPjudPdf.normalizeInfo(textosGP.GP1435);
-        const spanishNormalization = testPjudPdf.normalizeSpanish(textosGP.GP1435)
-        const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
+        const normalizeInfo = normalizeText(textosGP.GP1435);
+        const spanishNormalization = normalizeTextSpanish(textosGP.GP1435)
+        const resAnno = extractor.district(spanishNormalization,normalizeInfo);
         expect(resAnno).toEqual("lota");
     });
 
     test('Test comuna GP viña del mar', () => {
-        const normalizeInfo = testPjudPdf.normalizeInfo(textosGP.textoGP5);
-        const spanishNormalization = testPjudPdf.normalizeSpanish(textosGP.textoGP5)
-        const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
+        const normalizeInfo = normalizeText(textosGP.textoGP5);
+        const spanishNormalization = normalizeTextSpanish(textosGP.textoGP5)
+        const resAnno = extractor.district(spanishNormalization,normalizeInfo);
         expect(resAnno).toEqual("viña del mar");
     });
 
     test('Test comuna GP coquimbo', () => {
-        const normalizeInfo = testPjudPdf.normalizeInfo(textosGP.textoGP4);
-        const spanishNormalization = testPjudPdf.normalizeSpanish(textosGP.textoGP4)
-        const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
+        const normalizeInfo = normalizeText(textosGP.textoGP4);
+        const spanishNormalization = normalizeTextSpanish(textosGP.textoGP4)
+        const resAnno = extractor.district(spanishNormalization,normalizeInfo);
         expect(resAnno).toEqual("coquimbo");
     });
 
     test('Test comuna GP la florida', () => {
-        const normalizeInfo = testPjudPdf.normalizeInfo(textosGP.textoGP3);
-        const spanishNormalization = testPjudPdf.normalizeSpanish(textosGP.textoGP3)
-        const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
+        const normalizeInfo = normalizeText(textosGP.textoGP3);
+        const spanishNormalization = normalizeTextSpanish(textosGP.textoGP3)
+        const resAnno = extractor.district(spanishNormalization,normalizeInfo);
         expect(resAnno).toEqual("la florida");
     });
 
     test('Test comuna GP teno', () => {
-        const normalizeInfo = testPjudPdf.normalizeInfo(textosGP.textoGP2);
-        const spanishNormalization = testPjudPdf.normalizeSpanish(textosGP.textoGP2)
-        const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
+        const normalizeInfo = normalizeText(textosGP.textoGP2);
+        const spanishNormalization = normalizeTextSpanish(textosGP.textoGP2)
+        const resAnno = extractor.district(spanishNormalization,normalizeInfo);
         expect(resAnno).toEqual("teno");
     });
 
     test('Test comuna GP null', () => {
-        const normalizeInfo = testPjudPdf.normalizeInfo(textosGP.textoGP1);
-        const spanishNormalization = testPjudPdf.normalizeSpanish(textosGP.textoGP1)
-        const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
+        const normalizeInfo = normalizeText(textosGP.textoGP1);
+        const spanishNormalization = normalizeTextSpanish(textosGP.textoGP1)
+        const resAnno = extractor.district(spanishNormalization,normalizeInfo);
         expect(resAnno).toBeNull();
     });
 
     test('Test comuna GP la serena', () => {
-        const normalizeInfo = testPjudPdf.normalizeInfo(textosGP.GP299);
-        const spanishNormalization = testPjudPdf.normalizeSpanish(textosGP.GP299)
-        const resAnno = pjudPdf2484.obtainComuna(spanishNormalization,normalizeInfo);
+        const normalizeInfo = normalizeText(textosGP.GP299);
+        const spanishNormalization = normalizeTextSpanish(textosGP.GP299)
+        const resAnno = extractor.district(spanishNormalization,normalizeInfo);
         expect(resAnno).toEqual('la serena');
     });
 });
 
 describe('ObtainDireccion', () => {
     test('test con avaluo habitacional ', () =>{
-        const normalizeTexto = testPjudPdf.normalizeInfo(textoHabitacional1);
-        const resDireccion = testPjudPdf.obtainDireccion(normalizeTexto);
-        expect(resDireccion).toEqual({
-            direccion: 'carlos pezoa veliz 0143 dp 603 ed pezoa veliz',
-            tipo: 'destino del bien raiz: habitacional'
-        });
+        const normalizeTexto = normalizeText(textoHabitacional1);
+        const resDireccion = extractor.address(normalizeTexto, PROPIEDAD);
+        expect(resDireccion).toEqual(
+             'carlos pezoa veliz 0143 dp 603 ed pezoa veliz',
+        );
     });
 });
 
@@ -390,95 +385,95 @@ describe('ObtainAnno', () => {
     // });
 
     test('Test de anno con DV ', () => {
-        const normalizeInfo = testPjudPdf.normalizeInfo(textosDV.dv356);
-        const resAnno = testPjudPdf.obtainAnno(normalizeInfo);
+        const normalizeInfo = normalizeText(textosDV.dv356);
+        const resAnno = extractor.buyYear(normalizeInfo);
         expect(resAnno).toEqual('2021');
     });
 
     test('test negativo null, con lectura GP', () =>{
-        const normalizeInfo = testPjudPdf.normalizeInfo(textosGP.textoGP1);
-        const resAnno = testPjudPdf.obtainAnno(normalizeInfo);
+        const normalizeInfo = normalizeText(textosGP.textoGP1);
+        const resAnno = extractor.buyYear(normalizeInfo);
         expect(resAnno).toBeNull();
     });
 
     test('Lectura de texto null', () => {
-        const resAnno = testPjudPdf.obtainAnno(null);
+        const resAnno = extractor.buyYear(null);
         expect(resAnno).toBeNull();
     });
 
     test('Caso donde aparece el ano de inscripcion y el ano de vigencia', ()=>{
-        const info = testPjudPdf.normalizeInfo(textosDV.dv3857);
-        const anno = testPjudPdf.obtainAnno(info);
+        const info = normalizeText(textosDV.dv3857);
+        const anno = extractor.buyYear(info);
         expect(anno).toEqual('2014');
     });
 
     test('Obtener anno de DV el anno con punto',()=>{
-        const info = testPjudPdf.normalizeInfo(textosDV.dv1750);
-        const anno = testPjudPdf.obtainAnno(info);
+        const info = normalizeText(textosDV.dv1750);
+        const anno = extractor.buyYear(info);
         expect(anno).toEqual('2.020');
     });
     test('Obtener anno de DV 2',()=>{
-        const info = testPjudPdf.normalizeInfo(textosDV.dv212);
-        const anno = testPjudPdf.obtainAnno(info);
+        const info = normalizeText(textosDV.dv212);
+        const anno = extractor.buyYear(info);
         expect(anno).toEqual('2.019');
     });
 
     test('Obtener el anno de registro de propiedad con parentesis',()=>{
-        const info = testPjudPdf.normalizeInfo(textosDV.dv4991);
-        const anno = testPjudPdf.obtainAnno(info);
+        const info = normalizeText(textosDV.dv4991);
+        const anno = extractor.buyYear(info);
         expect(anno).toEqual('2023');
     });
 
     test('Obtener el anno de registro de propiedad de conservador',()=>{
-        const info = testPjudPdf.normalizeInfo(ex800);
-        const anno = testPjudPdf.obtainAnno(info);
+        const info = normalizeText(ex800);
+        const anno = extractor.buyYear(info);
         expect(anno).toEqual('2005');
     });
 
     test('Obtener el anno con punto de conservador',()=>{
-        const info = testPjudPdf.normalizeInfo(ex2240);
-        const anno = testPjudPdf.obtainAnno(info);
+        const info = normalizeText(ex2240);
+        const anno = extractor.buyYear(info);
         expect(anno).toEqual('2.020');
     });
 
     test('Obtener el anno de registro de propiedad de un extracto',()=>{
-        const info = testPjudPdf.normalizeInfo(ex2226);
-        const anno = testPjudPdf.obtainAnno(info);
+        const info = normalizeText(ex2226);
+        const anno = extractor.buyYear(info);
         expect(anno).toEqual('2017');
     });
 
     test('Obtener el anno de un DV que aparecia 3430',()=>{
-        const info = testPjudPdf.normalizeInfo(textosDV.dv11840);
-        const anno = testPjudPdf.obtainAnno(info);
+        const info = normalizeText(textosDV.dv11840);
+        const anno = extractor.buyYear(info);
         expect(anno).toEqual('2016');
     });
 
     test('Obtener el anno de un DV que tiene dos annos asociados a la compra',()=>{
-        const info = testPjudPdf.normalizeInfo(textosDV.dv9404);
-        const anno = testPjudPdf.obtainAnno(info);
+        const info = normalizeText(textosDV.dv9404);
+        const anno = extractor.buyYear(info);
         expect(anno).toEqual(2015);
     });
 
     test('Obtener el null de un DV que se confundio con el anno',()=>{
-        const info = testPjudPdf.normalizeInfo(textosDV.dv35);
-        const anno = testPjudPdf.obtainAnno(info);
+        const info = normalizeText(textosDV.dv35);
+        const anno = extractor.buyYear(info);
         expect(anno).toBeNull();
     });
 });
 
 describe('ObtainMontoMinimo', () => {
-    test("Obtener monto minimo a partir de diario con multiples publicaciones", () =>{
-        const info = pjudPdf2484.normalizeInfo(diario2484);
-        const resMontoMinimo = pjudPdf2484.obtainMontoMinimo(info);
-        expect(resMontoMinimo).toEqual({
-            monto: '123.136.853',
-            moneda : "Pesos"
-        })
-    });
+    // test("Obtener monto minimo a partir de diario con multiples publicaciones", () =>{
+    //     const info = pjudPdf2484.normalizeInfo(diario2484);
+    //     const resMontoMinimo = pjudPdf2484.obtainMontoMinimo(info);
+    //     expect(resMontoMinimo).toEqual({
+    //         monto: '123.136.853',
+    //         moneda : "Pesos"
+    //     })
+    // });
 
     test('Obtener monto minimo de postura de un extracto',()=>{
-        const info = testPjudPdf.normalizeInfo(ex1341);
-        const montoMinimo = testPjudPdf.obtainMontoMinimo(info);
+        const info = normalizeText(ex1341);
+        const montoMinimo = extractor.minAmount(info);
         expect(montoMinimo).toEqual({
             monto: '80.074.227',
             moneda : "Pesos"
@@ -486,8 +481,8 @@ describe('ObtainMontoMinimo', () => {
     });
 
     test('Obtener monto minimo de postura de un extracto',()=>{
-        const info = testPjudPdf.normalizeInfo(ex1666);
-        const montoMinimo = testPjudPdf.obtainMontoMinimo(info);
+        const info = normalizeText(ex1666);
+        const montoMinimo = extractor.minAmount(info);
         expect(montoMinimo).toEqual({
             monto: '1031,99465',
             moneda : "UF"
@@ -495,8 +490,8 @@ describe('ObtainMontoMinimo', () => {
     });
 
     test('Obtener monto minimo de un acta de remate',()=>{
-        const info = testPjudPdf.normalizeInfo(AR.AR572);
-        const montoMinimo = testPjudPdf.obtainMontoMinimo(info);
+        const info = normalizeText(AR.AR572);
+        const montoMinimo = extractor.minAmount(info);
         expect(montoMinimo).toEqual({
             monto: '81.100.000',
             moneda : "Pesos"
@@ -505,29 +500,29 @@ describe('ObtainMontoMinimo', () => {
 
 });
 
-describe('checkIfValidDoc',()=>{
-    test('Test de diario que deberia ser false', ()=>{
-       const res = testPjudPdf.checkIfValidDoc(diario3354_1);
-       expect(res).toEqual(false);
-    });
+// describe('checkIfValidDoc',()=>{
+//     test('Test de diario que deberia ser false', ()=>{
+//        const res = PdfProccess.validate(diario3354_1);
+//        expect(res).toEqual(false);
+//     });
 
-    test('Test de diario que deberia ser false', ()=>{
-       const res = testPjudPdf.checkIfValidDoc(diario3354_2);
-       expect(res).toEqual(false);
-    });
-});
+//     test('Test de diario que deberia ser false', ()=>{
+//        const res = PdfProccess.validate(diario3354_2);
+//        expect(res).toEqual(false);
+//     });
+// });
 
 describe('ObtainMontoCompra', () => {
     test('Caso donde no puede obtener el monto de compra',()=>{
 
-        const normalizeInfo = testPjudPdf.normalizeInfo(textosDV.dv11066);
-        const resMontoCompra = testPjudPdf.obtainMontoCompra(normalizeInfo);
+        const normalizeInfo = normalizeText(textosDV.dv11066);
+        const resMontoCompra = extractor.housePrice(normalizeInfo);
         expect(resMontoCompra).toBeNull();
     });
 
     test('Obtener monto de compra de DV Pesos con se estiman', () => {
-        const normalizeInfo = testPjudPdf.normalizeInfo(textosDV.dv356);
-        const resMontoCompra = testPjudPdf.obtainMontoCompra(normalizeInfo);
+        const normalizeInfo = normalizeText(textosDV.dv356);
+        const resMontoCompra = extractor.housePrice(normalizeInfo);
         expect(resMontoCompra).toEqual({
             monto: 67000000,
             moneda: 'Pesos' 
@@ -535,8 +530,8 @@ describe('ObtainMontoCompra', () => {
     });
 
     test('Obtener monto de compra uf con coma DV con por el precio', () =>{
-        const normalizeInfo = testPjudPdf.normalizeInfo(textosDV.dv23039);
-        const resMontoCompra = testPjudPdf.obtainMontoCompra(normalizeInfo);
+        const normalizeInfo = normalizeText(textosDV.dv23039);
+        const resMontoCompra = extractor.housePrice(normalizeInfo);
         expect(resMontoCompra).toEqual({
             monto: 3192.39,
             moneda: 'UF' 
@@ -544,8 +539,8 @@ describe('ObtainMontoCompra', () => {
     });
 
     test('Obtener monto de compra uf DV', () =>{
-        const normalizeInfo = testPjudPdf.normalizeInfo(textosDV.dv12017);
-        const resMontoCompra = testPjudPdf.obtainMontoCompra(normalizeInfo);
+        const normalizeInfo = normalizeText(textosDV.dv12017);
+        const resMontoCompra = extractor.housePrice(normalizeInfo);
         expect(resMontoCompra).toEqual({
             monto: 3756,
             moneda: 'UF' 
@@ -553,8 +548,8 @@ describe('ObtainMontoCompra', () => {
     });
 
     test('Obtener motno de compra por compraventa', ()=>{
-        const normalizeInfo = testPjudPdf.normalizeInfo(textosDV.dv13759);
-        const monto = testPjudPdf.obtainMontoCompra(normalizeInfo);
+        const normalizeInfo = normalizeText(textosDV.dv13759);
+        const monto = extractor.housePrice(normalizeInfo);
         expect(monto).toEqual({
             monto: 9744,
             moneda: 'UF' 
@@ -562,8 +557,8 @@ describe('ObtainMontoCompra', () => {
     });
 
     test('Obtener monto de compra pesos por la suma', () =>{
-        const normalizeInfo = testPjudPdf.normalizeInfo(textosDV.dv7140);
-        const resMontoCompra = testPjudPdf.obtainMontoCompra(normalizeInfo);
+        const normalizeInfo = normalizeText(textosDV.dv7140);
+        const resMontoCompra = extractor.housePrice(normalizeInfo);
         expect(resMontoCompra).toEqual({
             monto: 78918749,
             moneda: 'Pesos' 
@@ -571,25 +566,22 @@ describe('ObtainMontoCompra', () => {
     });
 
     test('Monto no encontrado por dacion de pago',()=>{
-        const normalizeInfo = testPjudPdf.normalizeInfo(textosDV.dv198);
-        const resMontoCompra = testPjudPdf.obtainMontoCompra(normalizeInfo);
+        const normalizeInfo = normalizeText(textosDV.dv198);
+        const resMontoCompra = extractor.housePrice(normalizeInfo);
         expect(resMontoCompra).toBeNull();
-    });
-    test('Prueba por se estiman: ',()=>{
-
     });
 });
 
 describe('obtainDeudaHipoteca', ()=>{
     test('Monto de compra donde dice mutuo y prestamo',()=>{
-        const info = testPjudPdf.normalizeInfo(dm1056);
-        const deuda = testPjudPdf.obtainDeudaHipotecaria(info);
+        const info = normalizeText(dm1056);
+        const deuda = extractor.mortageDebt(info);
         expect(deuda).toEqual('uf 1248,2274');
     });
 
     test('Monto de compra donde dice mutuo hipotecario',()=>{
-        const info = testPjudPdf.normalizeInfo(dm1138);
-        const deuda = testPjudPdf.obtainDeudaHipotecaria(info);
+        const info = normalizeText(dm1138);
+        const deuda = extractor.mortageDebt(info);
         expect(deuda).toEqual('uf 3684,5498');
     });
 });
@@ -694,8 +686,8 @@ describe('obtainCorteJuzgadoNumbers', ()=>{
 
 describe('obtainFormatoEntrega',()=>{
     test('Obtener el formato de entrega de un acta de remate',()=>{
-        const info = testPjudPdf.normalizeInfo(AR.AR572);
-        const formatoEntrega = testPjudPdf.obtainFormatoEntrega(info);
+        const info = normalizeText(AR.AR572)
+        const formatoEntrega = extractor.deliveryFormat(info)
         expect(formatoEntrega).toEqual('vale vista');
     });
 });

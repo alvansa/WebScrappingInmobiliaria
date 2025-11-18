@@ -6,7 +6,7 @@ const ESTACIONAMIENTO = config.ESTACIONAMIENTO;
 const BODEGA = config.BODEGA;
 const TODOS = config.TODOS;
 
-function obtainPropertyId(info, type){
+function obtainPropertyId(info, type = null){
 
     const roles = processPropertyId(info,type)
     // console.log(roles)

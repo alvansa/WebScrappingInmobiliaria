@@ -1,4 +1,4 @@
-const extractor = require('../../componentes/pdfProcesors/extractors');
+const extractor = require('../../componentes/pdfProcess/extractors');
 const {normalizeText, normalizeTextSpanish}  = require('../../utils/textNormalizers');
 const config = require('../../config');
 

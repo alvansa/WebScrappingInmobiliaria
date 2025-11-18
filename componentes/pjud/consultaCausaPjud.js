@@ -12,7 +12,7 @@ require('dotenv').config();
 const {delay,fakeDelay,fakeDelayms} = require('../../utils/delay.js');
 const ProcesarBoletin = require('../liquidaciones/procesarBoletin.js');
 const PjudPdfData = require('./PjudPdfData.js');
-const PdfProccess = require('../pdfProcesors/PdfProccess.js');
+const PdfProcess = require('../pdfProcess/PdfProcess.js');
 
 const ERROR = 0;
 const EXITO = 1;

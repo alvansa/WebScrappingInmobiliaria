@@ -155,6 +155,7 @@ function adaptDirectionToExcel(direction){
 function changeWordsToNumbers(phrase,isDevLog = false) {
     isDev = isDevLog;
     if (!phrase) return phrase;
+    phrase = phrase.replace(/(\w*)-(\w)/ig,"$1 - $2");
 
     const spacedPhrase = phrase.split(' ');
     for (let i = 0; i < spacedPhrase.length; i++) {
@@ -167,7 +168,10 @@ function changeWordsToNumbers(phrase,isDevLog = false) {
                 break;
             }
             //Si encuentra numero empieza a buscar hasta enonctrar una palabra que no sea numero para delimitar el numero
-            let isNumber = isWordANumber(spacedPhrase[j]);
+            if(isDev) console.log(`Pre ${spacedPhrase}`)
+            let isNumber = isWordANumber(spacedPhrase[j], isDev);
+            if(isDev) console.log(`Post ${spacedPhrase}`)
+
             if (spacedPhrase[j].includes(',')) {
                 isNumber = false;
                 j++;
@@ -218,13 +222,21 @@ function isaNumber(word){
     return !isNaN(word);
 }
 
-function isWordANumber(word){
-    const normalized = normalize(word);
+function isWordANumber(word, isDevLog){
+    let normalized = normalize(word);
+    if(isDevLog) console.log(word)
 
-    if(NUMBER_CONFIG.specialWords.has(normalized)) return true;
+    if(NUMBER_CONFIG.specialWords.has(normalized)) {
+        return true;
+    }
 
     for(const pattern of NUMBER_CONFIG.patterns){
-        if(normalized.includes(pattern)) return true;
+        if(normalized.includes(pattern)) {
+            const regex = new RegExp(`(${pattern})`);
+            normalized = normalized.replace(regex, " $1 ");
+            if(isDevLog) console.log(normalized)
+            return true;
+        }
     }
 
     return false;

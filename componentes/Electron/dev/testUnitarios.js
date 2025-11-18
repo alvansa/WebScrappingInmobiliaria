@@ -8,7 +8,7 @@ const Caso = require('../../caso/caso.js')
 const {downloadPdfFromUrl,checkUserAgent} = require('../../pjud/downloadPDF.js');
 const {testTexto,testTextoArgs} = require('../../economico/testEconomico.js');
 const PjudPdfData = require('../../pjud/PjudPdfData.js');
-const PdfProccess = require('../../pdfProcesors/PdfProccess.js');
+const PdfProcess = require('../../pdfProcess/PdfProcess.js');
 const ProcesarBoletin = require('../../liquidaciones/procesarBoletin.js');
 // const ConsultaCausaPjud = require('../../pjud/ConsultaCausaPjud.js');
 const MapasSII = require('../../mapasSII/MapasSII.js');
@@ -47,11 +47,13 @@ class testUnitarios{
         }else if(arg === 'readPdf'){
             const newExcel = this.args[2];
             const caso = this.crearCasoPrueba();
-            console.log(`Probando si existe la ventana principal en TEST UNITARIOS: ${this.mainWindow ? 'Sí' : 'No'}`);
             const processPDF = new PjudPdfData(caso,this.mainWindow,this.devMode);
             for(let pdf of this.args[1]){
                 logger.info("Leyendo PDF ubicado en: ",pdf);
                 result = await ProcesarBoletin.convertPdfToText(pdf,1);
+                if(this.devMode){
+                    console.log(`---------\n${result}\n----------------`);
+                }
                 processPDF.processInfo(result);
             }
             if(newExcel){

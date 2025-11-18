@@ -1,8 +1,8 @@
 const extractor = require('../economico/extractors');
 const convertWordToNumbers = require('../../utils/convertWordToNumbers');
 const logger = require('../../utils/logger.js');
-const { processMortageBank } = require('../pdfProcesors/extractors/mortageBank.js');
-const PdfProccess = require('../pdfProcesors/PdfProccess.js');
+const { processMortageBank } = require('../pdfProcess/extractors/mortageBank.js');
+const PdfProccess = require('../pdfProcess/PdfProcess');
 
 
 const regexMutuoHipotecario = /mutuo\s*hipotecario/i;
