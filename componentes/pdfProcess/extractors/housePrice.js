@@ -143,6 +143,7 @@ function searchByCompraVenta(text) {
         return null;
     }
     let newText = text.substring(startMatch.index);
+    // console.log(`---------------\n${newText}\n--------------------`)
 
     let endFomentoRegex = /fomento/i;
     let endMatch = endFomentoRegex.exec(newText);

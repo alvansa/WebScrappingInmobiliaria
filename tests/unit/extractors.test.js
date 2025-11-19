@@ -125,6 +125,12 @@ describe('test de convertir frases con numeros escritos en palabras a numeros',(
     test('Test para probar cuando se mezclan numeros' , ()=>{
         const texto = 'la propiedad consistente en el departo numero dosmil quinientos';
         const res = changeWordsToNumbers(texto,true);
+        // expect(res).toBe('la propiedad consistente en el departamento n° 2500')
+    });
+
+    test('Test para probar numero con tilde' , ()=>{
+        const texto = 'la propiedad consistente en el departo numero dosmil quinientos';
+        const res = changeWordsToNumbers(texto,true);
         expect(res).toBe('la propiedad consistente en el departamento n° 2500')
     });
 

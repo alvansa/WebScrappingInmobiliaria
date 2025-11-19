@@ -35,6 +35,7 @@ function convertWordToNumbers(stringNumber) {
       "veinticuatro": 24,
       "veinticinco": 25,
       "veintiséis": 26,
+      "veintiseis" : 26,
       "veintisiete": 27,
       "veintiocho": 28,
       "veintinueve": 29
@@ -84,6 +85,7 @@ function convertWordToNumbers(stringNumber) {
     .replace(/\s+/g, ' ')
     .replace(/,/g,'')
     .trim();
+    console.log(`---------------\n${normalized}\n------------------`)
 
   // Verificar primero números especiales (0-29)
   for (const [word, value] of Object.entries(numberMap.specialTens)) {

@@ -4,7 +4,7 @@ let isDev = false;
 
 const NUMBER_CONFIG = {
     keywords: new Set(['numero', 'número', 'num', 'nro']),
-    specialWords: new Set(['y']),
+    specialWords: new Set(['y','-']),
     patterns: new Set([
         'cero','uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve',
         'diez','once','doce','trece','catorce','quince','veinte','veinti',
@@ -147,6 +147,7 @@ function adaptDirectionToExcel(direction){
         finalDirection = direction.replace(matchedEstacionamiento[0],"Est ");
     }
     finalDirection = finalDirection.replace(/estacionamiento\b/i,"Est");
+    console.log(`-------------------------Direccion que va a cambiar string por num\n-----------------\n${finalDirection}\n--------------------`)
     finalDirection = changeWordsToNumbers(finalDirection);
 
     return finalDirection
@@ -207,6 +208,8 @@ function isNumberKeyWord(word){
 function processAndChangeNumberPhrase(phrase, spacedPhrase, i, j){
     const numberArray = spacedPhrase.slice(i + 1, j);
     const phraseToChange = numberArray.join(' ');
+
+    // const phraseToChangeNormalized = normalizeText(phraseToChange)
     const regexPhrase = new RegExp(`n[uú]mero\\s*${phraseToChange}`, "i");
     const phraseInNumber = convertWordToNumbers(phraseToChange);
     phrase = phrase.replace(regexPhrase, `n° ${phraseInNumber}`);
