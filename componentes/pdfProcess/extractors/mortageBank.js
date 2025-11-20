@@ -26,6 +26,7 @@ function processMortageBank(text,demandPart = null, logData = false){
         'hipoteca\\s*en\\s*favor',
         'hipoteca\\s*de\\s*(primer|segundo)\\s*grado',
         'solo\\s*tiene\\s*lo\\s*siguiente\\s*:?\\s*hipoteca',
+        'hipoteca\\s*\\s*-\\s*'
     ]
 
     if(logData) console.log("Texto normalizado: ",normalizeText)

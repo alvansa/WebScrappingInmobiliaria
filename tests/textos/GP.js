@@ -888,6 +888,172 @@ Derechos $ 6.600.-
  B.1936456
  C.24168623`;
 
+const GP5424 = `Certificado E788A368  -  11 de Febrero de 2025   Hoja 1 de 2
+7147214
+86
+CERTIFICADO NÚMERO : E788A368
+Certificado de Gravamenes y Prohibiciones
+Viña Del Mar, 11 de Febrero de 2025; 08:00 horas.-
+Inmueble ubicado en la comuna de VIÑA DEL MAR que corresponde a: Departamento
+número 103, del piso 10 y de la bodega número 3, del primer piso, ambos del Edificio C. Rol
+N° 2453-180 y 2453-244. Ubicado en calle Castilla Nº 70. Condominio Paulonia. Plano
+3978 y 3977/2005 al Registro de Documentos. Revisados los Registros de Hipotecas y
+Gravamenes (RBG) e Interdicciones y Prohibiciones (RBK) desde el 18/04/1989 a la
+actualidad, es afectado por:
+en foja 8806, número 10227 del Registro de Propiedad del año 2016
+RegistroFojaNúmeroAñoDescripción
+RBG6985331989
+Servidumbre - En favor de Inversiones Concorde
+Limitada y Cooperativa de Viviendas y Servicios
+Habitacionales, Empleados de la Industria Hotelera de
+Viña del Mar Limitada.
+RBG208016441991
+Servidumbre - En favor de Compañía Chilena de
+Distribución Eléctrica Quinta Región S.A., Chilectra
+Quinta Región. Complementada a Fojas 2081 vuelta
+Número 1645 del año 1991.
+RBG7075301996
+Servidumbre - En favor de Empresa de Obras
+Sanitarias de Valparaíso S.A.
+RBG7115331996
+Servidumbre - En favor de Empresa de Obras
+Sanitarias de Valparaíso S.A.
+RBG1921931998
+Servidumbre - En favor de Empresa de Obras
+Sanitarias de Valparaíso S.A.
+RBG8707992004Reglamento de copropiedad
+RBG402836032004
+Rectificación / complementación de reglamento de
+copropiedad
+RBG463245632016Hipoteca - BANCO DE CHILE.
+RBG463445642016Hipoteca - BANCO DE CHILE.
+RBK384144252016Prohibición - BANCO DE CHILE.
+RBK210820882024
+Embargo - BANCO DE CHILE - Decretado por el Primer
+Juzgado de Letras de San Felipe. Causa Rol N°
+C-1365-2024
+Archivo no valido como certificado
+Firmado electrónicamente por
+Natanael Peña Calderón
+Conservador Suplente
+Fecha: 12-02-2025
+Emitido con firma electrónica
+avanzada según AA Excma Corte Suprema
+de 13/10/2006 y Ley 19.799 de 2002.
+www.cbrvina.cl
+Powered by CBR Intelligence
+
+Certificado E788A368  -  11 de Febrero de 2025   Hoja 2 de 2
+7147214
+86
+CERTIFICADO NÚMERO : E788A368
+Certificado de Gravamenes y Prohibiciones
+Viña Del Mar, 11 de Febrero de 2025; 08:00 horas.-
+La individualización de las inscripciones que contiene este certificado no refiere la indicación de 'vuelta' del
+folio/fojas por resultar tal dato indiferente.
+Archivo no valido como certificado
+Firmado electrónicamente por
+Natanael Peña Calderón
+Conservador Suplente
+Fecha: 12-02-2025
+Emitido con firma electrónica
+avanzada según AA Excma Corte Suprema
+de 13/10/2006 y Ley 19.799 de 2002.
+www.cbrvina.cl
+Powered by CBR Intelligence
+Powered by TCPDF (www.tcpdf.org)
+
+Certificado D7DB9BEF  -  11 de Febrero de 2025   Hoja 1 de 1
+7147214
+86
+CERTIFICADO NÚMERO : D7DB9BEF
+Certificado de Litigios
+Viña Del Mar, 11 de Febrero de 2025; 08:00 horas.-
+Título Certificado
+Foja8806
+Número 10227
+Año 2016
+Registro de Propiedad
+Período de la revisión: Desde el 18/04/1989
+A la expedición del presente certificadoNO CONSTAmarginalmente la declaración
+de  juicios  o  litigios  pendientes  sobre  el  inmueble  cuyos  datos  registrales  se  han
+descrito con anterioridad.
+Esta  certificación  de  constancias  marginales  en  el  título  de  dominio  es  sin  perjuicio
+de   las   inscripciones   sobre   medidas   precautorias   que   puedan   constar   en   el
+correspondiente certificado del Registro de Prohibiciones e Interdicciones.
+La individualización de las inscripciones que contiene este certificado no refiere la indicación de 'vuelta' del
+folio/fojas por resultar tal dato indiferente.
+Archivo no valido como certificado
+Firmado electrónicamente por
+Natanael Peña Calderón
+Conservador Suplente
+Fecha: 12-02-2025
+Emitido con firma electrónica
+avanzada según AA Excma Corte Suprema
+de 13/10/2006 y Ley 19.799 de 2002.
+www.cbrvina.cl
+Powered by CBR Intelligence
+Powered by TCPDF (www.tcpdf.org)
+
+Certificado 2FD95E28  -  11 de Febrero de 2025   Hoja 1 de 1
+7147214
+86
+CERTIFICADO NÚMERO : 2FD95E28
+Certificado de Bien Familiar
+Viña Del Mar, 11 de Febrero de 2025; 08:00 horas.-
+Título Certificado
+Foja8806
+Número 10227
+Año 2016
+Registro de Propiedad
+Período de la revisión: Desde el 18/04/1989
+A la expedición del presente certificadoNO CONSTAmarginalmente la declaración
+de Bien Familiar del inmueble cuyos datos registrales se han descrito con anterioridad.
+Esta  certificación  de  constancias  marginales  en  el  título  de  dominio  es  sin  perjuicio
+de  las  inscripciones  sobre  declaración  de  Bien  Familiar  que  puedan  constar  en  el
+correspondiente certificado del Registro de Prohibiciones e Interdicciones.
+La individualización de las inscripciones que contiene este certificado no refiere la indicación de 'vuelta' del
+folio/fojas por resultar tal dato indiferente.
+Archivo no valido como certificado
+Firmado electrónicamente por
+Natanael Peña Calderón
+Conservador Suplente
+Fecha: 12-02-2025
+Emitido con firma electrónica
+avanzada según AA Excma Corte Suprema
+de 13/10/2006 y Ley 19.799 de 2002.
+www.cbrvina.cl
+Powered by CBR Intelligence
+Powered by TCPDF (www.tcpdf.org)
+
+Certificado DC3577BF  -  11 de Febrero de 2025   Hoja 1 de 1
+7147214
+86
+CERTIFICADO NÚMERO : DC3577BF
+Certificado de Dominio
+Viña Del Mar, 11 de Febrero de 2025; 08:00 horas.-
+Matrícula Inmobiliaria: 103952
+Inmueble ubicado en la comuna de VIÑA DEL MAR que corresponde a: Departamento
+número 103, del piso 10 y de la bodega número 3, del primer piso, ambos del Edificio C. Rol
+N° 2453-180 y 2453-244. Ubicado en calle Castilla Nº 70. Condominio Paulonia. Plano
+3978 y 3977/2005 al Registro de Documentos a nombre de:
+foja 8806, número 10227 del Registro de Propiedad del año 2016
+DISTRIBUIDORA Y COMERCIALIZADORA DON NATITA COMPAÑIA LIMITADA
+Se encuentra vigente
+La individualización de las inscripciones que contiene este certificado no refiere la indicación de 'vuelta' del
+folio/fojas por resultar tal dato indiferente.
+Archivo no valido como certificado
+Firmado electrónicamente por
+Natanael Peña Calderón
+Conservador Suplente
+Fecha: 12-02-2025
+Emitido con firma electrónica
+avanzada según AA Excma Corte Suprema
+de 13/10/2006 y Ley 19.799 de 2002.
+www.cbrvina.cl
+Powered by CBR Intelligence
+Powered by TCPDF (www.tcpdf.org)`;
+
 module.exports = {
     textoGP1, 
     textoGP2, 
@@ -909,5 +1075,6 @@ module.exports = {
     GP973,
     GP33,
     GP5051,
-    GP6782
+    GP6782,
+    GP5424
 };

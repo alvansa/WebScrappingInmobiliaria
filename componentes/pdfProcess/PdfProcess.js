@@ -130,11 +130,18 @@ class PdfProccess{
             caso.anno = anno;
         }
 
-        if(!caso.montoCompra){
-            const montoCompra = extractors.housePrice(text); 
-            this.logNewInfo('Monto compra propiedad', montoCompra);
-           caso.montoCompra =  montoCompra;
+        // if(!caso.montoCompra){
+        const montoCompra = extractors.housePrice(text);
+        if(montoCompra && caso.montoCompra){
+            this.logNewInfo('Monto compra propiedad', montoCompra.monto);
+            if(montoCompra.monto > caso.montoCompra.monto){
+                caso.montoCompra = montoCompra;
+            }
+        }else if(montoCompra){
+            this.logNewInfo('Monto compra propiedad', montoCompra.monto);
+            caso.montoCompra = montoCompra;
         }
+        // }
 
     }
 
@@ -162,9 +169,17 @@ class PdfProccess{
     }
 
     static processLawsuit(caso, text){
-        if(!caso.deudaHipotecaria){
-            caso.deudaHipotecaria = extractors.mortageDebt(text);
+        // if(!caso.deudaHipotecaria){
+        const deudaHipotecaria = extractors.mortageDebt(text);
+        this.logNewInfo(`Deuda hipotecaria`, deudaHipotecaria)
+        if(deudaHipotecaria && caso.deudaHipotecaria){
+            if(deudaHipotecaria > caso.deudaHipotecaria){
+                caso.deudaHipotecaria = deudaHipotecaria;
+            }
+        }else{
+            caso.deudaHipotecaria = deudaHipotecaria;
         }
+        // }
     }
 
     static logNewInfo(tipe, info){

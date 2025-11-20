@@ -189,3 +189,11 @@ describe('Pruebas de obtencion de monto minimo de remate', ()=>{
         });
     })
 });
+
+describe('Test de banco hipoteca', ()=>{
+    test('test con hipoteca - ',()=>{
+        const norm = normalizeText(GP.GP5424);
+        const banco = extractor.mortageBank(norm);
+        expect(banco).toBe('Banco De Chile');
+    })
+})

@@ -1,7 +1,7 @@
 const  convertWordToNumbers  = require('../../../utils/convertWordToNumbers');
 
 function processHousePrice(text) {
-    console.log(text)
+    // console.log(text)
     if (!text.includes("inscripci")) {
         // Solo se obtiene el monto de compra de la inscripcion
         return null;
