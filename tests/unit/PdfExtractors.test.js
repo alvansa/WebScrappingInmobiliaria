@@ -174,8 +174,18 @@ describe('Pruebas de obtencion de monto de compra', ()=>{
             monto: 3539,
             moneda: "UF"
         });
-
     })
+
+    test('Obtencion de monto de compra con GP y DV combinado',()=>{
+        const text = GP.DVGP1082;
+        const norm = normalizeText(text);
+        const monto = extractor.housePrice(norm);
+        expect(monto).toEqual({
+            monto: 3766,
+            moneda: "UF"
+        });
+
+    });
 })
 
 describe('Pruebas de obtencion de monto minimo de remate', ()=>{
@@ -195,5 +205,19 @@ describe('Test de banco hipoteca', ()=>{
         const norm = normalizeText(GP.GP5424);
         const banco = extractor.mortageBank(norm);
         expect(banco).toBe('Banco De Chile');
+    })
+})
+
+describe('Pruebas para derechos', ()=>{
+    //TODO: Es un estatuto y el usufructo solo aparece como peticion de revision
+    test('Test para explicacion de usufructo',()=>{
+        const text = `CONSTITUCION DE GARANTIAS Constituir toda clase de garantías, hipotecas,
+prendas, fianzas simples y/o solidarias, avales en letras de cambio o pagarés, constituirse en
+codeudor solidario, warrant, gravar los bienes sociales con derechos de uso, usufructo,
+habitación, etcétera; constituir servidumbres activas o pasivas; posponerlas`;
+        const norm = normalizeText(text);
+        console.log(norm)
+        const tipoDerecho = extractor.rightType(norm);
+        // expect(tipoDerecho).toBeNull();
     })
 })

@@ -1059,30 +1059,30 @@ class PjudPdfData {
 
 //     //Funcion para obtener la direccion
 //     //Esta funcion esta pensada para funcionar con textos de avaluo fiscal
-//     obtainDireccion(info) {
-//         // console.log("info en direccion: ", info);
-//         if(info.includes('bases generales de remate')){
-//             return this.obtainDireccionActaRemate(info);
-//         }
-//         let avaluoType = this.obtainTipo(info) ? this.obtainTipo(info) : '';
-//         let startText = "direccion o nombre del bien raiz:";
-//         let startIndex = info.indexOf(startText);
-//         if (startIndex === -1) {
-//             startText = "direccion:";
-//             startIndex = info.indexOf(startText);
-//         }
-//         const endText = "destino del bien raiz:";
-//         const endIndex = info.indexOf(endText);
-//         if (startIndex === -1 || endIndex === -1) {
-//             return null;
-//         }
-//         startIndex += startText.length;
-//         const direccion = info.substring(startIndex, endIndex).trim();
-//         return {
-//             "direccion": direccion,
-//             "tipo": avaluoType
-//         }
-//     }
+    obtainDireccion(info) {
+        // console.log("info en direccion: ", info);
+        if(info.includes('bases generales de remate')){
+            return this.obtainDireccionActaRemate(info);
+        }
+        let avaluoType = this.obtainTipo(info) ? this.obtainTipo(info) : '';
+        let startText = "direccion o nombre del bien raiz:";
+        let startIndex = info.indexOf(startText);
+        if (startIndex === -1) {
+            startText = "direccion:";
+            startIndex = info.indexOf(startText);
+        }
+        const endText = "destino del bien raiz:";
+        const endIndex = info.indexOf(endText);
+        if (startIndex === -1 || endIndex === -1) {
+            return null;
+        }
+        startIndex += startText.length;
+        const direccion = info.substring(startIndex, endIndex).trim();
+        return {
+            "direccion": direccion,
+            "tipo": avaluoType
+        }
+    }
 
 //     obtainDireccionActaRemate(info) {
 //         let startText = "ubicados en:";

@@ -1054,6 +1054,168 @@ www.cbrvina.cl
 Powered by CBR Intelligence
 Powered by TCPDF (www.tcpdf.org)`;
 
+const DVGP1082 = `Conservador de Bienes Raíces Iquique Enzo Jose Redolfi Gonzalez
+Certifico  que  el  presente  documento  electrónico  es  copia  fiel  e  íntegra  de
+CERTIFICADO DE DOMINIO VIGENTE CON HIPOTECAS Y GRAVÁMENES;
+PROHIBICIONES E INTERDICCIONES;  otorgado el 01 de Octubre de 2025
+reproducido en las siguientes páginas.
+
+Conservador de Bienes Raíces Iquique Enzo Jose Redolfi Gonzalez.-
+Eleuterio Ramirez 1597, Iquique..-
+Iquique, 06 de Octubre de 2025.-
+Emito  el  presente  documento  con  firma  electrónica  avanzada  (ley  No19.799,  de
+2002), conforme al procedimiento establecido por Auto Acordado de 13/10/2006 de la
+Excma. Corte Suprema.-
+Certificado Nº 123456908424.- Verifique validez en www.fojas.cl.-
+CUR Nº: F449-123456908424.-
+www.fojas.cl
+Pag: 1/1
+Pag: 1/5
+
+CERTIFICADO  DE  DOMINIO  VIGENTE.-
+Certifico:  Que  ESPINOZA  BAHAMONDES  FERNANDO  RAUL  es  dueño(a)  del
+Departamento  Número  seiscientos  dieciséis,  de  la  Bodega  Número  veintiuno  y  del
+Estacionamiento  Número  veintitrés,  todos  del  CONDOMINIO  PLAYA  HUANTAJAYA,
+ubicado  en  Pasaje  Camino  a  la  Playa  Número  dos  mil  cuarenta  de  la  Comuna  de  Iquique,
+individualizado  en  el  Plano  de  Copropiedad  Inmobiliaria,  archivado  bajo  el  Número
+seiscientos  dieciocho,  rectificado  y  complementado  por  plano  archivado  bajo  el  Número
+novecientos  veintidós,  ambos  en  el   Registro  de  Planos  y  Documentos  del  año  dos   mil
+diecisiete.  Los  deslindes  generales  del  Lote  B,  que  tiene  una  superficie  de  ocho  mil  metros
+cuadrados,  donde  se  encuentra  emplazado  el  condominio,  son:  Al  Norte,  en  línea  quebrada  de
+veinticinco  metros  tramo  B  y  M  tres,  en  cuarenta  y  dos  coma  ochenta  metros  tramo  M  tres  y  M
+dos,  en  treinta  metros  tramo  M  dos  y  M  uno  y  en  treinta  metros  tramo  M  uno  y  M  con  Lote  A;
+al  Sur,  en  línea  curva  de  treinta  y  siete  metros  con  tramo  C  y  D  y  línea  recta  de  noventa  y
+cuatro  coma  ochenta  metros  tramo  D  y  D  uno  con  camino  público  existente  y  terrenos  fiscales;
+al  Este,  en  línea  recta  de  noventa  y  cinco  metros  tramo  B  y  C  con  camino  público  costero  de
+Iquique  a  Tocopilla;  y  al  Oeste,  en  línea  recta  de  treinta  y  nueve  metros  tramo  D  uno  y  K  y
+línea  sinuosa  de  ciento  once  metros  con  línea  de  alta  marea  tramo  K  y  M.-
+El  dominio  se  encuentra  inscrito  a  Fojas  2902  Vuelta  Número  3723  del  Registro  de  Propiedad
+del  año  2.017.-
+IQUIQUE,  a  las  10:15  del  01  de  octubre  del  año  2025.-
+CERTIFICADO  DE  HIPOTECAS  Y  GRAVÁMENES,
+PROHIBICIONES  E  INTERDICCIONES.-
+Certifico:  Que  revisados  los  Índices  del  Registro  de  Hipotecas  y  Gravámenes,  Prohibiciones  e
+Interdicciones  durante  TREINTA  años  a  la  fecha,  respecto  a  la  propiedad  a  que  se  refiere  el
+certificado  que  antecede,  aparecen  las  siguientes  inscripciones  :
+Página 1 de 2
+251006101511CC
+REVISION
+Enzo José
+Redolfi González
+CONSERVADOR BIENES RAICES IQUIQUE
+REGLAMENTO  DE  COPROPIEDAD   :  a  Fojas  1907    Número  2859  del  Año  2.016  ,  a
+favor  de  CONDOMINIO  PLAYA  HUANTAJAYA.-
+HIPOTECA   :  a  Fojas  1488  Vuelta  Número  1808  del  Año  2.017  ,  a  favor  de  BANCO  DE
+CREDITO  E  INVERSIONES.-
+Certificado           Nº
+123456908424
+Verifique validez en
+http://www.fojas.cl
+Pag: 2/5
+
+PROHIBICION   :
+a  Fojas  1792
+
+Vuelta  Número  2624  del  Año  2.017  ,  a  favor  de  BANCO  DE
+CREDITO  E  INVERSIONES.-
+EMBARGO   :  a  Fojas  1109    Número  1509  del  Año  2.023  ,  a  favor  de  BANCO  DE  CHILE.-
+EMBARGO   :  a  Fojas  823  Vuelta  Número  1114  del  Año  2.024  ,  a  favor  de  BANCO  DE
+CREDITO  E  INVERSIONES.-
+EMBARGO   :  a  Fojas  751  Vuelta  Número  967  del  Año  2.025  ,  a  favor  de  BANCO  DE
+CREDITO  E  INVERSIONES.-
+IQUIQUE, a las 10:15 del 01 de octubre del año 2025.-
+251006101511CCPágina 2 de 2
+Certificado           Nº
+123456908424
+Verifique validez en
+http://www.fojas.cl
+Pag: 3/5
+
+N,I    3723.-
+(OMl'R^VENT^
+I,'SI,IN()/,A
+B^H^M()NI)I,)S
+F I I; R N A N I )O
+R^Ul,
+A
+lNM()I)Il,l^R'^
+PI,AYA
+I IU^N'I^J^Y^
+I,IMIT^D^
+R13I,.  I 0543 ,-
+()'1,541   I  88,-
+(I  2137  -
+G^.-
+I)  S I (,8  854  -
+81384237  -
+eeATPGO
+Iquique,    cuatro    de    Octubre    del    afro    dos    milth/Y8G¥
+diecisiete.-Don FERNAND0 RAUL ESPINOZA ¢/Jtz+
+BAHAMONDES,     chileno,     soltero,      ingeniero,
+Cedula     de     Identidad     ntimero     diez     millones
+doscientos    veintiocho    mil    seiscientos    treinta    y
+nueve  gui6n  uno,  con  domicilio  en  Avenida  Pedro
+Aguirre  Cerda once  mil  noventa y  dos,  Comuna de
+Antofagasta,  es  duefio  del  Departamento  Ntimero
+seiscientos     diecis6is,     de     la     Bodega     Ntimero
+veintiuno y del  Estacionamiento Ndmero  veintitres,
+todos           del           CONDOMINI0           PLAYA
+HUANTAJAYA,  ubicado  en  Pasaje  Camino  a  la
+Playa  Ntimero  dos  nil  cuarenta  de  la  Comuna  de
+lquique,       individualizado      en      el      Plano      de
+Copropiedad     Inmobiliaria,     archivado     bajo     el
+Ntimero      seiscientos      dieciocho,      rectificado      y
+complementado    por    plano    archivado     bajo     el
+Ntimero     novecientos    veintid6s,     ambos     en    el
+Registro  de  Planos y  Documentos  del  afro  dos   mil
+diecisiete.  Los  deslindes  generales  del  Lote  8,  que
+tiene  una  superficie  de  ocho  mil  metros cuadrados,
+donde  se  encuentra  emplazado  el  condominio,  son:
+AI  Norte,   en   linea  quebrada  de  veinticinco  metros
+tramo  8  y  M  tres,  en  cuarenta y  dos  coma  ochenta
+metros tramo M tres y M dos, en treinta metros tramo
+M dos y M uno y en treinta metros tramo M uno y M
+con  Lote  A;  al  Sur,  en  linea  curva  de  treinta  y  siete
+metros  con  tramo  C  y  D  y  linea  recta  de  noventa  y
+cuatro  coma  ochenta  metros  tramo  D  y  D  uno  con
+Certificado           Nº
+123456908424
+Verifique validez en
+http://www.fojas.cl
+Pag: 4/5
+
+CONSHRVADOR Y ARCI+IVERO JUDICIAL
+IQUIQUE
+DOS MIL NOVECIENTAS TRES
+2903
+camino ptiblico existente y terrenos fiscales; al Este, en
+linea recta de noventa y cinco metros tramo 8 y C con
+camino  ptiblico  costero  de  lquique  a  Tocopilla;  y  al
+Oeste, en linea recta de treinta y nueve metros tramo D
+uno  y  K  y  linea  sinuosa  de  ciento  once  metros  con
+linea  de  alta  marea  tramo  K  y  M.-  Adquiri6  estas
+propiedades   por   compra  que   hizo   a   Inmobiliaria
+Playa     Huantajaya     Limitada,     en     la     suma     de
+UF.3.766,0400.-(tres  mil  setecientas  sesenta y  seis
+coma  cero  cuatro  cero  cero  Unidades  de  Fomento)
+pagada en  la forma  indicada  en  la escritura pdblica
+de    fecha   veintis6is   de    Mayo   del   afro    dos   mil
+diecisiete,   Repertorio  Ntimero  dos  mil  quinientos
+sesenta y tres, extendida en la Notaria de Iquique de
+don N6stor Araya Blazina.-El dominio anterior esta
+a    Fojas    cuatrocientas    ochenta    vuelta    Ntimero
+setecientos   ochenta   y   ocho   en   el    Registro   de
+Propiedad del afro dos mil catorce.- Segtin consta en
+la    escritura    antes    mencionada,    las    propiedades
+materia  de  la presente  inscripci6n  tienen  asignados
+los  Roles  N°3800-124;  N°3800-228  y N°3800-422.-
+Requirente: Victoria Cespedes?
+Certificado           Nº
+123456908424
+Verifique validez en
+http://www.fojas.cl
+Pag: 5/5`;
+
 module.exports = {
     textoGP1, 
     textoGP2, 
@@ -1076,5 +1238,6 @@ module.exports = {
     GP33,
     GP5051,
     GP6782,
-    GP5424
+    GP5424,
+    DVGP1082
 };

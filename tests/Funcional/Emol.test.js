@@ -42,7 +42,7 @@ describe('procesarDatosRemate',()=>{
         //     moneda: 'UF',
         //     monto: 1031.99465
         // });
-        expect(caso1666.direccion).toEqual('propiedad ubicada en el sitio 10 de la manzana d-1, ubicado en calle 4 arnaldo toro godoy n° 01241 del conjunto habitacional arturo alessandri palma ii de la ciudad de linares comuna de linares');
+        expect(caso1666.direccion).toEqual('propiedad ubicada en el sitio 10 de la manzana d - 1, ubicado en calle 4 arnaldo toro godoy n° 01241 del conjunto habitacional arturo alessandri palma ii de la ciudad de linares comuna de linares');
     });
 
     test('Caso C-2226-2023',()=>{
@@ -86,7 +86,7 @@ describe('procesarDatosRemate',()=>{
         expect(caso2240.porcentaje).toEqual(10);
         expect(caso2240.partes).toEqual('santander-chile con muñoz zepeda”');
         expect(caso2240.diaEntrega).toBeNull();
-        expect(caso2240.direccion).toEqual('inmueble consistente en el departamento n°1104, situado en la planta o piso 11, la bodega n°140, ubicada en la planta subterráneo, ambos del edificio ii, y el Est de superficie n°e-381, ubicado en el área del terreno común destinado a estacionamientos, todos del condominio alto hacienda, etapa 2, con acceso principal por avenida rené schneider n°2031, de la comuna de coquimbo')
+        expect(caso2240.direccion).toEqual('inmueble consistente en el departamento n°1104, situado en la planta o piso 11, la bodega n°140, ubicada en la planta subterráneo, ambos del edificio ii, y el Est de superficie n°e - 381, ubicado en el área del terreno común destinado a estacionamientos, todos del condominio alto hacienda, etapa 2, con acceso principal por avenida rené schneider n°2031, de la comuna de coquimbo')
     });
 
     test('Caso C-800-2025',()=>{

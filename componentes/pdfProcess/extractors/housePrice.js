@@ -62,7 +62,7 @@ function processMonto(monto) {
 
     const matchUF = ufRegex.exec(monto)
     if (matchUF) {
-        const montoWithoutType = monto.substring(0, matchUF.index);
+        let montoWithoutType = monto.substring(0, matchUF.index);
         if (montoWithoutType.includes("coma")) {
             const parts = montoWithoutType.split("coma");
             const intPart = convertWordToNumbers(parts[0]);
@@ -79,16 +79,17 @@ function processMonto(monto) {
                 moneda: "UF"
             }
         }
-        const matchedNumber = regexNumber.exec(montoWithoutType);
+        const matchedNumber = regexNumber.exec(monto);
+
         if (matchedNumber) {
+            matchedNumber[0] = matchedNumber[0].replace(/\./g,'');
             return {
-                monto: parseInt(matchedNumber[0]),
+                monto: parseFloat(matchedNumber[0]),
                 moneda: "UF"
             }
         } else {
-            // console.log(montoWithoutType)
+            console.log(montoWithoutType)
             total = convertWordToNumbers(montoWithoutType);
-            // console.log(montoWithoutType)
             return {
                 monto: total,
                 moneda: "UF"
@@ -171,6 +172,7 @@ function searchByAdquirio(text) {
 }
 
 function searchByPorLaSuma(text) {
+    console.log(text)
     const regexSuma = /(por|en)\s*la\s*suma/i;
     const matchedAdquirio = regexSuma.exec(text);
     if (!matchedAdquirio) {

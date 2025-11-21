@@ -604,7 +604,8 @@ class ConsultaCausaPjud{
             'dga',
             'dga.',
             'lq',
-            'portada'
+            'portada',
+            'estatuto'
         ];
 
         // Dividir el texto en palabras individuales
