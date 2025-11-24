@@ -376,6 +376,7 @@ class CompleteExcelInfo{
         newComuna = newComuna.toLowerCase();
 
         if(newComuna == baseComuna){
+            console.log(newRol, baseRol,lastRowNew)
             if(matchRol(newRol, baseRol)){
                 findedCausas.push({ causa: causa, rol: newRol, baseLine: actualRowBase, newLine: lastRowNew });
                 return true;

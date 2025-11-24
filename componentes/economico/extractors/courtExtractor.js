@@ -62,9 +62,9 @@ function extractCourt(data) {
                 return variation;
             })
 
-            // if(tribunal.includes("14° JUZGADO CIVIL DE SANTIAGO")) {
-            //     console.log("Tribunal encontrado: ", variaciones);
-            // }
+            if(tribunal.includes("10° JUZGADO CIVIL DE SANTIAGO")) {
+                console.log("Tribunal encontrado: ", variaciones);
+            }
 
             if (tribunalNormalized.includes("en lo civil")) {
                 variaciones.push(...variaciones.map(variation => variation.replace("en lo civil ", "")));
@@ -90,7 +90,7 @@ function convertirANombre(number) {
         8: ["octavo"],
         9: ["noveno"],
         10: ["decimo"],
-        11: ["undecimo", "decimoprimero", "decimo primero"],
+        11: ["undecimo", "decimoprimero", "decimo primero", "decimo primer"],
         12: ["duodecimo", "decimosegundo", "decimo segundo"],
         13: ["decimotercero", "decimo tercero", "decimotercer", "decimo tercer"],
         14: ["decimocuarto", "decimo cuarto"],

@@ -3,7 +3,7 @@ const {app, BrowserWindow, ipcMain, dialog,electron} = require('electron');
 const path = require('path');
 const pie = require('puppeteer-in-electron');
 
-const {delay} = require('../../utils/delay');
+const {delay, fakeDelay} = require('../../utils/delay');
 
 class MapasSII {
     constructor(page, browser) {
@@ -67,6 +67,7 @@ class MapasSII {
 
             await this.page.click('button[data-ng-click="validaBusqueda()"]');
             console.log("Se hizo click Buscando");
+            await fakeDelay(1,2);
             await this.obtainMapValues(caso);
         } catch (error) {
             console.error("Error al obtener los datos de la propiedad", error);

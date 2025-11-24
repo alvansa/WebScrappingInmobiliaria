@@ -154,6 +154,8 @@ async extractInfoPage() {
 
             const processCases = await this.processPage(this.fechaInicio, this.fechaFin, SELECTORS);
 
+            await fakeDelay(2,4);
+
             this.addFoundCases(processCases.casos,fechaHoy);
 
             if (processCases.stop) {
