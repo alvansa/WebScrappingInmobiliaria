@@ -503,7 +503,7 @@ class checkFPMG {
         }
     }
     openWindow(window) {
-        const isVisible = true;
+        const isVisible = false;
         window = new BrowserWindow({
             show: isVisible,// Ocultar ventana para procesos en background
         });

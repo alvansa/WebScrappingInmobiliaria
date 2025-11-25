@@ -1,6 +1,7 @@
 const pie = require('puppeteer-in-electron');
 const Caso = require('../caso/caso')
 const {BrowserWindow} = require('electron');
+const logger = require('../../utils/logger')
 
 const {delay,fakeDelay} = require('../../utils/delay');
 const {procesarDatosRemate} = require('./datosRemateEmol');
@@ -21,7 +22,7 @@ const EMOL = 1;
 const MAIN_URL = 'https://www.economicos.cl/todo_chile/remates_de_propiedades_el_mercurio';
 
 class Economico{
-    constructor(browser,fechaInicio, fechaFin, originStartDate, originEndDate){
+    constructor(browser,fechaInicio, fechaFin, originStartDate, originEndDate, isTestMode){
         this.browser = browser;
         this.page = null;
         this.window = null;
@@ -33,6 +34,7 @@ class Economico{
         this.originStartDate = originStartDate;
         this.originEndDate = originEndDate;
         this.isFunctionSet = false;
+        this.isTestMode = isTestMode;
     }
 
     async getCases(){
@@ -58,11 +60,12 @@ class Economico{
                 //     console.log("Terminando por ahora para test");
                 //     break;
                 // }
-                if(counter % 5 == 0){
-                    await fakeDelay(30, 70,true);
+                if(counter % 2 == 0){
+                    await fakeDelay(15, 45,true);
                     await this.changeUserAgent();
                 }
             }
+
             for(let caso of this.casosARevisar){
                 // console.log("Procesando caso: ", caso.link);
                 procesarDatosRemate(caso);
@@ -87,7 +90,8 @@ class Economico{
     async changeUserAgent(){
         try{
             const randomIndex = Math.floor(Math.random() * listUserAgents.length);
-            const customUA = listUserAgents[randomIndex].userAgent;
+            const customUA = listUserAgents[randomIndex];
+            logger.info(`User agent elegido ${customUA}`);
             await this.page.setUserAgent(customUA);
         }catch(error){
             console.error('Error cambiando el userAgent', error.message);
@@ -111,20 +115,21 @@ class Economico{
     }
 
 async extractInfoPage() {
-    const defaultUserAgents = [
-        { userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' },
-        { userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' }
-    ];
+    // const defaultUserAgents = [
+    //     { userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' },
+    //     { userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' }
+    // ];
 
-    let userAgents;
+    // let userAgents;
     
-    try {
-        // Intenta cargar USER_AGENTS desde .env, si no existe usa los valores por defecto
-        userAgents = process.env.USER_AGENTS ? JSON.parse(process.env.USER_AGENTS) : defaultUserAgents;
-    } catch (error) {
-        console.error('Error parsing USER_AGENTS from .env, using default agents:', error);
-        userAgents = defaultUserAgents;
-    }
+    // try {
+    //     // Intenta cargar USER_AGENTS desde .env, si no existe usa los valores por defecto
+    //     userAgents = process.env.USER_AGENTS ? JSON.parse(process.env.USER_AGENTS) : defaultUserAgents;
+    // } catch (error) {
+    //     console.error('Error parsing USER_AGENTS from .env, using default agents:', error);
+    //     userAgents = defaultUserAgents;
+    // }
+
     let customUA;
     let attempt = 0;
     let stopFlag = false;
@@ -133,9 +138,12 @@ async extractInfoPage() {
 
     while (attempt < this.maxRetries) {
         try {
-            const randomIndex = Math.floor(Math.random() * userAgents.length);
-            customUA  = userAgents[randomIndex].userAgent;
-            await this.page.setUserAgent(customUA);
+            // const randomIndex = Math.floor(Math.random() * userAgents.length);
+            // customUA  = userAgents[randomIndex].userAgent;
+            // await this.page.setUserAgent(customUA);
+
+            await this.changeUserAgent();
+
             await this.navigateToPage(url);
             if(!this.isFunctionSet){
                 await this.page.exposeFunction('extractAuctionDate', extractAuctionDate.bind(extractAuctionDate));
@@ -236,6 +244,7 @@ async check503(){
     return is503;
 }
 
+//Funcion encargada de procesar la pagina principal de emol donde aparecen los multiples remates
 async processPage(startDate,endDate,SELECTORS){
     // this.page.on('console', msg =>{console.log("LOG BROWSER: ", msg.text())});
     const casosPagina = await this.page.evaluate(async (fechaInicio, fechaFin,SELECTORS) => {
@@ -249,11 +258,10 @@ async processPage(startDate,endDate,SELECTORS){
             let auctionDate = null;
             //El tiempo en Emol aparece con formato => "YYYY-MM-DD"
 
-            // obtainPosibleAuctionDate(element);
             let posibleAuctionDate = element.querySelector(SELECTORS.ELEMENTO_TEXTO);
+            //se lee el resumen del remate para saber si aparece la fecha del remate
             if(posibleAuctionDate){
                 auctionDate = await window.extractAuctionDate(posibleAuctionDate.innerHTML);
-                // console.log(`Mensaje desde el browser ${posibleAuctionDate.innerHTML} fecha encontrada : ${auctionDate}`);
             }
 
             if (dateTimeStr) {
@@ -298,7 +306,9 @@ addFoundCases(cases,fechaHoy){
         const casoObj = new Caso(fechaHoyCaso, fechaPublicacion, announcement, EMOL);
         casoObj.fechaRemate = currentCase.fechaRemate;
 
-        if(!casoObj.fechaRemate || (casoObj.fechaRemate >= this.originStartDate && casoObj.fechaRemate <= this.originEndDate )){
+        if(this.isTestMode){
+            this.casosARevisar.push(casoObj);
+        }else if(!casoObj.fechaRemate || (casoObj.fechaRemate >= this.originStartDate && casoObj.fechaRemate <= this.originEndDate )){
             this.casosARevisar.push(casoObj);
         }
         

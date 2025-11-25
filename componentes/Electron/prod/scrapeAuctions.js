@@ -58,7 +58,9 @@ class scrapeAuction {
             //Luego de obtener los casos de emol se revisaran los casos obtenidos en pjud
             casosEconomico = await this.searchEmolAuctionsInPjud(casosEconomico);
             casos = [...casosEconomico, ...casos];
-            await this.obtainMapasSIIInfo(casos);
+            if(casos.length > 1){
+                await this.obtainMapasSIIInfo(casos);
+            }
         }
         if(!this.isTestMode){
             casos = await this.secondRound(casos);
@@ -124,7 +126,7 @@ class scrapeAuction {
 
         let casos = [];
         try {
-            const economico = new Economico(this.browser, fechaInicio, fechaFin, fixStartDate, fixEndDate);
+            const economico = new Economico(this.browser, fechaInicio, fechaFin, fixStartDate, fixEndDate, this.isTestMode);
             casos = await economico.getCases() || [];
             
         } catch (error) {

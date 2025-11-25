@@ -62,9 +62,9 @@ function extractCourt(data) {
                 return variation;
             })
 
-            if(tribunal.includes("10° JUZGADO CIVIL DE SANTIAGO")) {
-                console.log("Tribunal encontrado: ", variaciones);
-            }
+            // if(tribunal.includes("10° JUZGADO CIVIL DE SANTIAGO")) {
+            //     console.log("Tribunal encontrado: ", variaciones);
+            // }
 
             if (tribunalNormalized.includes("en lo civil")) {
                 variaciones.push(...variaciones.map(variation => variation.replace("en lo civil ", "")));

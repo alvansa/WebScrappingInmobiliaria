@@ -13,6 +13,8 @@ const {delay,fakeDelay,fakeDelayms} = require('../../utils/delay.js');
 const ProcesarBoletin = require('../liquidaciones/procesarBoletin.js');
 const PjudPdfData = require('./PjudPdfData.js');
 const PdfProcess = require('../pdfProcess/PdfProcess.js');
+const listUserAgents = require('../../utils/userAgents.json');
+const { listenerCount } = require('process');
 
 const ERROR = 0;
 const EXITO = 1;
@@ -74,7 +76,7 @@ class ConsultaCausaPjud{
     
     try {
         // Intenta cargar USER_AGENTS desde .env, si no existe usa los valores por defecto
-        userAgents = process.env.USER_AGENTS ? JSON.parse(process.env.USER_AGENTS) : defaultUserAgents;
+        userAgents = listUserAgents ? listUserAgents : defaultUserAgents;
     } catch (error) {
         console.error('Error parsing USER_AGENTS from .env, using default agents:', error);
         userAgents = defaultUserAgents;
@@ -84,7 +86,7 @@ class ConsultaCausaPjud{
     const randomIndex = Math.floor(Math.random() * userAgents.length);
     
     try {
-        await this.window.loadURL(this.link);
+        // await this.window.loadURL(this.link);
         this.page = await pie.getPage(this.browser, this.window);
         await this.page.setUserAgent(userAgents[randomIndex].userAgent);
         await this.page.goto(this.link);
