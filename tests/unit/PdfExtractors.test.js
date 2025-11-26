@@ -216,7 +216,6 @@ prendas, fianzas simples y/o solidarias, avales en letras de cambio o pagarés, 
 codeudor solidario, warrant, gravar los bienes sociales con derechos de uso, usufructo,
 habitación, etcétera; constituir servidumbres activas o pasivas; posponerlas`;
         const norm = normalizeText(text);
-        console.log(norm)
         const tipoDerecho = extractor.rightType(norm);
         // expect(tipoDerecho).toBeNull();
     })

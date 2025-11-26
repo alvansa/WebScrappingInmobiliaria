@@ -147,7 +147,7 @@ function adaptDirectionToExcel(direction){
         finalDirection = direction.replace(matchedEstacionamiento[0],"Est ");
     }
     finalDirection = finalDirection.replace(/estacionamiento\b/i,"Est");
-    console.log(`-------------------------Direccion que va a cambiar string por num\n-----------------\n${finalDirection}\n--------------------`)
+    // console.log(`-------------------------Direccion que va a cambiar string por num\n-----------------\n${finalDirection}\n--------------------`)
     finalDirection = changeWordsToNumbers(finalDirection);
 
     return finalDirection

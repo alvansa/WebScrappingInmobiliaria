@@ -85,7 +85,7 @@ function convertWordToNumbers(stringNumber) {
     .replace(/\s+/g, ' ')
     .replace(/,/g,'')
     .trim();
-    console.log(`---------------\n${normalized}\n------------------`)
+    // console.log(`---------------\n${normalized}\n------------------`)
 
   // Verificar primero números especiales (0-29)
   for (const [word, value] of Object.entries(numberMap.specialTens)) {

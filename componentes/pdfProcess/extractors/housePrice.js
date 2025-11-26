@@ -88,7 +88,6 @@ function processMonto(monto) {
                 moneda: "UF"
             }
         } else {
-            console.log(montoWithoutType)
             total = convertWordToNumbers(montoWithoutType);
             return {
                 monto: total,
@@ -172,7 +171,6 @@ function searchByAdquirio(text) {
 }
 
 function searchByPorLaSuma(text) {
-    console.log(text)
     const regexSuma = /(por|en)\s*la\s*suma/i;
     const matchedAdquirio = regexSuma.exec(text);
     if (!matchedAdquirio) {

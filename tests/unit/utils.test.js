@@ -291,7 +291,7 @@ describe('ObtainJuzgadoNumber', ()=>{
             .construir();
         
         const casos = [caso1];
-        obtainCorteJuzgadoNumbers(casos,true);
+        obtainCorteJuzgadoNumbers(casos);
         expect(caso1.numeroJuzgado).toBe('282');
         expect(caso1.corte).toBe('90');
     });
@@ -302,7 +302,7 @@ describe('ObtainJuzgadoNumber', ()=>{
             .construir();
         
         const casos = [caso1];
-        obtainCorteJuzgadoNumbers(casos,true);
+        obtainCorteJuzgadoNumbers(casos);
         expect(caso1.numeroJuzgado).toBe('266');
         expect(caso1.corte).toBe('90');
     });

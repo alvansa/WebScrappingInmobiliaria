@@ -108,11 +108,8 @@ describe('Test de Pjud con avaluos', ()=>{
         const caso4991 = new Caso(new Date(), new Date(), 'lgr', 2);
         const testPjudPdf = new PjudPdfData(caso4991, null, true);
         testPjudPdf.processInfo(AV.textoHabitacionMultiple);
-        console.log('PRE 1: ', caso4991.toObject());
         testPjudPdf.processInfo(AV.textoEstacionamientoMultiple);
-        console.log('PRE 2: ', caso4991.toObject());
         testPjudPdf.processInfo(AV.textoBodegaMultiple);
-        console.log('PRE 3: ', caso4991.toObject());
         const casoObj = caso4991.toObject();
         expect(casoObj.unitRol).toEqual('3795-302-474-368');
         expect(casoObj.unitAvaluo).toEqual(65214126);

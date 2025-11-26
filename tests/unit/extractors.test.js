@@ -124,13 +124,13 @@ describe('test de convertir frases con numeros escritos en palabras a numeros',(
 
     test('Test para probar cuando se mezclan numeros' , ()=>{
         const texto = 'la propiedad consistente en el departo numero dosmil quinientos';
-        const res = changeWordsToNumbers(texto,true);
+        const res = changeWordsToNumbers(texto);
         // expect(res).toBe('la propiedad consistente en el departamento n° 2500')
     });
 
     test('Test para probar numero con tilde' , ()=>{
         const texto = 'la propiedad consistente en el departo numero dosmil quinientos';
-        const res = changeWordsToNumbers(texto,true);
+        const res = changeWordsToNumbers(texto);
         // expect(res).toBe('la propiedad consistente en el departamento n° 2500')
     });
 
@@ -253,7 +253,7 @@ describe('test para extraer el banco que tiene la hipoteca del GP', ()=>{
     test('Test para obtener el hipotecario que no es un banco', ()=>{
         const text = txGP.GP6782;
         const banco = processMortageBank(text,null);
-        console.log(banco)
+        expect(banco).toBeNull();
 
     });
 });

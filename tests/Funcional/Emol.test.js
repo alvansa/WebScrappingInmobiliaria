@@ -39,7 +39,7 @@ describe('procesarDatosRemate',()=>{
         expect(caso1666.partes).toEqual('fondo de inversion larrain vial con castillo');
         expect(caso1666.diaEntrega).toEqual('a más tardar el día viernes anterior a la subasta');
         // expect(caso1666.montoMinimo).toEqual({
-        //     moneda: 'UF',
+        //     moneda: 
         //     monto: 1031.99465
         // });
         expect(caso1666.direccion).toEqual('propiedad ubicada en el sitio 10 de la manzana d - 1, ubicado en calle 4 arnaldo toro godoy n° 01241 del conjunto habitacional arturo alessandri palma ii de la ciudad de linares comuna de linares');
