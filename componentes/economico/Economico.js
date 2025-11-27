@@ -1,28 +1,27 @@
 const pie = require('puppeteer-in-electron');
 const Caso = require('../caso/caso')
-const {BrowserWindow} = require('electron');
+const { BrowserWindow } = require('electron');
 const logger = require('../../utils/logger')
 
-const {delay,fakeDelay} = require('../../utils/delay');
-const {procesarDatosRemate} = require('./datosRemateEmol');
+const { delay, fakeDelay } = require('../../utils/delay');
+const { procesarDatosRemate } = require('./datosRemateEmol');
 const listUserAgents = require('../../utils/userAgents.json');
 const { simulateHumanBehavior } = require('../../utils/stealth');
-const {extractAuctionDate} = require('./extractors/auctionDateExtractor');
-const { EvalSourceMapDevToolPlugin } = require('webpack');
+const { extractAuctionDate } = require('./extractors/auctionDateExtractor');
 
 require('dotenv').config();
 
-const SELECTORS = 
+const SELECTORS =
 {
     'NEXT_PAGE_SELECTOR': 'span.pag_bt_result_left.pag_bt_resul_green.pag_bt_pad_r.pag_color_bt_green',
     'CASO_BLOQUE_SELECTOR': 'div.result.row-fluid',
-    'ELEMENTO_TEXTO' : 'div.col2.span6 > a > h3',
+    'ELEMENTO_TEXTO': 'div.col2.span6 > a > h3',
 }
 const EMOL = 1;
 const MAIN_URL = 'https://www.economicos.cl/todo_chile/remates_de_propiedades_el_mercurio';
 
-class Economico{
-    constructor(browser,fechaInicio, fechaFin, originStartDate, originEndDate, isTestMode){
+class Economico {
+    constructor(browser, fechaInicio, fechaFin, originStartDate, originEndDate, isTestMode) {
         this.browser = browser;
         this.page = null;
         this.window = null;
@@ -37,48 +36,52 @@ class Economico{
         this.isTestMode = isTestMode;
     }
 
-    async getCases(){
-        try{
+    async getCases() {
+        try {
             console.log("Iniciando la búsqueda de casos en Economicos.cl desde ", this.fechaInicio, " hasta ", this.fechaFin);
-            await this.createWindow('https://www.economicos.cl/todo_chile/remates_de_propiedades_el_mercurio');
+            await this.createWindow(MAIN_URL);
+
+            await this.setRealisticHeaders()
+
+
             const result = await this.extractInfoPage();
             console.log(`Casos a revisar : ${this.casosARevisar.length}`)
             await delay(2000);
             let counter = 0;
-            
 
-            for(let caso of this.casosARevisar){
+
+            for (let caso of this.casosARevisar) {
                 counter++;
                 const description = await this.getInfoFromSingularPage(caso);
-                await fakeDelay(5,10);
-                if(description){
+                await fakeDelay(15, 20);
+                if (description) {
                     caso.texto = description;
-                }else{
+                } else {
                     console.log("No se pudo obtener la descripción para el caso: ", caso);
                 }
                 // if (counter % 200 == 0) {
                 //     console.log("Terminando por ahora para test");
                 //     break;
                 // }
-                if(counter % 2 == 0){
-                    await fakeDelay(15, 45,true);
+                if (counter % 2 == 0) {
+                    await fakeDelay(15, 45, true);
                     await this.changeUserAgent();
                 }
             }
 
-            for(let caso of this.casosARevisar){
+            for (let caso of this.casosARevisar) {
                 // console.log("Procesando caso: ", caso.link);
                 procesarDatosRemate(caso);
             }
 
 
-        }catch(e){
+        } catch (e) {
             if (this.window && !this.window.isDestroyed()) this.window.destroy();
             console.log("Error en getCases: ", e);
             return [];
-        }finally{
+        } finally {
             console.log("Cerrando la ventana de Economicos.cl");
-            if(!this.window.isDestroyed()){
+            if (!this.window.isDestroyed()) {
                 this.window.destroy();
             }
         }
@@ -87,233 +90,261 @@ class Economico{
         return this.casosARevisar;
     }
 
-    async changeUserAgent(){
-        try{
+    async changeUserAgent() {
+        try {
             const randomIndex = Math.floor(Math.random() * listUserAgents.length);
             const customUA = listUserAgents[randomIndex];
             logger.info(`User agent elegido ${customUA}`);
             await this.page.setUserAgent(customUA);
-        }catch(error){
+        } catch (error) {
             console.error('Error cambiando el userAgent', error.message);
         }
 
     }
 
-    async createWindow(url){
-        this.window = new BrowserWindow({ show: true });
+    async createWindow(url) {
+        this.window = new BrowserWindow({ show: false });
         await this.window.loadURL(url);
         this.page = await pie.getPage(this.browser, this.window);
         await this.page.setViewport({ width: 1280, height: 800 });
     }
 
-    async obtainDescription(){
+    async obtainDescription() {
         const description = await this.page.evaluate(() => {
             const element = document.querySelector('div#description p');
             return element ? element.textContent : null;
-        }); 
+        });
         return description;
     }
 
-async extractInfoPage() {
-    // const defaultUserAgents = [
-    //     { userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' },
-    //     { userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' }
-    // ];
+    async extractInfoPage() {
+        // const defaultUserAgents = [
+        //     { userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' },
+        //     { userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' }
+        // ];
 
-    // let userAgents;
-    
-    // try {
-    //     // Intenta cargar USER_AGENTS desde .env, si no existe usa los valores por defecto
-    //     userAgents = process.env.USER_AGENTS ? JSON.parse(process.env.USER_AGENTS) : defaultUserAgents;
-    // } catch (error) {
-    //     console.error('Error parsing USER_AGENTS from .env, using default agents:', error);
-    //     userAgents = defaultUserAgents;
-    // }
+        // let userAgents;
 
-    let customUA;
-    let attempt = 0;
-    let stopFlag = false;
-    let url = 'https://www.economicos.cl/todo_chile/remates_de_propiedades_el_mercurio';
-    const fechaHoy = new Date();
+        // try {
+        //     // Intenta cargar USER_AGENTS desde .env, si no existe usa los valores por defecto
+        //     userAgents = process.env.USER_AGENTS ? JSON.parse(process.env.USER_AGENTS) : defaultUserAgents;
+        // } catch (error) {
+        //     console.error('Error parsing USER_AGENTS from .env, using default agents:', error);
+        //     userAgents = defaultUserAgents;
+        // }
 
-    while (attempt < this.maxRetries) {
-        try {
-            // const randomIndex = Math.floor(Math.random() * userAgents.length);
-            // customUA  = userAgents[randomIndex].userAgent;
-            // await this.page.setUserAgent(customUA);
+        let customUA;
+        let attempt = 0;
+        let stopFlag = false;
+        let url = 'https://www.economicos.cl/todo_chile/remates_de_propiedades_el_mercurio';
+        const fechaHoy = new Date();
 
-            await this.changeUserAgent();
+        while (attempt < this.maxRetries) {
+            try {
+                // const randomIndex = Math.floor(Math.random() * userAgents.length);
+                // customUA  = userAgents[randomIndex].userAgent;
+                // await this.page.setUserAgent(customUA);
 
-            await this.navigateToPage(url);
-            if(!this.isFunctionSet){
-                await this.page.exposeFunction('extractAuctionDate', extractAuctionDate.bind(extractAuctionDate));
-                this.isFunctionSet = true;
-            }
+                await this.changeUserAgent();
 
-            if (await this.check503()) {
-                throw new Error('Error 503: Service Unavailable');
-            }
-            // Obtener enlace a la siguiente página
-            const urlNextPage = await this.page.evaluate((NEXT_PAGE_SELECTOR) => {
-                const nextPage = document.querySelector(NEXT_PAGE_SELECTOR);
-                return nextPage ? nextPage.parentElement.getAttribute('href') : null;
-            }, SELECTORS.NEXT_PAGE_SELECTOR);
+                await this.navigateToPage(url);
+                if (!this.isFunctionSet) {
+                    await this.page.exposeFunction('extractAuctionDate', extractAuctionDate.bind(extractAuctionDate));
+                    this.isFunctionSet = true;
+                }
 
-
-            const processCases = await this.processPage(this.fechaInicio, this.fechaFin, SELECTORS);
-
-            await fakeDelay(2,4);
-
-            this.addFoundCases(processCases.casos,fechaHoy);
-
-            if (processCases.stop) {
-                console.log("Ya se superó la fecha límite");
-                stopFlag = true;
-                break;
-            }
-            if (stopFlag || !urlNextPage) {
-                break;
-            }
-            // Preparar siguiente página
-            url = this.urlBase + urlNextPage;
-            attempt = 0; // Resetear intentos si la página cargó correctamente
-            await fakeDelay(4, 7);
-
-        } catch (error) {
-            if (error.message.includes('503') || error.message.includes('Service Unavailable')) {
-                console.error('Error 503:', error.message);
-                const delayTime = 2 ** attempt * 1000;
-                console.log(`Esperando ${delayTime / 1000} segundos antes de reintentar...`);
-                await delay(delayTime);
-                attempt++;
-            } else {
-                console.error('Error en el modelo:', error.message);
-                throw error; // Relanzar error para manejarlo fuera
-            }
-        }
-    }
-}
+                if (await this.check503()) {
+                    throw new Error('Error 503: Service Unavailable');
+                }
+                // Obtener enlace a la siguiente página
+                const urlNextPage = await this.page.evaluate((NEXT_PAGE_SELECTOR) => {
+                    const nextPage = document.querySelector(NEXT_PAGE_SELECTOR);
+                    return nextPage ? nextPage.parentElement.getAttribute('href') : null;
+                }, SELECTORS.NEXT_PAGE_SELECTOR);
 
 
-async getInfoFromSingularPage(caso){
-    let attemp = 1;
-    while (attemp < this.maxRetries) {
-        await simulateHumanBehavior(this.page, 0.5, 0.5, 0.5, 0.5);
-        try {
-            // Navegar a la página
-            await this.page.goto(caso.link, {
-                waitUntil: 'networkidle2',
-                timeout: 120000
-            });
+                const processCases = await this.processPage(this.fechaInicio, this.fechaFin, SELECTORS);
 
-            // Esperar a que el elemento esté disponible
-            await this.page.waitForSelector('div[id*="desc"], div[class*="desc"]', { timeout: 5000 });
+                await simulateHumanBehavior(this.page, 0.5, 0.5, 0.5, 0.5);
 
-            // Extraer el texto
-            const description = await this.page.$eval('div#description p', el => el.textContent);
-            return description;
-        } catch (error) {
-            if(error.response && error.response.status === 503){
-                console.error('Error 503:', error.message);
-                const delayTime = 2 ** attemp * 1000; // Backoff exponencial
-                console.log(`Esperando ${delayTime / 1000} segundos antes de reintentar...`);
-                await delay(delayTime);
-                attemp++; // Incrementar el contador de intentos
-            } else {
-                console.error('Error al obtener información de la página:', error.message);
-                return null;
-            }
-        }
-    }
-}
+                await fakeDelay(15, 20);
 
-async navigateToPage(url){
-    try {
-        await this.page.goto(url, { waitUntil: 'networkidle2', timeout: 120000 });
-    } catch (error) {
-        console.error('Error al navegar a la página:', error.message);
-        throw error;
-    }
-}
+                this.addFoundCases(processCases.casos, fechaHoy);
 
-async check503(){
-    const is503 = await this.page.evaluate(() => {
-        return document.title.includes('503') ||
-            document.body.textContent.includes('Service Unavailable');
-    });
-    return is503;
-}
+                if (processCases.stop) {
+                    console.log("Ya se superó la fecha límite");
+                    stopFlag = true;
+                    break;
+                }
+                if (stopFlag || !urlNextPage) {
+                    break;
+                }
+                // Preparar siguiente página
+                url = this.urlBase + urlNextPage;
+                attempt = 0; // Resetear intentos si la página cargó correctamente
+                await fakeDelay(4, 7);
 
-//Funcion encargada de procesar la pagina principal de emol donde aparecen los multiples remates
-async processPage(startDate,endDate,SELECTORS){
-    // this.page.on('console', msg =>{console.log("LOG BROWSER: ", msg.text())});
-    const casosPagina = await this.page.evaluate(async (fechaInicio, fechaFin,SELECTORS) => {
-        const fechaInicioDate = new Date(fechaInicio);
-        const casos = [];
-        const bloqueCasos = document.querySelectorAll(SELECTORS.CASO_BLOQUE_SELECTOR)
-
-        for (let element of bloqueCasos) {
-            const timeElement = element.querySelector('time.timeago');
-            let dateTimeStr = timeElement ? timeElement.getAttribute('datetime') : null;
-            let auctionDate = null;
-            //El tiempo en Emol aparece con formato => "YYYY-MM-DD"
-
-            let posibleAuctionDate = element.querySelector(SELECTORS.ELEMENTO_TEXTO);
-            //se lee el resumen del remate para saber si aparece la fecha del remate
-            if(posibleAuctionDate){
-                auctionDate = await window.extractAuctionDate(posibleAuctionDate.innerHTML);
-            }
-
-            if (dateTimeStr) {
-                dateTimeStr = dateTimeStr.replace(/-/g,'/');
-                let announcementDate = new Date(dateTimeStr);
-
-                // await logDesdePagina(`fecha actual ${announcementDate} fecha inicio ${fechaInicioDate} y deberia parar ${announcementDate < fechaInicioDate} `);
-                if (announcementDate < fechaInicioDate) {
-                    return { casos, stop: true };
-                } else if (announcementDate >= new Date(fechaInicio) && announcementDate <= new Date(fechaFin)) {
-                    const linkElement = element.querySelector('div.col2.span6 a');
-                    const announcement = linkElement ? linkElement.getAttribute('href') : null;
-                    casos.push({
-                        fechaPublicacion: announcementDate.toISOString(),
-                        announcement: announcement,
-                        fechaRemate : auctionDate
-                    });
+            } catch (error) {
+                if (error.message.includes('503') || error.message.includes('Service Unavailable')) {
+                    console.error('Error 503:', error.message);
+                    const delayTime = 2 ** attempt * 1000;
+                    console.log(`Esperando ${delayTime / 1000} segundos antes de reintentar...`);
+                    await delay(delayTime);
+                    attempt++;
+                } else {
+                    console.error('Error en el modelo:', error.message);
+                    throw error; // Relanzar error para manejarlo fuera
                 }
             }
         }
-
-        return { casos, stop: false, bloqueCasos };
-    }, startDate.toISOString(), endDate.toISOString(), SELECTORS);
-    return casosPagina;
-}
-
-obtainPosibleAuctionDate(element,SELECTORS,extractAuctionDate){
-    const text = element.querySelector(SELECTORS.ELEMENTO_TEXTO);
-    const auctionDate = extractAuctionDate(text);
-    if(auctionDate){
-        return auctionDate;
     }
 
-    return null;
-}
-addFoundCases(cases,fechaHoy){
-    for(let currentCase of cases){
-        const announcement = currentCase.announcement ? this.urlBase + currentCase.announcement : null;
-        const fechaPublicacion = new Date(currentCase.fechaPublicacion);
-        const fechaHoyCaso = fechaHoy;
-        
-        const casoObj = new Caso(fechaHoyCaso, fechaPublicacion, announcement, EMOL);
-        casoObj.fechaRemate = currentCase.fechaRemate;
 
-        if(this.isTestMode){
-            this.casosARevisar.push(casoObj);
-        }else if(!casoObj.fechaRemate || (casoObj.fechaRemate >= this.originStartDate && casoObj.fechaRemate <= this.originEndDate )){
-            this.casosARevisar.push(casoObj);
+    async getInfoFromSingularPage(caso) {
+        let attemp = 1;
+        while (attemp < this.maxRetries) {
+            await simulateHumanBehavior(this.page, 0.5, 0.5, 0.5, 0.5);
+            try {
+                // Navegar a la página
+                await this.page.goto(caso.link, {
+                    waitUntil: 'networkidle2',
+                    timeout: 120000
+                });
+
+                // Verificar si estamos bloqueados
+                if (await this.isBlocked()) {
+                    throw new Error('Blocked by website');
+                }
+
+                // Esperar a que el elemento esté disponible
+                await this.page.waitForSelector('div[id*="desc"], div[class*="desc"]', { timeout: 5000 });
+
+                // Extraer el texto
+                const description = await this.page.$eval('div#description p', el => el.textContent);
+                return description;
+            } catch (error) {
+                if (error.response && error.response.status === 503) {
+                    console.error('Error 503:', error.message);
+                    const delayTime = 2 ** attemp * 1000; // Backoff exponencial
+                    console.log(`Esperando ${delayTime / 1000} segundos antes de reintentar...`);
+                    await delay(delayTime);
+                    attemp++; // Incrementar el contador de intentos
+                } else {
+                    console.error('Error al obtener información de la página:', error.message);
+                    return null;
+                }
+            }
         }
-        
     }
-}
+
+    async navigateToPage(url) {
+        try {
+            await this.page.goto(url, { waitUntil: 'networkidle2', timeout: 120000 });
+        } catch (error) {
+            console.error('Error al navegar a la página:', error.message);
+            throw error;
+        }
+    }
+
+    async check503() {
+        const is503 = await this.page.evaluate(() => {
+            return document.title.includes('503') ||
+                document.body.textContent.includes('Service Unavailable');
+        });
+        return is503;
+    }
+
+    //Funcion encargada de procesar la pagina principal de emol donde aparecen los multiples remates
+    async processPage(startDate, endDate, SELECTORS) {
+        // this.page.on('console', msg =>{console.log("LOG BROWSER: ", msg.text())});
+        const casosPagina = await this.page.evaluate(async (fechaInicio, fechaFin, SELECTORS) => {
+            const fechaInicioDate = new Date(fechaInicio);
+            const casos = [];
+            const bloqueCasos = document.querySelectorAll(SELECTORS.CASO_BLOQUE_SELECTOR)
+
+            for (let element of bloqueCasos) {
+                const timeElement = element.querySelector('time.timeago');
+                let dateTimeStr = timeElement ? timeElement.getAttribute('datetime') : null;
+                let auctionDate = null;
+                //El tiempo en Emol aparece con formato => "YYYY-MM-DD"
+
+                let posibleAuctionDate = element.querySelector(SELECTORS.ELEMENTO_TEXTO);
+                //se lee el resumen del remate para saber si aparece la fecha del remate
+                if (posibleAuctionDate) {
+                    auctionDate = await window.extractAuctionDate(posibleAuctionDate.innerHTML);
+                }
+
+                if (dateTimeStr) {
+                    dateTimeStr = dateTimeStr.replace(/-/g, '/');
+                    let announcementDate = new Date(dateTimeStr);
+
+                    // await logDesdePagina(`fecha actual ${announcementDate} fecha inicio ${fechaInicioDate} y deberia parar ${announcementDate < fechaInicioDate} `);
+                    if (announcementDate < fechaInicioDate) {
+                        return { casos, stop: true };
+                    } else if (announcementDate >= new Date(fechaInicio) && announcementDate <= new Date(fechaFin)) {
+                        const linkElement = element.querySelector('div.col2.span6 a');
+                        const announcement = linkElement ? linkElement.getAttribute('href') : null;
+                        casos.push({
+                            fechaPublicacion: announcementDate.toISOString(),
+                            announcement: announcement,
+                            fechaRemate: auctionDate
+                        });
+                    }
+                }
+            }
+
+            return { casos, stop: false, bloqueCasos };
+        }, startDate.toISOString(), endDate.toISOString(), SELECTORS);
+        return casosPagina;
+    }
+
+    obtainPosibleAuctionDate(element, SELECTORS, extractAuctionDate) {
+        const text = element.querySelector(SELECTORS.ELEMENTO_TEXTO);
+        const auctionDate = extractAuctionDate(text);
+        if (auctionDate) {
+            return auctionDate;
+        }
+
+        return null;
+    }
+    addFoundCases(cases, fechaHoy) {
+        for (let currentCase of cases) {
+            const announcement = currentCase.announcement ? this.urlBase + currentCase.announcement : null;
+            const fechaPublicacion = new Date(currentCase.fechaPublicacion);
+            const fechaHoyCaso = fechaHoy;
+
+            const casoObj = new Caso(fechaHoyCaso, fechaPublicacion, announcement, EMOL);
+            casoObj.fechaRemate = currentCase.fechaRemate;
+
+            if (this.isTestMode) {
+                this.casosARevisar.push(casoObj);
+            } else if (!casoObj.fechaRemate || (casoObj.fechaRemate >= this.originStartDate && casoObj.fechaRemate <= this.originEndDate)) {
+                this.casosARevisar.push(casoObj);
+            }
+
+        }
+    }
+
+    async setRealisticHeaders() {
+        await this.page.setExtraHTTPHeaders({
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'es-ES,es;q=0.9,en;q=0.8',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Cache-Control': 'no-cache',
+            'DNT': '1',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1'
+        });
+    }
+
+
+    async isBlocked() {
+        return await this.page.evaluate(() => {
+            return document.title.includes('Access Denied') ||
+                document.body.textContent.includes('bot') ||
+                document.querySelector('[class*="captcha"], [id*="captcha"]') !== null;
+        });
+    }
 
 
 
