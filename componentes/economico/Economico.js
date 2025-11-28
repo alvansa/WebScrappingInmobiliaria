@@ -8,6 +8,7 @@ const { procesarDatosRemate } = require('./datosRemateEmol');
 const listUserAgents = require('../../utils/userAgents.json');
 const { simulateHumanBehavior } = require('../../utils/stealth');
 const { extractAuctionDate } = require('./extractors/auctionDateExtractor');
+const EconomicoAxios = require('./EconomicoCurl');
 
 require('dotenv').config();
 
@@ -37,6 +38,7 @@ class Economico {
     }
 
     async getCases() {
+        const curlEcomomico = new EconomicoAxios();
         try {
             console.log("Iniciando la búsqueda de casos en Economicos.cl desde ", this.fechaInicio, " hasta ", this.fechaFin);
             await this.createWindow(MAIN_URL);
@@ -52,9 +54,11 @@ class Economico {
 
             for (let caso of this.casosARevisar) {
                 counter++;
-                const description = await this.getInfoFromSingularPage(caso);
+                // const description = await this.getInfoFromSingularPage(caso);
+                const description = await curlEcomomico.getPageDescription(caso.link)
                 await fakeDelay(15, 20);
                 if (description) {
+                    logger.info(`Descripcion de caso ${counter} obtenida`);
                     caso.texto = description;
                 } else {
                     console.log("No se pudo obtener la descripción para el caso: ", caso);
@@ -70,7 +74,7 @@ class Economico {
             }
 
             for (let caso of this.casosARevisar) {
-                // console.log("Procesando caso: ", caso.link);
+                console.log("Procesando caso: ", caso.link);
                 procesarDatosRemate(caso);
             }
 
