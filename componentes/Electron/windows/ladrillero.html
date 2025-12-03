@@ -1,0 +1,56 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Info Remates</title>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="../../../css/styles.css">
+  </head>
+
+  <body class="bg-gray-100 flex justify-center items-center h-screen">
+
+
+  <!-- Vista para extraer datos de PDFs -->
+  <div id="getDataFromPdfView" >
+      <div class="bg-white p-10 rounded-lg shadow-lg w-full max-w-lg">
+        <h2 class="text-2xl font-semibold text-center mb-4">Buscar Ladrillos</h2>
+        
+        <!-- Selector de carpeta -->
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Seleccionar excel base</label>
+          <div class="flex mt-1">
+            <input type="text" id="fileInfo" class="flex-1 border p-2 rounded-l-md bg-gray-100" readonly
+              placeholder="No se ha seleccionado ningun documento">
+            <button id="checkFPMG"
+              class="bg-blue-500 text-white px-4 py-2 rounded-r-md hover:bg-blue-600">Seleccionar</button>
+          </div>
+        </div>
+        
+        
+        <!-- Botón de procesar -->
+        <!-- <button id="checkFPMG" class="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600 mb-4">
+          Procesar Ladrillos
+        </button> -->
+        
+      </div>
+      <!-- Modal de espera -->
+      <div id="waitingModalProcess" class="view">
+        <div class="modal-container">
+          <h3 id="waitingMessage">Por favor espera...</h3>
+          <div class="spinner-container">
+            <div class="spinner"></div>
+          </div>
+        </div>
+      </div>
+    
+    </div>
+
+
+  
+  <!-- SCRIPTS  -->
+    <script src="../renderer/ladrilleroRenderer.js"></script>
+  </body>
+</html>
+
+

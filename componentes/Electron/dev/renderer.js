@@ -124,15 +124,23 @@ checkFPMG.addEventListener('click', async () => {
     if (filePath) {
       fileInfo.textContent = `Archivo seleccionado: ${filePath}`;
       
+      showWaitingProcess(true);
       // Llama a tu función que procesa el archivo
-      window.api.checkFPMG(filePath);
+      await window.api.checkFPMG(filePath);
     }
   } catch (error) {
     console.error('Error al seleccionar archivo:', error);
     fileInfo.textContent = 'Error al seleccionar archivo';
-
+  }finally{
+    showWaitingProcess(false)
   }
+
 });
+
+function showWaitingProcess(show){
+  const modal = document.getElementById('waitingModalProcess');
+  modal.style.display = show ? 'flex' : 'none';
+}
 
 fillMapa.addEventListener('click', async () => {
   try {

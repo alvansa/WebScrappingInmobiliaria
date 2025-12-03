@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Info Remates</title>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="../../../css/styles.css">
+</head>
+
+<body class="bg-gray-100 flex justify-center items-center h-screen">
+
+    <!-- Vista de consulta unica de Pjud -->
+    <div id="uniqueCaseView">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+            <h2 class="text-2xl font-semibold text-center mb-4">Consulta única de causa</h2>
+
+            <!-- Fila de listas desplegables (Corte y Tribunal) -->
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <!-- Lista de Corte -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Corte</label>
+                    <select id="corteSelect"
+                        class="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="0">Todos</option>
+                        <option value="10">C.A. de Arica</option>
+                        <option value="11">C.A. de Iquique</option>
+                        <option value="15">C.A. de Antofagasta</option>
+                        <option value="20">C.A. de Copiapó</option>
+                        <option value="25">C.A. de La Serena</option>
+                        <option value="30">C.A. de Valparaíso</option>
+                        <option value="35">C.A. de Rancagua</option>
+                        <option value="40">C.A. de Talca</option>
+                        <option value="45">C.A. de Chillan</option>
+                        <option value="46">C.A. de Concepción</option>
+                        <option value="50">C.A. de Temuco</option>
+                        <option value="55">C.A. de Valdivia</option>
+                        <option value="56">C.A. de Puerto Montt</option>
+                        <option value="60">C.A. de Coyhaique</option>
+                        <option value="61">C.A. de Punta Arenas</option>
+                        <option value="90">C.A. de Santiago</option>
+                        <option value="91">C.A. de San Miguel</option>
+                    </select>
+                </div>
+
+                <!-- Lista de Tribunal (dependiente de Corte) -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tribunal</label>
+                    <select id="tribunalSelect"
+                        class="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        disabled>
+                        <option value="">Primero seleccione corte</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Fila de campos de texto (Rol y Año) -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <!-- Campo Rol -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Rol</label>
+                    <input type="text" id="rolInput"
+                        class="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Ej: 12345">
+                </div>
+
+                <!-- Campo Año -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Año</label>
+                    <input type="text" id="yearInput"
+                        class="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Ej: 2024">
+                </div>
+            </div>
+
+            <!-- Botón de búsqueda -->
+            <button id="searchCaseBtn" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 mb-4">
+                Buscar causa
+            </button>
+
+        </div>
+    </div>
+
+    <!-- Vista para extraer datos de PDFs -->
+    <!-- <div id="getDataFromPdfView" class="view">
+      <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+        <h2 class="text-2xl font-semibold text-center mb-4">Completar informacion faltante del excel</h2> -->
+
+    <!-- Selector de carpeta -->
+    <!-- <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Seleccionar excel incompleto</label>
+          <div class="flex mt-1">
+            <input type="text" id="excel-input" class="flex-1 border p-2 rounded-l-md bg-gray-100" readonly
+              placeholder="No se ha seleccionado ningun documento">
+            <button id="select-excel-file-btn"
+              class="bg-blue-500 text-white px-4 py-2 rounded-r-md hover:bg-blue-600">Seleccionar</button>
+          </div>
+        </div> -->
+
+    <!-- Selectores de fecha
+        <div class="mb-4 flex gap-2">
+          <div class="w-1/2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Fecha desde</label>
+            <input type="date" id="pdfStartDate" class="w-full border p-2 rounded">
+          </div>
+          <div class="w-1/2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Fecha hasta</label>
+            <input type="date" id="pdfEndDate" class="w-full border p-2 rounded">
+          </div>
+        </div> -->
+
+    <!-- Botón de procesar -->
+    <!-- <button id="processExcelBtn" class="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600 mb-4">
+          Procesar Excel
+        </button>
+        
+      </div>
+    </div> -->
+
+
+    <!-- Modal de espera -->
+    <div id="waitingModal" class="view">
+        <div class="modal-container">
+            <h3 id="waitingMessage">Por favor espera...</h3>
+            <div class="spinner-container">
+                <div class="spinner"></div>
+            </div>
+            <p id="countdown"><span id="seconds"></span></p>
+        </div>
+    </div>
+
+    <!-- SCRIPTS  -->
+    <script src="../renderer/searchSingleRenderer.js"></script>
+</body>
+
+</html>
+
+
+
+<!-- <select class="form-control" id="conCorte" name="conCorte" title="Seleccione Corte...">
+                                 
+  </select> -->

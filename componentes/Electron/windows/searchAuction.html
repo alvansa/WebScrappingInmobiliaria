@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Procesamiento por Lotes</title>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="bg-white p-6 rounded-lg shadow-lg max-w-4xl mx-auto">
+        <h1 class="text-2xl font-semibold text-center mb-4">Busqueda de Remates</h1>
+        <!-- <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-semibold">Procesamiento por Lotes</h1>
+            <button id="closeWindow" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+                ✕ Cerrar
+            </button>
+        </div> -->
+        
+        <!-- Contenido similar a tu vista original -->
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700">Seleccionar carpeta</label>
+            <div class="flex mt-1">
+                <input type="text" id="folder-input" class="flex-1 border p-2 rounded-l-md bg-gray-100" readonly
+                    placeholder="No se ha seleccionado ninguna carpeta">
+                <button id="select-folder-btn"
+                    class="bg-blue-500 text-white px-4 py-2 rounded-r-md hover:bg-blue-600">Seleccionar</button>
+            </div>
+        </div>
+        
+        <div class="mb-4 flex gap-2">
+            <input type="date" id="startDate" class="border p-2 rounded w-1/2">
+            <input type="date" id="endDate" class="border p-2 rounded w-1/2">
+        </div>
+        
+        <div class="mb-6 grid grid-cols-2 gap-2">
+            <label class="flex items-center gap-2"> 
+                <input type="checkbox" id="pjud" class="w-4 h-4" checked> Letra Grande
+            </label>
+            <label class="flex items-center gap-2"> 
+                <input type="checkbox" id="economicos" class="w-4 h-4" checked> Emol
+            </label>
+            <label class="flex items-center gap-2"> 
+                <input type="checkbox" id="liquidaciones" class="w-4 h-4" checked> Liquidaciones
+            </label>
+            <label class="flex items-center gap-2"> 
+                <input type="checkbox" id="preremates" class="w-4 h-4" checked> Preremates
+            </label>
+            <label class="flex items-center gap-2"> 
+                <input type="checkbox" id="PYL" class="w-4 h-4" checked> Públicos y legales
+            </label>
+        </div>
+        
+        <button id="logButton" class="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600 mb-4">
+            Obtener remates
+        </button>
+        
+    </div>
+    
+ <script src="../renderer/searchRenderer.js"></script>
+</body>
+</html>

@@ -45,6 +45,11 @@ input {
   z-index: 1000;
 }
 
+#waitingModalProcess {
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
 .modal-container {
   background-color: white;
   padding: 30px;

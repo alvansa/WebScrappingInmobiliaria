@@ -7,6 +7,9 @@ const axios = require('axios');
 const FormData = require('form-data');
 const fs = require('fs')
 
+// Importar el nuevo WindowManager
+const WindowManager = require('./windows/WindowManager.js');
+
 const scrapeAuction = require('./prod/scrapeAuctions.js');
 const CompleteExcelInfo = require('./prod/CompleteExcelInfo.js');
 const Economico = require('../economico/Economico.js');
@@ -37,11 +40,14 @@ const EMOL = 1;
 const PJUD = 2;
 const LIQUIDACIONES = 3;
 
+console.log('Main loaded succefully')
 class MainApp{
     constructor(){
         this.mainWindow = null;
         this.browser = null;
         this.mapasSII = null;
+
+        this.windowManager = new WindowManager();
 
         // Manejo de crashes
         process.on('uncaughtException', (error) => {
@@ -56,15 +62,32 @@ class MainApp{
 
         app.whenReady().then(async ()=>{
             await pieInitialized;
-            this.createMainWindow()
+            // this.createMainWindow()
+
+            if(isDevMode){
+                this.createMainWindow()
+            }else{
+                // Crear ventana principal
+                this.windowManager.createMainWindow();
+
+            }
+
+            // Inicializar Puppeteer browser compartido
+            await this.launchPuppeteerInElectron();
+            this.windowManager.setBrowser(this.browser);
+
+
+
             // Manejo de crash en el renderer
-            this.mainWindow.webContents.on('render-process-gone', (event, details) => {
-                console.error('Renderer crashed:', details.reason);
-                this.cleanupBeforeExit();
-            });
+            // this.mainWindow.webContents.on('render-process-gone', (event, details) => {
+            //     console.error('Renderer crashed:', details.reason);
+            //     this.cleanupBeforeExit();
+            // });
+
             app.on('activate', () => {
                 if (BrowserWindow.getAllWindows().length === 0) {
-                    this.createMainWindow()
+                    // this.createMainWindow()
+                    this.windowManager.createMainWindow();
                 }
             })
         })
@@ -83,7 +106,7 @@ class MainApp{
         this.registerIpcHandlers();
     }
 
-    //Funcion para crear la ventana principal
+    // Funcion para crear la ventana principal
       createMainWindow(){
         this.mainWindow = new BrowserWindow({
             resizable: false,
@@ -106,13 +129,48 @@ class MainApp{
     }
 
     //Funcion para lanzar el navegador estandar de electron sin proxy
-    async launchPuppeteer_inElectron(){
+    async launchPuppeteerInElectron(){
         this.browser = await pie.connect(app, puppeteer);
         console.log("Browser launched");
     }
 
     // Manejar solicitud para abrir el selector de carpetas
     registerIpcHandlers(){
+        ipcMain.handle('open-window', (event, windowType, options = {}) => {
+            console.log(`Solicitando abrir ventana: ${windowType}`);
+            
+            switch (windowType) {
+                case 'main':
+                    return this.windowManager.createMainWindow();
+                case 'search':
+                    return this.windowManager.createSearchWindow(options);
+                case 'singleCase':
+                    return this.windowManager.createSingleCaseWindow();
+                case 'excel':
+                    return this.windowManager.createExcelWindow();
+                case 'ladrillero':
+                    return this.windowManager.createLadrilleroWindow();
+                case 'settings':
+                    return this.windowManager.createSettingsWindow();
+                default:
+                    console.error(`Tipo de ventana desconocido: ${windowType}`);
+                    return null;
+            }
+        });
+         // Handler para cerrar ventana actual
+        ipcMain.handle('close-window', (event) => {
+            const window = BrowserWindow.fromWebContents(event.sender);
+            if (window && !window.isDestroyed()) {
+                window.close();
+            }
+        });
+
+        // Handler para obtener el browser de Puppeteer (compartido entre ventanas)
+        ipcMain.handle('get-puppeteer-browser', () => {
+            return this.browser;
+        });
+
+
         ipcMain.handle('select-folder-btn', async () => {
             const result = await dialog.showOpenDialog(this.mainWindow, {
                 properties: ['openDirectory'] // Permite seleccionar carpetas
@@ -157,7 +215,7 @@ class MainApp{
             try{
                 const check = new checkFPMG(event, this.mainWindow, filePath);
                 await check.process();
-                this.mainWindow.send("electron-log","En la funcion de completar excel")
+                // this.mainWindow.send("electron-log","En la funcion de completar excel")
 
                 return true;
 
@@ -385,28 +443,27 @@ class MainApp{
         return finalText.trim();
     }
 
-    async obtainDataPdfPjud(event,filePath,startDateOrigin,endDateOrigin){
-        console.time("obtainDataPdfPjud");
-        await this.launchPuppeteer_inElectron();
-        const startDate = dateToPjud(stringToDate(startDateOrigin));
-        const endDate = dateToPjud(stringToDate(endDateOrigin));
-        console.log("Consultando casos desde ",startDate, " hasta ", endDate);
+    // async obtainDataPdfPjud(event,filePath,startDateOrigin,endDateOrigin){
+    //     console.time("obtainDataPdfPjud");
+    //     await this.launchPuppeteer_inElectron();
+    //     const startDate = dateToPjud(stringToDate(startDateOrigin));
+    //     const endDate = dateToPjud(stringToDate(endDateOrigin));
+    //     console.log("Consultando casos desde ",startDate, " hasta ", endDate);
 
-        const casos = await this.searchCasesByDay(startDate,endDate);
-        console.log("Resultados de los casos en la funcion de llamada: ", casos.length);
-        const result = await this.obtainDataFromCases(casos, event);
-        console.log("Resultados de los casos en la funcion de llamada: ", casos.length);
-        // const downloadPath = path.join(os.homedir(), "Documents", "infoRemates");
-        const excel = new createExcel(filePath, null, null, false, "oneDay");
-        const nombre = `Remates-${startDateOrigin}-${endDateOrigin}`;
-        const finalPath = await excel.writeData(casos, nombre);
-        console.timeEnd("obtainDataPdfPjud");
-        return finalPath;
+    //     const casos = await this.searchCasesByDay(startDate,endDate);
+    //     console.log("Resultados de los casos en la funcion de llamada: ", casos.length);
+    //     const result = await this.obtainDataFromCases(casos, event);
+    //     console.log("Resultados de los casos en la funcion de llamada: ", casos.length);
+    //     // const downloadPath = path.join(os.homedir(), "Documents", "infoRemates");
+    //     const excel = new createExcel(filePath, null, null, false, "oneDay");
+    //     const nombre = `Remates-${startDateOrigin}-${endDateOrigin}`;
+    //     const finalPath = await excel.writeData(casos, nombre);
+    //     console.timeEnd("obtainDataPdfPjud");
+    //     return finalPath;
 
-    }
+    // }
 
     async testDB(causa){
-        
         const db = new Causas();
         const resultados = await  db.getByCausa(causa);
         console.log("Buscando: ",causa ,"\nResultados de la consulta a la base de datos: ",resultados);
@@ -435,20 +492,19 @@ class MainApp{
     }
     
     //Funcion para obtener los casos del pjud por dia.
-    async searchCasesByDay(startDate, endDate) {
-        // const startDate = "06/06/2025";
-        // const endDate = "07/06/2025";
-        const window = new BrowserWindow({ show: true });
-        const url = 'https://oficinajudicialvirtual.pjud.cl/indexN.php';
-        await window.loadURL(url);
-        const page = await pie.getPage(this.browser, window);
-        const pjud = new Pjud(this.browser, page, startDate, endDate);
-        const casos = await pjud.datosFromPjud();
-        obtainCorteJuzgadoNumbers(casos);
-        window.destroy();
-        return casos;
-
-    }
+    // async searchCasesByDay(startDate, endDate) {
+    //     // const startDate = "06/06/2025";
+    //     // const endDate = "07/06/2025";
+    //     const window = new BrowserWindow({ show: true });
+    //     const url = 'https://oficinajudicialvirtual.pjud.cl/indexN.php';
+    //     await window.loadURL(url);
+    //     const page = await pie.getPage(this.browser, window);
+    //     const pjud = new Pjud(this.browser, page, startDate, endDate);
+    //     const casos = await pjud.datosFromPjud();
+    //     obtainCorteJuzgadoNumbers(casos);
+    //     window.destroy();
+    //     return casos;
+    // }
 
 
 
@@ -502,42 +558,6 @@ function openWindow(window, useProxy){
     return window;
 }
 
-
-// Cambia la fecha final de obtencion de datos para el pjud
-function cambiarFechaFin(fecha){
-    const partes = fecha.split("-"); // Dividimos la fecha en partes [año, mes, día]
-    const [año, mes, día] = partes; // Desestructuramos las partes
-    let fechaFinal =  new Date(`${año}/${mes}/${día}`);
-    fechaFinal.setMonth(fechaFinal.getMonth() + 1);
-    const fechaFinalPjud = dateToPjud(fechaFinal);
-    return fechaFinalPjud;
-}
-
-// Dado la fecha y la cantidad de dias a sumar, cambia la fecha de inicio para el pjud
-function cambiarFechaInicio(fecha,dias){
-    const partes = fecha.split("-"); // Dividimos la fecha en partes [año, mes, día]
-    const [año, mes, día] = partes; // Desestructuramos las partes
-    let fechaFinal =  new Date(`${año}/${mes}/${día}`);
-    fechaFinal.setDate(fechaFinal.getDate() + dias);
-    const fechaFinalPjud = dateToPjud(fechaFinal);
-    return fechaFinalPjud;
-}
-
-function calculateDiffDays(fechaInicio,fechaFin){
-    const fechaInicioDate = stringToDate(fechaInicio);
-    const fechaFinDate = stringToDate(fechaFin);
-    const diffTime = fechaFinDate - fechaInicioDate;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
-}
-// Dado un objeto Date, devuelve un string con el formato dd/mm/yyyy
-function dateToPjud(date) {
-    const dia = String(date.getDate()).padStart(2, '0');  // Asegura que el día tenga dos dígitos
-    const mes = String(date.getMonth() + 1).padStart(2, '0');  // Meses son 0-indexados, por lo que sumamos 1
-    const año = date.getFullYear();
-    
-    return `${dia}/${mes}/${año}`;
-}
 
 
 new MainApp();
