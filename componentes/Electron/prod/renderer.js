@@ -40,26 +40,26 @@ console.log('Renderer loaded succefully')
 // });
 
 // Manejo de notificaciones de espera con Modal
-// window.api.onWaitingNotification((args) => {
-//   const totalSeconds = args[0];
-//   const actualCase = args[1];
-//   const totalCases = args[2];
-//   showWaitingModal(true, `Esperando (${totalSeconds}s)... Caso ${actualCase} de ${totalCases}`);
+window.api.onWaitingNotification((args) => {
+  const totalSeconds = args[0];
+  const actualCase = args[1];
+  const totalCases = args[2];
+  showWaitingModal(true, `Esperando (${totalSeconds}s)... Caso ${actualCase} de ${totalCases}`);
   
-//   let remaining = totalSeconds;
-//   updateCountdown([remaining,actualCase,totalCases]);
+  let remaining = totalSeconds;
+  updateCountdown([remaining,actualCase,totalCases]);
   
-//   countdownInterval = setInterval(() => {
-//     remaining--;
-//     updateCountdown([remaining,actualCase,totalCases]);
+  countdownInterval = setInterval(() => {
+    remaining--;
+    updateCountdown([remaining,actualCase,totalCases]);
     
-//     if (remaining <= 0) {
-//       console.log("Se acabo el tiempo");
-//       clearInterval(countdownInterval);
-//       showWaitingModal(false);
-//     }
-//   }, 1000);
-// });
+    if (remaining <= 0) {
+      console.log("Se acabo el tiempo");
+      clearInterval(countdownInterval);
+      showWaitingModal(false);
+    }
+  }, 1000);
+});
 
 // window.api.electronLog((event, message) => {
 //   console.log('Mensaje del proceso principal:', message);
@@ -103,7 +103,7 @@ document.getElementById('openSingleCaseWindow').addEventListener('click', () => 
 });
 
 document.getElementById('openExcelWindow').addEventListener('click', () => {
-  window.api.openWindow('fillExcel'); 
+  window.api.openWindow('excel'); 
 });
 
 document.getElementById('openLadrillero').addEventListener('click', () => {

@@ -119,14 +119,14 @@ selectFileBtn.addEventListener('click', async () => {
 
 checkFPMG.addEventListener('click', async () => {
   try {
-    const filePath = await window.api.openFileLocal();
+    const filePath = await window.ladrilleroAPI.openFileLocal();
     
     if (filePath) {
       fileInfo.textContent = `Archivo seleccionado: ${filePath}`;
       
       showWaitingProcess(true);
       // Llama a tu función que procesa el archivo
-      await window.api.checkFPMG(filePath);
+      await window.ladrilleroAPI.checkFPMG(filePath);
     }
   } catch (error) {
     console.error('Error al seleccionar archivo:', error);

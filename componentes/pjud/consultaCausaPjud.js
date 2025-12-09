@@ -645,7 +645,7 @@ class ConsultaCausaPjud{
         let pdfWindow = null;
         try{
             console.log("O si crashea por aca");
-            pdfWindow = new BrowserWindow({ show: true });
+            pdfWindow = new BrowserWindow({ show: false });
             await pdfWindow.loadURL(url, {timeout: 120000}); // Aumentar el tiempo de espera a 120 segundos
             const pdfPage = await pie.getPage(this.browser, pdfWindow);
 

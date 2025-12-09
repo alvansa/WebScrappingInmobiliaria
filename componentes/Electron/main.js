@@ -68,7 +68,7 @@ class MainApp{
                 this.createMainWindow()
             }else{
                 // Crear ventana principal
-                this.windowManager.createMainWindow();
+                this.mainWindow = this.windowManager.createMainWindow();
 
             }
 
@@ -141,13 +141,17 @@ class MainApp{
             
             switch (windowType) {
                 case 'main':
-                    return this.windowManager.createMainWindow();
+                    this.mainWindow = this.windowManager.createMainWindow();
+                    console.log("Main window created", this.mainWindow);
+                    // return 1;
                 case 'search':
                     return this.windowManager.createSearchWindow(options);
                 case 'singleCase':
                     return this.windowManager.createSingleCaseWindow();
                 case 'excel':
-                    return this.windowManager.createExcelWindow();
+                    // return this.windowManager.createExcelWindow();
+                    this.mainWindow.webContents.send('aviso-espera', [5,0,0]);
+                    return 1;
                 case 'ladrillero':
                     return this.windowManager.createLadrilleroWindow();
                 case 'settings':

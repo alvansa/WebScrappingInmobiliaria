@@ -47,14 +47,15 @@ class WindowManager {
 
         this.windows.set('main', mainWindow);
         this.mainWindow = mainWindow;
-        // return mainWindow;
+        return mainWindow;
     }
 
     createSearchWindow(options = {}) {
         if (this.windows.has('search')) {
             const existing = this.windows.get('search');
             existing.focus();
-            // return existing;
+            console.log('Ya existe la ventana de búsqueda');
+            return existing;
         }
 
         const searchWindow = new BrowserWindow({
@@ -162,6 +163,7 @@ class WindowManager {
         if (this.windows.has('ladrillero')) {
             const existing = this.windows.get('ladrillero');
             existing.focus();
+            return existing;
         }
 
         const ladrilleroWindow = new BrowserWindow({

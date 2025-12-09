@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Info Remates - Principal</title>
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="../../../css/styles.css">
 </head>
 <body class="bg-gray-100 flex justify-center items-center h-screen">
     <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg">
@@ -39,6 +40,18 @@
         
         <div class="mt-6 text-center text-sm text-gray-500">
             Versión 1.0.0
+        </div>
+
+    </div>
+
+        <!-- Modal de espera -->
+    <div id="waitingModal" class="view">
+        <div class="modal-container">
+          <h3 id="waitingMessage">Por favor espera...</h3>
+          <div class="spinner-container">
+            <div class="spinner"></div>
+          </div>
+          <p id="countdown"><span id="seconds"></span></p>
         </div>
     </div>
  <script src="../prod/renderer.js"></script>

@@ -15,6 +15,7 @@ const config = require('../../config');
 const { obtainCorteJuzgadoNumbers } = require('../../utils/corteJuzgado');
 const {stringToDate} = require('../../utils/cleanStrings')
 const {matchJuzgado} = require('../../utils/compareText')
+const {formatDateToDDMMAA} = require('../../utils/cleanStrings')
 
 const DELAY_RANGE = {"min": 2, "max" : 5}
 
@@ -38,11 +39,11 @@ class checkFPMG {
         console.log("casos revisados : ",this.casos.length);
 
         //Search and process each cause
-        // await this.processList();
-        await delay(5000);
+        await this.processList();
+        // await delay(5000);
 
         //Write each cause that had changes in the last week
-        this.writeChanges();
+        this.writeChanges2();
 
         console.log("Proceso Finalizado")
         return true;
@@ -52,7 +53,7 @@ class checkFPMG {
         this.wb = XLSX.readFile(this.filePath, { cellDates: true });
         this.ws = this.wb.Sheets[this.wb.SheetNames[0]];
         const lastWrittenRow = XLSX.utils.decode_range(this.ws['!ref']).e.r + 1;
-        let lastRow = 1;
+        let lastRow = 2;
         // console.log(this.ws[`${config.TRIBUNAL}3`].v.toString());
         while (lastRow <= lastWrittenRow) {
             let causa, juzgado,fechaDesc;
@@ -758,35 +759,240 @@ class checkFPMG {
     }
 
     writeChanges() {
+        const wb = XLSX.utils.book_new();
+        wb.Props = {
+            Title: `Ladrillos`,
+            Subject: `Remates`
+        };
+        const newWs = wb.Sheets[this.wb.SheetNames[0]];
+
         let lastRow  = 1;
+        let newRow = 1;
         console.log('Escribiendo cambios');
 
         while (this.ws[`${config.CAUSA}${lastRow}`]) {
             let causa = this.ws[`${config.CAUSA}${lastRow}`].v;
             const juzgado = this.ws[`${config.TRIBUNAL}${lastRow}`].v
-            // const fechaDesc = this.ws[`${config.FECHA_DESC}${lastRow}`].v;
-            // console.log(`fechaRem type: ${JSON.stringify(fechaRem,null,4)}`);
-            // console.log(`cont = ${lastRow} Causa: ${causa} y juzgado: ${juzgado} `);
             causa = causa.replace(/\(s\)/i,'').replace(/S\/I/ig, '').trim();
 
            for(let caso of this.casos){
             // console.log("DEL CASO: ",caso.causa, caso.juzgado,"DEL EXCEL: ", causa, juzgado);
                 if(caso.hasChanged){
-                    if (caso.causa == causa) {
-                        // console.log("ESCRIBIENDO CAMBIO EN EXCEL: ",caso.causa, caso.juzgado);
-                        this.ws[`A${lastRow}`]= { v: 'CAMBIO', t: 's' };
-                    }
+                    //TODO: Escribir los casos en un excel nuevo llamado Ladrillero_Fecha.xlsx
+
+                    copyRowBetweenFiles(this.ws, newWs , lastRow -1, newRow -1);
+                    newRow++;
+
+                    // if (caso.causa == causa) {
+                    //     // console.log("ESCRIBIENDO CAMBIO EN EXCEL: ",caso.causa, caso.juzgado);
+                    //     this.ws[`A${lastRow}`]= { v: 'CAMBIO', t: 's' };
+                    // }
                 }
            } 
             lastRow++;
         }
-        // for(let caso of this.casos){
-        //     console.log("Revision de casos: ",caso.causa, caso.juzgado, caso.hasChanged);
-        // }
-        const fileName = this.filePath.split('.')[0];
-        const newFilePath = fileName+'Completo'+'.xlsx';
-        XLSX.writeFile(this.wb,newFilePath, { cellDates: true });
+        const desktopPath = getDesktopPath();
+        const fecha = formatDateToDDMMAA(new Date());
+        const newFilePath = path.join(desktopPath, 'Ladrillero_'+fecha+'.xlsx');
+        console.log("Escribiendo archivo en: ",newFilePath);
+        XLSX.writeFile(wb,newFilePath, { cellDates: true });
 
+    }
+
+    writeChanges2() {
+        console.log('📝 Escribiendo cambios...');
+
+        // 1. Verificar si hay casos cambiados
+        const casosCambiados = this.casos.filter(caso => caso.hasChanged);
+
+        if (casosCambiados.length === 0) {
+            console.log('⚠️ No hay casos con cambios para guardar');
+            // return;
+        }
+
+        console.log(`📊 Total casos cambiados: ${casosCambiados.length}`);
+
+        // 2. Obtener el rango completo del Excel original
+        const range = XLSX.utils.decode_range(this.ws['!ref']);
+        const totalColumnas = range.e.c + 1;
+
+        // 3. Preparar array para el nuevo Excel
+        const nuevosDatos = [];
+
+        // 4. Obtener los HEADERS (primera fila)
+        const headers = [];
+        for (let col = 0; col < totalColumnas; col++) {
+            const celda = XLSX.utils.encode_cell({ r: 0, c: col });
+            headers.push(this.ws[celda]?.v || '');
+        }
+        nuevosDatos.push(headers);
+
+        // 5. Crear un MAP para búsqueda rápida de casos cambiados
+        const mapaCambios = new Map();
+        casosCambiados.forEach(caso => {
+            const clave = `${caso.causa.trim()}_${caso.juzgado.trim()}`;
+            mapaCambios.set(clave, caso);
+        });
+
+        // 6. Recorrer todas las filas del Excel original (empezando desde fila 2)
+        let filaIndex = 1; // Fila 2 en Excel (índice 1 porque fila 0 es headers)
+        let filasCopiadas = 0;
+        console.log(mapaCambios)
+        const lastWrittenRow = XLSX.utils.decode_range(this.ws['!ref']).e.r + 1;
+
+        while (filaIndex <= lastWrittenRow) {
+
+            // Obtener datos de la fila actual
+            let causa = this.ws[`${config.CAUSA}${filaIndex + 1}`]?.v || '';
+            const juzgado = this.ws[`${config.TRIBUNAL}${filaIndex + 1}`]?.v || '';
+
+            // Limpiar la causa para comparación
+            causa = causa.toString().replace(/\(s\)/gi, '').replace(/S\/I/gi, '').trim();
+
+            // Crear clave para búsqueda
+            const claveBusqueda = `${causa}_${juzgado}`;
+
+            console.log(`🔍 Encontrado cambio para: ${claveBusqueda}`);
+            // Verificar si esta fila tiene cambios
+            if (mapaCambios.has(claveBusqueda)) {
+                // 7. COPIAR TODA LA FILA
+                const filaData = [];
+
+
+                for (let col = 0; col < totalColumnas; col++) {
+                    if(col === 0){
+                        filaData.push('CAMBIO');
+                        continue;
+                    }
+                    const celda = XLSX.utils.encode_cell({ r: filaIndex, c: col });
+                    const celdaOriginal = this.ws[celda];
+
+                    if (celdaOriginal) {
+                        // Copiar el valor exacto
+                        filaData.push(celdaOriginal.v);
+                    } else {
+                        filaData.push('');
+                    }
+                }
+
+                // Agregar la fila a los nuevos datos
+                nuevosDatos.push(filaData);
+                filasCopiadas++;
+
+                console.log(`✅ Copiada fila ${filaIndex + 1}: ${causa} - ${juzgado}`);
+            }
+
+            filaIndex++;
+        }
+
+        // 8. Crear el nuevo Worksheet solo con filas cambiadas
+        const nuevoWs = XLSX.utils.aoa_to_sheet(nuevosDatos);
+
+        // 9. Crear nuevo Workbook
+        const nuevoWb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(nuevoWb, nuevoWs, 'Casos Modificados');
+        this.cambiarAnchoColumnas(nuevoWs);
+
+        // 10. Guardar en el escritorio
+        const desktopPath = getDesktopPath();
+        const fecha = formatDateToDDMMAA(new Date());
+        const nombreArchivo = `Ladrillero_${fecha}.xlsx`;
+        const rutaCompleta = path.join(desktopPath, nombreArchivo);
+
+        XLSX.writeFile(nuevoWb, rutaCompleta);
+
+        console.log('\n========================================');
+        console.log(`✅ ARCHIVO CREADO EXITOSAMENTE`);
+        console.log(`📁 Ubicación: ${rutaCompleta}`);
+        console.log(`📋 Total filas guardadas: ${filasCopiadas}`);
+        console.log('========================================\n');
+    }
+
+    cambiarAnchoColumnas(ws) {
+        ws[`!cols`] = [
+            { wch: 15 },  // A
+            { wch: 15 },  // B
+            { wch: 20 },  // C
+            { wch: 70 },  // D
+            { wch: 25 },  // E
+            { wch: 15 },  // F
+            { wch: 15 },  // G
+            { wch: 15 },  // H
+            { wch: 30 },  // I
+            { wch: 20 },  // J
+            { wch: 15 },  // K
+            { wch: 30 },  // L
+            { wch: 15 },  // M
+            { wch: 20 },  // N
+            { wch: 15 },  // O
+            { wch: 60 },  // P
+            { wch: 15 },  // Q
+            { wch: 20 },  // R
+            { wch: 15 },  // S
+            { wch: 30 },  // T
+            { wch: 15 },  // U
+            { wch: 30 },  // V
+            { wch: 10 },  // W
+            { wch: 30 },  // X
+            { wch: 15 },  // Y
+            { wch: 15 },  // Z
+            { wch: 15 },  // AA
+            { wch: 15 },  // AB
+            { wch: 15 },  // AC
+            { wch: 15 },  // AD
+            { wch: 25 },  // AE
+            { wch: 15 },  // AF
+            { wch: 15 },  // AG
+            { wch: 15 },  // AH
+            { wch: 15 },  // AI
+            { wch: 15 },  // AJ
+            { wch: 15 },  // AK
+            { wch: 15 },  // AL
+            { wch: 15 },  // AM
+            { wch: 15 },  // AN
+            { wch: 15 },  // AO
+            { wch: 15 },  // AP
+            { wch: 15 },  // AQ
+            { wch: 25 },  // AR
+        ];
+    }
+}
+
+function copyRowBetweenFiles(sourceSheet, targetSheet, sourceRowIndex, targetRowIndex) {
+    
+    // 3. Convertir la hoja de origen a JSON para obtener la fila
+    const sourceData = XLSX.utils.sheet_to_json(sourceSheet, { header: 1 });
+    
+    // 4. Obtener la fila específica (index basado en 0)
+    const rowToCopy = sourceData[sourceRowIndex];
+    
+    // 5. Escribir la fila en la posición destino
+    for (let col = 0; col < rowToCopy.length; col++) {
+        const cellAddress = XLSX.utils.encode_cell({ r: targetRowIndex, c: col });
+        targetSheet[cellAddress] = { v: rowToCopy[col], t: typeof rowToCopy[col] };
+    }
+    
+    console.log(`✅ Fila ${sourceRowIndex + 1} copiada a fila ${targetRowIndex + 1}`);
+}
+
+function getDesktopPath(){
+    // Para diferentes sistemas operativos
+    const homeDir = os.homedir();
+    
+    // Windows
+    if (process.platform === 'win32') {
+        return path.join(homeDir, 'Desktop');
+    }
+    // macOS
+    else if (process.platform === 'darwin') {
+        return path.join(homeDir, 'Desktop');
+    }
+    // Linux/Unix
+    else {
+        return path.join(homeDir, 'Desktop');
+        // O alternativamente para algunos Linux:
+        // return path.join(homeDir, 'Escritorio'); // Español
+        // return path.join(homeDir, 'Рабочий стол'); // Ruso
     }
 }
 

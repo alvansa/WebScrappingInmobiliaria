@@ -90,7 +90,7 @@ class scrapeAuction {
             return casos;
         }
         const awaitTime = 60 * 60;
-        this.mainWindow.webContents.send('aviso-espera', [awaitTime, countEmptyParts, casos.length]);
+        // this.mainWindow.webContents.send('aviso-espera', [awaitTime, countEmptyParts, casos.length]);
         await delay(awaitTime * 1000)
         //Volver a revisar los casos faltantes
         const gestorRemates = new GestorRematesPjud(casos, this.event, this.mainWindow);
@@ -178,7 +178,7 @@ class scrapeAuction {
         // console.log("Obteniendo casos de boletin desde: ", startDate, " hasta: ", endDate);
         logger.info("Obteniendo casos de boletin desde: ", startDate, " hasta: ", endDate);
        try{
-            const window = new BrowserWindow({ show: true });
+            const window = new BrowserWindow({ show: false });
             const url = 'https://www.boletinconcursal.cl/boletin/remates';
             await window.loadURL(url);
             const page = await pie.getPage(this.browser, window);
@@ -332,7 +332,7 @@ class scrapeAuction {
         let window;
         let casos = [];
         try{
-            window = new BrowserWindow({ show: true });
+            window = new BrowserWindow({ show: false });
             const url = 'https://oficinajudicialvirtual.pjud.cl/indexN.php';
             await window.loadURL(url);
             const page = await pie.getPage(this.browser, window);
