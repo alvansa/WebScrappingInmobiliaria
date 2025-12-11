@@ -4,6 +4,4 @@ node_modules/
 Inmobiliaria-casos.db
 .cache/
 .cache/puppeteer/
-componentes/spreadSheet/data.json
 **/credentials.json
-

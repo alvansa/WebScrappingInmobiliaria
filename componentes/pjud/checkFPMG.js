@@ -13,11 +13,10 @@ const consultaCausaPjud = require("./consultaCausaPjud");
 const CasoBuilder = require('../caso/casoBuilder');
 const config = require('../../config');
 const { obtainCorteJuzgadoNumbers } = require('../../utils/corteJuzgado');
-const {stringToDate, parseSpanishDate, parseSpreadSheeToDate, isValidDate} = require('../../utils/cleanStrings')
+const {stringToDate, convertDate} = require('../../utils/cleanStrings')
 const {matchJuzgado} = require('../../utils/compareText')
 const {formatDateToDDMMAA} = require('../../utils/cleanStrings');
 const { datalabeling } = require('googleapis/build/src/apis/datalabeling');
-const { EvalSourceMapDevToolPlugin } = require('webpack');
 
 const DELAY_RANGE = {"min": 2, "max" : 5}
 
@@ -46,23 +45,32 @@ class checkFPMG {
 
     async process() {
         //Obtain cause and judge
-        this.obtainListOfCauses();
+        // this.obtainListOfCauses();
 
-        // const casos = this.obtainListSpreadSheet();
-        // for(let caso of casos){
-        //     console.log(`Causa: ${caso.causa} Juzgado: ${caso.juzgado} Fecha Remate: ${caso.fechaRem} Notas: ${caso.notas} Estado: ${caso.estado} `);
+        this.obtainListSpreadSheet();
+
+
+        obtainCorteJuzgadoNumbers(this.casos);
+
+        let cont = 0;
+        // for(let caso of this.casos){
+        //     if(cont % 3 == 0){
+        //         caso.hasChanged = true
+        //     }
+        //     cont++;
         // }
-        // console.log("casos revisados : ",casos.length);
-
 
         console.log("casos revisados : ",this.casos.length);
+        for(let caso of this.casos){
+            console.log(caso.causa, caso.juzgado, caso.numeroJuzgado, caso.corte);
+        }
 
         //Search and process each cause
-        await this.processList();
+        // await this.processList();
         // await delay(5000);
 
         //Write each cause that had changes in the last week
-        this.writeChanges2();
+        // this.writeChanges3();
 
         console.log("Proceso Finalizado")
         return true;
@@ -93,7 +101,6 @@ class checkFPMG {
             this.casos.push(casoExcel)
             lastRow++;
         }
-        obtainCorteJuzgadoNumbers(this.casos);
     }
 
     obtainDataFromRow(lastRow) {
@@ -185,7 +192,6 @@ class checkFPMG {
         if(!this.data){
             return [];
         }
-        const casos = [];
         const headers = this.data[0];
         const realData = this.data.slice(1);
         console.log("Header ", headers)
@@ -206,8 +212,8 @@ class checkFPMG {
             }
             // 2. revisar que la fecha de remate sea mayor a la fecha actual
             const dateToday = new Date();
-            const fechaRemateDate = this.convertDate(dataLine.fechaRem);
-            console.log(dataLine.fechaRem, fechaRemateDate , dateToday);
+            const fechaRemateDate = convertDate(dataLine.fechaRem);
+            // console.log(dataLine.fechaRem, fechaRemateDate , dateToday);
             if(fechaRemateDate <= dateToday){
                 continue;
             }
@@ -215,23 +221,21 @@ class checkFPMG {
             if(!dataLine.notas || !dataLine.notas.toLowerCase().includes('fp')){    
                 continue; 
             }
-            casos.push(dataLine);
+            
+            const causaNormalizada = dataLine.causa.replace(/\(s\)/i, '').replace(/S\/I/ig, '').trim();
+
+            const casoExcel = new CasoBuilder(new Date(dataLine.fechaRem), "PJUD", config.PJUD)
+                .conCausa(causaNormalizada)
+                .conJuzgado(dataLine.juzgado)
+                .construir();
+
+            this.casos.push(casoExcel);
             // console.log(causa, juzgado, comuna, rol);
             // processNewRow(line);
         }
-        return casos;
     }
 
 
-    convertDate(dateString){
-        let date = parseSpreadSheeToDate(dateString);
-        if(isValidDate(date)){
-            return date;
-        }else{
-            date = parseSpanishDate(dateString);
-        }
-
-    }
 
     processNewRow(line){
 
@@ -1001,6 +1005,59 @@ class checkFPMG {
         console.log(`📁 Ubicación: ${rutaCompleta}`);
         console.log(`📋 Total filas guardadas: ${filasCopiadas}`);
         console.log('========================================\n');
+    }
+
+    writeChanges3(){
+        let filasCopiadas = 0;
+        const casosCambiados = this.casos.filter(caso => caso.hasChanged);
+
+        if (casosCambiados.length === 0) {
+            console.log('⚠️ No hay casos con cambios para guardar');
+            // return;
+        }
+        console.log(`📊 Total casos cambiados: ${casosCambiados.length}`);
+
+        // 3. Preparar array para el nuevo Excel
+        const nuevosDatos = [];
+
+        nuevosDatos.push(this.data[0]);
+
+        for(let caso of casosCambiados){
+
+            const filaData = [];
+
+            filaData.push('CAMBIO'); // Columna A
+            filaData.push(caso.causa); 
+            filaData.push(caso.juzgado);
+
+            // Agregar la fila a los nuevos datos
+            nuevosDatos.push(filaData);
+            filasCopiadas++;
+
+            console.log(`✅ Copiada fila ${filasCopiadas}: ${caso.causa} - ${caso.juzgado}`);
+        }
+
+        // 8. Crear el nuevo Worksheet solo con filas cambiadas
+        const nuevoWs = XLSX.utils.aoa_to_sheet(nuevosDatos);
+        // 9. Crear nuevo Workbook
+        const nuevoWb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(nuevoWb, nuevoWs, 'Casos Modificados');
+        this.cambiarAnchoColumnas(nuevoWs);
+
+        // 10. Guardar en el escritorio
+        const desktopPath = getDesktopPath();
+        const fecha = formatDateToDDMMAA(new Date());
+        const nombreArchivo = `Ladrillero_${fecha}.xlsx`;
+        const rutaCompleta = path.join(desktopPath, nombreArchivo);
+
+        XLSX.writeFile(nuevoWb, rutaCompleta);
+
+        console.log('\n========================================');
+        console.log(`✅ ARCHIVO CREADO EXITOSAMENTE`);
+        console.log(`📁 Ubicación: ${rutaCompleta}`);
+        console.log(`📋 Total filas guardadas: ${filasCopiadas}`);
+        console.log('========================================\n');
+
     }
 
     cambiarAnchoColumnas(ws) {
