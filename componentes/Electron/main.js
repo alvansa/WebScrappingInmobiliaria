@@ -25,6 +25,7 @@ const {stringToDate} = require('../../utils/cleanStrings.js');
 const testUnitarios = require('./dev/testUnitarios.js');
 const checkFPMG = require('../pjud/checkFPMG.js');
 const obtainLinkMapa = require('./dev/obtainLinkMapa.js');
+const SpreadSheetManager = require('../spreadSheet/SpreadSheetManager.js');
 
 const Causas = require('../../model/Causas.js');
 
@@ -217,7 +218,9 @@ class MainApp{
         // Funcion para buscar la informacion del pjud en pdf en base a una fecha de inicio y final.
         ipcMain.handle('process-FPMG', async (event, filePath) => {
             try{
-                const check = new checkFPMG(event, this.mainWindow, filePath);
+                // const data = await SpreadSheetManager.processData();
+                let data = null;
+                const check = new checkFPMG(event, this.mainWindow, filePath, data);
                 await check.process();
                 // this.mainWindow.send("electron-log","En la funcion de completar excel")
 

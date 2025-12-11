@@ -5,6 +5,7 @@ const { google } = require('googleapis');
 const fs = require('fs');
 const { writeFile, readFile } = require('fs').promises;
 const { readFileSync } = require('fs');
+const os = require('os');
 
 require('dotenv').config();
 
@@ -18,12 +19,13 @@ const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
 
 
 class SpreadSheetManager {
-    static async processData(isDev) {
+
+    static async processData(isDev=false) {
         let data = null;
         // const credentials = this.createCredentials();
         try {
             if(!isDev){
-                // data = await this.obtainOnlineData();
+                data = await this.obtainOnlineData();
             }else{
                 const filePath = path.join(__dirname, 'data.json');
 
@@ -39,10 +41,11 @@ class SpreadSheetManager {
         } catch (error) {
             console.error("Error: ", error.message);
         }
+
         return data;
     }
 
-    static async obtainOnlineData() {
+    static async obtainOnlineDataOld() {
         // Authenticate with Google and get an authorized client.
         const auth = new google.auth.GoogleAuth({
             credentials :{
@@ -72,6 +75,63 @@ class SpreadSheetManager {
         return rawData;
     }
 
+    static async obtainOnlineData() {
+        let auth = null;
+        const TOKEN_PATH = this.obtainToken();
+
+        // Intentar cargar token existente
+        console.log('Intentando leer token desde', TOKEN_PATH);
+        try {
+            const tokenContent = await readFile(TOKEN_PATH, 'utf8');
+            const credentials = JSON.parse(tokenContent);
+            console.log(`Credenciales leídas: ${JSON.stringify(credentials)} y token path es ${TOKEN_PATH}`);
+            auth = new google.auth.OAuth2();
+            console.log('Token cargado desde', TOKEN_PATH, ' y autorizado con ', auth);
+            auth.setCredentials(credentials);
+
+            // Verificar si el token sigue válido
+            if (credentials.expiry_date && Date.now() > credentials.expiry_date) {
+                console.log('Token expirado, renovando...');
+                auth = null;
+            }
+        } catch (error) {
+            console.log('No se encontró token válido, autenticando...');
+        }
+
+        // Si no hay token válido, autenticar
+        if (!auth) {
+            auth = await authenticate({
+                keyfilePath: path.join(process.cwd(), './componentes/spreadSheet/credentials.json'),
+                scopes: SCOPES
+            });
+
+            console.log('Autenticado con éxito escribiendo en el token');
+            // Guardar token para uso futuro
+            await writeFile(TOKEN_PATH, JSON.stringify(auth.credentials));
+            console.log('Token guardado en', TOKEN_PATH);
+        }
+
+        // Crear cliente de Sheets
+        const sheets = google.sheets({ version: 'v4', auth });
+        
+        console.log(`Spreadsheet ID: ${process.env.SPREADSHEET_ID || ''}`);
+
+        // Obtener datos
+        const result = await sheets.spreadsheets.values.get({
+            spreadsheetId: process.env.SPREADSHEET_ID || '',
+            range: 'search!A1:AT',
+        });
+
+        console.log(`Descargadas ${result.data.values?.length || 0} filas`);
+        return result.data.values || [];
+    }
+
+    static obtainToken(){
+        const homeDir = os.homedir();
+        const TOKEN_PATH = path.join(homeDir,'Documents','infoRemates', 'token.json');
+        return TOKEN_PATH;
+    }
+
     static createCredentials(){
         return {
 
@@ -79,7 +139,16 @@ class SpreadSheetManager {
     }
 }
 
+
 module.exports = SpreadSheetManager;
+async function main(){
+    const data = await SpreadSheetManager.processData(false);
+    for (let row of data) {
+        console.log(row);
+    }
+    console.log("Data length ", data.length);
+}
+// main();
 
 async function obtainRepeatedData(data) {
     if (!data) {

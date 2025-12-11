@@ -13,14 +13,24 @@ const consultaCausaPjud = require("./consultaCausaPjud");
 const CasoBuilder = require('../caso/casoBuilder');
 const config = require('../../config');
 const { obtainCorteJuzgadoNumbers } = require('../../utils/corteJuzgado');
-const {stringToDate} = require('../../utils/cleanStrings')
+const {stringToDate, parseSpanishDate, parseSpreadSheeToDate, isValidDate} = require('../../utils/cleanStrings')
 const {matchJuzgado} = require('../../utils/compareText')
-const {formatDateToDDMMAA} = require('../../utils/cleanStrings')
+const {formatDateToDDMMAA} = require('../../utils/cleanStrings');
+const { datalabeling } = require('googleapis/build/src/apis/datalabeling');
+const { EvalSourceMapDevToolPlugin } = require('webpack');
 
 const DELAY_RANGE = {"min": 2, "max" : 5}
 
+const indexEstado = config.obtenerNumero('ESTADO');
+const indexCausa = config.obtenerNumero('CAUSA');
+const indexJuzgado = config.obtenerNumero('TRIBUNAL');
+const indexComuna = config.obtenerNumero('COMUNA');
+const indexRol = config.obtenerNumero('ROL');
+const indexNotas = config.obtenerNumero('NOTAS');
+const indexFechaRem = config.obtenerNumero('FECHA_REM');
+
 class checkFPMG {
-    constructor(event, mainWindow, filePath) {
+    constructor(event, mainWindow, filePath,data) {
         this.event = event;
         this.browser = null;
         this.link = 'https://oficinajudicialvirtual.pjud.cl/includes/sesion-consultaunificada.php';
@@ -31,11 +41,20 @@ class checkFPMG {
         this.wb = null;
         this.ws = null;
         this.casos = []
+        this.data = data;
     }
 
     async process() {
         //Obtain cause and judge
         this.obtainListOfCauses();
+
+        // const casos = this.obtainListSpreadSheet();
+        // for(let caso of casos){
+        //     console.log(`Causa: ${caso.causa} Juzgado: ${caso.juzgado} Fecha Remate: ${caso.fechaRem} Notas: ${caso.notas} Estado: ${caso.estado} `);
+        // }
+        // console.log("casos revisados : ",casos.length);
+
+
         console.log("casos revisados : ",this.casos.length);
 
         //Search and process each cause
@@ -162,6 +181,80 @@ class checkFPMG {
         return [cellValue, skip];
     }
 
+    obtainListSpreadSheet(){
+        if(!this.data){
+            return [];
+        }
+        const casos = [];
+        const headers = this.data[0];
+        const realData = this.data.slice(1);
+        console.log("Header ", headers)
+        let count = 0;
+        for (let line of this.data) {
+            count++;
+            const dataLine = this.processNewRow(line);
+            // 0. revisar que estado no sea no
+            if(dataLine.estado){
+                if(dataLine.estado.toLowerCase() !== ''){
+                    continue;
+                }
+            }
+
+            // 1. revisar que ni causa ni juzgado sean nulos
+            if(!dataLine.causa || !dataLine.juzgado){ 
+                continue;
+            }
+            // 2. revisar que la fecha de remate sea mayor a la fecha actual
+            const dateToday = new Date();
+            const fechaRemateDate = this.convertDate(dataLine.fechaRem);
+            console.log(dataLine.fechaRem, fechaRemateDate , dateToday);
+            if(fechaRemateDate <= dateToday){
+                continue;
+            }
+            // 3. revisar que las notas contengan "fp"
+            if(!dataLine.notas || !dataLine.notas.toLowerCase().includes('fp')){    
+                continue; 
+            }
+            casos.push(dataLine);
+            // console.log(causa, juzgado, comuna, rol);
+            // processNewRow(line);
+        }
+        return casos;
+    }
+
+
+    convertDate(dateString){
+        let date = parseSpreadSheeToDate(dateString);
+        if(isValidDate(date)){
+            return date;
+        }else{
+            date = parseSpanishDate(dateString);
+        }
+
+    }
+
+    processNewRow(line){
+
+        const causa = line[indexCausa];
+        const juzgado = line[indexJuzgado];
+        const comuna = line[indexComuna];
+        const rol = line[indexRol];
+        const notas = line[indexNotas];
+        const fechaRem = line[indexFechaRem];
+        const estado = line[indexEstado];
+
+
+        return {
+            'estado' : estado, 
+            'causa': causa,
+            'juzgado' :  juzgado,
+            'comuna' : comuna,
+            'rol' : rol, 
+            'notas' : notas, 
+           'fechaRem' : fechaRem 
+        }
+    }
+    
 
     async processList() {
         const mainWindow = BrowserWindow.fromWebContents(this.event.sender);
@@ -835,12 +928,13 @@ class checkFPMG {
         });
 
         // 6. Recorrer todas las filas del Excel original (empezando desde fila 2)
-        let filaIndex = 1; // Fila 2 en Excel (índice 1 porque fila 0 es headers)
+        // let filaIndex = 1; // Fila 2 en Excel (índice 1 porque fila 0 es headers)
         let filasCopiadas = 0;
         console.log(mapaCambios)
-        const lastWrittenRow = XLSX.utils.decode_range(this.ws['!ref']).e.r + 1;
+        let filaIndex = XLSX.utils.decode_range(this.ws['!ref']).e.r + 1;
 
-        while (filaIndex <= lastWrittenRow) {
+        let casosEscritos = new Set();
+        while (filaIndex > 1) {
 
             // Obtener datos de la fila actual
             let causa = this.ws[`${config.CAUSA}${filaIndex + 1}`]?.v || '';
@@ -854,7 +948,7 @@ class checkFPMG {
 
             console.log(`🔍 Encontrado cambio para: ${claveBusqueda}`);
             // Verificar si esta fila tiene cambios
-            if (mapaCambios.has(claveBusqueda)) {
+            if (mapaCambios.has(claveBusqueda) && !casosEscritos.has(claveBusqueda)) {
                 // 7. COPIAR TODA LA FILA
                 const filaData = [];
 
@@ -876,13 +970,14 @@ class checkFPMG {
                 }
 
                 // Agregar la fila a los nuevos datos
+                casosEscritos.add(claveBusqueda);
                 nuevosDatos.push(filaData);
                 filasCopiadas++;
 
                 console.log(`✅ Copiada fila ${filaIndex + 1}: ${causa} - ${juzgado}`);
             }
 
-            filaIndex++;
+            filaIndex--;
         }
 
         // 8. Crear el nuevo Worksheet solo con filas cambiadas
@@ -990,9 +1085,6 @@ function getDesktopPath(){
     // Linux/Unix
     else {
         return path.join(homeDir, 'Desktop');
-        // O alternativamente para algunos Linux:
-        // return path.join(homeDir, 'Escritorio'); // Español
-        // return path.join(homeDir, 'Рабочий стол'); // Ruso
     }
 }
 

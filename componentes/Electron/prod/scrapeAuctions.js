@@ -95,7 +95,6 @@ class scrapeAuction {
         //Volver a revisar los casos faltantes
         const gestorRemates = new GestorRematesPjud(casos, this.event, this.mainWindow);
         const result = await gestorRemates.getInfoFromAuctions({ skipIfHasPartes: true }); 
-        // console.log(`-----------\nSegunda Vuelta \n--------------------------`);
         logger.info(`-----------\nSegunda Vuelta \n--------------------------`);
         return casos;
     }

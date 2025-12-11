@@ -47,7 +47,7 @@ class GestorRematesPjud{
 
                 if ((counter + 1) < this.casos.length) {
                     const awaitTime = Math.random() * (90 - 30) + 30; // Genera un número aleatorio entre 30 y 90
-                    mainWindow.webContents.send('aviso-espera', [awaitTime, counter + 1, this.casos.length]);
+                    // mainWindow.webContents.send('aviso-espera', [awaitTime, counter + 1, this.casos.length]);
                     console.log(`Esperando ${awaitTime} segundos para consulta numero ${counter + 1} de ${this.casos.length} ${secondlap}`);
                     await delay(awaitTime * 1000);
                 }
