@@ -61,16 +61,16 @@ class checkFPMG {
         // }
 
         console.log("casos revisados : ",this.casos.length);
-        for(let caso of this.casos){
-            console.log(caso.causa, caso.juzgado, caso.numeroJuzgado, caso.corte);
-        }
+        // for(let caso of this.casos){
+        //     console.log(caso.causa, caso.juzgado, caso.numeroJuzgado, caso.corte);
+        // }
 
         //Search and process each cause
-        // await this.processList();
+        await this.processList();
         // await delay(5000);
 
         //Write each cause that had changes in the last week
-        // this.writeChanges3();
+        this.writeChanges3();
 
         console.log("Proceso Finalizado")
         return true;
