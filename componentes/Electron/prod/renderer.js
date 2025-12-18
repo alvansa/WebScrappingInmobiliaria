@@ -1,3 +1,4 @@
+const checkFPMG = document.getElementById('openLadrillero');
 let tribunalesPorCorte  = [];
 console.log('Renderer loaded succefully')
 
@@ -106,13 +107,22 @@ document.getElementById('openExcelWindow').addEventListener('click', () => {
   window.api.openWindow('excel'); 
 });
 
-document.getElementById('openLadrillero').addEventListener('click', () => {
-  window.api.openWindow('ladrillero'); 
-});
 
 document.getElementById('openSettingsWindow').addEventListener('click', () => {
   window.api.openWindow('singleCase'); 
 });
 
+checkFPMG.addEventListener('click', async () => { 
+  showWaitingProcess(true);
+  // Llama a tu función que procesa el archivo
+  await window.ladrilleroAPI.checkFPMG();
+  showWaitingProcess(false)
+  alert('Ladrillos Obtenidos');
+});
+
+function showWaitingProcess(show){
+  const modal = document.getElementById('waitingModalProcess');
+  modal.style.display = show ? 'flex' : 'none';
+}
 
 

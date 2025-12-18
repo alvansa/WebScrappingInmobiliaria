@@ -487,7 +487,7 @@ function insertarCasoIntoWorksheet(caso, ws, currentRow) {
     writeLine(ws, `${config.COMUNA}`, currentRow, caso.comuna, 's');
     writeLine(ws, `${config.ANNO}`, currentRow, caso.anno, 'n');
     writeLine(ws, `${config.PARTES}`, currentRow, caso.partes, 's');
-    // ws[`O`+ currentRow ] = {v: 'dato ', t: 's'};
+    writeLine(ws, `${config.DATO}`, currentRow, caso.dato, 's');
     writeLine(ws, `${config.VV_O_CUPON}`, currentRow, caso.formatoEntrega, 's');
     writeLine(ws, `${config.PORCENTAJE}`, currentRow, caso.porcentaje, 's');
     writeLine(ws, `$${config.PLAZOVV}`, currentRow, caso.diaEntrega, 's');
@@ -510,6 +510,9 @@ function insertarCasoIntoWorksheet(caso, ws, currentRow) {
         }
         writeLine(ws, `${config.PRECIO_MINIMO2}`, currentRow, caso.moneda, 's');
     }
+    if(caso.montoMinimo2){
+        writeLine(ws, `${config.PRECIO_MINIMO2}`, currentRow, caso.montoMinimo2, 'n');
+    }
     if (caso.avaluoPropiedad != null) {
         // const sumAvaluo = this.sumAvaluo(caso.avaluoPropiedad, caso.avaluoEstacionamiento, caso.avaluoBodega);
         ws[`${config.AVALUO_FISCAL}` + currentRow] = { v: caso.unitAvaluo, t: 'n', z: '#,##0' };
@@ -519,8 +522,8 @@ function insertarCasoIntoWorksheet(caso, ws, currentRow) {
         ws[`${config.PX_COMPRA}` + currentRow] = { v: caso.montoCompra.monto, t: 'n' };
     }
     writeLine(ws, `${config.ANNO_COMPRA}`, currentRow, caso.anno, "n");
-    writeLine(ws, `${config.DEUDA_HIPOTECA}`, currentRow, caso.deudaHipotecaria, "n");
     writeLine(ws, `${config.DEUDA_BANCO}` , currentRow, caso.mortageBank , 's')
+    writeLine(ws, `${config.DEUDA_HIPOTECA}`, currentRow, caso.deudaHipotecaria, "n");
     writeLine(ws, `${config.OTRA_DEUDA}`, currentRow, caso.linkMap, "s");
     // ws[`AG` + currentRow ] = {v: 'año compr ant ', t: 's'};
     // ws[`AH` + currentRow ] = {v: 'precio venta nos ', t: 's'};

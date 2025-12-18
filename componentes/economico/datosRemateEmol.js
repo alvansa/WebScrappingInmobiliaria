@@ -10,7 +10,7 @@ function procesarDatosRemate(caso, isDebug = false) {
     caso.porcentaje = extractor.percent(texto);
     caso.formatoEntrega = extractor.deliveryFormat(texto);
     caso.fechaRemate = extractor.auctionDate(texto);
-    caso.montoMinimo = extractor.minAmount(texto, isDebug);
+    const montoMoneda = extractor.minAmount(texto, isDebug);
     caso.comuna = extractor.district(texto, false,isDebug);
     caso.tipoDerecho = extractor.rightType(texto);
     caso.direccion = extractor.direction(texto);
@@ -21,6 +21,11 @@ function procesarDatosRemate(caso, isDebug = false) {
     caso.foja = getFoja(texto);
     const numero = getNumero(texto);
     const tipoPropiedad = getTipoPropiedad(texto);
+
+    if(montoMoneda){
+        caso.montoMinimo = montoMoneda.monto;
+        caso.moneda = montoMoneda.moneda;
+    }
 
     if (numero != null) {
         caso.numero = numero[1];

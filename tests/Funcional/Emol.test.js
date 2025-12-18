@@ -15,10 +15,8 @@ describe('procesarDatosRemate',()=>{
         expect(caso1857.causa).toEqual('C-1857-2024');
         expect(caso1857.comuna).toEqual('Antofagasta');
         expect(caso1857.anno).toEqual(2013);
-        expect(caso1857.montoMinimo).toEqual({
-            monto: 83547301,
-            moneda: 'Pesos'
-        });
+        expect(caso1857.montoMinimo).toEqual(83547301);
+        expect(caso1857.moneda).toEqual('Pesos');
         expect(caso1857.porcentaje).toEqual(10);
         // expect(caso1857.diaEntrega).toEqual('dia habil anterior');
         expect(caso1857.partes).toEqual('progarantía sagr/ constructora e ingeniería smot');
@@ -57,10 +55,8 @@ describe('procesarDatosRemate',()=>{
         expect(caso2226.unitRol).toEqual('1121-2');
         expect(caso2226.formatoEntrega).toEqual('vale vista');
         expect(caso2226.causa).toEqual('C-2226-2023');
-        expect(caso2226.montoMinimo).toEqual({
-            monto: 31541959,
-            moneda: 'Pesos'
-        });
+        expect(caso2226.montoMinimo).toEqual(31541959);
+        expect(caso2226.moneda).toEqual('Pesos');
         // expect(caso2226.diaEntrega).toEqual('dia viernes anterior');
         expect(caso2226.partes).toEqual('banco de credito e inversiones con zavala');
         expect(caso2226.diaEntrega).toBeNull();
@@ -79,10 +75,8 @@ describe('procesarDatosRemate',()=>{
         expect(caso2240.unitRol).toEqual('4132-400');
         expect(caso2240.formatoEntrega).toEqual('vale vista');
         expect(caso2240.causa).toEqual('C-2240-2024');
-        expect(caso2240.montoMinimo).toEqual({
-            monto: 81520345,
-            moneda: 'Pesos'
-        });
+        expect(caso2240.montoMinimo).toEqual(81520345);
+        expect(caso2240.moneda).toEqual('Pesos');
         expect(caso2240.porcentaje).toEqual(10);
         expect(caso2240.partes).toEqual('santander-chile con muñoz zepeda”');
         expect(caso2240.diaEntrega).toBeNull();
@@ -118,10 +112,8 @@ describe('procesarDatosRemate',()=>{
         expect(caso18731.porcentaje).toEqual(10);
         expect(caso18731.anno).toEqual(2006);
         expect(caso18731.partes).toEqual('compañía de seguros de vida con escobar fica');
-        expect(caso18731.montoMinimo).toEqual({
-            moneda: "UF",
-            monto: 500
-        });
+        expect(caso18731.montoMinimo).toEqual(500);
+        expect(caso18731.moneda).toEqual('UF');
         expect(caso18731.diaEntrega).toEqual('día precedente a la fecha de la subasta, entre las 11:00 y 12:00 horas');
         expect(caso18731.direccion).toEqual('inmueble ubicado en calle gran bretaña nº 3079, población armando alarcón del canto, hualpén, inscrito a fojas 1621, nº 1265 del registro propiedad año 2006, conservador bienes raíces talcahuano.')
     });
@@ -138,10 +130,8 @@ describe('procesarDatosRemate',()=>{
         expect(caso460.comuna).toEqual('Estación Central');
         expect(caso460.porcentaje).toEqual(10);
         expect(caso460.anno).toEqual(2019);
-        expect(caso460.montoMinimo).toEqual({
-            monto: 59396684,
-            moneda: 'Pesos'
-        });
+        expect(caso460.montoMinimo).toEqual(59396684);
+        expect(caso460.moneda).toEqual('Pesos');
         expect(caso460.fechaRemate).toEqual(new Date('2025/08/07'));
         expect(caso460.partes).toEqual('banco santander-chile sa/prinea');
         expect(caso460.diaEntrega).toEqual('fijado el 04 agosto 2025, entre 09:00 y 11:00 horas');
@@ -165,10 +155,8 @@ describe('procesarDatosRemate',()=>{
         expect(caso10926.corte).toEqual('90');
         expect(caso10926.numeroJuzgado).toEqual('272');
         expect(caso10926.getCausaPjud()).toEqual('10926');
-        expect(caso10926.montoMinimo).toEqual({
-            monto: 33199521,
-            moneda: 'Pesos'
-        });
+        expect(caso10926.montoMinimo).toEqual(33199521);
+        expect(caso10926.moneda).toEqual('Pesos');
         expect(caso10926.partes).toEqual('banco itaú chile contra sanhueza mendoza');
         expect(caso10926.diaEntrega).toEqual('susceptible de ser endosado al momento de la subasta');
         expect(caso10926.direccion).toEqual('departamento nº 2406 (dos mil cuatrocientos seis) del vigésimo cuarto piso, del edificio conexión, con acceso por calle san diego nº 255 (doscientos cincuenta y cinco), comuna de santiago');
@@ -190,10 +178,8 @@ describe('procesarDatosRemate',()=>{
         expect(caso345.corte).toEqual('25');
         expect(caso345.numeroJuzgado).toEqual('52');
         expect(caso345.getCausaPjud()).toEqual('345');
-        expect(caso345.montoMinimo).toEqual({
-            "moneda" : "Pesos",
-            "monto" : 39084038
-        });
+        expect(caso345.montoMinimo).toEqual(39084038);
+        expect(caso345.moneda).toEqual('Pesos');
         expect(caso345.diaEntrega).toBeNull();
         expect(caso345.direccion).toEqual('inmueble: sitio n, ubicado en batuco, comuna de salamanca, provincia del choapa, región de coquimbo');
     });
@@ -210,10 +196,8 @@ describe('procesarDatosRemate',()=>{
         // expect(caso156.causa).toEqual('C-156-2023');
         // expect(caso156.porcentaje).toEqual(10);
         expect(caso156.fechaRemate).toEqual(new Date('2025/08/20'));
-        expect(caso156.montoMinimo).toEqual({
-            monto: 3693,
-            moneda: "UF"
-        });
+        expect(caso156.montoMinimo).toEqual(3693);
+        expect(caso156.moneda).toEqual('UF');
         expect(caso156.diaEntrega).toBeNull();
         expect(caso156.direccion).toEqual('inmueble ubicado calle homs n° 6945 depto. 205, estac. 58 y bg. 44 del 2° subterráneo, comuna las');
     });
@@ -234,10 +218,8 @@ describe('procesarDatosRemate',()=>{
         expect(caso11613.corte).toEqual('90');
         expect(caso11613.numeroJuzgado).toEqual('280');
         expect(caso11613.getCausaPjud()).toEqual('11613');
-        expect(caso11613.montoMinimo).toEqual({
-            "moneda" : "Pesos",
-            "monto" : 118639031
-        });
+        expect(caso11613.montoMinimo).toEqual(118639031);
+        expect(caso11613.moneda).toEqual('Pesos');
         expect(caso11613.diaEntrega).toEqual('el día jueves inmediatamente anterior a la fecha de la subasta, entre las 10:00 y las 12:30 horas');
         expect(caso11613.direccion).toEqual('departamento 206, Est 33 y bodega 31, todos del edificio tempo, con acceso por los aliaga 5500, comuna de');
     });
@@ -258,10 +240,8 @@ describe('procesarDatosRemate',()=>{
         expect(caso18187.corte).toEqual('90');
         expect(caso18187.numeroJuzgado).toEqual('279');
         expect(caso18187.getCausaPjud()).toEqual('18187');
-        expect(caso18187.montoMinimo).toEqual({
-            "moneda" : "Pesos",
-            "monto" : 47647595
-        });
+        expect(caso18187.montoMinimo).toEqual(47647595);
+        expect(caso18187.moneda).toEqual('Pesos');
         expect(caso18187.diaEntrega).toEqual('los días martes y jueves, anterior a la realización de la subasta, según correspondiere, entre las 10:00 y las 12:00 horas');
         expect(caso18187.direccion).toEqual('propiedad ubicada pasaje constantino n° 1191 que corresponde al lote n° 39 de la manzana d del plano de loteo respectivo, comuna de maip');
     });
@@ -314,10 +294,8 @@ describe('procesarDatosRemate',()=>{
         procesarDatosRemate(caso19532);
         expect(caso19532.causa).toEqual('C-19532-2024');
         expect(caso19532.tipoDerecho).toBeNull();
-        expect(caso19532.montoMinimo).toEqual({
-            monto : 925.7465,
-            moneda : 'UF'
-        });
+        expect(caso19532.montoMinimo).toEqual(925.7465);
+        expect(caso19532.moneda).toEqual('UF');
         // expect(caso18853.diaEntrega).toEqual('con 48 horas de antelación a la subasta');
         // expect(caso18853.direccion).toEqual('parcela nº 80, resultante de la división de los siguientes predios: a) fundo denominado actualmente puerta de hierro; b) parcela nº 39 del proyecto de parcelación viluco, santa julia, la esperanza, los encinos y los carolinos; y c) parcela nº 40, del proyecto de parcelación denominado parte de la hijuela santa julia de viluco, san andrés de viluco, santa eugenia de cervera, santa maría de cervera y san luis de cervera, de la comuna de buin');
     });

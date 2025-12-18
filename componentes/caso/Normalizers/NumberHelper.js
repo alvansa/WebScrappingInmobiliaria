@@ -4,6 +4,9 @@ class NumberHelper{
         if(!deuda){
             return null;
         }
+        if(typeof deuda === 'number'){
+            return deuda;
+        }
         deuda = deuda
             .replace(/unidades\s*de\s*fomento/i,"")
             .replace(/\$/,"")

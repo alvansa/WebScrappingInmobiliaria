@@ -1,4 +1,5 @@
 const Caso = require('../../componentes/caso/caso');
+const CasoBuilder = require('../../componentes/caso/casoBuilder');
 const config = require('../../config');
 const { tribunalesPorCorte, obtainCorteJuzgadoNumbers, searchTribunalPorNombre } = require('../../utils/corteJuzgado');
 // const createExcel = require('../../componentes/excel/createExcel')
@@ -285,26 +286,18 @@ describe('normalizarMontoMinimo',()=>{
 
     test('Caso con monto minimo UF con coma',()=>{
         const casoTest = createCase("C-111-222","1 santaigo");
-        casoTest.montoMinimo = {
-            monto: '1031,99465',
-            moneda: 'UF'
-        };
-        expect(casoTest.montoMinimo).toEqual({
-            monto: 1031.99465,
-            moneda: 'UF'
-        });
+        casoTest.montoMinimo = '1031,99465';
+        casoTest.moneda = 'UF';
+        expect(casoTest.montoMinimo).toEqual(1031.99465);
+        expect(casoTest.moneda).toEqual('UF');
     });
 
     test('Caso con minimo UF sin coma',()=>{
         const casoTest = createCase("C-111-222","1 santaigo");
-        casoTest.montoMinimo = {
-            monto: '1031',
-            moneda: 'UF'
-        };
-        expect(casoTest.montoMinimo).toEqual({
-            monto: 1031,
-            moneda: 'UF'
-        });
+        casoTest.montoMinimo = '1031';
+        casoTest.moneda = 'UF'
+        expect(casoTest.montoMinimo).toEqual(1031);
+        expect(casoTest.moneda).toEqual('UF');
 
     });
 
@@ -369,6 +362,20 @@ describe('Obtener corte y numero de juzgado', ()=>{
 
 
 });
+
+describe('Prueba para ver el casoBuilder', ()=>{
+
+    test('Crear caso con monto Minimo', ()=>{
+        const casoTest = new CasoBuilder("1/1/2025",null,null, PJUD)
+            .conCausa("C-1234-5678")
+            .conMontoMinimo(123456)
+            .conPrecioCompra(200000)
+            .construir();
+        expect(casoTest.montoMinimo).toEqual(123456);
+        expect(casoTest.toObject().montoMinimo).toEqual(123456);
+        expect(casoTest.precioCompra).toEqual(200000);
+    })
+})
 
 
 function createCase(causa,juzgado){

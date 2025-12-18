@@ -147,7 +147,11 @@ class PdfProccess{
 
     static obtainAuctionInfo(caso, text){
         if(!caso.montoMinimo){
-            caso.montoMinimo = extractors.minAmount(text);
+            const montoMoneda = extractors.minAmount(text);
+            if(montoMoneda){
+                caso.montoMinimo = montoMoneda.monto;
+                caso.moneda = montoMoneda.moneda;
+            }
         }
         if(!caso.formatoEntrega){
             caso.formatoEntrega = extractors.deliveryFormat(text)

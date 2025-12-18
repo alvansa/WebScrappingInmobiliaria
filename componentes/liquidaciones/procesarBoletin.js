@@ -26,6 +26,7 @@ class ProcesarBoletin {
             console.error("No se ha recibido caso");
             return;
         }
+        console.log(data)
         const normalizedData = this.normalizeData(data);
         // console.log("Texto normalizado: ", normalizedData);
 
@@ -200,11 +201,13 @@ class ProcesarBoletin {
         for(let comuna of foundComunas){
             const findComuna = 'comuna de ' + comuna;
             if(texto.includes(findComuna)){
+                console.log(`Comunas encontradas : ${comuna}`)
                 return comuna;
             }
         }
         if(foundComunas.length > 0){
-            return comunas[0]
+            console.log(`Retornar comunas encontradas : ${foundComunas}`)
+            return foundComunas[0]
         }
         return null;
     }

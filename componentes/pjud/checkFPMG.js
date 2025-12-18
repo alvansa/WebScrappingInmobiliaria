@@ -199,42 +199,79 @@ class checkFPMG {
         for (let line of this.data) {
             count++;
             const dataLine = this.processNewRow(line);
-            // 0. revisar que estado no sea no
-            if(dataLine.estado){
-                if(dataLine.estado.toLowerCase() !== ''){
-                    continue;
-                }
-            }
+            let causaNormalizada = null;
 
-            // 1. revisar que ni causa ni juzgado sean nulos
-            if(!dataLine.causa || !dataLine.juzgado){ 
+            //Ladrillero buscara 2 tipos de datos:
+            if(dataLine.causa){
+                causaNormalizada = dataLine.causa.replace(/\(s\)/i, '').replace(/S\/I/ig, '').trim();
+            }
+            //  1. Ladrillos
+            if(this.isLadrillo(dataLine)){
+                const casoExcel = new CasoBuilder(new Date(dataLine.fechaRem), "PJUD", config.PJUD)
+                    .conCausa(causaNormalizada)
+                    .conJuzgado(dataLine.juzgado)
+                    .construir();
+
+                this.casos.push(casoExcel);
+            //  2. Propios
+            }else if(this.isPropio(dataLine)){
+                const casoExcel = new CasoBuilder(new Date(dataLine.fechaRem), "PJUD", config.PJUD)
+                    .conCausa(causaNormalizada)
+                    .conJuzgado(dataLine.juzgado)
+                    .construir();
+                this.casos.push(casoExcel);
+            }
+            else{
                 continue;
             }
-            // 2. revisar que la fecha de remate sea mayor a la fecha actual
-            const dateToday = new Date();
-            const fechaRemateDate = convertDate(dataLine.fechaRem);
-            // console.log(dataLine.fechaRem, fechaRemateDate , dateToday);
-            if(fechaRemateDate <= dateToday){
-                continue;
-            }
-            // 3. revisar que las notas contengan "fp"
-            if(!dataLine.notas || !dataLine.notas.toLowerCase().includes('fp')){    
-                continue; 
-            }
-            
-            const causaNormalizada = dataLine.causa.replace(/\(s\)/i, '').replace(/S\/I/ig, '').trim();
 
-            const casoExcel = new CasoBuilder(new Date(dataLine.fechaRem), "PJUD", config.PJUD)
-                .conCausa(causaNormalizada)
-                .conJuzgado(dataLine.juzgado)
-                .construir();
-
-            this.casos.push(casoExcel);
-            // console.log(causa, juzgado, comuna, rol);
-            // processNewRow(line);
+        }
+        for(let caso of this.casos){
+            console.log(caso.causa, caso.juzgado, caso.fechaRemate);
         }
     }
 
+    isLadrillo(dataLine){
+        // 0. revisar que estado no sea no
+        if (dataLine.estado) {
+            if (dataLine.estado.toLowerCase() !== '') {
+                return false;
+            }
+        }
+
+        // 1. revisar que ni causa ni juzgado sean nulos
+        if (!dataLine.causa || !dataLine.juzgado) {
+            return false;
+        }
+        // 2. revisar que la fecha de remate sea mayor a la fecha actual
+        const dateToday = new Date();
+        const fechaRemateDate = convertDate(dataLine.fechaRem);
+        // console.log(dataLine.fechaRem, fechaRemateDate , dateToday);
+        if (fechaRemateDate <= dateToday) {
+            return false;
+        }
+        // 3. revisar que las notas contengan "fp"
+        if (!dataLine.notas || !dataLine.notas.toLowerCase().includes('fp')) {
+            return false;
+        }
+        return true;
+    }
+
+    isPropio(dataLine){
+        // 1. revisar que ni causa ni juzgado sean nulos
+        if (!dataLine.causa || !dataLine.juzgado) {
+            return false;
+        }
+        if (dataLine.estado) {
+            if (dataLine.estado.toLowerCase() === 'propio') {
+                // console.log(`causa : ${dataLine.causa} juzgado: ${dataLine.juzgado} `);
+                return true;
+            }
+        }
+
+        return false;
+
+    }
 
 
     processNewRow(line){

@@ -9,6 +9,8 @@ const ProcesarBoletin = require('../../liquidaciones/procesarBoletin.js');
 const PublicosYLegales = require('../../publicosYlegales/publicosYLegales.js');
 const Pjud = require('../../pjud/getPjud.js');
 const GestorRematesPjud = require('../../pjud/GestorRematesPjud.js')
+const SpreadSheetManager = require('../../spreadSheet/SpreadSheetManager.js');
+const DataEnricher = require('../../spreadSheet/DataEnricher.js');
 const {stringToDate} = require('../../../utils/cleanStrings.js');
 const {createExcel} = require('../../excel/createExcel.js');
 const {obtainCorteJuzgadoNumbers} = require('../../../utils/corteJuzgado.js');
@@ -40,26 +42,40 @@ class scrapeAuction {
         let casosBoletin = [];
         let casosPYL = [];
         let casosPJUD = [];
+        let spreadSheetData = null;
         const fechaHoy = new Date();
         await this.launchPuppeteer_inElectron();
         // console.log(`Iniciando la inserción de datos desde ${this.startDate} hasta ${this.endDate} y tipos ${typeof this.startDate} y ${typeof this.endDate}`);
         logger.info(`Iniciando la inserción de datos desde ${this.startDate} hasta ${this.endDate} y tipos ${typeof this.startDate} y ${typeof this.endDate}`);
+
         if(this.emptyMode){
            casos = emptyCaseEconomico(); 
         }else{
+
+            spreadSheetData =  await SpreadSheetManager.processData();
+
+
             casosEconomico = await this.getCasosEconomico(this.startDate, this.endDate, this.checkedBoxes.economico);
             casosPJUD = await this.getCasosPjud(this.startDate, this.endDate, this.checkedBoxes.pjud,this.event)
             // casosPreremates = await this.getCasosPreremates(checkedBoxes.preremates),
             casosBoletin = await this.getCasosBoletin(this.startDate, this.endDate, fechaHoy, this.checkedBoxes.liquidaciones),
             casosPYL = await this.getPublicosYLegales(this.startDate, this.endDate, fechaHoy, this.checkedBoxes.PYL),
 
+            logger.info('Casos obtenidos por fuente');
+
+            if(casosPJUD.length == 0){
+                logger.info('Reintentando obtencion de casos PJUD, casos obtenidos: ', casosPJUD.length);
+                casosPJUD = await this.getCasosPjud(this.startDate, this.endDate, this.checkedBoxes.pjud,this.event)
+            } 
+
             casos = [...casosPreremates, ...casosBoletin, ...casosPYL, ...casosPJUD];
             
             //Luego de obtener los casos de emol se revisaran los casos obtenidos en pjud
-            casosEconomico = await this.searchEmolAuctionsInPjud(casosEconomico);
+            // casosEconomico = await this.searchEmolAuctionsInPjud(casosEconomico);
             casos = [...casosEconomico, ...casos];
             if(casos.length > 1){
                 await this.obtainMapasSIIInfo(casos);
+                logger.info('Datos de Mapas SII obtenidos');
             }
         }
         if(!this.isTestMode){
@@ -71,6 +87,9 @@ class scrapeAuction {
             logger.warn("No se encontraron datos");
             return 5;
         }
+        const enricher = new DataEnricher();
+        enricher.enrichWithSpreadsheetData(casos, spreadSheetData);
+        logger.info('Escribiendo casos');
         const createExcelFile = new createExcel(this.saveFile,this.startDate,this.endDate,this.emptyMode,null, this.isTestMode);
         const filePath = createExcelFile.writeData(casos);
         return filePath;
@@ -87,6 +106,7 @@ class scrapeAuction {
         }
         //se revisa si de los casos obtenidos 
         if(countEmptyParts <= Math.floor(casos.length/20)){
+            logger.info(`No es necesario una segunda vuelta, casos con partes vacias: ${countEmptyParts} de ${casos.length}`);
             return casos;
         }
         const awaitTime = 60 * 60;
@@ -98,8 +118,6 @@ class scrapeAuction {
         logger.info(`-----------\nSegunda Vuelta \n--------------------------`);
         return casos;
     }
-
-    
 
     async getCasosEconomico(fechaInicioStr, fechaFinStr, economicoChecked) {
         if(this.emptyMode){
@@ -116,7 +134,7 @@ class scrapeAuction {
         let fechaInicio = new Date();
         let fechaFin = new Date(); 
 
-        fechaInicio.setDate(fechaInicio.getDate() - 21);
+        fechaInicio.setDate(fechaInicio.getDate() - 30);
 
         if(this.isTestMode){
             fechaInicio = stringToDate(fechaInicioStr);

@@ -59,6 +59,14 @@ class CasoBuilder{
         this.caso.mapaSII = mapaSII;
         return this;
     }
+    conMontoMinimo(montoMinimo){
+        this.caso.montoMinimo = montoMinimo;
+        return this;
+    }
+    conPrecioCompra(precioCompra){
+        this.caso.precioCompra = precioCompra;
+        return this;
+    }
 
     construir(){
         return this.caso;

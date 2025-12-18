@@ -20,10 +20,8 @@ describe('Test de leer boletin concursal directo', ()=>{
         expect(caso3013.fechaRemate).toEqual(new Date('2025/08/28'));
         expect(caso3013.juzgado).toEqual('7º juzgado civil de santiago');
         expect(caso3013.anno).toEqual(2020);
-        expect(caso3013.montoMinimo).toEqual({
-            monto: 78230000,
-            moneda : 'Pesos'
-        });
+        expect(caso3013.montoMinimo).toEqual(78230000);
+        expect(caso3013.moneda).toEqual('Pesos');
     });
 
     test('test de caso C-3111-11111', ()=>{
@@ -31,10 +29,18 @@ describe('Test de leer boletin concursal directo', ()=>{
             .conOrigen(LIQUIDACIONES)
             .construir()
         ProcessBoletin.obtainDataRematesPdf(BOLETIN.BOL3013, caso3013);
-        caso3013.montoMinimo = {monto : 12345, moneda : 'Pesos'};
-        expect(caso3013.montoMinimo).toEqual({
-            monto: 12345,
-            moneda : 'Pesos'
-        });
+        // caso3013.montoMinimo = {monto : 12345, moneda : 'Pesos'};
+        expect(caso3013.montoMinimo).toEqual(78230000);
+        expect(caso3013.moneda).toEqual('Pesos');
     });
+
+    test('Test de caso C-17471-2024 que obtuvo la comuna Aisen', ()=>{
+        const caso17471 = new CasoBuilder(null,null,LIQUIDACIONES, null)
+            .conOrigen(LIQUIDACIONES)
+            .conCausa('C-17471-2024')
+            .conJuzgado('10 santiago')
+            .construir();
+        ProcessBoletin.obtainDataRematesPdf(BOLETIN.BOL17471, caso17471);
+        expect(caso17471.comuna).toBe('San Joaquín');
+    })
 });

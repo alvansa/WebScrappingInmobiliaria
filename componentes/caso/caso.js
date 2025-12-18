@@ -61,6 +61,10 @@ class Caso{
     #linkMap;
     #mortageBank;
     #tp;
+    #dato;
+    #estado;
+    #montoMinimo2;
+    #moneda;
 
     constructor(fechaObtencion, fechaPublicacion = 'N/A',link = 'N/A',origen = null ){    
         this.#fechaPublicacion = fechaPublicacion;
@@ -107,6 +111,10 @@ class Caso{
         this.#coordenadas = null;
         this.#mortageBank = null;
         this.#tp = null;
+        this.#dato = null;
+        this.#estado = null;
+        this.#montoMinimo2 = null;
+        this.#moneda = null;
 
         this.#unitRol = null;
         this.#unitAvaluo = null;
@@ -151,6 +159,9 @@ class Caso{
 
     set montoMinimo(montoMinimo){
         this.#montoMinimo = montoMinimo;
+    }
+    set moneda(moneda){
+        this.#moneda = moneda;
     }
 
     set multiples(multiples){
@@ -291,6 +302,15 @@ class Caso{
     set tp(tp){
         this.#tp = tp;
     }
+    set dato(dato){
+        this.#dato = dato;
+    }
+    set estado(estado){
+        this.#estado = estado;
+    }
+    set montoMinimo2(montoMinimo2){
+        this.#montoMinimo2 = montoMinimo2;
+    }
 
    get hasChanged(){
         return this.#hasChanged;
@@ -419,7 +439,10 @@ class Caso{
         if(this.#montoMinimo == "N/A" || !this.#montoMinimo){
             return null;
         }
-        return this.normalizarMontoMinimo();
+        let montoMoneda = this.normalizarMontoMinimo();
+        if(montoMoneda) {
+            return this.#montoMinimo
+        }else{ return null;}
     }
     get owners(){
         return this.#owners;
@@ -495,7 +518,10 @@ class Caso{
     }
     get moneda(){
         const monto =  this.normalizarMontoMinimo()
-        return monto["moneda"];
+        if(monto){
+            return this.#moneda;
+        }
+        return null;
     }
     get foja(){
         if(!this.#foja){
@@ -536,6 +562,15 @@ class Caso{
     get tp(){
         return this.#tp;
     }
+    get dato(){
+        return this.#dato;
+    }
+    get estado(){
+        return this.#estado;
+    }
+    get montoMinimo2(){
+        return this.#montoMinimo2;
+    }
 
 
   
@@ -548,6 +583,7 @@ class Caso{
         const diaEntregaNormalizado = this.normalizarDiaEntrega();
         const comunaNormalizada = this.normalizarComuna();
         const tipoDerechoNormalizado = this.normalizarTipoDerecho();
+
         
 
         return {
@@ -559,9 +595,8 @@ class Caso{
             porcentaje: porcentajeNormalizado,
             formatoEntrega: StringHelper.formatoEntrega(this.#formatoEntrega),
             fechaRemate: DateHelper.normalize(this.#fechaRemate, this.#origen), 
-            // montoMinimo: this.#montoMinimo,
-            montoMinimo: montoMoneda["monto"],
-            moneda : montoMoneda["moneda"],
+            montoMinimo: this.#montoMinimo,
+            moneda : this.#moneda,
             multiples: this.#multiples,
             multiplesFoja : this.#multiplesFoja,
             comuna: StringHelper.comuna(this.#comuna),
@@ -600,6 +635,9 @@ class Caso{
             linkMap : this.#linkMap,
             mortageBank : this.#mortageBank,
             tp : this.#tp,
+            dato : this.#dato,
+            estado : this.#estado,
+            montoMinimo2 : this.#montoMinimo2
         };
     } 
 
@@ -661,36 +699,32 @@ class Caso{
         const montoNormalizado = monto.replaceAll('.','').replaceAll(',','.');
         return montoNormalizado;
     }
-    normalizarMontoMinimo(){
-        try{
+    
+    normalizarMontoMinimo() {
+        try {
 
-        if(this.#montoMinimo == "N/A" || !this.#montoMinimo){
-            return {"monto": null, "moneda": null};
-        }
-        let montoFinal;
-        let moneda;
-        
-        if(this.#origen == LIQUIDACIONES){ 
-            // if ((typeof this.#montoMinimo) == 'object') {
-            //     return this.#montoMinimo;
-            // }
-            if(typeof this.#montoMinimo.monto == "number"){
-                return this.#montoMinimo;
+            if (this.#montoMinimo == "N/A" || !this.#montoMinimo) {
+                return false;
             }
-            console.log(this.#montoMinimo, typeof this.#montoMinimo, this.#link)
-            montoFinal = this.#montoMinimo.replaceAll('.','').replaceAll(',','.');
-            moneda = "Pesos";
-        }else if(this.#montoMinimo !== null){
-            if(typeof this.#montoMinimo.monto == "number"){
-                return this.#montoMinimo;
+            let montoFinal;
+            let moneda = this.#moneda;
+
+            if (typeof this.#montoMinimo == "number") {
+                this.#montoMinimo = this.#montoMinimo;
+                return true;
             }
-            let montominimo = this.#montoMinimo["monto"];
-            if(!montominimo) return {"monto": null, "moneda" : null};
-            montoFinal = montominimo.replaceAll('.', '').replaceAll(',', '.').replaceAll(' ', '');
-            moneda = this.#montoMinimo["moneda"];
-        }
-        return {"monto": parseFloat(montoFinal), "moneda" : moneda};
-        }catch(error){
+
+            if (this.#origen == LIQUIDACIONES) {
+                montoFinal = this.#montoMinimo.replaceAll('.', '').replaceAll(',', '.');
+                moneda = "Pesos";
+            } else if (this.#montoMinimo !== null) {
+                let montominimo = this.#montoMinimo;
+                montoFinal = montominimo.replaceAll('.', '').replaceAll(',', '.').replaceAll(' ', '');
+            }
+            this.#montoMinimo = parseFloat(montoFinal);
+            this.#moneda = moneda;
+            return true;
+        } catch (error) {
             console.error(error.message, this.#causa);
             console.error(error);
         }

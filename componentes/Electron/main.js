@@ -306,6 +306,13 @@ class MainApp{
                 const pdfProcess = new ProcesarBoletin(null,null);
                 const result = await ProcesarBoletin.convertPdfToText(filePath);
                 pdfProcess.obtainDataRematesPdf(result, caso);
+                const newExcel = true;  
+                if (newExcel) {
+                    console.log("Creando excel con los datos del caso de prueba\n------------------------");
+                    const downloadPath = path.join(os.homedir(), "Documents", "infoRemates");
+                    const excel = new createExcel(downloadPath, null, null, false, "one");
+                    await excel.writeData(caso, `PDF-${caso.causa}`);
+                }
                 console.log("Caso procesado: ", caso.toObject());
             } catch (error) {
                 console.error('Error al procesar el archivo:', error);

@@ -16,6 +16,7 @@ const MacalService = require('../../macal/macalService.js');
 const logger = require('../../../utils/logger.js');
 const { fakeDelay } = require('../../../utils/delay.js');
 const { createExcel } = require('../../excel/createExcel.js');
+const { LIQUIDACIONES } = require('../../../config.js');
 
 
 class testUnitarios{
@@ -57,6 +58,7 @@ class testUnitarios{
                 processPDF.processInfo(result);
             }
             if(newExcel){
+                console.log("Creando excel con los datos del caso de prueba\n------------------------");
                 const downloadPath = path.join(os.homedir(), "Documents", "infoRemates");
                 const excel = new createExcel(downloadPath,null,null,false,"one");
                 await excel.writeData(caso,`PDF-${caso.causa}`);
@@ -139,6 +141,8 @@ class testUnitarios{
         caso.corte = '90';
         caso.numeroJuzgado = '266';
 
+
+        caso.origen = LIQUIDACIONES;
         return caso;
     }
 

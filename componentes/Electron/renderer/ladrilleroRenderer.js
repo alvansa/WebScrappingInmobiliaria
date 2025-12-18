@@ -3,7 +3,7 @@ const fileInfo = document.getElementById('fileInfo');
 
 checkFPMG.addEventListener('click', async () => {
   try {
-    const filePath = await window.ladrilleroAPI.openFileLocal();
+    // const filePath = await window.ladrilleroAPI.openFileLocal();
     
     if (filePath) {
       fileInfo.textContent = `Archivo seleccionado: ${filePath}`;

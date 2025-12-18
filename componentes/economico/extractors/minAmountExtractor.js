@@ -13,6 +13,7 @@ function extractMinAmount(data, isDebug = false) {
     const regexList = buscarOpcionesMontoMinimo(dataNormalizada, regexMontoMinimo, isDebug);
     // console.log("RegexList: ",regexList);
     let montoFinal = buscarMontosFinal(regexList, regexMontoMinimo);
+    // console.log(`1 mas arriba Monto minimo valido: ${montoFinal.monto} y moneda ${montoFinal.moneda}`);
     if (montoFinal) {
         return montoFinal;
     }

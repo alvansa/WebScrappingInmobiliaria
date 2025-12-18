@@ -124,7 +124,7 @@ class MapasSII {
         // Selecciona un User-Agent aleatorio
         const randomIndex = Math.floor(Math.random() * userAgents.length);
 
-        this.window = new BrowserWindow({ show: true });
+        this.window = new BrowserWindow({ show: false });
         const url = 'https://www4.sii.cl/mapasui/internet/#/contenido/index.html';
         // const url = 'https://www.google.com/';
 
