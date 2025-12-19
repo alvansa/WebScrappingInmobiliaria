@@ -33,6 +33,9 @@ class DataEnricher{
     }
 
     enrichWithSpreadsheetData(casos, spreadSheetData){
+        if(!casos || !spreadSheetData || casos.length == 0 || spreadSheetData.length == 0 ){
+            return;
+        }
 
         this.indexes.set('causa_juzgado', indexEstado);
         this.indexes.set('comuna_rol', indexEstado);
@@ -62,8 +65,10 @@ class DataEnricher{
             this.indexes.set(key1, index);
 
 
-            const key2 = `${comuna}|${rol}`;
-            this.indexes.set(key2, index);
+            if(comuna && rol){
+                const key2 = `${comuna}|${rol}`;
+                this.indexes.set(key2, index);
+            }
 
             index++;
         }
@@ -201,9 +206,10 @@ class DataEnricher{
     fillMontoCompra(caso, row){
         if(row[indexPrecioCompra]){
             let price = row[indexPrecioCompra].replaceAll('.', '').replaceAll(',', '.');
-            caso.montoCompra = Number(price);
+            caso.montoCompra = {monto : Number(price), moneda : null};
         }
     }
+
     fillDeudaBanco(caso, row){
         // Placeholder for filling bank debt data if needed
         caso.mortageBank = row[indexDeudaBanco] || null;

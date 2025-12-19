@@ -71,7 +71,7 @@ class scrapeAuction {
             casos = [...casosPreremates, ...casosBoletin, ...casosPYL, ...casosPJUD];
             
             //Luego de obtener los casos de emol se revisaran los casos obtenidos en pjud
-            // casosEconomico = await this.searchEmolAuctionsInPjud(casosEconomico);
+            casosEconomico = await this.searchEmolAuctionsInPjud(casosEconomico);
             casos = [...casosEconomico, ...casos];
             if(casos.length > 1){
                 await this.obtainMapasSIIInfo(casos);
