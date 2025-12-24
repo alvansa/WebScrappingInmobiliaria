@@ -9,6 +9,7 @@ const pie = require('puppeteer-in-electron');
 const puppeteer = require('puppeteer-core');
 const { fakeDelay, delay } = require('../../utils/delay');
 
+
 const consultaCausaPjud = require("./consultaCausaPjud");
 const CasoBuilder = require('../caso/casoBuilder');
 const config = require('../../config');
@@ -16,9 +17,10 @@ const { obtainCorteJuzgadoNumbers } = require('../../utils/corteJuzgado');
 const {stringToDate, convertDate} = require('../../utils/cleanStrings')
 const {matchJuzgado} = require('../../utils/compareText')
 const {formatDateToDDMMAA} = require('../../utils/cleanStrings');
-const { datalabeling } = require('googleapis/build/src/apis/datalabeling');
+const logger = require('../../utils/logger')
 
 const DELAY_RANGE = {"min": 2, "max" : 5}
+let DEUDA_SEARCH = false;
 
 const indexEstado = config.obtenerNumero('ESTADO');
 const indexCausa = config.obtenerNumero('CAUSA');
@@ -27,6 +29,7 @@ const indexComuna = config.obtenerNumero('COMUNA');
 const indexRol = config.obtenerNumero('ROL');
 const indexNotas = config.obtenerNumero('NOTAS');
 const indexFechaRem = config.obtenerNumero('FECHA_REM');
+const indexMartillero = config.obtenerNumero('MARTILLERO')
 
 class checkFPMG {
     constructor(event, mainWindow, filePath,data) {
@@ -44,30 +47,13 @@ class checkFPMG {
     }
 
     async process() {
-        //Obtain cause and judge
-        // this.obtainListOfCauses();
-
         this.obtainListSpreadSheet();
-
-
         obtainCorteJuzgadoNumbers(this.casos);
 
-        let cont = 0;
-        // for(let caso of this.casos){
-        //     if(cont % 3 == 0){
-        //         caso.hasChanged = true
-        //     }
-        //     cont++;
-        // }
-
         console.log("casos revisados : ",this.casos.length);
-        // for(let caso of this.casos){
-        //     console.log(caso.causa, caso.juzgado, caso.numeroJuzgado, caso.corte);
-        // }
 
         //Search and process each cause
         await this.processList();
-        // await delay(5000);
 
         //Write each cause that had changes in the last week
         this.writeChanges3();
@@ -105,6 +91,7 @@ class checkFPMG {
 
     obtainDataFromRow(lastRow) {
         let skipRow = false;
+        let causaNormalizada;
         const [estadoBusqueda, skip0] = this.obtainCellAndState(config.NOTAS, lastRow, skipRow);
         
         if (estadoBusqueda) {
@@ -130,6 +117,7 @@ class checkFPMG {
         if(skipRow){
             return [causa, juzgado, fechaRem, skipRow];
         }
+        causaNormalizada = causa;
 
         // Hacer que solo busque las causas que sean mayor a la fecha de hoy.
         const dateToday = new Date();
@@ -140,38 +128,26 @@ class checkFPMG {
             return [causa, juzgado, fechaRem, skipRow];
         }
         console.log(`fecha remate ${typeof fechaRem} y fecha hoy ${dateToday}`)
-        // console.log(this.ws[`${config.FECHA_REM}${lastRow}`])
-
-        // console.log(fechaRem)
-
 
         type = type.toLowerCase();
-        
 
         if(!type.includes("fp")){
             skipRow = true;
             return [causaNormalizada, juzgado, fechaRem, skipRow];
         }
-        // console.log(`Type : ${type}`)
-
-
 
         //Normalizar el texto de la causa que puede venir modificado por alguien del excel.
         if(causa){
-            const causaNormalizada = causa.replace(/\(s\)/i, '').replace(/S\/I/ig, '').trim();
-            // console.log(`${causaNormalizada} ${fechaRem} ${type} ${estadoRemate}`);
-            return [causaNormalizada, juzgado, fechaRem, skipRow];
-        }else{
-            return [causa, juzgado, fechaRem, skipRow];
+            causaNormalizada = causa.replace(/\(s\)/i, '').replace(/S\/I/ig, '').trim();
         }
 
-
+        return [causaNormalizada, juzgado, fechaRem, skipRow];
     }
 
     obtainCellAndState(cell,lastRow,skipRow,convertToString = true){
         let skip = false;
         let cellValue = this.ws[`${cell}${lastRow}`];
-        // console.log(`Cell value: ${cellValue} cell ${cell} ${lastRow}`)
+
         if(cellValue && cellValue.v) {
             if(convertToString){
                 cellValue = cellValue.v.toString();
@@ -182,8 +158,8 @@ class checkFPMG {
             skip = true;
             cellValue = "";
         }
+
         skip = skip || skipRow;
-        const result = [cellValue, skip];
 
         return [cellValue, skip];
     }
@@ -193,11 +169,8 @@ class checkFPMG {
             return [];
         }
         const headers = this.data[0];
-        const realData = this.data.slice(1);
         console.log("Header ", headers)
-        let count = 0;
         for (let line of this.data) {
-            count++;
             const dataLine = this.processNewRow(line);
             let causaNormalizada = null;
 
@@ -211,8 +184,8 @@ class checkFPMG {
                     .conCausa(causaNormalizada)
                     .conJuzgado(dataLine.juzgado)
                     .construir();
-
                 this.casos.push(casoExcel);
+
             //  2. Propios
             }else if(this.isPropio(dataLine)){
                 const casoExcel = new CasoBuilder(new Date(dataLine.fechaRem), "PJUD", config.PJUD)
@@ -226,9 +199,9 @@ class checkFPMG {
             }
 
         }
-        for(let caso of this.casos){
-            console.log(caso.causa, caso.juzgado, caso.fechaRemate);
-        }
+        // for(let caso of this.casos){
+        //     console.log(caso.causa, caso.juzgado, caso.fechaRemate);
+        // }
     }
 
     isLadrillo(dataLine){
@@ -283,6 +256,7 @@ class checkFPMG {
         const notas = line[indexNotas];
         const fechaRem = line[indexFechaRem];
         const estado = line[indexEstado];
+        const martillero = line[indexMartillero]
 
 
         return {
@@ -292,7 +266,8 @@ class checkFPMG {
             'comuna' : comuna,
             'rol' : rol, 
             'notas' : notas, 
-           'fechaRem' : fechaRem 
+           'fechaRem' : fechaRem,
+           'martillero' : martillero
         }
     }
     
@@ -347,7 +322,8 @@ class checkFPMG {
             if(this.window && !this.window.isDestroyed()){
                 console.log("Cerrando ventana del pjud");
                 this.window.close();
-            }}
+            }
+        }
     }
     async loadConfig() {
         // User-Agents por defecto en caso de que .env no esté disponible
@@ -447,31 +423,6 @@ class checkFPMG {
             console.error("No se pudo encontrar el enlace del caso");
             return false;
         }
-        // --------------------------------------------------------
-        
-        //Se buscan los cuadernos posibles para averiguar si hay algun cambio en alguno
-        // let selectedCuadernos = await this.selectCuaderno();
-        // const nombresCuadernos = selectedCuadernos.map(obj => ({nombre: obj.text ,buscado: false }));
-        
-        // for(let cuaderno of nombresCuadernos){
-        //     if(cuaderno.buscado){
-        //         continue;
-        //     }
-        //     // selectedCuadernos = await this.selectCuaderno();
-        //     const cuadernoToSearch = selectedCuadernos.find(option => option.text === cuaderno.nombre);
-        //     changedCuaderno = await this.pressCuaderno(cuadernoToSearch.value);
-        //     if (changedCuaderno == false) {
-        //         changedCuaderno = await this.pressCuaderno(cuadernoToSearch.value);
-        //     }
-        //     if(!changedCuaderno){
-        //         console.log('No se cambio el cuaderno');
-        //         return false;
-        //     }
-        //     cuaderno.buscado = true;
-        //     console.log('cuaderno cambiado exitosamente')
-        //     caseIsFinished = await this.searchInMainTable(caso);
-        // }
-        // ---------------------------------------------------------
         await this.newPressNotebook(caso);
         return true;
     }
@@ -619,7 +570,12 @@ class checkFPMG {
     }
 
     async searchForDirectory(row,caso) {
-        const dateToday = new Date();
+        let dateToday = null;
+        if(DEUDA_SEARCH){
+            dateToday = caso.fechaRemate; 
+        }else{
+            dateToday = new Date();
+        }
         dateToday.setDate(dateToday.getDate() - 7);
         try {
             const [number, uselessFile, directory, dirHasLink, stage, tramite, descripcion, fecha] = await Promise.all([
@@ -1045,6 +1001,9 @@ class checkFPMG {
     }
 
     writeChanges3(){
+        if(this.casos.length == 0){
+            return false;
+        }
         let filasCopiadas = 0;
         const casosCambiados = this.casos.filter(caso => caso.hasChanged);
 
@@ -1084,7 +1043,11 @@ class checkFPMG {
         // 10. Guardar en el escritorio
         const desktopPath = getDesktopPath();
         const fecha = formatDateToDDMMAA(new Date());
-        const nombreArchivo = `Ladrillero_${fecha}.xlsx`;
+        let nombreArchivo = `Ladrillero_${fecha}.xlsx`;
+        if(DEUDA_SEARCH){
+            nombreArchivo = `Deuda_${fecha}.xlsx`
+
+        }
         const rutaCompleta = path.join(desktopPath, nombreArchivo);
 
         XLSX.writeFile(nuevoWb, rutaCompleta);
@@ -1144,6 +1107,112 @@ class checkFPMG {
             { wch: 15 },  // AQ
             { wch: 25 },  // AR
         ];
+    }
+
+    async proccesDeudaSeguir(){
+        this.obtainListDeuda();
+        console.log('Casos a revisar con deuda: ',this.casos.length)
+        obtainCorteJuzgadoNumbers(this.casos)
+
+
+        DEUDA_SEARCH = true;
+        await this.processListDeuda();
+
+        this.writeChanges3();
+
+        console.log('Proceso de deuda listo')
+    }
+
+    obtainListDeuda(){
+        if(!this.data){
+            logger.warn('No se pudo recuperar la data')
+            return [];
+        }
+        const headers = this.data[0];
+        const realData = this.data.slice(1);
+        console.log("Header ", headers)
+        let count = 0;
+        for (let line of this.data) {
+            count++;
+            const dataLine = this.processNewRow(line);
+            let causaNormalizada = null;
+
+            //Ladrillero buscara 2 tipos de datos:
+            if(dataLine.causa){
+                causaNormalizada = dataLine.causa.replace(/\(s\)/i, '').replace(/S\/I/ig, '').trim();
+            }
+            //  1. Ladrillos
+            if(this.isDeuda(dataLine)){
+                const fechaRemateDate = convertDate(dataLine.fechaRem);
+                const casoExcel = new CasoBuilder(new Date(dataLine.fechaRem), "PJUD", config.PJUD)
+                    .conCausa(causaNormalizada)
+                    .conJuzgado(dataLine.juzgado)
+                    .conFechaRemate(fechaRemateDate)
+                    .construir();
+
+                this.casos.push(casoExcel);
+                // if(this.casos.length > 2){
+                //     return this.casos;
+                // }
+            }else{
+                continue;
+            }
+
+        }
+        for(let caso of this.casos){
+            console.log(caso.causa, caso.juzgado, caso.fechaRemate);
+        }
+    }
+
+    isDeuda(dataLine){
+        if (!dataLine.estado) {
+            return false;
+        }
+        if (!dataLine.estado.toLowerCase().includes('seguir')) {
+            return false;
+        }
+        // 1. revisar que ni causa ni juzgado sean nulos
+        if (!dataLine.causa || !dataLine.juzgado) {
+            return false;
+        }
+        // 2. revisar que la fecha de remate sea mayor a la fecha actual
+        const dateToday = new Date();
+        const fechaRemateDate = convertDate(dataLine.fechaRem);
+        // 3. revisar que las notas contengan "fp"
+        if (!dataLine.martillero || !dataLine.martillero.toLowerCase().includes('deuda')) {
+            return false;
+        }
+        console.log(dataLine)
+        return true;
+    }
+
+    async processListDeuda(){
+        const mainWindow = BrowserWindow.fromWebContents(this.event.sender);
+        let counter = 0;
+        try {
+            for (let caso of this.casos) {
+                logger.info(`Revisando caso ${counter} de ${this.casos.length}`);
+                counter++;
+                // console.log(`Caso a investigar ${caso.causa} ${caso.juzgado} caso numero ${counter} de ${this.casos.length}`);
+                if (!caso.numeroJuzgado || !caso.corte) {
+                    // console.log(`Caso ${caso.causa} no tiene numero de juzgado ni corte, se omite`);
+                    continue;
+                }
+                const result = await this.consultaCausa(caso);
+                if (result) {
+                    // console.log("Resultados del caso de prueba en pjud: ", caso.toObject());
+                }
+
+                if ((counter + 1) < this.casos.length) {
+                    const awaitTime = Math.random() * (90 - 30) + 30; // Genera un número aleatorio entre 30 y 90
+                    mainWindow.webContents.send('aviso-espera', [awaitTime, counter + 1, this.casos.length]);
+                    // console.log(`Esperando ${awaitTime} segundos para consulta numero ${counter + 1} de ${this.casos.length}`);
+                    await delay(awaitTime * 1000);
+                }
+            }
+        } catch (error) {
+            console.error("Error al obtener datos de los casos: ", error.message);
+        }
     }
 }
 

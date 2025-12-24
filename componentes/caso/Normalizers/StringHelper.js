@@ -81,7 +81,8 @@ class StringHelper{
         'quilpue': 'quilpué', 'penalolen': 'peñalolén', 'peñalolen':'peñalolén',
         'conchali': 'conchalí', 'machali': 'machalí', 'aysen' : 'aysén', 
         'valparaíso': 'valparaiso' , 'nunoa' : 'ñuñoa','nuñoa' : 'ñuñoa', 'chanaral' : 'chañaral',
-        'quillon' : 'quillón', 'santa maria' : 'santa maría', 'la union' : 'la unión'
+        'quillon' : 'quillón', 'santa maria' : 'santa maría', 'la union' : 'la unión',
+        'camina' : 'camiña'
     };
 
     static comuna(comuna) {

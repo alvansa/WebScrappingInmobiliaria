@@ -312,5 +312,10 @@ describe('SearchInList', ()=>{
     test('24º Stgo', ()=>{
         const result = searchInList('24º Stgo');
         expect(result).toBe('24° juzgado civil de santiago');
-    })
+    });
+
+    test('1 serena', ()=>{
+        const result = searchInList('1 la serena');
+        expect(result).toBe('1° juzgado de letras de la serena');
+    });
 });

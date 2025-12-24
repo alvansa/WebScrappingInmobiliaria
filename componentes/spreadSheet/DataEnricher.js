@@ -64,7 +64,6 @@ class DataEnricher{
             const key1 = `${causa}|${juzgado}`;
             this.indexes.set(key1, index);
 
-
             if(comuna && rol){
                 const key2 = `${comuna}|${rol}`;
                 this.indexes.set(key2, index);
@@ -125,7 +124,6 @@ class DataEnricher{
                 this.fillCaseData(caso,foundIndex, spreadSheetData );
 
             }
-
         }
     }
 
@@ -139,19 +137,13 @@ class DataEnricher{
         caso.estadoCivil = row[indexEstadoCivil];
         caso.rolPropiedad = row[indexRol];
         caso.linkMap = row[indexLinkMapa]; 
-        
-        // caso.precioCompra = row[indexPrecioCompra];
-
 
         console.log(`Causa ${row[indexCausa]} - precioCompra: ${row[indexPrecioCompra]}`);
-
         
         this.fillMartillero(caso, row);
         this.checkMontoMinimo(caso, row);
         this.fillMontoCompra(caso, row);
         this.fillDeudaBanco(caso, row);
-
-
     }
 
     fillMartillero(caso, row){
@@ -223,29 +215,6 @@ class DataEnricher{
 
 module.exports = DataEnricher;
 
-async function main(){
-    
-    const casoTestCausa = new CasoBuilder(new Date(), "PJUD", config.PJUD)
-        .conCausa('C-14045-2024')
-        .conJuzgado('27° SANTIAGO')
-        .conMontoMinimo(999999)
-        .construir();
 
-    const casoTestRol = new CasoBuilder(new Date(), "PJUD", config.PJUD)
-        .conComuna('Osorno')
-        .conRol('481-34-43')
-        .construir();
-
-    const casos = [casoTestCausa, casoTestRol];
-    const data = await SpreadSheetManager.processData(false);
-    const enricher = new DataEnricher();
-    enricher.enrichWithSpreadsheetData(casos, data);
-
-    for(let caso of casos){
-        console.log(caso.toObject());
-        console.log('-------------------');
-    }
-
-}
 
 // main();

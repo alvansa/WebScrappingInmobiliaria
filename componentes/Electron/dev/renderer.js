@@ -119,15 +119,15 @@ selectFileBtn.addEventListener('click', async () => {
 
 checkFPMG.addEventListener('click', async () => {
   try {
-    const filePath = await window.ladrilleroAPI.openFileLocal();
+    // const filePath = await window.ladrilleroAPI.openFileLocal();
     
-    if (filePath) {
-      fileInfo.textContent = `Archivo seleccionado: ${filePath}`;
+    // if (filePath) {
+      // fileInfo.textContent = `Archivo seleccionado: ${filePath}`;
       
       showWaitingProcess(true);
       // Llama a tu función que procesa el archivo
-      await window.ladrilleroAPI.checkFPMG(filePath);
-    }
+      await window.api.checkDEUDA();
+    // }
   } catch (error) {
     console.error('Error al seleccionar archivo:', error);
     fileInfo.textContent = 'Error al seleccionar archivo';

@@ -4,6 +4,7 @@ const DateHelper = require('./Normalizers/DateHelper');
 const RolHelper = require('./Normalizers/RolHelper');
 const StringHelper = require('./Normalizers/StringHelper');
 const NumberHelper = require('./Normalizers/NumberHelper');
+// const CasoLadrillo = require('./CasoLadrillo');
 
 const EMOL = config.EMOL;
 const PJUD = config.PJUD;
@@ -637,10 +638,13 @@ class Caso{
             tp : this.#tp,
             dato : this.#dato,
             estado : this.#estado,
-            montoMinimo2 : this.#montoMinimo2
+            montoMinimo2 : this.#montoMinimo2,
         };
     } 
 
+    // static createLadrillo(caso, propio){
+    //     return new CasoLadrillo(caso, propio);
+    // }
     // Obtiene el número de la causa para buscar el remate en el pjud
     getCausaPjud(){
         if(this.#causa.includes('N/A') || this.#causa == null){

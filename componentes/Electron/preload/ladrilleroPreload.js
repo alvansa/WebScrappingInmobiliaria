@@ -5,6 +5,6 @@ contextBridge.exposeInMainWorld('ladrilleroAPI', {
     openFileLocal: () => ipcRenderer.invoke('open-dialog-local'),
 
     //Revisar los archivos que le faltan publicaciones
-    checkFPMG: (filePath) => ipcRenderer.invoke('process-FPMG', filePath),
+    checkDEUDA: () => ipcRenderer.invoke('process-DEUDA'),
 
 });

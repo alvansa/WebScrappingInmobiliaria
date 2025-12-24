@@ -232,6 +232,22 @@ class MainApp{
             }
         });
 
+        ipcMain.handle('process-DEUDA', async (event, filePath) => {
+            try{
+                const data = await SpreadSheetManager.processData();
+                // let data = null;
+                const check = new checkFPMG(event, this.mainWindow, filePath, data);
+                await check.proccesDeudaSeguir();
+                // this.mainWindow.send("electron-log","En la funcion de completar excel")
+
+                return true;
+
+            }catch(error){
+                console.error('Error al completar la informacion del excel:', error);
+                return null;
+            }
+        });
+
         ipcMain.handle('process-Mapa', async (event, filePath) => {
             try{
                 const check = new obtainLinkMapa(event, this.mainWindow, filePath);
