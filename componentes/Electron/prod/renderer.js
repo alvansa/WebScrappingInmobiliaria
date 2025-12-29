@@ -109,7 +109,7 @@ document.getElementById('openExcelWindow').addEventListener('click', () => {
 
 
 document.getElementById('openSettingsWindow').addEventListener('click', () => {
-  window.api.openWindow('singleCase'); 
+  window.api.openWindow('settings'); 
 });
 
 checkFPMG.addEventListener('click', async () => { 
@@ -125,4 +125,7 @@ function showWaitingProcess(show){
   modal.style.display = show ? 'flex' : 'none';
 }
 
+window.api.onMessage((msg)=>{
+  console.log(msg)
+})
 

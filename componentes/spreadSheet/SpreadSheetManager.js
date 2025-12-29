@@ -25,6 +25,7 @@ class SpreadSheetManager {
         // const credentials = this.createCredentials();
         try {
             if(!isDev){
+
                 data = await this.obtainOnlineData();
             }else{
                 const filePath = path.join(__dirname, 'data.json');
@@ -40,9 +41,10 @@ class SpreadSheetManager {
 
         } catch (error) {
             console.error("Error: ", error.message);
+            return {result : false, data: error.message};
         }
 
-        return data;
+        return {result: true, data : data};
     }
 
     static async obtainOnlineDataOld() {
@@ -78,6 +80,7 @@ class SpreadSheetManager {
     static async obtainOnlineData() {
         let auth = null;
         const TOKEN_PATH = this.obtainToken();
+        let credentialsPath = this.getCredentialsPath();
 
         // Intentar cargar token existente
         console.log('Intentando leer token desde', TOKEN_PATH);
@@ -101,7 +104,7 @@ class SpreadSheetManager {
         // Si no hay token válido, autenticar
         if (!auth) {
             auth = await authenticate({
-                keyfilePath: path.join(process.cwd(), './componentes/spreadSheet/credentials.json'),
+                keyfilePath: credentialsPath,
                 scopes: SCOPES
             });
 
@@ -137,6 +140,30 @@ class SpreadSheetManager {
 
         }
     }
+
+    static getCredentialsPath() {
+    // Determina si estamos en desarrollo o producción
+    const isDev = process.defaultApp || /[\\/]electron[\\/]/.test(process.execPath);
+    
+    if (isDev) {
+      // Modo desarrollo
+      return path.join(process.cwd(), 'componentes', 'spreadSheet', 'credentials.json');
+    } else {
+      // Modo producción con electron-builder
+      // electron-builder coloca extraResources en diferentes ubicaciones:
+      
+      if (process.platform === 'darwin') {
+        // macOS: dentro del .app bundle
+        return path.join(process.resourcesPath, '..', '..', 'credentials.json');
+      } else if (process.platform === 'win32') {
+        // Windows: en el directorio resources
+        return path.join(process.resourcesPath, 'credentials.json');
+      } else {
+        // Linux
+        return path.join(process.resourcesPath, 'credentials.json');
+      }
+    }
+  }
 }
 
 

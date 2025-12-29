@@ -8,10 +8,6 @@ console.log("preload loaded succefully");
 contextBridge.exposeInMainWorld('api', {
   // Funcino del proceso principal que obtiene los remates publicas en las fuentes seleccionadas
   // entre las fechas seleccionadas.
- 
-  
-
-  
   // Funcion de test principal para realizar pruebas unicas de funcionamientos especificos.
   testEconomico : async (args) => {
     const results = await ipcRenderer.invoke('testEconomico', args)
@@ -79,7 +75,9 @@ contextBridge.exposeInMainWorld('api', {
   openWindow : (type)=>{
     console.log(`Tipo recibido : ${type}`)
     ipcRenderer.invoke('open-window', type);
-  }
+  },
+
+  onMessage : (callback)=>{ ipcRenderer.on('message-renderer',(_event,msg)=>{ callback(msg) })},
 });
 
 contextBridge.exposeInMainWorld('ladrilleroAPI', {

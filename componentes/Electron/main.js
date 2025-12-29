@@ -156,7 +156,8 @@ class MainApp{
                 case 'ladrillero':
                     return this.windowManager.createLadrilleroWindow();
                 case 'settings':
-                    return this.windowManager.createSettingsWindow();
+                    // return this.windowManager.createSettingsWindow();
+                    this.logToRenderer('Creando ventana de settings')
                 default:
                     console.error(`Tipo de ventana desconocido: ${windowType}`);
                     return null;
@@ -218,12 +219,20 @@ class MainApp{
         // Funcion para buscar la informacion del pjud en pdf en base a una fecha de inicio y final.
         ipcMain.handle('process-FPMG', async (event, filePath) => {
             try{
-                const data = await SpreadSheetManager.processData();
-                // let data = null;
+                this.logToRenderer(`Obtenienido ladrillos`)
+                const result = await SpreadSheetManager.processData();
+                if(result.result == false){
+                    this.logToRenderer(`Error con ${result.data}`)
+                    return false;
+                }
+                let data  = result.data;
+                this.logToRenderer(`Cantidad de filas obtenidad ${data.length}`)
+                this.logToRenderer(`Data : ${data}`);
                 const check = new checkFPMG(event, this.mainWindow, filePath, data);
                 await check.process();
                 // this.mainWindow.send("electron-log","En la funcion de completar excel")
 
+                this.logToRenderer(`Ladrillos obtenidos`)
                 return true;
 
             }catch(error){
@@ -408,6 +417,9 @@ class MainApp{
             }
         });
 
+    }
+    logToRenderer(msg){
+        this.mainWindow.webContents.send('message-renderer', msg)
     }
 
     cleanupBeforeExit(isCrash = false) {

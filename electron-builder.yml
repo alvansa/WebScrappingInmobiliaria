@@ -1,0 +1,18 @@
+appId: com.InfoRemates.id
+productName: InfoRemates
+directories:
+  output: release
+  buildResources: build
+files:
+  - "dist/**/*"
+  - "node_modules/**/*"
+  - "package.json"
+extraResources:
+  - from: "./componentes/spreadSheet/credentials.json"
+    to: credentials.json
+  # Si necesitas más archivos:
+  - from: "./config/"
+    to: config/
+    filter:
+      - "*.json"
+      - "*.env"
