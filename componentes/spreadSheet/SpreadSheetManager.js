@@ -10,6 +10,7 @@ const os = require('os');
 require('dotenv').config();
 
 const config = require('../../config');
+const EnvLoader = require('../../utils/EnvLoader');
 
 
 // const isDev = process.argv.includes('--dev');
@@ -81,6 +82,11 @@ class SpreadSheetManager {
         let auth = null;
         const TOKEN_PATH = this.obtainToken();
         let credentialsPath = this.getCredentialsPath();
+        EnvLoader.load();
+
+        // Ahora puedes acceder a las variables
+        const spreadsheetId = EnvLoader.get('SPREADSHEET_ID');
+        console.log('Spreadsheet ID:', spreadsheetId);
 
         // Intentar cargar token existente
         console.log('Intentando leer token desde', TOKEN_PATH);
@@ -117,11 +123,10 @@ class SpreadSheetManager {
         // Crear cliente de Sheets
         const sheets = google.sheets({ version: 'v4', auth });
         
-        console.log(`Spreadsheet ID: ${process.env.SPREADSHEET_ID || ''}`);
 
         // Obtener datos
         const result = await sheets.spreadsheets.values.get({
-            spreadsheetId: process.env.SPREADSHEET_ID || '',
+            spreadsheetId: spreadsheetId || '',
             range: 'search!A1:AT',
         });
 
@@ -154,7 +159,7 @@ class SpreadSheetManager {
       
       if (process.platform === 'darwin') {
         // macOS: dentro del .app bundle
-        return path.join(process.resourcesPath, '..', '..', 'credentials.json');
+        return path.join(process.resourcesPath, 'credentials.json');
       } else if (process.platform === 'win32') {
         // Windows: en el directorio resources
         return path.join(process.resourcesPath, 'credentials.json');

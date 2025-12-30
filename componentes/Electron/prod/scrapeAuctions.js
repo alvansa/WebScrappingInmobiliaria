@@ -88,7 +88,8 @@ class scrapeAuction {
             return 5;
         }
         const enricher = new DataEnricher();
-        enricher.enrichWithSpreadsheetData(casos, spreadSheetData);
+        let data = spreadSheetData.data;
+        enricher.enrichWithSpreadsheetData(casos, data);
         logger.info('Escribiendo casos');
         const createExcelFile = new createExcel(this.saveFile,this.startDate,this.endDate,this.emptyMode,null, this.isTestMode);
         const filePath = createExcelFile.writeData(casos);

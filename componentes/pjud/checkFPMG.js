@@ -277,9 +277,9 @@ class checkFPMG {
         let counter = 0;
         try {
             for (let caso of this.casos) {
-                if(counter > 2){
-                    return; 
-                }
+                // if(counter > 2){
+                //     return; 
+                // }
                 counter++;
                 // console.log(`Caso a investigar ${caso.causa} ${caso.juzgado} caso numero ${counter} de ${this.casos.length}`);
                 if (!caso.numeroJuzgado || !caso.corte) {
