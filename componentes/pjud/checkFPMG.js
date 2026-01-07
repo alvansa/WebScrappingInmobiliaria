@@ -193,8 +193,7 @@ class checkFPMG {
                     .conJuzgado(dataLine.juzgado)
                     .construir();
                 this.casos.push(casoExcel);
-            }
-            else{
+            }else{
                 continue;
             }
 
@@ -216,6 +215,7 @@ class checkFPMG {
         if (!dataLine.causa || !dataLine.juzgado) {
             return false;
         }
+        // console.log(dataLine)
         // 2. revisar que la fecha de remate sea mayor a la fecha actual
         const dateToday = new Date();
         const fechaRemateDate = convertDate(dataLine.fechaRem);

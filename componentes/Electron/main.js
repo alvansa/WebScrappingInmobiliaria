@@ -33,7 +33,6 @@ const isDevMode = process.argv.includes('--dev');
 const isEmptyMode = process.argv.includes('--empty');
 const isTestMode = process.argv.includes('--test');
 
-const devMode = true;
 
 let pieInitialized = pie.initialize(app);
 
@@ -199,6 +198,7 @@ class MainApp{
 
             }catch(error){
                 console.error('Ocurrió un error:', error);
+                this.logToRenderer(`Ocurrio un error: ${error.mesagge}`)
             };
         });
 
@@ -434,18 +434,19 @@ class MainApp{
                     window.destroy();
                 }
             });
+
             if(isCrash){
                 app.quit(1);
             }else if(process.platform !== 'darwin'){
                 app.quit();
             }
 
-
         }catch(error){
             console.error('Error al limpiar antes de salir:', error);
         }
     }
 
+    //Funcion actualmente no utilizada ya que no se ocupa tesseract
     async processTeseract(filePath) {
         try{
             console.log("Procesando archivo con Tesseract:", filePath[0]);
@@ -485,26 +486,6 @@ class MainApp{
         return finalText.trim();
     }
 
-    // async obtainDataPdfPjud(event,filePath,startDateOrigin,endDateOrigin){
-    //     console.time("obtainDataPdfPjud");
-    //     await this.launchPuppeteer_inElectron();
-    //     const startDate = dateToPjud(stringToDate(startDateOrigin));
-    //     const endDate = dateToPjud(stringToDate(endDateOrigin));
-    //     console.log("Consultando casos desde ",startDate, " hasta ", endDate);
-
-    //     const casos = await this.searchCasesByDay(startDate,endDate);
-    //     console.log("Resultados de los casos en la funcion de llamada: ", casos.length);
-    //     const result = await this.obtainDataFromCases(casos, event);
-    //     console.log("Resultados de los casos en la funcion de llamada: ", casos.length);
-    //     // const downloadPath = path.join(os.homedir(), "Documents", "infoRemates");
-    //     const excel = new createExcel(filePath, null, null, false, "oneDay");
-    //     const nombre = `Remates-${startDateOrigin}-${endDateOrigin}`;
-    //     const finalPath = await excel.writeData(casos, nombre);
-    //     console.timeEnd("obtainDataPdfPjud");
-    //     return finalPath;
-
-    // }
-
     async testDB(causa){
         const db = new Causas();
         const resultados = await  db.getByCausa(causa);
@@ -533,23 +514,6 @@ class MainApp{
         }
     }
     
-    //Funcion para obtener los casos del pjud por dia.
-    // async searchCasesByDay(startDate, endDate) {
-    //     // const startDate = "06/06/2025";
-    //     // const endDate = "07/06/2025";
-    //     const window = new BrowserWindow({ show: true });
-    //     const url = 'https://oficinajudicialvirtual.pjud.cl/indexN.php';
-    //     await window.loadURL(url);
-    //     const page = await pie.getPage(this.browser, window);
-    //     const pjud = new Pjud(this.browser, page, startDate, endDate);
-    //     const casos = await pjud.datosFromPjud();
-    //     obtainCorteJuzgadoNumbers(casos);
-    //     window.destroy();
-    //     return casos;
-    // }
-
-
-
     createCaso(causa,juzado){
         const caso = new Caso("2025/11/30");
         caso.juzgado = juzado;

@@ -1,6 +1,8 @@
 const {contextBridge, ipcRenderer} = require('electron');
 
 contextBridge.exposeInMainWorld('searchAPI', {
+  // Funcion del proceso principal que obtiene los remates publicas en las fuentes seleccionadas
+  // entre las fechas seleccionadas.
     startProcess: async (startDate, endDate, saveFile, checkedBoxes) => {
         try {
             if (!startDate && !endDate) {

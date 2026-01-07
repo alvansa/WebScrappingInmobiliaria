@@ -55,7 +55,7 @@ class WindowManager {
             const existing = this.windows.get('search');
             existing.focus();
             console.log('Ya existe la ventana de búsqueda');
-            return existing;
+            return;
         }
 
         const searchWindow = new BrowserWindow({
@@ -93,6 +93,7 @@ class WindowManager {
         if (this.windows.has('single')) {
             const existing = this.windows.get('single');
             existing.focus();
+            return;
         }
 
         const singleWindow = new BrowserWindow({
@@ -128,6 +129,7 @@ class WindowManager {
         if (this.windows.has('excel')) {
             const existing = this.windows.get('excel');
             existing.focus();
+            return;
         }
 
         const excelWindow = new BrowserWindow({
@@ -199,6 +201,7 @@ class WindowManager {
         if (this.windows.has('settings')) {
             const existing = this.windows.get('settings');
             existing.focus();
+            return;
         }
 
         const settingsWindow = new BrowserWindow({

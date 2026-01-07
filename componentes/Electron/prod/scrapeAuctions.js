@@ -217,6 +217,7 @@ class scrapeAuction {
         if(!PYLChecked){
             return [];
         }
+        // return [];
         let casos = [];
         // const startDate = stringToDate(fechaInicioStr);
         // const endDate = stringToDate(fechaFinStr);

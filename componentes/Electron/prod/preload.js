@@ -1,13 +1,9 @@
 const { contextBridge, ipcRenderer } = require('electron');
-// const {insertarDatos} = require('../excel/createXLSX.js');
-// const nodePath = require('path');
 
 
 console.log("preload loaded succefully");
 
 contextBridge.exposeInMainWorld('api', {
-  // Funcino del proceso principal que obtiene los remates publicas en las fuentes seleccionadas
-  // entre las fechas seleccionadas.
   // Funcion de test principal para realizar pruebas unicas de funcionamientos especificos.
   testEconomico : async (args) => {
     const results = await ipcRenderer.invoke('testEconomico', args)
@@ -56,7 +52,6 @@ contextBridge.exposeInMainWorld('api', {
 
   onShowAlert : async  (callback) => {
     ipcRenderer.on('show-alert', callback);
-
   },
 
   selectExcelPath : async ()=> ipcRenderer.invoke('select-excel-path'),
