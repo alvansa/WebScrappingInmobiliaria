@@ -126,7 +126,13 @@ checkFPMG.addEventListener('click', async () => {
       
       showWaitingProcess(true);
       // Llama a tu función que procesa el archivo
-      await window.api.checkDEUDA();
+      const result = await window.api.checkDEUDA();
+      if(result){
+        alert('Proceso de deuda finalizado con éxito');
+      }else{
+        alert('No hay casos de deuda para procesar');
+      }
+
     // }
   } catch (error) {
     console.error('Error al seleccionar archivo:', error);
@@ -222,3 +228,9 @@ document.getElementById('testApiMacal').addEventListener('click', ()=>{
       alert(`Mensaje recibido: \n ${message}`);
   });
  });
+
+
+window.api.onMessage((msg)=>{
+  console.log(msg)
+})
+

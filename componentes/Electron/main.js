@@ -76,14 +76,6 @@ class MainApp{
             await this.launchPuppeteerInElectron();
             this.windowManager.setBrowser(this.browser);
 
-
-
-            // Manejo de crash en el renderer
-            // this.mainWindow.webContents.on('render-process-gone', (event, details) => {
-            //     console.error('Renderer crashed:', details.reason);
-            //     this.cleanupBeforeExit();
-            // });
-
             app.on('activate', () => {
                 if (BrowserWindow.getAllWindows().length === 0) {
                     // this.createMainWindow()
@@ -244,9 +236,13 @@ class MainApp{
         ipcMain.handle('process-DEUDA', async (event, filePath) => {
             try{
                 const data = await SpreadSheetManager.processData();
+                if(data){
+                    let parsedData = data.data;
+                    const check = new checkFPMG(event, this.mainWindow, filePath, parsedData);
+                    const result = await check.proccesDeudaSeguir();
+                    return result;
+                }
                 // let data = null;
-                const check = new checkFPMG(event, this.mainWindow, filePath, data);
-                await check.proccesDeudaSeguir();
                 // this.mainWindow.send("electron-log","En la funcion de completar excel")
 
                 return true;

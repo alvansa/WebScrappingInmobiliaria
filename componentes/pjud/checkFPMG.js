@@ -15,9 +15,9 @@ const CasoBuilder = require('../caso/casoBuilder');
 const config = require('../../config');
 const { obtainCorteJuzgadoNumbers } = require('../../utils/corteJuzgado');
 const {stringToDate, convertDate} = require('../../utils/cleanStrings')
-const {matchJuzgado} = require('../../utils/compareText')
 const {formatDateToDDMMAA} = require('../../utils/cleanStrings');
 const logger = require('../../utils/logger')
+const { logToRenderer } = require('../../utils/utilsRenderer');
 
 const DELAY_RANGE = {"min": 2, "max" : 5}
 let DEUDA_SEARCH = false;
@@ -30,6 +30,9 @@ const indexRol = config.obtenerNumero('ROL');
 const indexNotas = config.obtenerNumero('NOTAS');
 const indexFechaRem = config.obtenerNumero('FECHA_REM');
 const indexMartillero = config.obtenerNumero('MARTILLERO')
+const indexMontoMinimo = config.obtenerNumero('MONTO_MINIMO');
+const indexBancoDeuda = config.obtenerNumero('BANCO_DEUDA');
+const indexDeudaHipotecaria = config.obtenerNumero('DEUDA_HIPOTECA');
 
 class checkFPMG {
     constructor(event, mainWindow, filePath,data) {
@@ -56,7 +59,7 @@ class checkFPMG {
         await this.processList();
 
         //Write each cause that had changes in the last week
-        this.writeChanges3();
+        this.writeChangesDeuda();
 
         console.log("Proceso Finalizado")
         return true;
@@ -256,18 +259,24 @@ class checkFPMG {
         const notas = line[indexNotas];
         const fechaRem = line[indexFechaRem];
         const estado = line[indexEstado];
-        const martillero = line[indexMartillero]
+        const martillero = line[indexMartillero];
+        const montoMinimo = line[indexMontoMinimo];
+        const bancoDeuda = line[indexBancoDeuda];
+        const deudaHipotecaria = line[indexDeudaHipotecaria];
 
 
         return {
-            'estado' : estado, 
+            'estado': estado,
             'causa': causa,
-            'juzgado' :  juzgado,
-            'comuna' : comuna,
-            'rol' : rol, 
-            'notas' : notas, 
-           'fechaRem' : fechaRem,
-           'martillero' : martillero
+            'juzgado': juzgado,
+            'comuna': comuna,
+            'rol': rol,
+            'notas': notas,
+            'fechaRem': fechaRem,
+            'martillero': martillero,
+            'montoMinimo': montoMinimo,
+            'bancoDeuda': bancoDeuda,
+            'deudaHipotecaria': deudaHipotecaria,
         }
     }
     
@@ -277,6 +286,7 @@ class checkFPMG {
         let counter = 0;
         try {
             for (let caso of this.casos) {
+                logger.info(`Procesando caso ${counter + 1} de ${this.casos.length}: Causa ${caso.causa}, Juzgado ${caso.juzgado}`);
                 // if(counter > 2){
                 //     return; 
                 // }
@@ -552,9 +562,6 @@ class checkFPMG {
             for (const row of rows) {
                 // Track if the row is processed successfull
                 try {
-                    if (caseIsFinished) {
-                        return true; // Si ya se obtuvo todo lo necesario del caso, salimos del bucle
-                    }
                     if(table == 'main'){
                         caseIsFinished = await this.searchForDirectory(row, caso);
                     }else{
@@ -592,10 +599,15 @@ class checkFPMG {
                 row.$eval('td:nth-child(7)', el => el.textContent.trim()),
             ]);
             console.log(stringToDate(fecha), fecha, dateToday);
-            if(stringToDate(fecha) >= dateToday){
-                caso.hasChanged = true;
-                
-                console.log("EXITO")
+            if(DEUDA_SEARCH){
+
+                if(stage.toLowerCase().includes("acta")){
+                    caso.hasChanged = true;
+                }
+            }else{
+                if (stringToDate(fecha) >= dateToday) {
+                    caso.hasChanged = true;
+                }
             }
 
             console.log('Fila:', number, uselessFile, directory, stage, tramite, descripcion, fecha);
@@ -1003,7 +1015,7 @@ class checkFPMG {
         console.log('========================================\n');
     }
 
-    writeChanges3(){
+    writeChangesDeuda(){
         if(this.casos.length == 0){
             return false;
         }
@@ -1019,15 +1031,20 @@ class checkFPMG {
         // 3. Preparar array para el nuevo Excel
         const nuevosDatos = [];
 
-        nuevosDatos.push(this.data[0]);
+        // 4. Preparar headers
+        const headers = ['Estado','Fecha Remate','Causa','Juzgado','Monto Minimo','Banco Deuda','Deuda Hipotecaria'];
+        nuevosDatos.push(headers);
 
         for(let caso of casosCambiados){
-
             const filaData = [];
 
             filaData.push('CAMBIO'); // Columna A
+            filaData.push(formatDateToDDMMAA(caso.fechaRemate));
             filaData.push(caso.causa); 
             filaData.push(caso.juzgado);
+            filaData.push(caso.montoMinimo);
+            filaData.push(caso.bancoDeuda);
+            filaData.push(caso.deudaHipotecaria);
 
             // Agregar la fila a los nuevos datos
             nuevosDatos.push(filaData);
@@ -1060,7 +1077,6 @@ class checkFPMG {
         console.log(`📁 Ubicación: ${rutaCompleta}`);
         console.log(`📋 Total filas guardadas: ${filasCopiadas}`);
         console.log('========================================\n');
-
     }
 
     cambiarAnchoColumnas(ws) {
@@ -1114,37 +1130,37 @@ class checkFPMG {
 
     async proccesDeudaSeguir(){
         this.obtainListDeuda();
-        console.log('Casos a revisar con deuda: ',this.casos.length)
-        obtainCorteJuzgadoNumbers(this.casos)
+        if(this.casos.length == 0){
+            console.log('No hay casos de deuda para procesar');
+            return false;
+        }
 
+        obtainCorteJuzgadoNumbers(this.casos)
 
         DEUDA_SEARCH = true;
         await this.processListDeuda();
 
-        this.writeChanges3();
+        this.writeChangesDeuda();
 
         console.log('Proceso de deuda listo')
+        return true;
     }
 
     obtainListDeuda(){
         if(!this.data){
             logger.warn('No se pudo recuperar la data')
-            return [];
+            return false;
         }
-        const headers = this.data[0];
-        const realData = this.data.slice(1);
-        console.log("Header ", headers)
         let count = 0;
         for (let line of this.data) {
             count++;
             const dataLine = this.processNewRow(line);
             let causaNormalizada = null;
 
-            //Ladrillero buscara 2 tipos de datos:
             if(dataLine.causa){
                 causaNormalizada = dataLine.causa.replace(/\(s\)/i, '').replace(/S\/I/ig, '').trim();
             }
-            //  1. Ladrillos
+            // Busqueda de deuda
             if(this.isDeuda(dataLine)){
                 const fechaRemateDate = convertDate(dataLine.fechaRem);
                 const casoExcel = new CasoBuilder(new Date(dataLine.fechaRem), "PJUD", config.PJUD)
@@ -1154,9 +1170,6 @@ class checkFPMG {
                     .construir();
 
                 this.casos.push(casoExcel);
-                // if(this.casos.length > 2){
-                //     return this.casos;
-                // }
             }else{
                 continue;
             }
@@ -1189,27 +1202,25 @@ class checkFPMG {
         return true;
     }
 
-    async processListDeuda(){
+    async processListDeuda() {
         const mainWindow = BrowserWindow.fromWebContents(this.event.sender);
         let counter = 0;
         try {
             for (let caso of this.casos) {
-                logger.info(`Revisando caso ${counter} de ${this.casos.length}`);
                 counter++;
-                // console.log(`Caso a investigar ${caso.causa} ${caso.juzgado} caso numero ${counter} de ${this.casos.length}`);
+                logger.info(`Revisando caso ${counter} de ${this.casos.length}`);
+                logToRenderer(this.mainWindow, `Revisando caso ${counter} de ${this.casos.length}`);
                 if (!caso.numeroJuzgado || !caso.corte) {
-                    // console.log(`Caso ${caso.causa} no tiene numero de juzgado ni corte, se omite`);
                     continue;
                 }
                 const result = await this.consultaCausa(caso);
-                if (result) {
-                    // console.log("Resultados del caso de prueba en pjud: ", caso.toObject());
+                if(counter > 3){
+                    return true;
                 }
 
                 if ((counter + 1) < this.casos.length) {
                     const awaitTime = Math.random() * (90 - 30) + 30; // Genera un número aleatorio entre 30 y 90
                     mainWindow.webContents.send('aviso-espera', [awaitTime, counter + 1, this.casos.length]);
-                    // console.log(`Esperando ${awaitTime} segundos para consulta numero ${counter + 1} de ${this.casos.length}`);
                     await delay(awaitTime * 1000);
                 }
             }
@@ -1221,13 +1232,13 @@ class checkFPMG {
 
 function copyRowBetweenFiles(sourceSheet, targetSheet, sourceRowIndex, targetRowIndex) {
     
-    // 3. Convertir la hoja de origen a JSON para obtener la fila
+    // 1. Convertir la hoja de origen a JSON para obtener la fila
     const sourceData = XLSX.utils.sheet_to_json(sourceSheet, { header: 1 });
     
-    // 4. Obtener la fila específica (index basado en 0)
+    // 2. Obtener la fila específica (index basado en 0)
     const rowToCopy = sourceData[sourceRowIndex];
     
-    // 5. Escribir la fila en la posición destino
+    // 3. Escribir la fila en la posición destino
     for (let col = 0; col < rowToCopy.length; col++) {
         const cellAddress = XLSX.utils.encode_cell({ r: targetRowIndex, c: col });
         targetSheet[cellAddress] = { v: rowToCopy[col], t: typeof rowToCopy[col] };

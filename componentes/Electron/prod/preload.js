@@ -20,7 +20,10 @@ contextBridge.exposeInMainWorld('api', {
   
   fillMapa: (filePath) => ipcRenderer.invoke('process-Mapa', filePath),
 
-  checkDEUDA : ()=> ipcRenderer.invoke('process-DEUDA'),
+  checkDEUDA : async ()=> {
+    const result = await ipcRenderer.invoke('process-DEUDA')
+    return result;
+  },
   
 
   // Funcion para mostrar en pantalla el tiempo de espera.

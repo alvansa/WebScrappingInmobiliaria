@@ -61,8 +61,10 @@ class DataEnricher{
             const comuna = this.normalizarComuna(row[indexComuna]);
             const rol = this.normalizarRol(row[indexRol]);
 
-            const key1 = `${causa}|${juzgado}`;
-            this.indexes.set(key1, index);
+            if(causa && juzgado){
+                const key1 = `${causa}|${juzgado}`;
+                this.indexes.set(key1, index);
+            }
 
             if(comuna && rol){
                 const key2 = `${comuna}|${rol}`;

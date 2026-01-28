@@ -150,6 +150,8 @@ function adaptDirectionToExcel(direction){
     // console.log(`-------------------------Direccion que va a cambiar string por num\n-----------------\n${finalDirection}\n--------------------`)
     finalDirection = changeWordsToNumbers(finalDirection);
 
+    //Normalizar numero de piso (septimo piso -> P7)
+
     return finalDirection
 }
 
@@ -193,6 +195,11 @@ function changeWordsToNumbers(phrase,isDevLog = false) {
         }
     }
     return phrase;
+}
+
+function changeFloorNumber(phrase){
+    const regexFloor = /piso\s+((\w+[-\s]?)+)/i;
+
 }
 
 function normalize(word){
