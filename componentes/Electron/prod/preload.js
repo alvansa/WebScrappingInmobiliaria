@@ -79,10 +79,25 @@ contextBridge.exposeInMainWorld('api', {
 });
 
 contextBridge.exposeInMainWorld('ladrilleroAPI', {
-    // Pensado para seleccionar un archivo pdf que se procesara
-    openFileLocal: () => ipcRenderer.invoke('open-dialog-local'),
+  // Pensado para seleccionar un archivo pdf que se procesara
+  openFileLocal: () => ipcRenderer.invoke('open-dialog-local'),
 
-    //Revisar los archivos que le faltan publicaciones
-    checkFPMG: () => ipcRenderer.invoke('process-FPMG'),
+  //Revisar los archivos que le faltan publicaciones
+  checkFPMG: () => ipcRenderer.invoke('process-FPMG'),
 
+  checkFPMG2: async (onProgress) => {
+    // Registrar listener para eventos de progreso
+    const progressHandler = (event, data) => {
+      onProgress(data);
+    };
+
+    ipcRenderer.on('checkFPMG-progress', progressHandler);
+
+    // Ejecutar la función y limpiar listener al finalizar
+    return ipcRenderer.invoke('process-FPMG')
+      .finally(() => {
+        ipcRenderer.removeListener('checkFPMG-progress', progressHandler);
+      });
+  },
+  checkDEUDA: () => ipcRenderer.invoke('process-DEUDA'),
 });

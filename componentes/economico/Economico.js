@@ -260,7 +260,6 @@ class Economico {
 
     //Funcion encargada de procesar la pagina principal de emol donde aparecen los multiples remates
     async processPage(startDate, endDate, SELECTORS) {
-        // this.page.on('console', msg =>{console.log("LOG BROWSER: ", msg.text())});
         const casosPagina = await this.page.evaluate(async (fechaInicio, fechaFin, SELECTORS) => {
             const fechaInicioDate = new Date(fechaInicio);
             const casos = [];

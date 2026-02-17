@@ -35,15 +35,20 @@
         
       </div>
       <!-- Modal de espera -->
-      <div id="waitingModalProcess" class="view">
-        <div class="modal-container">
-          <h3 id="waitingMessage">Por favor espera...</h3>
-          <div class="spinner-container">
-            <div class="spinner"></div>
+      <div id="waitingModalProcess" class="modal" style="display: none;">
+        <div class="modal-content">
+          <div class="modal-header">
+          </div>
+          <div class="modal-body">
+            <div class="progress-container">
+              <div id="progressBar" class="progress-bar" style="width: 0%;">0%</div>
+            </div>
+            <div id="modalContent" class="modal-content-scroll">
+              <!-- Mensajes de progreso aparecerán aquí -->
+            </div>
           </div>
         </div>
       </div>
-    
     </div>
 
 

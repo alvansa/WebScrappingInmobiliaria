@@ -47,6 +47,7 @@ class checkFPMG {
         this.ws = null;
         this.casos = []
         this.data = data;
+        this.sender = event.sender;
     }
 
     async process() {
@@ -54,6 +55,9 @@ class checkFPMG {
         obtainCorteJuzgadoNumbers(this.casos);
 
         console.log("casos revisados : ",this.casos.length);
+
+        console.log('enviando el mensaje de progreso al renderer')
+        this.sender.send('checkFPMG-progress', { type: 'status', message: `Obteniendo información de ${this.casos.length} casos...` });
 
         //Search and process each cause
         await this.processList();
@@ -70,7 +74,6 @@ class checkFPMG {
         this.ws = this.wb.Sheets[this.wb.SheetNames[0]];
         const lastWrittenRow = XLSX.utils.decode_range(this.ws['!ref']).e.r + 1;
         let lastRow = 2;
-        // console.log(this.ws[`${config.TRIBUNAL}3`].v.toString());
         while (lastRow <= lastWrittenRow) {
             let causa, juzgado,fechaDesc;
             let skipRowOutside = false;
@@ -172,7 +175,7 @@ class checkFPMG {
             return [];
         }
         const headers = this.data[0];
-        console.log("Header ", headers)
+        let cont = 0;
         for (let line of this.data) {
             const dataLine = this.processNewRow(line);
             let causaNormalizada = null;
@@ -188,12 +191,17 @@ class checkFPMG {
                     .conJuzgado(dataLine.juzgado)
                     .construir();
                 this.casos.push(casoExcel);
+                if(cont >= 5){
+                    return;
+                }
+                cont++;
 
             //  2. Propios
             }else if(this.isPropio(dataLine)){
                 const casoExcel = new CasoBuilder(new Date(dataLine.fechaRem), "PJUD", config.PJUD)
                     .conCausa(causaNormalizada)
                     .conJuzgado(dataLine.juzgado)
+                    .conPropio(true)
                     .construir();
                 this.casos.push(casoExcel);
             }else{
@@ -251,7 +259,6 @@ class checkFPMG {
 
 
     processNewRow(line){
-
         const causa = line[indexCausa];
         const juzgado = line[indexJuzgado];
         const comuna = line[indexComuna];
@@ -263,7 +270,6 @@ class checkFPMG {
         const montoMinimo = line[indexMontoMinimo];
         const bancoDeuda = line[indexBancoDeuda];
         const deudaHipotecaria = line[indexDeudaHipotecaria];
-
 
         return {
             'estado': estado,
@@ -280,35 +286,28 @@ class checkFPMG {
         }
     }
     
-
     async processList() {
         const mainWindow = BrowserWindow.fromWebContents(this.event.sender);
         let counter = 0;
         try {
             for (let caso of this.casos) {
                 logger.info(`Procesando caso ${counter + 1} de ${this.casos.length}: Causa ${caso.causa}, Juzgado ${caso.juzgado}`);
-                // if(counter > 2){
-                //     return; 
-                // }
                 counter++;
-                // console.log(`Caso a investigar ${caso.causa} ${caso.juzgado} caso numero ${counter} de ${this.casos.length}`);
+                const percentage = Math.floor((counter / this.casos.length) * 100);
                 if (!caso.numeroJuzgado || !caso.corte) {
-                    // console.log(`Caso ${caso.causa} no tiene numero de juzgado ni corte, se omite`);
                     continue;
                 }
                 const result = await this.consultaCausa(caso);
-                if (result) {
-                    // console.log("Resultados del caso de prueba en pjud: ", caso.toObject());
-                }
 
                 if ((counter + 1) < this.casos.length) {
                     const awaitTime = Math.random() * (90 - 30) + 30; // Genera un número aleatorio entre 30 y 90
                     mainWindow.webContents.send('aviso-espera', [awaitTime, counter + 1, this.casos.length]);
-                    // console.log(`Esperando ${awaitTime} segundos para consulta numero ${counter + 1} de ${this.casos.length}`);
                     await delay(awaitTime * 1000);
                 }
+                console.log(`Porcentaje de proceso: ${percentage}%`);
+                this.sender.send('checkFPMG-progress', { type: 'progress', percentage: percentage, message: `Trabajando` });
             }
-        } catch (error) {
+        }catch(error){
             console.error("Error al obtener datos de los casos: ", error.message);
         }
     }
@@ -1038,7 +1037,11 @@ class checkFPMG {
         for(let caso of casosCambiados){
             const filaData = [];
 
-            filaData.push('CAMBIO'); // Columna A
+            if(caso.propio){
+                filaData.push('CAMBIO PROPIO'); // Columna A
+            }else{
+                filaData.push('CAMBIO'); // Columna A
+            }
             filaData.push(formatDateToDDMMAA(caso.fechaRemate));
             filaData.push(caso.causa); 
             filaData.push(caso.juzgado);

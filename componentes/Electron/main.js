@@ -209,8 +209,9 @@ class MainApp{
         });
 
         // Funcion para buscar la informacion del pjud en pdf en base a una fecha de inicio y final.
-        ipcMain.handle('process-FPMG', async (event, filePath) => {
+        ipcMain.handle('process-FPMG', async (event) => {
             try{
+                const filePath = null;
                 this.logToRenderer(`Obtenienido ladrillos`)
                 const result = await SpreadSheetManager.processData();
                 if(result.result == false){
@@ -219,7 +220,7 @@ class MainApp{
                 }
                 let data  = result.data;
                 this.logToRenderer(`Cantidad de filas obtenidad ${data.length}`)
-                this.logToRenderer(`Data : ${data}`);
+                // this.logToRenderer(`Data : ${data}`);
                 const check = new checkFPMG(event, this.mainWindow, filePath, data);
                 await check.process();
                 // this.mainWindow.send("electron-log","En la funcion de completar excel")

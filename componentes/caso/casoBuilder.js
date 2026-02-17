@@ -68,6 +68,11 @@ class CasoBuilder{
         return this;
     }
 
+    conPropio(propio){
+        this.caso.propio = propio;
+        return this;
+    }
+
     construir(){
         return this.caso;
     }

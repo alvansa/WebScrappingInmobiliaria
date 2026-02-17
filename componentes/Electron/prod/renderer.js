@@ -1,44 +1,9 @@
+const { percent } = require("../../economico/extractors");
+
 const checkFPMG = document.getElementById('openLadrillero');
+// const checkFPMG = document.getElementById('checkFPMG');
 let tribunalesPorCorte  = [];
 console.log('Renderer loaded succefully')
-
-// // obtener y procesar casos del pjud con sus pdf
-// //Esta funcino fue creada para buscar datos solo del pjud
-// document.getElementById('processExcelBtn').addEventListener('click', async () => {
-//   const saveFile = document.getElementById('excel-input').value;
-
-//   if (!saveFile) {
-//     alert('Por favor seleccionar excel a completar');
-//     return;
-//   }
-
-//   try {
-//     const result = await window.api.completeInfoFromExcel(saveFile, startDate, endDate);
-//     if (result) {
-//       alert(`PDFs procesados y guardados en: ${result}`);
-//     } else {
-//       alert('No se encontraron PDFs para procesar');
-//     }
-//   } catch (error) {
-//     console.error('Error al procesar los casos faltantes:', error);
-//     alert('Ocurrió un error al procesar el excel');
-//   }
-// });
-
-// document.getElementById('select-pdf-folder-btn').addEventListener('click', async () => {
-//   // Llama al proceso principal para abrir el selector de carpetas
-//   const folderPath = await window.api.selectFolder();
-//   console.log("Path escogido: ", folderPath);
-//   const folderInput = document.getElementById('pdf-folder-input'); // Obtén el input
-
-//   if (folderPath) {
-//     console.log('Carpeta seleccionada:', folderPath);
-//     folderInput.value = folderPath;
-//   } else {
-//     console.log('Selección cancelada.');
-//     folderInput.value = 'No se seleccionó ninguna carpeta.';
-//   }
-// });
 
 // Manejo de notificaciones de espera con Modal
 window.api.onWaitingNotification((args) => {
@@ -82,6 +47,8 @@ function showWaitingModal(show) {
   if (!show && countdownInterval) clearInterval(countdownInterval);
 }
 
+
+
 // document.getElementById('select-excel-file-btn').addEventListener('click', async()=>{
 //   const excelInput = document.getElementById('excel-input'); // Obtén el input
 //   const excelPath = await window.api.selectExcelPath();
@@ -112,20 +79,69 @@ document.getElementById('openSettingsWindow').addEventListener('click', () => {
   window.api.openWindow('settings'); 
 });
 
-checkFPMG.addEventListener('click', async () => { 
-  showWaitingProcess(true);
-  // Llama a tu función que procesa el archivo
-  await window.ladrilleroAPI.checkFPMG();
-  showWaitingProcess(false)
-  alert('Ladrillos Obtenidos');
-});
+// checkFPMG.addEventListener('click', async () => { 
+//   showWaitingProcess(true);
+//   // Llama a tu función que procesa el archivo
+//   await window.ladrilleroAPI.checkFPMG();
+//   showWaitingProcess(false)
+//   alert('Ladrillos Obtenidos');
+// });
 
 function showWaitingProcess(show){
   const modal = document.getElementById('waitingModalProcess');
   modal.style.display = show ? 'flex' : 'none';
 }
 
+function showWaitingProcessLadrillo(show){
+  const modal = document.getElementById('ladrilloWaitingModalProcess');
+  modal.style.display = show ? 'flex' : 'none';
+}
+
 window.api.onMessage((msg)=>{
   console.log(msg)
 })
+
+
+checkFPMG.addEventListener('click', async () => {
+  updateModal({ type: 'progress', percentage: 0, message: 'Iniciando proceso...' });
+  try {
+    const filePath = true;
+
+    if (filePath) {
+      showWaitingProcessLadrillo(true);
+      // Llama a tu función que procesa el archivo
+      await window.ladrilleroAPI.checkFPMG2((progressData) =>{
+        console.log('Progreso:', progressData);
+        updateModal(progressData)
+      });
+      showWaitingProcessLadrillo(false)
+      alert('Ladrillos Obtenidos');
+    }
+
+  } catch (error) {
+    console.error('Error al seleccionar archivo:', error);
+    showWaitingProcessLadrillo(false)
+    alert('Ocurrio un error al obtener los ladrillos');
+  }finally{
+  }
+
+});
+
+function updateModal(data) {
+  const modal = document.getElementById('ladrilloWaitingModalProcess');
+  const content = document.getElementById('modalContent');
+  
+  if (data.type === 'status') {
+    content.innerHTML = `<p>📊 ${data.message}</p>`;
+  } else if (data.type === 'progress') {
+    const progressBar = document.getElementById('progressBar');
+    progressBar.style.width = `${data.percentage}%`;
+    progressBar.textContent = `${data.percentage}%`;
+  } else if (data.type === 'item') {
+    content.innerHTML += `<p>✅ Procesado: ${data.item}</p>`;
+  }
+  
+  // Auto-scroll al último mensaje
+  modal.scrollTop = modal.scrollHeight;
+}
 

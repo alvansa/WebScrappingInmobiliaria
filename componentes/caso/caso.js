@@ -121,6 +121,7 @@ class Caso{
         this.#unitAvaluo = null;
         this.#unitDireccion = null;
         this.#hasChanged = false;
+        this.propio = false;
 
         this.#origen = origen;
 
