@@ -45,7 +45,7 @@ class Economico {
 
             await this.setRealisticHeaders()
 
-
+            //Con puppeter obtiene los casos de economico buscando pagina por pagina
             const result = await this.extractInfoPage();
             console.log(`Casos a revisar : ${this.casosARevisar.length}`)
             await delay(2000);
@@ -142,6 +142,7 @@ class Economico {
         let stopFlag = false;
         let url = 'https://www.economicos.cl/todo_chile/remates_de_propiedades_el_mercurio';
         const fechaHoy = new Date();
+        let paginasVisitadas = 0;
 
         while (attempt < this.maxRetries) {
             try {
@@ -152,6 +153,7 @@ class Economico {
                 await this.changeUserAgent();
 
                 await this.navigateToPage(url);
+                //Fija la funcion una extractAuctionDate una unica vez
                 if (!this.isFunctionSet) {
                     await this.page.exposeFunction('extractAuctionDate', extractAuctionDate.bind(extractAuctionDate));
                     this.isFunctionSet = true;
@@ -174,10 +176,12 @@ class Economico {
                 await fakeDelay(15, 20);
 
                 this.addFoundCases(processCases.casos, fechaHoy);
+                paginasVisitadas++;
 
                 if (processCases.stop) {
                     console.log("Ya se superó la fecha límite");
                     stopFlag = true;
+                    console.log(`Se visitaron ${paginasVisitadas} páginas y se encontraron ${this.casosARevisar.length} casos en total.`);
                     break;
                 }
                 if (stopFlag || !urlNextPage) {
@@ -319,11 +323,12 @@ class Economico {
             const casoObj = new Caso(fechaHoyCaso, fechaPublicacion, announcement, EMOL);
             casoObj.fechaRemate = currentCase.fechaRemate;
 
-            if (this.isTestMode) {
-                this.casosARevisar.push(casoObj);
-            } else if (!casoObj.fechaRemate || (casoObj.fechaRemate >= this.originStartDate && casoObj.fechaRemate <= this.originEndDate)) {
-                this.casosARevisar.push(casoObj);
-            }
+            // if (this.isTestMode) {
+            //     this.casosARevisar.push(casoObj);
+            // } else if (!casoObj.fechaRemate || (casoObj.fechaRemate >= this.originStartDate && casoObj.fechaRemate <= this.originEndDate)) {
+            //     this.casosARevisar.push(casoObj);
+            // }
+            this.casosARevisar.push(casoObj);
 
         }
     }

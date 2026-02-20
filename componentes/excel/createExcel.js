@@ -289,7 +289,6 @@ class createExcel {
         // Se escriben todos los casos revisados en la hoja, para eso primero se transforman a
         // objetos para verificar la normalizacion
         for (let caso of remates) {
-            console.log("Escribiendo caso :", caso[1].causa);
             const casoObj = caso[1].toObject()
 
             insertarCasoIntoWorksheet(casoObj, ws, currentRow);

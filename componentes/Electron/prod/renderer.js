@@ -1,4 +1,3 @@
-const { percent } = require("../../economico/extractors");
 
 const checkFPMG = document.getElementById('openLadrillero');
 // const checkFPMG = document.getElementById('checkFPMG');

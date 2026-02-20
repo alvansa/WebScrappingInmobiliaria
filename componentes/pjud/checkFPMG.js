@@ -191,9 +191,9 @@ class checkFPMG {
                     .conJuzgado(dataLine.juzgado)
                     .construir();
                 this.casos.push(casoExcel);
-                if(cont >= 5){
-                    return;
-                }
+                // if(cont >= 5){
+                //     return;
+                // }
                 cont++;
 
             //  2. Propios

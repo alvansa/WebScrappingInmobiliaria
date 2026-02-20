@@ -86,21 +86,21 @@ class SpreadSheetManager {
 
         // Ahora puedes acceder a las variables
         const spreadsheetId = EnvLoader.get('SPREADSHEET_ID');
-        console.log('Spreadsheet ID:', spreadsheetId);
+        // console.log('Spreadsheet ID:', spreadsheetId);
 
         // Intentar cargar token existente
-        console.log('Intentando leer token desde', TOKEN_PATH);
+        // console.log('Intentando leer token desde', TOKEN_PATH);
         try {
             const tokenContent = await readFile(TOKEN_PATH, 'utf8');
             const credentials = JSON.parse(tokenContent);
-            console.log(`Credenciales leídas: ${JSON.stringify(credentials)} y token path es ${TOKEN_PATH}`);
+            // console.log(`Credenciales leídas: ${JSON.stringify(credentials)} y token path es ${TOKEN_PATH}`);
             auth = new google.auth.OAuth2();
-            console.log('Token cargado desde', TOKEN_PATH, ' y autorizado con ', auth);
+            // console.log('Token cargado desde', TOKEN_PATH, ' y autorizado con ', auth);
             auth.setCredentials(credentials);
 
             // Verificar si el token sigue válido
             if (credentials.expiry_date && Date.now() > credentials.expiry_date) {
-                console.log('Token expirado, renovando...');
+                // console.log('Token expirado, renovando...');
                 auth = null;
             }
         } catch (error) {
@@ -117,7 +117,7 @@ class SpreadSheetManager {
             console.log('Autenticado con éxito escribiendo en el token');
             // Guardar token para uso futuro
             await writeFile(TOKEN_PATH, JSON.stringify(auth.credentials));
-            console.log('Token guardado en', TOKEN_PATH);
+            // console.log('Token guardado en', TOKEN_PATH);
         }
 
         // Crear cliente de Sheets
@@ -173,32 +173,32 @@ class SpreadSheetManager {
 
 
 module.exports = SpreadSheetManager;
-async function main(){
-    const data = await SpreadSheetManager.processData(false);
-    for (let row of data) {
-        console.log(row);
-    }
-    console.log("Data length ", data.length);
-}
+// async function main(){
+//     const data = await SpreadSheetManager.processData(false);
+//     for (let row of data) {
+//         console.log(row);
+//     }
+//     console.log("Data length ", data.length);
+// }
 // main();
 
-async function obtainRepeatedData(data) {
-    if (!data) {
-        const readedData = readFileSync('data2.json', 'utf8');
-        data = JSON.parse(readedData);
-    }
-    const headers = data[0];
-    const realData = data.slice(1);
-    console.log("Header ", headers)
-    let count = 0;
-    findRepeteadCause(realData);
-}
+// async function obtainRepeatedData(data) {
+//     if (!data) {
+//         const readedData = readFileSync('data2.json', 'utf8');
+//         data = JSON.parse(readedData);
+//     }
+//     const headers = data[0];
+//     const realData = data.slice(1);
+//     console.log("Header ", headers)
+//     let count = 0;
+//     findRepeteadCause(realData);
+// }
 
-function findRepeteadCause(data) {
-    const findedCauses = [];
-    for (let line of data) {
-        const { causa, juzgado, comuna, rol } = processNewRow(line);
-        console.log(causa, juzgado, comuna, rol);
-        // processNewRow(line);
-    }
-}
+// function findRepeteadCause(data) {
+//     const findedCauses = [];
+//     for (let line of data) {
+//         const { causa, juzgado, comuna, rol } = processNewRow(line);
+//         // console.log(causa, juzgado, comuna, rol);
+//         // processNewRow(line);
+//     }
+// }

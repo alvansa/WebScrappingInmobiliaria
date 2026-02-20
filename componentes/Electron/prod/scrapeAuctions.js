@@ -56,7 +56,7 @@ class scrapeAuction {
             casosPJUD = await this.getCasosPjud(this.startDate, this.endDate, this.checkedBoxes.pjud, this.event)
             // casosPreremates = await this.getCasosPreremates(checkedBoxes.preremates),
             casosBoletin = await this.getCasosBoletin(this.startDate, this.endDate, fechaHoy, this.checkedBoxes.liquidaciones),
-                casosPYL = await this.getPublicosYLegales(this.startDate, this.endDate, fechaHoy, this.checkedBoxes.PYL),
+            casosPYL = await this.getPublicosYLegales(this.startDate, this.endDate, fechaHoy, this.checkedBoxes.PYL),
 
                 logger.info('Casos obtenidos por fuente');
 
@@ -72,8 +72,13 @@ class scrapeAuction {
             casos = [...casosPreremates, ...casosBoletin, ...casosPYL, ...casosPJUD];
 
             //Luego de obtener los casos de emol se revisaran los casos obtenidos en pjud
-            casosEconomico = await this.searchEmolAuctionsInPjud(casosEconomico);
+            // if(!this.isTestMode){
+            //     casosEconomico = await this.searchEmolAuctionsInPjud(casosEconomico);
+            // }
+
+            //Agrega los casos de economico al listado general despues de la busqueda en pjud
             casos = [...casosEconomico, ...casos];
+
             if (casos.length > 1) {
                 await this.obtainMapasSIIInfo(casos);
                 logger.info('Datos de Mapas SII obtenidos');
@@ -135,7 +140,7 @@ class scrapeAuction {
         let fechaInicio = new Date();
         let fechaFin = new Date();
 
-        fechaInicio.setDate(fechaInicio.getDate() - 30);
+        fechaInicio.setDate(fechaInicio.getDate() - 40);
 
         if (this.isTestMode) {
             fechaInicio = stringToDate(fechaInicioStr);

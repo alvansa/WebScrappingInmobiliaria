@@ -43,8 +43,6 @@ class DataEnricher{
         const listAuctions = this.obtainKeys(spreadSheetData);
 
         this.searchAndEnrich(casos, spreadSheetData);
-
-        // console.log(this.indexes)
     }
 
 
@@ -122,7 +120,6 @@ class DataEnricher{
             }
 
             if(foundIndex !== null){
-                console.log(`Encontrado caso ${caso.causa} en fila ${foundIndex}`);
                 this.fillCaseData(caso,foundIndex, spreadSheetData );
 
             }
@@ -140,7 +137,7 @@ class DataEnricher{
         caso.rolPropiedad = row[indexRol];
         caso.linkMap = row[indexLinkMapa]; 
 
-        console.log(`Causa ${row[indexCausa]} - precioCompra: ${row[indexPrecioCompra]}`);
+        // console.log(`Causa ${row[indexCausa]} - precioCompra: ${row[indexPrecioCompra]}`);
         
         this.fillMartillero(caso, row);
         this.checkMontoMinimo(caso, row);
@@ -208,7 +205,6 @@ class DataEnricher{
         // Placeholder for filling bank debt data if needed
         caso.mortageBank = row[indexDeudaBanco] || null;
         if(row[indexDeudaHipoteca]){
-            console.log(`Deuda Hipotecaria ${row[indexDeudaHipoteca]} para caso ${caso.causa}`);
             let price = row[indexDeudaHipoteca].replaceAll('.', '').replaceAll(',', '.');
             caso.deudaHipotecaria = Number(price);
         }
