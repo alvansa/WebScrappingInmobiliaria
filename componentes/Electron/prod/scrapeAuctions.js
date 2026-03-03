@@ -66,15 +66,15 @@ class scrapeAuction {
             }
             if (casosEconomico.length == 0) {
                 logger.info('Reintentando obtencion de casos Economico, casos obtenidos: ', casosPJUD.length);
-                casosEconomico = await this.getCasosEconomico(this.startDate, this.endDate, this.checkedBoxes.economico);
+                // casosEconomico = await this.getCasosEconomico(this.startDate, this.endDate, this.checkedBoxes.economico);
             }
 
             casos = [...casosPreremates, ...casosBoletin, ...casosPYL, ...casosPJUD];
 
             //Luego de obtener los casos de emol se revisaran los casos obtenidos en pjud
-            // if(!this.isTestMode){
-            //     casosEconomico = await this.searchEmolAuctionsInPjud(casosEconomico);
-            // }
+            if(!this.isTestMode){
+                casosEconomico = await this.searchEmolAuctionsInPjud(casosEconomico);
+            }
 
             //Agrega los casos de economico al listado general despues de la busqueda en pjud
             casos = [...casosEconomico, ...casos];
@@ -339,7 +339,8 @@ class scrapeAuction {
         let casos = [];
         try {
             window = new BrowserWindow({ show: false });
-            const url = 'https://oficinajudicialvirtual.pjud.cl/indexN.php';
+            // const url = 'https://oficinajudicialvirtual.pjud.cl/indexN.php';
+            const url = 'https://oficinajudicialvirtual.pjud.cl/home/index.php'
             await window.loadURL(url);
             const page = await pie.getPage(this.browser, window);
             const pjud = new Pjud(this.browser, page, startDate, endDate);

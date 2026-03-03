@@ -40,7 +40,6 @@ class EconomicoAxios {
 
     getNextProxy() {
         const proxy = this.proxyList[this.currentProxyIndex];
-        console.log(`index ${this.currentProxyIndex} y proxy ${proxy.host}`)
         this.currentProxyIndex = (this.currentProxyIndex + 1) % this.proxyList.length;
         return proxy;
     }
@@ -72,7 +71,7 @@ class EconomicoAxios {
                     await this.rotateUserAgent();
                 }
 
-                console.log(`🔁 Intento ${attempt + 1}/${maxRetries} - Proxy: ${proxy}`);
+                console.log(`🔁 Intento ${attempt + 1}/${maxRetries}`);
 
                 const config = {
                     url: url,

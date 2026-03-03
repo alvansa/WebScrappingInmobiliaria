@@ -122,21 +122,6 @@ class Economico {
     }
 
     async extractInfoPage() {
-        // const defaultUserAgents = [
-        //     { userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' },
-        //     { userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' }
-        // ];
-
-        // let userAgents;
-
-        // try {
-        //     // Intenta cargar USER_AGENTS desde .env, si no existe usa los valores por defecto
-        //     userAgents = process.env.USER_AGENTS ? JSON.parse(process.env.USER_AGENTS) : defaultUserAgents;
-        // } catch (error) {
-        //     console.error('Error parsing USER_AGENTS from .env, using default agents:', error);
-        //     userAgents = defaultUserAgents;
-        // }
-
         let customUA;
         let attempt = 0;
         let stopFlag = false;
@@ -146,18 +131,11 @@ class Economico {
 
         while (attempt < this.maxRetries) {
             try {
-                // const randomIndex = Math.floor(Math.random() * userAgents.length);
-                // customUA  = userAgents[randomIndex].userAgent;
-                // await this.page.setUserAgent(customUA);
-
                 await this.changeUserAgent();
 
                 await this.navigateToPage(url);
                 //Fija la funcion una extractAuctionDate una unica vez
-                if (!this.isFunctionSet) {
-                    await this.page.exposeFunction('extractAuctionDate', extractAuctionDate.bind(extractAuctionDate));
-                    this.isFunctionSet = true;
-                }
+                await this.exposeFunction();
 
                 if (await this.check503()) {
                     throw new Error('Error 503: Service Unavailable');
@@ -167,7 +145,6 @@ class Economico {
                     const nextPage = document.querySelector(NEXT_PAGE_SELECTOR);
                     return nextPage ? nextPage.parentElement.getAttribute('href') : null;
                 }, SELECTORS.NEXT_PAGE_SELECTOR);
-
 
                 const processCases = await this.processPage(this.fechaInicio, this.fechaFin, SELECTORS);
 
@@ -185,6 +162,7 @@ class Economico {
                     break;
                 }
                 if (stopFlag || !urlNextPage) {
+                    console.log("No se encontró un enlace a la siguiente página. Deteniendo la extracción.");
                     break;
                 }
                 // Preparar siguiente página
@@ -193,17 +171,28 @@ class Economico {
                 await fakeDelay(4, 7);
 
             } catch (error) {
+                attempt++;
+                logger.error(`Error en extractInfoPage, intento ${attempt} de ${this.maxRetries}: ${error.message}`);
+                const delayTime = 2 ** attempt * 1000;
+                console.log(`Esperando ${delayTime / 1000} segundos antes de reintentar...`);
+                await delay(delayTime);
+
                 if (error.message.includes('503') || error.message.includes('Service Unavailable')) {
                     console.error('Error 503:', error.message);
-                    const delayTime = 2 ** attempt * 1000;
-                    console.log(`Esperando ${delayTime / 1000} segundos antes de reintentar...`);
-                    await delay(delayTime);
-                    attempt++;
-                } else {
+                }                 
+                if(attempt >= this.maxRetries) {
                     console.error('Error en el modelo:', error.message);
                     throw error; // Relanzar error para manejarlo fuera
+
                 }
             }
+        }
+    }
+
+    async exposeFunction() {
+        if (!this.isFunctionSet) {
+            await this.page.exposeFunction('extractAuctionDate', extractAuctionDate.bind(extractAuctionDate));
+            this.isFunctionSet = true;
         }
     }
 
@@ -248,9 +237,11 @@ class Economico {
     async navigateToPage(url) {
         try {
             await this.page.goto(url, { waitUntil: 'networkidle2', timeout: 120000 });
+            await this.page.waitForSelector(SELECTORS.CASO_BLOQUE_SELECTOR, { timeout: 120000 });
         } catch (error) {
             console.error('Error al navegar a la página:', error.message);
-            throw error;
+            return;
+            // throw error;
         }
     }
 

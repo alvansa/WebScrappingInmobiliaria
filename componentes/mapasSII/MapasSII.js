@@ -200,7 +200,6 @@ class MapasSII {
                         console.log("No se encontró el botón de cerrar.");
                     }
                     // caso.avaluoPropiedad = null; // O puedes asignar un valor por defecto
-                    console.log("1");
                     delay(500);
                     return; // Salir de la función si hay un error
                 }
@@ -224,7 +223,7 @@ class MapasSII {
                 console.log("Link de Google Maps: ", caso.linkMap);
             }
 
-            if(!caso.avaluoPropiedad){
+            if(!caso.avaluoPropiedad && avaluoTotal){
                 caso.avaluoPropiedad = avaluoTotal;
             }
             caso.coordenadas = coordenadas;

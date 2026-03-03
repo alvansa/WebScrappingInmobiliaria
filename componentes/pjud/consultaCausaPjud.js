@@ -467,9 +467,9 @@ class ConsultaCausaPjud{
                 await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
 
                 const caseIsFinished = await this.obtainLinkOfPdf();
-                if (caseIsFinished) {
-                    return true;
-                }
+                // if (caseIsFinished) {
+                //     return true;
+                // }
                 const xSelector = '#modalAnexoSolicitudCivil > div > div > div.modal-header > button';
                 const xButton = await this.page.$(xSelector);
                 if (xButton) {
@@ -688,9 +688,9 @@ class ConsultaCausaPjud{
             // Aca es donde se deberia realizar el cambio para leer con tesseract
             resultado = await ProcesarBoletin.convertPdfToText(this.pdfPath);
             await delay(1000);
+            //Dado el resultado descargado del pdf, se procesa la información para obtener los datos necesarios para el caso.
             if(resultado){
                 resultOfProcess = this.PjudData.processInfo(resultado);
-                // resultOfProcess = PdfProccess.process(this.caso, resultado)
             }else{
                 return false;
             }
