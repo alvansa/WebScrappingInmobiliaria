@@ -2,6 +2,7 @@ const pie = require('puppeteer-in-electron');
 const Caso = require('../caso/caso')
 const { BrowserWindow } = require('electron');
 const logger = require('../../utils/logger')
+const fs = require('fs');
 
 const { delay, fakeDelay } = require('../../utils/delay');
 const { procesarDatosRemate } = require('./datosRemateEmol');
@@ -27,7 +28,7 @@ class Economico {
         this.page = null;
         this.window = null;
         this.casosARevisar = [];
-        this.maxRetries = 3; // Número máximo de reintentos
+        this.maxRetries = 10; // Número máximo de reintentos
         this.urlBase = "https://www.economicos.cl";
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
@@ -132,8 +133,8 @@ class Economico {
         while (attempt < this.maxRetries) {
             try {
                 await this.changeUserAgent();
-
                 await this.navigateToPage(url);
+
                 //Fija la funcion una extractAuctionDate una unica vez
                 await this.exposeFunction();
 
@@ -187,6 +188,7 @@ class Economico {
                 }
             }
         }
+
     }
 
     async exposeFunction() {
@@ -236,12 +238,13 @@ class Economico {
 
     async navigateToPage(url) {
         try {
-            await this.page.goto(url, { waitUntil: 'networkidle2', timeout: 120000 });
-            await this.page.waitForSelector(SELECTORS.CASO_BLOQUE_SELECTOR, { timeout: 120000 });
+            // await this.page.setUserAgent('Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.131 Safari/537.36');
+            await this.page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
+            await this.page.waitForSelector(SELECTORS.CASO_BLOQUE_SELECTOR, { timeout: 60000 });
         } catch (error) {
             console.error('Error al navegar a la página:', error.message);
-            return;
-            // throw error;
+            // return;
+            throw new Error('Error al navegar a la página: ' + error.message);
         }
     }
 
@@ -343,6 +346,42 @@ class Economico {
                 document.body.textContent.includes('bot') ||
                 document.querySelector('[class*="captcha"], [id*="captcha"]') !== null;
         });
+    }
+
+    async testPage(){
+        const curlEcomomico = new EconomicoAxios();
+        let attempt = 0;
+        let stopFlag = false;
+        let url = 'https://www.economicos.cl/todo_chile/remates_de_propiedades_el_mercurio';
+        const fechaHoy = new Date();
+        let paginasVisitadas = 0;
+
+        await this.createWindow(MAIN_URL);
+        await this.setRealisticHeaders()
+
+        console.log("Iniciando test de user agents en Economicos.cl");
+        for (let i = 0; i < listUserAgents.length; i++) {
+
+            const customUA = listUserAgents[i];
+            await this.page.setUserAgent(customUA);
+
+            try {
+                await this.page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
+                await this.page.waitForSelector(SELECTORS.CASO_BLOQUE_SELECTOR, { timeout: 30000 });
+                //write the user agent in a file
+                fs.writeFileSync(`test_user_agent_${i}.txt`, `User Agent: ${customUA}\n`);
+                console.log(`User Agent numero ${i} logrado`);
+                // if(i > 10){
+                //     return;
+                // }
+            }catch(error) {
+                console.error('Error al navegar a la página con user agent:', customUA, 'Error:', error.message);
+                console.log(`User Agent numero ${i} fallo`);
+            }
+
+            await fakeDelay(2, 10);
+        }
+
     }
 
 

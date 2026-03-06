@@ -70,6 +70,11 @@ document.getElementById('compararExcel').addEventListener('click', async ()=>{
 
 });
 
+document.getElementById('testUserAgents').addEventListener('click', async ()=>{
+  const result = window.api.testEconomico(["testUserAgents"]);
+
+});
+
 // document.getElementById('testConsultaCausa').addEventListener('click', ()=>{
 //   const result = window.api.testEconomico(["testConsultaCausa"]);
 // })

@@ -17,6 +17,7 @@ const logger = require('../../../utils/logger.js');
 const { fakeDelay } = require('../../../utils/delay.js');
 const { createExcel } = require('../../excel/createExcel.js');
 const { LIQUIDACIONES } = require('../../../config.js');
+const Economico = require('../../economico/Economico.js');
 
 
 class testUnitarios{
@@ -126,7 +127,11 @@ class testUnitarios{
             const Excel = new createExcel(path.join(os.homedir(), "Documents", "infoRemates"),null,null,false,"macal");
             await Excel.writeData(result2.properties,"Remates_macal");
             console.log("Excel de Macal creado");
-        } else { 
+        }else if(arg === "testUserAgents"){
+            const economico = new Economico(this.browser, '', '', null,null, true);
+            await economico.testPage();
+
+        }else { 
             logger.warn("No se ha especificado un test valido");
         }
 
