@@ -107,14 +107,15 @@ class MainApp{
             webPreferences: {
                 preload: path.join(__dirname, './prod/preload.js'), // Archivo que se ejecutará antes de cargar el renderer process
                 nodeIntegration: true,
-                webPreferences : {devTools : isDevMode}
+                webPreferences : {devTools : isDevMode},
+                devTools : isDevMode
             },
         })
 
         if(isDevMode){
             this.mainWindow.loadFile('componentes/Electron/dev/index.html')
-            // this.mainWindow.webContents.openDevTools();
-            console.log("DevTools opened");
+            this.mainWindow.webContents.openDevTools({mode:'right'});
+            console.log("DevTools opened", isDevMode);
         }else{
             this.mainWindow.loadFile('componentes/Electron/prod/index.html')
         }

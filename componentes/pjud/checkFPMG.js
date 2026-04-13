@@ -18,6 +18,8 @@ const {stringToDate, convertDate} = require('../../utils/cleanStrings')
 const {formatDateToDDMMAA} = require('../../utils/cleanStrings');
 const logger = require('../../utils/logger')
 const { logToRenderer } = require('../../utils/utilsRenderer');
+const {fixStringDate } = require('../../utils/cleanStrings');
+const listUserAgents = require('../../utils/userAgents.json');
 
 const DELAY_RANGE = {"min": 2, "max" : 5}
 let DEUDA_SEARCH = false;
@@ -39,6 +41,9 @@ class checkFPMG {
         this.event = event;
         this.browser = null;
         this.link = 'https://oficinajudicialvirtual.pjud.cl/includes/sesion-consultaunificada.php';
+        // this.link = 'https://oficinajudicialvirtual.pjud.cl/indexN.php';
+        // this.link = 'https://oficinajudicialvirtual.pjud.cl/indexN.php#modalDetalleCivil';
+        // this.link = 'https://www.pjud.cl/';
         this.page = null;
         this.window = null;
         this.mainWindow = mainWindow;
@@ -312,15 +317,28 @@ class checkFPMG {
         }
     }
 
+     async changeUserAgent() {
+        try {
+            const randomIndex = Math.floor(Math.random() * listUserAgents.length);
+            const customUA = listUserAgents[randomIndex];
+            logger.info(`User agent elegido ${customUA}`);
+            await this.page.setUserAgent(customUA);
+        } catch (error) {
+            console.error('Error cambiando el userAgent', error.message);
+        }
+
+    }
+
     async consultaCausa(caso) {
         this.browser = await pie.connect(app, puppeteer);
-        this.window = this.openWindow(this.window, false);
+        this.window = this.openWindow(this.window, true);
         let result = await this.processCausa(caso);
 
         return result;
     }
 
     async processCausa(caso) {
+        // await this.goToMainPage();
         let lineaAnterior = '';
         try {
             await this.loadConfig();
@@ -337,30 +355,47 @@ class checkFPMG {
             }
         }
     }
+
+    // async goToMainPage() {
+    //     const mainPageSelector = 'body > section.bg-light.page-section.pt-0 > div:nth-child(3) > div.container.gallery-container > div.tz-gallery.container2 > div > div > div > div > div:nth-child(1) > div:nth-child(3) > div > ul > a';
+    //     const mainPageElement = await this.page.$(mainPageSelector);
+
+    //     const cookie = await this.browser.cookies();
+    //     console.log("Cookies actuales: ", cookie);
+
+    //     await mainPageElement.click();
+
+    //     let cookie2 = await this.browser.cookies();
+
+    //     console.log(`Cookies despues de hacer click en consulta unificada: `, cookie2);
+    // }
+
     async loadConfig() {
         // User-Agents por defecto en caso de que .env no esté disponible
-        const defaultUserAgents = [
-            { userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' },
-            { userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' }
-        ];
+        // const defaultUserAgents = [
+        //     { userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' },
+        //     { userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' }
+        // ];
 
-        let userAgents;
+        // let userAgents;
 
-        try {
-            // Intenta cargar USER_AGENTS desde .env, si no existe usa los valores por defecto
-            userAgents = process.env.USER_AGENTS ? JSON.parse(process.env.USER_AGENTS) : defaultUserAgents;
-        } catch (error) {
-            console.error('Error parsing USER_AGENTS from .env, using default agents:', error);
-            userAgents = defaultUserAgents;
-        }
+        // try {
+        //     // Intenta cargar USER_AGENTS desde .env, si no existe usa los valores por defecto
+        //     userAgents = process.env.USER_AGENTS ? JSON.parse(process.env.USER_AGENTS) : defaultUserAgents;
+        // } catch (error) {
+        //     console.error('Error parsing USER_AGENTS from .env, using default agents:', error);
+        //     userAgents = defaultUserAgents;
+        // }
 
-        // Selecciona un User-Agent aleatorio
-        const randomIndex = Math.floor(Math.random() * userAgents.length);
+        // // Selecciona un User-Agent aleatorio
+        // const randomIndex = Math.floor(Math.random() * userAgents.length);
 
+        
         try {
             await this.window.loadURL(this.link);
             this.page = await pie.getPage(this.browser, this.window);
-            await this.page.setUserAgent(userAgents[randomIndex].userAgent);
+            await this.changeUserAgent();
+            // await this.page.setUserAgent(userAgents[randomIndex].userAgent);
             await this.page.goto(this.link);
         } catch (error) {
             console.error('Error during page navigation:', error);
@@ -645,8 +680,8 @@ class checkFPMG {
             return false;
         }
     }
-    openWindow(window) {
-        const isVisible = false;
+    openWindow(window, isVisible) {
+        // const isVisible = false;
         window = new BrowserWindow({
             show: isVisible,// Ocultar ventana para procesos en background
         });
@@ -1137,6 +1172,7 @@ class checkFPMG {
             console.log('No hay casos de deuda para procesar');
             return false;
         }
+        console.log(`Se encontraron ${this.casos.length} casos de deuda para procesar`);
 
         obtainCorteJuzgadoNumbers(this.casos)
 
@@ -1184,20 +1220,30 @@ class checkFPMG {
     }
 
     isDeuda(dataLine){
-        if (!dataLine.estado) {
-            return false;
-        }
+        //revisa que no sea ladrillo
+        // if (dataLine.notas) {
+        //     return false;
+        // }
+
+        //Revisa si el remate fue catalogado como seguir
         if (!dataLine.estado.toLowerCase().includes('seguir')) {
             return false;
         }
-        // 1. revisar que ni causa ni juzgado sean nulos
+        //revisar que ni causa ni juzgado sean nulos
         if (!dataLine.causa || !dataLine.juzgado) {
             return false;
         }
         // 2. revisar que la fecha de remate sea mayor a la fecha actual
         const dateToday = new Date();
-        const fechaRemateDate = convertDate(dataLine.fechaRem);
-        // 3. revisar que las notas contengan "fp"
+        const fechaLimite = new Date('01/02/2026');
+        const fechaRemateDate = new Date(convertDate(fixStringDate(dataLine.fechaRem)));
+
+        if(fechaRemateDate < fechaLimite  ){
+            return false;
+        }
+        console.log('Causa: ', dataLine.causa, 'Fecha de remate:', fechaRemateDate, 'Fecha límite:', fechaLimite);
+
+        //TODO: agregar que revise columna de Ocupacion (H) y VV(E)
         if (!dataLine.martillero || !dataLine.martillero.toLowerCase().includes('deuda')) {
             return false;
         }
@@ -1217,9 +1263,9 @@ class checkFPMG {
                     continue;
                 }
                 const result = await this.consultaCausa(caso);
-                if(counter > 3){
-                    return true;
-                }
+                // if(counter > 3){
+                //     return true;
+                // }
 
                 if ((counter + 1) < this.casos.length) {
                     const awaitTime = Math.random() * (90 - 30) + 30; // Genera un número aleatorio entre 30 y 90

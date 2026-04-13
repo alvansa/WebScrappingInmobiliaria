@@ -5,7 +5,7 @@ const { fakeDelay, delay } = require('../../utils/delay');
 // const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 // const puppeteerExtra = require('puppeteer-extra');
 
-const ConsultaCausaPjud = require('./consultaCausaPjud');
+const ConsultaCausaPjud = require('./consultaCausaPjudRefactored');
 
 // puppeteerExtra.use(StealthPlugin());
 

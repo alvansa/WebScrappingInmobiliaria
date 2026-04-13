@@ -122,6 +122,7 @@ class Caso{
         this.#unitDireccion = null;
         this.#hasChanged = false;
         this.propio = false;
+        this.metros = null;
 
         this.#origen = origen;
 
@@ -363,7 +364,7 @@ class Caso{
         if(this.#rolPropiedad == null){
             return null;
         }
-        return String(this.#rolPropiedad);
+        return RolHelper.cleanRol(String(this.#rolPropiedad));
     }
     get avaluoPropiedad(){
         if(this.#avaluoPropiedad == null){
@@ -612,7 +613,7 @@ class Caso{
             diaEntrega: diaEntregaNormalizado,
             aviso : this.#texto,
             numero : this.#numero,
-            rolPropiedad : this.#rolPropiedad,
+            rolPropiedad : RolHelper.cleanRol(this.#rolPropiedad),
             avaluoPropiedad : Number(this.#avaluoPropiedad) !=0 ? Number(this.#avaluoPropiedad) : null,
             estadoCivil : this.#estadoCivil,
             corte : this.#corte,
@@ -640,6 +641,7 @@ class Caso{
             dato : this.#dato,
             estado : this.#estado,
             montoMinimo2 : this.#montoMinimo2,
+            metros : this.metros
         };
     } 
 

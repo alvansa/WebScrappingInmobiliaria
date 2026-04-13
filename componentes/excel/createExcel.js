@@ -118,8 +118,6 @@ class createExcel {
                 ws[`!ref`] = RANGO_EXCEL + lastRow;
                 filePath = path.join(this.saveFile, name + `.xlsx`);
             }else if (this.type === "macal") {
-
-                // let lastRow = await this.insertarCasosExcel(casos, ws) - 1;
                 let lastRow = this.insertMacal(casos,ws);
                 ws[`!ref`] = RANGO_EXCEL + lastRow;
                 const dateToday = `1-1-25`
@@ -486,7 +484,7 @@ function insertarCasoIntoWorksheet(caso, ws, currentRow) {
     writeLine(ws, `${config.COMUNA}`, currentRow, caso.comuna, 's');
     writeLine(ws, `${config.ANNO}`, currentRow, caso.anno, 'n');
     writeLine(ws, `${config.PARTES}`, currentRow, caso.partes, 's');
-    writeLine(ws, `${config.DATO}`, currentRow, caso.dato, 's');
+    writeLine(ws, `${config.DATO}`, currentRow, caso.metros, 's');
     writeLine(ws, `${config.VV_O_CUPON}`, currentRow, caso.formatoEntrega, 's');
     writeLine(ws, `${config.PORCENTAJE}`, currentRow, caso.porcentaje, 's');
     writeLine(ws, `$${config.PLAZOVV}`, currentRow, caso.diaEntrega, 's');

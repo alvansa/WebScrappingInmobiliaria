@@ -10,6 +10,7 @@ const PublicosYLegales = require('../../publicosYlegales/publicosYLegales.js');
 const Pjud = require('../../pjud/getPjud.js');
 const GestorRematesPjud = require('../../pjud/GestorRematesPjud.js')
 const SpreadSheetManager = require('../../spreadSheet/SpreadSheetManager.js');
+const dataInmobiliaria = require('../../dataInmobiliaria/obtainDataInmobilaria.js');
 const DataEnricher = require('../../spreadSheet/DataEnricher.js');
 const { stringToDate } = require('../../../utils/cleanStrings.js');
 const { createExcel } = require('../../excel/createExcel.js');
@@ -19,6 +20,7 @@ const { emptyCaseEconomico } = require('../../economico/datosRemateEmol.js');
 const { PreRemates } = require('../../preremates/obtenerPublicaciones.js');
 const logger = require('../../../utils/logger.js');
 const config = require('../../../config.js');
+const { randomDelay } = require('../../../utils/stealth.js');
 
 const PJUD = config.PJUD;
 
@@ -79,13 +81,15 @@ class scrapeAuction {
             //Agrega los casos de economico al listado general despues de la busqueda en pjud
             casos = [...casosEconomico, ...casos];
 
-            if (casos.length > 1) {
-                await this.obtainMapasSIIInfo(casos);
-                logger.info('Datos de Mapas SII obtenidos');
-            }
         }
         if (!this.isTestMode) {
             casos = await this.secondRound(casos);
+            if (casos.length > 1) {
+                await this.obtainMapasSIIInfo(casos);
+                logger.info('Datos de Mapas SII obtenidos');
+                await this.obtainMetros(casos);
+                logger.info('Metros obtenidos');
+            }
         }
 
         if (casos.length === 0) {
@@ -93,6 +97,7 @@ class scrapeAuction {
             logger.warn("No se encontraron datos");
             return 5;
         }
+
         const enricher = new DataEnricher();
         let data = spreadSheetData.data;
         enricher.enrichWithSpreadsheetData(casos, data);
@@ -116,8 +121,9 @@ class scrapeAuction {
             logger.info(`No es necesario una segunda vuelta, casos con partes vacias: ${countEmptyParts} de ${casos.length}`);
             return casos;
         }
-        const awaitTime = 60 * 60;
-        await delay(awaitTime * 1000)
+        logger.info(`Iniciando segunda vuelta, casos con partes vacias: ${countEmptyParts}`);
+        // const awaitTime = rando;
+        await randomDelay(5, 10);
         //Volver a revisar los casos faltantes
         const gestorRemates = new GestorRematesPjud(casos, this.event, this.mainWindow);
         const result = await gestorRemates.getInfoFromAuctions({ skipIfHasPartes: true });
@@ -198,10 +204,11 @@ class scrapeAuction {
             startDate = stringToDate(fechaInicioStr);
             endDate = stringToDate(fechaFinStr);
         }
+        let window = null;  
         // console.log("Obteniendo casos de boletin desde: ", startDate, " hasta: ", endDate);
         logger.info("Obteniendo casos de boletin desde: ", startDate, " hasta: ", endDate);
         try {
-            const window = new BrowserWindow({ show: false });
+            window = new BrowserWindow({ show: false });
             const url = 'https://www.boletinconcursal.cl/boletin/remates';
             await window.loadURL(url);
             const page = await pie.getPage(this.browser, window);
@@ -309,6 +316,22 @@ class scrapeAuction {
             }
         }
         return;
+    }
+     
+    async obtainMetros(casos) {
+        for (let caso of casos) {
+            logger.info(`Obteniendo metros para caso ${caso.causa} con rol ${caso.rolPropiedad} y comuna ${caso.comuna}`);
+            if (caso.rolPropiedad !== null && caso.comuna !== null) {
+                try {
+                    const metrosTotales = await dataInmobiliaria.obtenerMetrosTotales(caso.comuna, caso.rolPropiedad);
+                    caso.metros = metrosTotales;
+                    await fakeDelay(1, 3);
+                } catch (error) {
+                    console.error(`Error obteniendo metros para caso ${caso.rolPropiedad}:`, error.message);
+                    continue;
+                }
+            }
+        }
     }
 
     async searchEmolAuctionsInPjud(casos) {

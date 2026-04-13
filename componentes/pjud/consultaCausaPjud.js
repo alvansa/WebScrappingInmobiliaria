@@ -14,6 +14,7 @@ const ProcesarBoletin = require('../liquidaciones/procesarBoletin.js');
 const PjudPdfData = require('./PjudPdfData.js');
 const PdfProcess = require('../pdfProcess/PdfProcess.js');
 const listUserAgents = require('../../utils/userAgents.json');
+const logger = require('../../utils/logger.js');
 const { listenerCount } = require('process');
 
 const ERROR = 0;
@@ -26,6 +27,13 @@ class ConsultaCausaPjud{
         this.window = window;
         this.caso = caso;
         this.link = 'https://oficinajudicialvirtual.pjud.cl/includes/sesion-consultaunificada.php';
+        
+        
+        // this.link = 'https://oficinajudicialvirtual.pjud.cl/includes/sesion-consultaunificada.php';
+        // this.link = 'https://oficinajudicialvirtual.pjud.cl/indexN.php';
+        // this.link = 'https://oficinajudicialvirtual.pjud.cl/indexN.php#modalDetalleCivil';
+        // this.link = 'https://www.pjud.cl/';
+
         this.page = null;
         this.downloadPath = path.join(os.homedir(), "Documents", "infoRemates/pdfDownload");
         this.dirPath = '';
@@ -42,6 +50,7 @@ class ConsultaCausaPjud{
             console.log('Iniciando la consulta de causa en Pjud...');
             await this.loadConfig()
             await this.loadPageWithRetries();
+
 
             result = await this.procesarCaso(lineaAnterior)
             if(result){
@@ -65,47 +74,79 @@ class ConsultaCausaPjud{
         return true;
     }
 
-    async loadConfig() {
-    // User-Agents por defecto en caso de que .env no esté disponible
-    const defaultUserAgents = [
-        { userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' },
-        { userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' }
-    ];
+    async goToMainPage() {
+        logger.info(`Navegando a la página principal de consulta unificada...`);
+        const mainPageSelector = 'body > section.bg-light.page-section.pt-0 > div:nth-child(3) > div.container.gallery-container > div.tz-gallery.container2 > div > div > div > div > div:nth-child(1) > div:nth-child(3) > div > ul > a';
+        const mainPageElement = await this.page.$(mainPageSelector);
 
-    let userAgents;
-    
-    try {
-        // Intenta cargar USER_AGENTS desde .env, si no existe usa los valores por defecto
-        userAgents = listUserAgents ? listUserAgents : defaultUserAgents;
-    } catch (error) {
-        console.error('Error parsing USER_AGENTS from .env, using default agents:', error);
-        userAgents = defaultUserAgents;
+        // const cookie = await this.browser.cookies();
+        // console.log("Cookies actuales: ", cookie);
+
+
+        await mainPageElement.click();
+
+        // let cookie2 = await this.browser.cookies();
+        // console.log(`Cookies despues de hacer click en consulta unificada: `, cookie2);
+
     }
 
-    // Selecciona un User-Agent aleatorio
-    const randomIndex = Math.floor(Math.random() * userAgents.length);
+    async loadConfig() {
+    // User-Agents por defecto en caso de que .env no esté disponible
+    // const defaultUserAgents = [
+    //     { userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' },
+    //     { userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' }
+    // ];
+
+    // let userAgents;
+    
+    // try {
+    //     // Intenta cargar USER_AGENTS desde .env, si no existe usa los valores por defecto
+    //     userAgents = listUserAgents ? listUserAgents : defaultUserAgents;
+    // } catch (error) {
+    //     console.error('Error parsing USER_AGENTS from .env, using default agents:', error);
+    //     userAgents = defaultUserAgents;
+    // }
+
+    // // Selecciona un User-Agent aleatorio
+    // const randomIndex = Math.floor(Math.random() * userAgents.length);
     
     try {
         // await this.window.loadURL(this.link);
         this.page = await pie.getPage(this.browser, this.window);
-        await this.page.setUserAgent(userAgents[randomIndex].userAgent);
-        await this.page.goto(this.link);
+        // await this.page.setUserAgent(userAgents[randomIndex].userAgent);
+            await this.changeUserAgent();
+        // await this.page.goto(this.link);
     } catch (error) {
         console.error('Error during page navigation:', error);
         throw error; // Opcional: relanzar el error si quieres manejarlo fuera
     }
 }
 
+     async changeUserAgent() {
+        try {
+            const randomIndex = Math.floor(Math.random() * listUserAgents.length);
+            const customUA = listUserAgents[randomIndex];
+            logger.info(`User agent elegido ${customUA}`);
+            await this.page.setUserAgent(customUA);
+        } catch (error) {
+            console.error('Error cambiando el userAgent', error.message);
+        }
+    }
+
     async loadPageWithRetries(maxRetries = 3) {
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
             try {
                 console.log(`Intento ${attempt} de carga de página...`);
                 await this.page.goto(this.link, { waitUntil: 'networkidle2' });
+
+                // await this.goToMainPage();
+                logger.info('Buscando selector #comptencia');
+
                 await this.page.waitForSelector('#competencia');
                 console.log(`Página cargada exitosamente en el intento ${attempt}`);
                 return; // Salir de la función si se carga correctamente
             } catch (error) {
-                console.error(`Error al cargar la página (intento ${attempt}):`, error.message);
+                logger.warn(`Error al cargar la página (intento ${attempt}): ${error.message}`);
                 if (attempt === maxRetries) {
                     throw new Error(`No se pudo cargar la página después de ${maxRetries} intentos`);
                 }

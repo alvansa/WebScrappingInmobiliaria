@@ -231,7 +231,7 @@ class MapasSII {
 
         } catch (error) {
             console.error("Error al buscar el elemento:", error);
-            caso.avaluoPropiedad = null;
+            // caso.avaluoPropiedad = null;
 
         }
     }

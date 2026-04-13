@@ -8,7 +8,7 @@ const tribunalesPorCorte = {
   ],
   // Arica
   10: [
-    { value: "0", nombre: "Todos" },
+    // { value: "0", nombre: "Todos" },
     { value: "2", nombre: "1º Juzgado de Letras de Arica" },
     { value: "1400", nombre: "1º Juzgado De Letras de Arica ex 4°" },
     { value: "3", nombre: "2º Juzgado de Letras de Arica" },
@@ -18,7 +18,7 @@ const tribunalesPorCorte = {
   ],
   // Iquique
   11: [
-    { value: "0", nombre: "Todos" },
+    // { value: "0", nombre: "Todos" },
     { value: "6", nombre: "Juzgado de Letras y Gar. Pozo Almonte" },
     { value: "9", nombre: "1º Juzgado de Letras de Iquique" },
     { value: "10", nombre: "2º Juzgado de Letras de Iquique" },
@@ -26,7 +26,7 @@ const tribunalesPorCorte = {
   ],
   //Antofagasta
   15: [
-    { value: "0", nombre: "Todos" },
+    // { value: "0", nombre: "Todos" },
     { value: "13", nombre: "Juzgado de Letras Tocopilla" },
     { value: "14", nombre: "Juzgado de Letras y Gar. de María Elena" },
     { value: "16", nombre: "1º Juzgado de Letras de Calama" },
@@ -41,7 +41,7 @@ const tribunalesPorCorte = {
   ],
   //Copiapó
   20: [
-    { value: '0', nombre: 'Todos' },
+    // { value: '0', nombre: 'Todos' },
     { value: '27', nombre: 'Juzgado de Letras y Gar. de Chañaral' },
     { value: '29', nombre: 'Juzgado de Letras de Diego de Almagro' },
     { value: '31', nombre: '1º Juzgado de Letras de Copiapó' },
@@ -55,7 +55,7 @@ const tribunalesPorCorte = {
   ],
   //La Serena
   25: [
-    { value: '0', nombre: 'Todos' },
+    // { value: '0', nombre: 'Todos' },
     { value: '40', nombre: '1º Juzgado de Letras de la Serena' },
     { value: '41', nombre: '2º Juzgado de Letras de la Serena' },
     { value: '42', nombre: '3º Juzgado de Letras de la Serena' },
@@ -73,7 +73,7 @@ const tribunalesPorCorte = {
   ],
   //Valparaiso
   30: [
-    { value: '0', nombre: 'Todos' },
+    // { value: '0', nombre: 'Todos' },
     { value: '56', nombre: '1º Juzgado Civil de Valparaíso' },
     { value: '55', nombre: '2º Juzgado Civil de Valparaíso' },
     { value: '54', nombre: '3º Juzgado Civil de Valparaíso' },
@@ -104,7 +104,7 @@ const tribunalesPorCorte = {
   ],
   //Rancagua
   35: [
-    { value: '0', nombre: 'Todos' },
+    // { value: '0', nombre: 'Todos' },
     { value: '110', nombre: '1º Juzgado Civil de Rancagua' },
     { value: '969', nombre: '2º Juzgado Civil de Rancagua' },
     { value: '111', nombre: '1º Juzgado de Letras de Rengo' },
@@ -120,7 +120,7 @@ const tribunalesPorCorte = {
   ],
   //Talca
   40: [
-    { value: '0', nombre: 'Todos' },
+    // { value: '0', nombre: 'Todos' },
     { value: '122', nombre: '1º Juzgado de Letras de Talca' },
     { value: '123', nombre: '2º Juzgado de Letras de Talca' },
     { value: '124', nombre: '3º Juzgado de Letras de Talca' },
@@ -141,7 +141,7 @@ const tribunalesPorCorte = {
   ],
   //Chillan
   45: [
-    { value: '0', nombre: 'Todos' },
+    // { value: '0', nombre: 'Todos' },
     { value: '145', nombre: '1º Juzgado Civil de Chillán' },
     { value: '146', nombre: '2º Juzgado Civil de Chillán' },
     { value: '147', nombre: '1º Juzgado de Letras de San Carlos' },
@@ -152,7 +152,7 @@ const tribunalesPorCorte = {
   ],
   //Concepción
   46: [
-    { value: '0', nombre: 'Todos' },
+    // { value: '0', nombre: 'Todos' },
     { value: '154', nombre: '1º Juzgado de Letras de Los Angeles' },
     { value: '155', nombre: '2º Juzgado de Letras de Los Angeles' },
     { value: '156', nombre: '2° Juzgado de Letras de Los Angeles ex 3°' },
@@ -180,7 +180,7 @@ const tribunalesPorCorte = {
   ],
   //Temuco
   50: [
-    { value: '0', nombre: 'Todos' },
+    // { value: '0', nombre: 'Todos' },
     { value: '197', nombre: '1º Juzgado Civil de Temuco' },
     { value: '198', nombre: '2º Juzgado Civil de Temuco' },
     { value: '204', nombre: 'Juzgado de Letras de Angol' },
@@ -201,7 +201,7 @@ const tribunalesPorCorte = {
   ],
   //Valdivia
   55: [
-    { value: '0', nombre: 'Todos' },
+    // { value: '0', nombre: 'Todos' },
     { value: '220', nombre: '1º Juzgado Civil de Valdivia' },
     { value: '221', nombre: '2º Juzgado Civil de Valdivia' },
     { value: '222', nombre: 'Juzgado de Letras de Mariquina' },
@@ -216,7 +216,7 @@ const tribunalesPorCorte = {
   ],
   //Puerto Montt
   56: [
-    { value: '0', nombre: 'Todos' },
+    // { value: '0', nombre: 'Todos' },
     { value: '237', nombre: '1º Juzgado Civil de Puerto Montt' },
     { value: '1012', nombre: '2º Juzgado Civil de Puerto Montt' },
     { value: '238', nombre: 'Juzgado de Letras de Puerto Varas' },
@@ -232,7 +232,7 @@ const tribunalesPorCorte = {
   ],
   //Coyhaique
   60: [
-    { value: '0', nombre: 'Todos' },
+    // { value: '0', nombre: 'Todos' },
     { value: '246', nombre: '1º Juzgado de Letras de Coyhaique' },
     { value: '247', nombre: '1º Juzgado de Letras de Coyhaique Ex 2º' },
     { value: '248', nombre: 'Juzgado de Letras y Gar.de pto.Aysen' },
@@ -242,7 +242,7 @@ const tribunalesPorCorte = {
   ],
   //Punta Arenas
   61: [
-    { value: '0', nombre: 'Todos' },
+    // { value: '0', nombre: 'Todos' },
     { value: '253', nombre: '1º Juzgado de Letras de Punta Arenas' },
     { value: '254', nombre: '2º Juzgado de Letras de Punta Arenas' },
     { value: '255', nombre: '3º Juzgado de Letras de Punta Arenas' },
@@ -252,7 +252,7 @@ const tribunalesPorCorte = {
   ],
   //Santiago
   90: [
-    { value: '0', nombre: 'Todos' },
+    // { value: '0', nombre: 'Todos' },
     { value: '259', nombre: '1º Juzgado Civil de Santiago' },
     { value: '260', nombre: '2º Juzgado Civil de Santiago' },
     { value: '261', nombre: '3º Juzgado Civil de Santiago' },
@@ -287,7 +287,7 @@ const tribunalesPorCorte = {
   ],
   //San Miguel
   91: [
-    { value: '0', nombre: 'Todos' },
+    // { value: '0', nombre: 'Todos' },
     { value: '343', nombre: '1º Juzgado Civil de San Miguel' },
     { value: '344', nombre: '2º Juzgado Civil de San Miguel' },
     { value: '345', nombre: '3º Juzgado Civil de San Miguel' },
