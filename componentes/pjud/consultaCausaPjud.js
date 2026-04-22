@@ -21,8 +21,12 @@ const ERROR = 0;
 const EXITO = 1;
 const DELAY_RANGE = {"min": 2, "max" : 5}
 
+const OBTAIN_DATA = 0
+const CHECK_FPMG = 1
+const CHECK_DEUDA = 2
+
 class ConsultaCausaPjud{
-    constructor(browser,window,caso,mainWindow){
+    constructor(browser,window,caso,mainWindow,mode){
         this.browser = browser;
         this.window = window;
         this.caso = caso;
@@ -40,6 +44,7 @@ class ConsultaCausaPjud{
         this.pdfPath = '';
         this.PjudData = new PjudPdfData(this.caso,mainWindow);
         this.PAGADO = {daCuenta: false, pagadoCredito: false}
+        this.mode = mode
     }
 
     async getConsulta(){
@@ -91,40 +96,22 @@ class ConsultaCausaPjud{
     }
 
     async loadConfig() {
-    // User-Agents por defecto en caso de que .env no esté disponible
-    // const defaultUserAgents = [
-    //     { userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' },
-    //     { userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' }
-    // ];
-
-    // let userAgents;
-    
-    // try {
-    //     // Intenta cargar USER_AGENTS desde .env, si no existe usa los valores por defecto
-    //     userAgents = listUserAgents ? listUserAgents : defaultUserAgents;
-    // } catch (error) {
-    //     console.error('Error parsing USER_AGENTS from .env, using default agents:', error);
-    //     userAgents = defaultUserAgents;
-    // }
-
-    // // Selecciona un User-Agent aleatorio
-    // const randomIndex = Math.floor(Math.random() * userAgents.length);
-    
-    try {
-        // await this.window.loadURL(this.link);
-        this.page = await pie.getPage(this.browser, this.window);
-        // await this.page.setUserAgent(userAgents[randomIndex].userAgent);
+        try {
+            // await this.window.loadURL(this.link);
+            this.page = await pie.getPage(this.browser, this.window);
+            // await this.page.setUserAgent(userAgents[randomIndex].userAgent);
             await this.changeUserAgent();
-        // await this.page.goto(this.link);
-    } catch (error) {
-        console.error('Error during page navigation:', error);
-        throw error; // Opcional: relanzar el error si quieres manejarlo fuera
-    }
+            // await this.page.goto(this.link);
+        } catch (error) {
+            console.error('Error during page navigation:', error);
+            throw error; // Opcional: relanzar el error si quieres manejarlo fuera
+        }
 }
 
      async changeUserAgent() {
         try {
             const randomIndex = Math.floor(Math.random() * listUserAgents.length);
+            logger.info(`Numero de UserAgent elegido ${randomIndex}`);
             const customUA = listUserAgents[randomIndex];
             logger.info(`User agent elegido ${customUA}`);
             await this.page.setUserAgent(customUA);
@@ -310,8 +297,8 @@ class ConsultaCausaPjud{
             return false;
         }
 
-        const estadoCaso = await this.checkIfCaseIsConcluded();
-        console.log("Estado actual del caso: ", estadoCaso)
+        // const estadoCaso = await this.checkIfCaseIsConcluded();
+        // console.log("Estado actual del caso: ", estadoCaso)
 
         //Se selecciona el cuaderno de apremio o en caso de que no este el principal.
         const selectedCuaderno = await this.selectCuaderno();

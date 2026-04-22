@@ -47,9 +47,10 @@ class Economico {
             await this.setRealisticHeaders()
 
             //Con puppeter obtiene los casos de economico buscando pagina por pagina
-            const result = await this.extractInfoPage();
+            await this.extractInfoPage();
             console.log(`Casos a revisar : ${this.casosARevisar.length}`)
             await delay(2000);
+
             let counter = 0;
 
 
@@ -64,10 +65,6 @@ class Economico {
                 } else {
                     console.log("No se pudo obtener la descripción para el caso: ", caso);
                 }
-                // if (counter % 200 == 0) {
-                //     console.log("Terminando por ahora para test");
-                //     break;
-                // }
                 if (counter % 2 == 0) {
                     await fakeDelay(15, 45, true);
                     await this.changeUserAgent();
@@ -317,13 +314,7 @@ class Economico {
             const casoObj = new Caso(fechaHoyCaso, fechaPublicacion, announcement, EMOL);
             casoObj.fechaRemate = currentCase.fechaRemate;
 
-            // if (this.isTestMode) {
-            //     this.casosARevisar.push(casoObj);
-            // } else if (!casoObj.fechaRemate || (casoObj.fechaRemate >= this.originStartDate && casoObj.fechaRemate <= this.originEndDate)) {
-            //     this.casosARevisar.push(casoObj);
-            // }
             this.casosARevisar.push(casoObj);
-
         }
     }
 

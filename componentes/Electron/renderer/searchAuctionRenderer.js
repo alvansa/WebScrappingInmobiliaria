@@ -1,3 +1,4 @@
+
 const searchButton = document.getElementById('logButton');
 
 searchButton.addEventListener('click', async () => {
@@ -37,7 +38,8 @@ function getCheckedBoxes() {
     economico: document.getElementById('economicos').checked,
     PYL: document.getElementById('PYL').checked,
     liquidaciones: document.getElementById('liquidaciones').checked,
-    preremates: document.getElementById('preremates').checked
+    preremates: document.getElementById('preremates').checked,
+    capitalRemates:  document.getElementById('capitalremates').checked
   }
 }
 

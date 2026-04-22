@@ -28,14 +28,19 @@ class StringHelper{
         if(juzgado == "N/A" || juzgado == null){
             return null;
         }
-        return juzgado.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
+        return juzgado.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim().toLowerCase()
     }
 
     static direccion(direccion){
         if(direccion == "N/A" || direccion == null){
             return null;
         }
-        return direccion.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
+        const direccionNormalizada = direccion
+        .replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .replace(/Remate\s*/g,'')
+        .trim();
+        return direccionNormalizada
     }
 
     static partes(partes,origen){

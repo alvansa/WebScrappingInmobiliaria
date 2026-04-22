@@ -101,34 +101,30 @@ class createExcel {
         // Revisa si el archivo base ya existe
         if (!fs.existsSync(path.join(this.saveFile, `Remates.xlsx`))) {
             this.crearBase(this.saveFile);
-            console.log(`Archivo creado`);
         }
         // Lee el archivo base para poder insertar los datos
         const wb = XLSX.readFile(path.join(this.saveFile, `Remates.xlsx`));
         const ws = wb.Sheets[`Remates`];
         createExcel.cambiarAnchoColumnas(ws);
-
+        let lastRow = 5; // Comienza después de la fila de encabezado
         try {
             if (this.type === "one") {
-                const lastRow = this.fillWithOne(ws, casos);
-                ws[`!ref`] = RANGO_EXCEL + lastRow;
+                lastRow = this.fillWithOne(ws, casos);
                 filePath = path.join(this.saveFile, `Caso_` + casos.causa + casos.juzgado + '.xlsx');
             } else if (this.type === "oneDay") {
-                let lastRow = this.insertCasos(casos, ws) - 1;
-                ws[`!ref`] = RANGO_EXCEL + lastRow;
+                lastRow = this.insertCasos(casos, ws) - 1;
                 filePath = path.join(this.saveFile, name + `.xlsx`);
             }else if (this.type === "macal") {
-                let lastRow = this.insertMacal(casos,ws);
-                ws[`!ref`] = RANGO_EXCEL + lastRow;
+                lastRow = this.insertMacal(casos,ws);
                 const dateToday = `1-1-25`
                 filePath = path.join(this.saveFile, `Remates_macal_` + dateToday + '.xlsx');
             }else {
-                let lastRow = await this.insertarCasosExcel(casos, ws) - 1;
-                ws[`!ref`] = RANGO_EXCEL + lastRow;
+                lastRow = await this.insertarCasosExcel(casos, ws) - 1;
                 const fechaInicioDMA = cambiarFormatoFecha(this.startDate);
                 const fechaFinDMA = cambiarFormatoFecha(this.endDate);
                 filePath = path.join(this.saveFile, `Remates_` + fechaInicioDMA + '_a_' + fechaFinDMA + '.xlsx');
             }
+            ws[`!ref`] = RANGO_EXCEL + lastRow;
             console.log(`Guardando archivo en : ${filePath}`);
             XLSX.writeFile(wb, filePath, {cellDates: true});
             return filePath;
@@ -262,6 +258,7 @@ class createExcel {
     }
 
     async insertarCasosExcel(casos, ws) {
+        //TODO: Cambiar esto para que quede claro que es un map
         let remates = new Map();
         let currentRow = 6;
 
@@ -278,17 +275,17 @@ class createExcel {
                 caso.fechaPublicacion = fechaMenosUno(this.endDate);
             }
             if(this.getValidAuctions(caso, remates) || this.isTestMode){
-            // if(this.getValidAuctions(caso, remates)){
                 this.addObjectToSet(remates,caso);
+                console.log(`Caso agregado: ${caso.causa} - ${caso.juzgado}`);
+            }else{
+                console.log(`Caso no agregado por validacion: ${caso.causa} - ${caso.juzgado}`);
             }
         }
-        console.log("Total de casos en remates: ", remates.size);
 
         // Se escriben todos los casos revisados en la hoja, para eso primero se transforman a
         // objetos para verificar la normalizacion
         for (let caso of remates) {
             const casoObj = caso[1].toObject()
-
             insertarCasoIntoWorksheet(casoObj, ws, currentRow);
             currentRow++;
         }
@@ -329,7 +326,7 @@ class createExcel {
         // Si la fecha de remate es menor a la fecha de inicio, o mayor a la final
         if (currentCase.fechaRemate && (currentCase.fechaRemate < this.fixedStartDate || currentCase.fechaRemate > this.fixedEndDate )) {
         // if (currentCase.fechaRemate && (currentCase.fechaRemate < fechaInicioTest || currentCase.fechaRemate > fechaInicioTest )) {
-            // console.log(`No guardado por fecha remate ${currentCase.causa}`);
+            console.log(`No guardado por fecha remate ${currentCase.causa} fecha remate: ${currentCase.fechaRemate} fecha inicio: ${this.fixedStartDate} fecha fin: ${this.fixedEndDate}`);
             return false;
         }
         // No se escriben casos de juez partidor
@@ -342,10 +339,6 @@ class createExcel {
         if(caseDB){
             currentCase = Caso.bindCaseWithDB(currentCase,caseDB);
         }
-
-        // if (currentCase.tipoPropiedad === "Estacionamiento") {
-        //     return true;
-        // }
         return true;
     }
 
@@ -453,20 +446,19 @@ function writeLine(ws, row, col, value, type) {
 }
 
 function insertarCasoIntoWorksheet(caso, ws, currentRow) {
-    let newRol = caso.rolPropiedad;
     if (caso.fechaPublicacion && caso.fechaPublicacion instanceof Date) {
         ws[`${config.INICIO}` + currentRow] = { v: caso.fechaPublicacion, t: 'd', z: 'dd/mm/yyyy' };
     }
-    // console.log("Fecha de obtenion : ", caso.fechaObtencion, "Tipo :", typeof caso.fechaObtencion);
     if (caso.fechaObtencion && caso.fechaObtencion instanceof Date) {
         ws[`${config.FECHA_DESC}` + currentRow] = { v: caso.fechaObtencion, t: 'd', z: 'dd/mm/yyyy' };
     }
     writeLine(ws, `${config.ORIGEN}`, currentRow, caso.link, 's');
-    // ws[`E`+ currentRow ] = {v: 'notas ', t: 's'};
+
     if (caso.fechaRemate && caso.fechaRemate instanceof Date) {
         ws[`${config.FECHA_REM}` + currentRow] = { v: caso.fechaRemate, t: 'd', z: 'DD/MM/YYYY' };
     }
     writeLine(ws, `${config.MARTILLERO}`, currentRow, caso.martillero, 's');
+
     if (caso.tipoDerecho) {
         writeLine(ws, `${config.MARTILLERO}`, currentRow, caso.tipoDerecho, 's');
     } else if (caso.isPaid) {
@@ -474,10 +466,8 @@ function insertarCasoIntoWorksheet(caso, ws, currentRow) {
     } else if (caso.isAvenimiento) {
         writeLine(ws, `${config.MARTILLERO}`, currentRow, "(Avenimiento)", 's');
     }
-    // Revisamos si el caso tiene estacionamiento o bodega, y adaptamos la direccion
-    // const newDireccion = this.checkEstacionamientoBodega(caso)
-    writeLine(ws, `${config.DIRECCION}`, currentRow, caso.unitDireccion, 's');
 
+    writeLine(ws, `${config.DIRECCION}`, currentRow, caso.unitDireccion, 's');
     writeLine(ws, `${config.CAUSA}`, currentRow, caso.causa, 's');
     writeLine(ws, `${config.TRIBUNAL}`, currentRow, caso.juzgado, 's');
     writeLine(ws, `${config.COMUNA_TRIBUNAL}`, currentRow, getComunaJuzgado(caso.juzgado), 's');
@@ -487,7 +477,7 @@ function insertarCasoIntoWorksheet(caso, ws, currentRow) {
     writeLine(ws, `${config.DATO}`, currentRow, caso.metros, 's');
     writeLine(ws, `${config.VV_O_CUPON}`, currentRow, caso.formatoEntrega, 's');
     writeLine(ws, `${config.PORCENTAJE}`, currentRow, caso.porcentaje, 's');
-    writeLine(ws, `$${config.PLAZOVV}`, currentRow, caso.diaEntrega, 's');
+    writeLine(ws, `${config.PLAZOVV}`, currentRow, caso.diaEntrega, 's');
     // ws[`T`+ currentRow ] = {v: caso.rolPropiedad, t: 's'};
     // ws[`U`+ currentRow ] = {v: 'deuda 2 ', t: 's'};
     // ws[`V`+ currentRow ] = {v: 'deuda 3 ', t: 's'};

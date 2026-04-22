@@ -11,6 +11,11 @@ class CasoBuilder{
         return this;
     }
 
+    conDireccion(direccion){
+        this.caso.direccion = direccion;
+        return this;
+    }
+
     conJuzgado(juzgado){
         this.caso.juzgado = juzgado;
         return this;
@@ -63,6 +68,12 @@ class CasoBuilder{
         this.caso.montoMinimo = montoMinimo;
         return this;
     }
+
+    conMoneda(moneda){
+        this.caso.moneda = moneda;
+        return this;
+    }
+
     conPrecioCompra(precioCompra){
         this.caso.precioCompra = precioCompra;
         return this;
@@ -72,6 +83,27 @@ class CasoBuilder{
         this.caso.propio = propio;
         return this;
     }
+
+    conLinkMap(linkMap){
+        this.caso.linkMap = linkMap;
+        return this;
+    }
+
+    conFormatoEntrega(formatoEntrega){
+        this.caso.formatoEntrega = formatoEntrega;
+        return this;
+    }
+
+    conTipoDerecho(tipoDerecho){
+        this.caso.tipoDerecho = tipoDerecho;
+        return this;
+    }
+
+    conDiaEntrega(diaEntrega){  
+        this.caso.diaEntrega = diaEntrega;
+        return this;
+    }   
+
 
     construir(){
         return this.caso;

@@ -323,8 +323,8 @@ class ConsultaCausaPjud {
         }
 
         //Funcion que actualmente no esta en uso porque nose si esta concluido el caso implica algo
-        const estadoCaso = await this.checkIfCaseIsConcluded();
-        console.log("Estado actual del caso: ", estadoCaso);
+        // const estadoCaso = await this.checkIfCaseIsConcluded();
+        // console.log("Estado actual del caso: ", estadoCaso);
 
         //Se selecciona el cuaderno de apremio o en caso de que no este el principal.
         const selectedCuaderno = await this.selectCuaderno();
@@ -541,7 +541,7 @@ class ConsultaCausaPjud {
     async searchDataInRow(row) {
         try {
             //TODO: elimnar la variable llamada uselessFile ya que no se esta usando para nada, se dejo para pruebas pero ya no es necesaria
-            const [number, uselessFile, directory, dirHasLink, stage, tramite, descripcion, fecha] = await Promise.all([
+            const [number, uselessFile, directory, dirHasLink, stage, tramite, descripcion, fecha, linkToDir] = await Promise.all([
                 row.$eval("td:nth-child(1)", (el) => el.textContent.trim()),
                 row.$eval("td:nth-child(2)", (el) => el.textContent.trim()),
                 row.$eval("td:nth-child(3)", (el) => el.textContent.trim()),
@@ -550,22 +550,21 @@ class ConsultaCausaPjud {
                 row.$eval("td:nth-child(5)", (el) => el.textContent.trim()),
                 row.$eval("td:nth-child(6)", (el) => el.textContent.trim()),
                 row.$eval("td:nth-child(7)", (el) => el.textContent.trim()),
+                row.$("td:nth-child(3) a")
             ]);
 
             if (dirHasLink) {
                 logger.info(`El numero ${number} tiene directorio se hace click`);
 
                 await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
-                const linkToDir = await row.$("td:nth-child(3) a");
-                linkToDir.click();
+                // const linkToDir = await row.$("td:nth-child(3) a");
+                await linkToDir.click();
                 await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
 
                 //TODO: Separar la busqueda y descarga del pdf?
-                const caseIsFinished = await this.downloadPdfFile();
-                // if (caseIsFinished) {
-                //     return true;
-                // }
-                const xSelector = "#modalDetalleCivil > div > div > div.modal-header > button";
+                await this.downloadPdfFile();
+
+                const xSelector = "#modalAnexoSolicitudCivil > div > div > div.modal-header > button";
                 const xButton = await this.page.$(xSelector);
                 if (xButton) {
                     await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
@@ -574,7 +573,7 @@ class ConsultaCausaPjud {
                     return false;
                 }
             }
-            logger.info("Fila:", number, uselessFile, directory, stage, tramite, descripcion, fecha);
+            logger.info(`Fila: ${number}, ${uselessFile}, ${directory}, ${stage}, ${tramite}, ${descripcion}, ${fecha}`);
             this.checkDescription(descripcion);
 
             return false;
@@ -588,36 +587,22 @@ class ConsultaCausaPjud {
         const lowerCaseDesc = descripcion.toLowerCase();
         let PAGADO = { daCuenta: false, pagadoCredito: false };
         if (lowerCaseDesc.includes("da cuenta de pago")) {
-            console.log(
-                "******************\nel caso tiene pago, se procede a marcarlo como pagado con: ",
-                descripcion,
-                "\n******************",
-            );
             PAGADO.daCuenta = true;
         }
         if (
             lowerCaseDesc.includes("tiene por pagado el crédito") ||
             lowerCaseDesc.includes("término por avenimiento")
-        ) {
-            console.log(
-                "******************\nel caso tiene por pagado el credito con: ",
-                descripcion,
-                "\n******************",
-            );
+        ){
             PAGADO.pagadoCredito = true;
         }
         if (PAGADO.daCuenta && PAGADO.pagadoCredito) {
             this.caso.isPaid = true;
         }
         if (lowerCaseDesc.includes("avenimiento")) {
-            console.log(
-                "******************\nel caso tiene avenimiento, se procede a marcarlo como avenimiento con: ",
-                descripcion,
-                "\n******************",
-            );
             this.caso.isAvenimiento = true;
         }
     }
+
 
     async downloadPdfFile() {
         let isDone = false;
@@ -652,11 +637,7 @@ class ConsultaCausaPjud {
                     const linkToPdf =
                         "https://oficinajudicialvirtual.pjud.cl/ADIR_871/civil/documentos/anexoDocCivil.php?dtaDoc=" +
                         valuePdf;
-                    isDone = await this.downloadPdfFromUrl(linkToPdf);
-                    if (isDone) {
-                        return true;
-                    }
-                    // return true;
+                    await this.downloadPdfFromUrl(linkToPdf);
                 }
             }
             return false;
@@ -809,15 +790,9 @@ class ConsultaCausaPjud {
             //Dado el resultado descargado del pdf, se procesa la información para obtener los datos necesarios para el caso.
             if (resultado) {
                 this.PjudData.processInfo(resultado);
-            } else {
-                return false;
             }
             pdfWindow.destroy();
-            // if (resultOfProcess) {
-            //     console.log("Caso completo");
-            //     return true;
-            // }
-            // return false;
+
         } catch (error) {
             console.error("Error al hacer la petición:", error.message);
             // return false;

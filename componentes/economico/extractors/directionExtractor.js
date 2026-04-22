@@ -56,7 +56,6 @@ function extractDirection(data) {
             }
         }
 
-
         // direccionFinal = obtainFinalDirection(direccionTemporal, regexEndByRegion);
 
         // const indexComuna = obtainIndexByRegex(direccionTemporal, comuna)

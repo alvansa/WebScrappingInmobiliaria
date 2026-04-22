@@ -8,6 +8,7 @@ const MapasSII = require('../../mapasSII/MapasSII.js');
 const ProcesarBoletin = require('../../liquidaciones/procesarBoletin.js');
 const PublicosYLegales = require('../../publicosYlegales/publicosYLegales.js');
 const Pjud = require('../../pjud/getPjud.js');
+const CapitalRemates = require('../../capitalRemates/capitalRemates.js');
 const GestorRematesPjud = require('../../pjud/GestorRematesPjud.js')
 const SpreadSheetManager = require('../../spreadSheet/SpreadSheetManager.js');
 const dataInmobiliaria = require('../../dataInmobiliaria/obtainDataInmobilaria.js');
@@ -44,6 +45,7 @@ class scrapeAuction {
         let casosBoletin = [];
         let casosPYL = [];
         let casosPJUD = [];
+        let casosCapitalRemates = [];
         let spreadSheetData = null;
         const fechaHoy = new Date();
         await this.launchPuppeteer_inElectron();
@@ -59,6 +61,7 @@ class scrapeAuction {
             // casosPreremates = await this.getCasosPreremates(checkedBoxes.preremates),
             casosBoletin = await this.getCasosBoletin(this.startDate, this.endDate, fechaHoy, this.checkedBoxes.liquidaciones),
             casosPYL = await this.getPublicosYLegales(this.startDate, this.endDate, fechaHoy, this.checkedBoxes.PYL),
+            casosCapitalRemates = await this.getCapitalRemates(this.startDate, this.endDate, this.checkedBoxes.capitalRemates);
 
                 logger.info('Casos obtenidos por fuente');
 
@@ -71,11 +74,11 @@ class scrapeAuction {
                 // casosEconomico = await this.getCasosEconomico(this.startDate, this.endDate, this.checkedBoxes.economico);
             }
 
-            casos = [...casosPreremates, ...casosBoletin, ...casosPYL, ...casosPJUD];
+            casos = [...casosPreremates, ...casosBoletin, ...casosPYL, ...casosPJUD, ...casosCapitalRemates];
 
             //Luego de obtener los casos de emol se revisaran los casos obtenidos en pjud
             if(!this.isTestMode){
-                casosEconomico = await this.searchEmolAuctionsInPjud(casosEconomico);
+                // casosEconomico = await this.searchEmolAuctionsInPjud(casosEconomico);
             }
 
             //Agrega los casos de economico al listado general despues de la busqueda en pjud
@@ -254,6 +257,19 @@ class scrapeAuction {
             }
             return casos;
         }
+    }
+
+    async getCapitalRemates(fechaInicioStr, fechaFinStr, capitalRematesChecked) {
+        logger.info(`Obteniendo casos de Capital Remates desde: ${fechaInicioStr} hasta: ${fechaFinStr}, capitalRematesChecked: ${capitalRematesChecked}`);
+        if (!capitalRematesChecked) {
+            return [];
+        }
+        let casos = [];
+        // let startDate = stringToDate(fechaInicioStr);
+        // let endDate = stringToDate(fechaInicioStr);
+
+        casos = await CapitalRemates.getRemates(fechaInicioStr, fechaFinStr);
+        return casos;
     }
 
     async getCasosPjud(startDateOrigin, endDateOrigin, PJUDChecked, event) {

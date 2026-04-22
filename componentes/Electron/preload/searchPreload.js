@@ -4,6 +4,7 @@ contextBridge.exposeInMainWorld('searchAPI', {
   // Funcion del proceso principal que obtiene los remates publicas en las fuentes seleccionadas
   // entre las fechas seleccionadas.
     startProcess: async (startDate, endDate, saveFile, checkedBoxes) => {
+        console.log(`Start Date: ${startDate}, End Date: ${endDate}`);
         try {
             if (!startDate && !endDate) {
                 console.log("No se ingresaron fechas");

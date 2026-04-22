@@ -64,11 +64,15 @@ class checkFPMG {
         console.log('enviando el mensaje de progreso al renderer')
         this.sender.send('checkFPMG-progress', { type: 'status', message: `Obteniendo información de ${this.casos.length} casos...` });
 
-        //Search and process each cause
+        //TODO : agregar parte de consultaCausaPjid
+        // const webScrapper = new ConsultaCausaPjud()
+
+
+        // Search and process each cause
         await this.processList();
 
-        //Write each cause that had changes in the last week
-        this.writeChangesDeuda();
+        // //Write each cause that had changes in the last week
+        // this.writeChangesDeuda();
 
         console.log("Proceso Finalizado")
         return true;
@@ -304,6 +308,9 @@ class checkFPMG {
                 }
                 const result = await this.consultaCausa(caso);
 
+                if(counter > 5){
+                    return;
+                }
                 if ((counter + 1) < this.casos.length) {
                     const awaitTime = Math.random() * (90 - 30) + 30; // Genera un número aleatorio entre 30 y 90
                     mainWindow.webContents.send('aviso-espera', [awaitTime, counter + 1, this.casos.length]);
@@ -371,25 +378,6 @@ class checkFPMG {
     // }
 
     async loadConfig() {
-        // User-Agents por defecto en caso de que .env no esté disponible
-        // const defaultUserAgents = [
-        //     { userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' },
-        //     { userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' }
-        // ];
-
-        // let userAgents;
-
-        // try {
-        //     // Intenta cargar USER_AGENTS desde .env, si no existe usa los valores por defecto
-        //     userAgents = process.env.USER_AGENTS ? JSON.parse(process.env.USER_AGENTS) : defaultUserAgents;
-        // } catch (error) {
-        //     console.error('Error parsing USER_AGENTS from .env, using default agents:', error);
-        //     userAgents = defaultUserAgents;
-        // }
-
-        // // Selecciona un User-Agent aleatorio
-        // const randomIndex = Math.floor(Math.random() * userAgents.length);
-
         
         try {
             await this.window.loadURL(this.link);

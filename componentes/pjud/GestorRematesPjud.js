@@ -45,11 +45,20 @@ class GestorRematesPjud{
                     console.log("Resultados del caso de prueba en pjud: ", caso.toObject());
                 }
 
-                if ((counter + 1) < this.casos.length) {
-                    const awaitTime = Math.random() * (90 - 30) + 30; // Genera un número aleatorio entre 30 y 90
+                if((counter + 1) % 5 == 0){
+                    const awaitTime = Math.random() * (180 - 45) + 45; // Genera un número aleatorio entre 30 y 90
                     // mainWindow.webContents.send('aviso-espera', [awaitTime, counter + 1, this.casos.length]);
                     console.log(`Esperando ${awaitTime} segundos para consulta numero ${counter + 1} de ${this.casos.length} ${secondlap}`);
                     await delay(awaitTime * 1000);
+                }else if ((counter + 1) < this.casos.length) {
+                    const awaitTime = Math.random() * (60 - 30) + 30; // Genera un número aleatorio entre 30 y 90
+                    // mainWindow.webContents.send('aviso-espera', [awaitTime, counter + 1, this.casos.length]);
+                    console.log(`Esperando ${awaitTime} segundos para consulta numero ${counter + 1} de ${this.casos.length} ${secondlap}`);
+                    await delay(awaitTime * 1000);
+                }
+
+                if(counter > 10){
+                    return 
                 }
             }
         }catch (error) {
