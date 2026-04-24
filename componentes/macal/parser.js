@@ -111,7 +111,6 @@ class PropertyParser {
                 )?.value?.trim() || null
             };
 
-            logger.info(`Successfully enriched property ID ${property.id} with additional details.`);
             return new enrichedProperty(enrichedData);
         }catch(error){
             logger.warn('Failed to enrich property details:', {

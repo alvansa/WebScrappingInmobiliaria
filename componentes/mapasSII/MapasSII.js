@@ -45,8 +45,6 @@ class MapasSII {
         }
         const manzana = roles[0];
         const predio = roles[1];
-        console.log("comuna: ", comuna, "manzana y predio: ", manzana, predio);
-        console.log("Rellenando formulario");
         // const predio = "12345678";
         const selectorManzana = 'input[data-ng-model="manzana"]';
         const selectorPredio = 'input[data-ng-model="predio"]';
@@ -66,7 +64,7 @@ class MapasSII {
             await this.page.type(selectorPredio, predio, { delay: Math.random() * 45 });
 
             await this.page.click('button[data-ng-click="validaBusqueda()"]');
-            console.log("Se hizo click Buscando");
+            // console.log("Se hizo click Buscando");
             await fakeDelay(1,2);
             await this.obtainMapValues(caso);
         } catch (error) {
@@ -76,7 +74,6 @@ class MapasSII {
     }
 
     async entryPage() {
-        console.log("Navegando a la página de Mapas SII");
         const defaultUserAgents = [
             { userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' },
             { userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' }
@@ -101,7 +98,6 @@ class MapasSII {
     }
 
     async entryPage2() {
-        console.log("Navegando a la página de Mapas SII");
         const defaultUserAgents = [
             // { userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' },
             // { userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' },
@@ -120,7 +116,6 @@ class MapasSII {
             userAgents = defaultUserAgents;
         }
 
-        console.log("User Agents cargados: ", userAgents.length);
         // Selecciona un User-Agent aleatorio
         const randomIndex = Math.floor(Math.random() * userAgents.length);
 
@@ -142,9 +137,7 @@ class MapasSII {
 
             if (!fs.existsSync(filePath)) {
                 console.error('❌ Archivo data.json no encontrado en:', filePath);
-            } else {
-                console.log("El archivo si existe")
-            }
+            } 
 
             const data = fs.readFileSync(filePath, 'utf8');
             const arrayString = JSON.parse(data);
@@ -187,17 +180,17 @@ class MapasSII {
             // Verificar si el mensaje de error está presente
             const errorElement = await this.page.$(divError);
             if (errorElement) {
-                console.log("Elemnto fallido econtrado");
+                // console.log("Elemnto fallido econtrado");
                 const errorText = await this.page.evaluate(el => el.textContent, errorElement);
                 if (errorText.includes("No se pudo encontrar")) {
-                    console.log("La búsqueda falló:", errorText);
+                    // console.log("La búsqueda falló:", errorText);
                     // Hacer clic en el botón de cerrar
                     const cerrarButton = await this.page.$(botonCerrar);
                     if (cerrarButton) {
                         await cerrarButton.click();
-                        console.log("Botón de cerrar clickeado.");
+                        // console.log("Botón de cerrar clickeado.");
                     } else {
-                        console.log("No se encontró el botón de cerrar.");
+                        // console.log("No se encontró el botón de cerrar.");
                     }
                     // caso.avaluoPropiedad = null; // O puedes asignar un valor por defecto
                     delay(500);
@@ -214,13 +207,13 @@ class MapasSII {
                 const element = document.querySelector("#mapaid > div.leaflet-pane.leaflet-map-pane > div.leaflet-pane.leaflet-popup-pane > div > div.leaflet-popup-content-wrapper > div > font:nth-child(3) > center");
                 return element ? element.innerText : null;
             });
-            console.log("Coordenadas: ", coordenadas);
+            // console.log("Coordenadas: ", coordenadas);
             if(coordenadas){
                 coordenadas = coordenadas.replace(/\s+/g," ").trim();
-                console.log("Coordenadas limpias: ", coordenadas);
+                // console.log("Coordenadas limpias: ", coordenadas);
                 const [lat, long] = coordenadas.split(" ");
                 caso.linkMap = `${baseLink}${lat},${long}`;
-                console.log("Link de Google Maps: ", caso.linkMap);
+                // console.log("Link de Google Maps: ", caso.linkMap);
             }
 
             if(!caso.avaluoPropiedad && avaluoTotal){

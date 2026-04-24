@@ -13,6 +13,7 @@ const GestorRematesPjud = require('../../pjud/GestorRematesPjud.js')
 const SpreadSheetManager = require('../../spreadSheet/SpreadSheetManager.js');
 const dataInmobiliaria = require('../../dataInmobiliaria/obtainDataInmobilaria.js');
 const DataEnricher = require('../../spreadSheet/DataEnricher.js');
+const MacalService = require('../../macal/macalService.js');
 const { stringToDate } = require('../../../utils/cleanStrings.js');
 const { createExcel } = require('../../excel/createExcel.js');
 const { obtainCorteJuzgadoNumbers } = require('../../../utils/corteJuzgado.js');
@@ -24,6 +25,7 @@ const config = require('../../../config.js');
 const { randomDelay } = require('../../../utils/stealth.js');
 
 const PJUD = config.PJUD;
+const MACAL = config.MACAL;
 
 class scrapeAuction {
     constructor(startDate, endDate, saveFile, checkedBoxes, event, isEmptyMode, mainWindow, isTestMode = false) {
@@ -46,6 +48,7 @@ class scrapeAuction {
         let casosPYL = [];
         let casosPJUD = [];
         let casosCapitalRemates = [];
+        let casosMacal = [];
         let spreadSheetData = null;
         const fechaHoy = new Date();
         await this.launchPuppeteer_inElectron();
@@ -58,7 +61,7 @@ class scrapeAuction {
 
             casosEconomico = await this.getCasosEconomico(this.startDate, this.endDate, this.checkedBoxes.economico);
             casosPJUD = await this.getCasosPjud(this.startDate, this.endDate, this.checkedBoxes.pjud, this.event)
-            // casosPreremates = await this.getCasosPreremates(checkedBoxes.preremates),
+            casosMacal = await this.getCasosMacal(this.startDate, this.endDate, this.checkedBoxes.macal);
             casosBoletin = await this.getCasosBoletin(this.startDate, this.endDate, fechaHoy, this.checkedBoxes.liquidaciones),
             casosPYL = await this.getPublicosYLegales(this.startDate, this.endDate, fechaHoy, this.checkedBoxes.PYL),
             casosCapitalRemates = await this.getCapitalRemates(this.startDate, this.endDate, this.checkedBoxes.capitalRemates);
@@ -74,7 +77,7 @@ class scrapeAuction {
                 // casosEconomico = await this.getCasosEconomico(this.startDate, this.endDate, this.checkedBoxes.economico);
             }
 
-            casos = [...casosPreremates, ...casosBoletin, ...casosPYL, ...casosPJUD, ...casosCapitalRemates];
+            casos = [...casosPreremates, ...casosBoletin, ...casosPYL, ...casosPJUD, ...casosCapitalRemates, ...casosMacal];
 
             //Luego de obtener los casos de emol se revisaran los casos obtenidos en pjud
             if(!this.isTestMode){
@@ -106,7 +109,7 @@ class scrapeAuction {
         enricher.enrichWithSpreadsheetData(casos, data);
         logger.info('Escribiendo casos');
         const createExcelFile = new createExcel(this.saveFile, this.startDate, this.endDate, this.emptyMode, null, this.isTestMode);
-        const filePath = createExcelFile.writeData(casos);
+        const filePath = await createExcelFile.writeData(casos);
         return filePath;
     }
 
@@ -167,29 +170,16 @@ class scrapeAuction {
         return casos
     }
 
-    async getCasosPreremates(prerematesChecked) {
-        if (!prerematesChecked) {
+    async getCasosMacal(fechaInicio, fechaFin, macalChecked){
+        if(!macalChecked){
             return [];
         }
+
         let casos = [];
-        const EMAIL = config.EMAIL;
-        const PASSWORD = config.PASSWORD;
-        try {
-            const window = new BrowserWindow({ show: true });
-            const url = 'https://preremates.cl/content/proximos-remates';
-            await window.loadURL(url);
-            const page = await pie.getPage(this.browser, window);
-            const preRemates = new PreRemates(EMAIL, PASSWORD, this.browser, page);
-            casos = await preRemates.getRemates();
-            window.destroy();
-            return casos;
-        } catch (error) {
-            console.error('Error al obtener resultados en preremates:', error);
-            if (window) {
-                window.destroy();
-            }
-            return casos;
-        }
+
+        casos = await MacalService.getPropertiesUntilDate(fechaFin);
+
+        return casos;
     }
 
     async getCasosBoletin(fechaInicioStr, fechaFinStr, fechaHoy, BoletinChecked) {
@@ -310,7 +300,7 @@ class scrapeAuction {
             mapasSII = new MapasSII(page, this.browser);
             await mapasSII.Secondinit();
             for (let caso of casos) {
-                if (caso.rolPropiedad !== null && caso.comuna !== null) {
+                if ((caso.rolPropiedad !== null && caso.comuna !== null) && caso.origen != MACAL ) {
                     try {
                         await mapasSII.obtainDataOfCause(caso);
                         await fakeDelay(2, 5);
@@ -323,8 +313,6 @@ class scrapeAuction {
             }
             // window.destroy();
         } catch (error) {
-            // console.error('Error al obtener resultados en Mapas:', error);
-            // console.log("valor del mapasSII cuando es error", mapasSII);
             logger.warn('Error al obtener resultados en Mapas:', error);
         } finally {
             if (mapasSII) {
@@ -336,14 +324,14 @@ class scrapeAuction {
      
     async obtainMetros(casos) {
         for (let caso of casos) {
-            logger.info(`Obteniendo metros para caso ${caso.causa} con rol ${caso.rolPropiedad} y comuna ${caso.comuna}`);
+            // logger.info(`Obteniendo metros para caso ${caso.causa} con rol ${caso.rolPropiedad} y comuna ${caso.comuna}`);
             if (caso.rolPropiedad !== null && caso.comuna !== null) {
                 try {
                     const metrosTotales = await dataInmobiliaria.obtenerMetrosTotales(caso.comuna, caso.rolPropiedad);
                     caso.metros = metrosTotales;
                     await fakeDelay(1, 3);
                 } catch (error) {
-                    console.error(`Error obteniendo metros para caso ${caso.rolPropiedad}:`, error.message);
+                    // console.error(`Error obteniendo metros para caso ${caso.rolPropiedad}:`, error.message);
                     continue;
                 }
             }

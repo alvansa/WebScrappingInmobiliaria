@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Info Remates</title>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="../../../css/styles.css">
+  </head>
+
+  <body class="bg-gray-100 flex justify-center items-center h-screen">
+  <!-- Vista de ventana principal -->
+    <div id = "mainView" class = "view active">
+
+    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+      <h1 class="text-2xl font-semibold text-center mb-4">Completar informacion de excel</h1>
+    
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Seleccionar archivo</label>
+        <div class="flex mt-1">
+          <input type="text" id="file-input" class="flex-1 border p-2 rounded-l-md bg-gray-100" readonly
+            placeholder="No se ha seleccionado ninguna carpeta">
+          <button id="select-folder-btn"
+            class="bg-blue-500 text-white px-4 py-2 rounded-r-md hover:bg-blue-600">Seleccionar</button>
+        </div>
+      </div>
+    
+      <div class="mb-4 flex gap-2">
+        <button id="completeInfo" class="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600">Completar Excel</button>
+      </div>
+    
+    
+    </div>
+  
+  <!-- SCRIPTS  -->
+    <script src="../renderer/completeInfoRenderer.js"></script>
+    <script>
+      function switchView(viewId) {
+      // Oculta todas las vistas
+      document.querySelectorAll('.view').forEach(view => {
+        view.classList.remove('active');
+      });
+      // Muestra la vista seleccionada
+      document.getElementById(viewId).classList.add('active');
+    }
+    </script>
+  </body>
+</html>

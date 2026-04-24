@@ -30,7 +30,8 @@ class WindowManager {
                 preload : path.join(__dirname, '../prod/preload.js'),
             },
             icon: path.join(__dirname, '../../assets/icon.png'),
-            show: false // Ocultar hasta que esté listo
+            show: false, // Ocultar hasta que esté listo
+            modal : false
         });
 
         mainWindow.loadFile(path.join(__dirname, '../windows/index.html'));
@@ -86,7 +87,6 @@ class WindowManager {
         });
 
         this.windows.set('search', searchWindow);
-        // return searchWindow;
     }
 
     createSingleCaseWindow() {
@@ -142,12 +142,13 @@ class WindowManager {
                 nodeIntegration: false,
                 contextIsolation: true,
                 enableRemoteModule: false,
-                preload : path.join(__dirname, '../prod/preload.js'),
+                preload : path.join(__dirname, '../preload/completeInfoPreload.js'),
             },
-            show: false
+            show: false,
+            parent: this.mainWindow
         });
 
-        // excelWindow.loadFile(path.join(__dirname, '../../components/Electron/prod/excel.html'));
+        excelWindow.loadFile(path.join(__dirname, '../windows/completeInfo.html'));
         
         excelWindow.once('ready-to-show', () => {
             excelWindow.show();
@@ -158,7 +159,6 @@ class WindowManager {
         });
 
         this.windows.set('excel', excelWindow);
-        return excelWindow;
     }
 
     createLadrilleroWindow() {

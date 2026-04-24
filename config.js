@@ -100,6 +100,8 @@ const baseConfig = {
     PJUD: 2,
     LIQUIDACIONES: 3,
     PREREMATES: 4,
+    CAPITALREMATES: 5,
+    MACAL: 6,
     OTROS: 0,
 
     PROPIEDAD : 0,

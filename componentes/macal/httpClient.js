@@ -21,7 +21,7 @@ class HttpClient {
         // Request interceptor
         this.client.interceptors.request.use(
             (config) => {
-                logger.debug(`Making ${config.method?.toUpperCase()} request to ${config.url}`);
+                // logger.debug(`Making ${config.method?.toUpperCase()} request to ${config.url}`);
                 return config;
             },
             (error) => {
@@ -33,7 +33,6 @@ class HttpClient {
         // Response interceptor
         this.client.interceptors.response.use(
             (response) => {
-                logger.debug(`Received response with status ${response.status}`);
                 return response;
             },
             async (error) => {

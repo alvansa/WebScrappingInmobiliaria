@@ -38,7 +38,7 @@ function getCheckedBoxes() {
     economico: document.getElementById('economicos').checked,
     PYL: document.getElementById('PYL').checked,
     liquidaciones: document.getElementById('liquidaciones').checked,
-    preremates: document.getElementById('preremates').checked,
+    macal: document.getElementById('macal').checked,
     capitalRemates:  document.getElementById('capitalremates').checked
   }
 }

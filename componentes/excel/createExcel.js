@@ -263,7 +263,6 @@ class createExcel {
         let currentRow = 6;
 
         if (!Array.isArray(casos) || casos.length === 0) {
-            console.log("No se encontraron datos para insertar.");
             return;
         }
         console.log('Casos a procesar:', casos.length);
@@ -276,9 +275,6 @@ class createExcel {
             }
             if(this.getValidAuctions(caso, remates) || this.isTestMode){
                 this.addObjectToSet(remates,caso);
-                console.log(`Caso agregado: ${caso.causa} - ${caso.juzgado}`);
-            }else{
-                console.log(`Caso no agregado por validacion: ${caso.causa} - ${caso.juzgado}`);
             }
         }
 
@@ -286,7 +282,7 @@ class createExcel {
         // objetos para verificar la normalizacion
         for (let caso of remates) {
             const casoObj = caso[1].toObject()
-            insertarCasoIntoWorksheet(casoObj, ws, currentRow);
+            await insertarCasoIntoWorksheet(casoObj, ws, currentRow);
             currentRow++;
         }
         // Agrega los remates a la base de datos
@@ -315,10 +311,8 @@ class createExcel {
                 const key = `${auction[1].causa}|${auction[1].juzgado}`;
                 let actualCase = cacheAuctions.get(key);
                 if(actualCase){
-                    // console.log(`El caso con key ${key} ya se encontro rellenado info`)
                     actualCase = Caso.fillMissingData(actualCase,currentCase);
                 }
-                // console.log("Enviando false por cachedAuctions :",currentCase.causa);
                 return false;
             }
         }
@@ -326,7 +320,6 @@ class createExcel {
         // Si la fecha de remate es menor a la fecha de inicio, o mayor a la final
         if (currentCase.fechaRemate && (currentCase.fechaRemate < this.fixedStartDate || currentCase.fechaRemate > this.fixedEndDate )) {
         // if (currentCase.fechaRemate && (currentCase.fechaRemate < fechaInicioTest || currentCase.fechaRemate > fechaInicioTest )) {
-            console.log(`No guardado por fecha remate ${currentCase.causa} fecha remate: ${currentCase.fechaRemate} fecha inicio: ${this.fixedStartDate} fecha fin: ${this.fixedEndDate}`);
             return false;
         }
         // No se escriben casos de juez partidor
@@ -445,7 +438,7 @@ function writeLine(ws, row, col, value, type) {
     }
 }
 
-function insertarCasoIntoWorksheet(caso, ws, currentRow) {
+async function insertarCasoIntoWorksheet(caso, ws, currentRow) {
     if (caso.fechaPublicacion && caso.fechaPublicacion instanceof Date) {
         ws[`${config.INICIO}` + currentRow] = { v: caso.fechaPublicacion, t: 'd', z: 'dd/mm/yyyy' };
     }
@@ -483,7 +476,6 @@ function insertarCasoIntoWorksheet(caso, ws, currentRow) {
     // ws[`V`+ currentRow ] = {v: 'deuda 3 ', t: 's'};
 
     // Union de roles de propiedad, estacionamiento y bodega
-    // console.log("Rol adaptado: ", newRol);
     writeLine(ws, `${config.ROL}`, currentRow, caso.unitRol, 's');
 
     // ws[`X`+ currentRow ] = {v: 'notif ', t: 's'};
@@ -511,7 +503,8 @@ function insertarCasoIntoWorksheet(caso, ws, currentRow) {
     writeLine(ws, `${config.ANNO_COMPRA}`, currentRow, caso.anno, "n");
     writeLine(ws, `${config.DEUDA_BANCO}` , currentRow, caso.mortageBank , 's')
     writeLine(ws, `${config.DEUDA_HIPOTECA}`, currentRow, caso.deudaHipotecaria, "n");
-    writeLine(ws, `${config.OTRA_DEUDA}`, currentRow, caso.linkMap, "s");
+    console.log(`Escribiendo el excel con el caso :${caso.causa} con link: ${caso.linkMap}`);
+    writeLine(ws, `${config.OTRA_DEUDA}`, currentRow, caso.linkMap, 's');
     // ws[`AG` + currentRow ] = {v: 'año compr ant ', t: 's'};
     // ws[`AH` + currentRow ] = {v: 'precio venta nos ', t: 's'};
 }

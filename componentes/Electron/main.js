@@ -28,6 +28,7 @@ const obtainLinkMapa = require('./dev/obtainLinkMapa.js');
 const SpreadSheetManager = require('../spreadSheet/SpreadSheetManager.js');
 
 const Causas = require('../../model/Causas.js');
+const { json } = require('node:stream/consumers');
 
 const isDevMode = process.argv.includes('--dev');
 const isEmptyMode = process.argv.includes('--empty');
@@ -142,8 +143,7 @@ class MainApp{
                 case 'singleCase':
                     return this.windowManager.createSingleCaseWindow();
                 case 'excel':
-                    // return this.windowManager.createExcelWindow();
-                    this.mainWindow.webContents.send('aviso-espera', [5,0,0]);
+                    return this.windowManager.createExcelWindow();
                     return 1;
                 case 'ladrillero':
                     return this.windowManager.createLadrilleroWindow();

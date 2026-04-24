@@ -10,6 +10,8 @@ const EMOL = config.EMOL;
 const PJUD = config.PJUD;
 const LIQUIDACIONES = config.LIQUIDACIONES;
 const PREREMATES = config.PREREMATES;
+const CAPITALREMATES = config.CAPITALREMATES;
+const MACAL = config.MACAL;
 const otros = config.OTROS;
 
 class Caso{
@@ -976,22 +978,17 @@ class Caso{
     }
    
     checkEstacionamientoBodega() {
-        // console.log("Revisando estacionamiento y bodega para el caso: ", caso.hasEstacionamiento, caso.hasBodega, caso.direccionEstacionamiento);
         if (!this.#direccion) {
             return null;
         }
         if (this.#hasEstacionamiento && this.#hasBodega) {
-            // console.log("Tiene estacionamiento y bodega");
             const mergeDirections = this.mergeDirections(this.#direccion, this.#direccionEstacionamiento);
             return mergeDirections + " BOD";
         } else if (this.#hasEstacionamiento) {
-            // console.log("Tiene estacionamiento");
             return this.mergeDirections(this.#direccion, this.#direccionEstacionamiento);
         } else if (this.#hasBodega) {
-            // console.log("Tiene bodega");
             return this.#direccion + " BOD";
         } else {
-            // console.log("No tiene estacionamiento ni bodega");
             return this.#direccion;
         }
     }

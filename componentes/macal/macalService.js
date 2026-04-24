@@ -6,6 +6,15 @@ const logger = require('../../utils/logger.js');
 const PropertyParser = require('./parser');
 const {delay} = require('../../utils/delay.js');
 const {transformDateString} = require('../../utils/cleanStrings.js');
+const CasoBuilder = require('../caso/casoBuilder.js');
+const { all } = require('axios');
+
+
+const config = require('../../config.js');
+const Caso = require('../caso/caso.js');
+const { NormalModuleReplacementPlugin } = require('webpack');
+
+const MACAL = config.MACAL;
 
 class MacalService {
     constructor() {
@@ -29,7 +38,7 @@ class MacalService {
                 ...options
             };
 
-            logger.info('Fetching properties with params:', params);
+            // logger.info('Fetching properties with params:', params);
 
             const apiResponse = await this.httpClient.get(
                 apiConfig.endpoints.properties.search.replace('{page}', currentPage),
@@ -38,11 +47,11 @@ class MacalService {
 
             const parsedData = PropertyParser.parseApiResponse(apiResponse);
 
-            logger.info(`Successfully parsed ${parsedData.properties.length} properties`);
-            for(let prop of parsedData.properties){
+            // logger.info(`Successfully parsed ${parsedData.properties.length} properties`);
+            // for(let prop of parsedData.properties){
+            //     // logger.info(`Property: ${prop.id} - ${prop.property_name} - ${prop.auction.auction_date} Page : ${currentPage}`);
+            // }
 
-                logger.info(`Property: ${prop.id} - ${prop.property_name} - ${prop.auction.auction_date} Page : ${currentPage}`);
-            }
             for(let prop of parsedData.properties){
                 const details = await this.searchSinglePropertyById(prop.id);
                 await delay(500); // Pequeña espera para no saturar el servidor
@@ -52,7 +61,6 @@ class MacalService {
                 }
             }
 
-            logger.info('API response and parsing completed successfully all data ',parsedData.properties.length, ' filtrada ',filterProperties.length);
             return {
                 properties : filterProperties,
                 pagination : parsedData.pagination,
@@ -79,7 +87,8 @@ class MacalService {
 
                 const { shouldStop, properties } = this.filterPropertiesByDate(
                     result.properties,
-                    cutoff
+                    cutoff,
+                    currentPage
                 );
 
                 allProperties.push(...properties);
@@ -97,24 +106,13 @@ class MacalService {
             }
         }
 
-        for(let prop of allProperties){
-            // logger.info(`Final Property List: ${prop.id} - ${prop.property_name} - ${prop.auction.auction_date} status: ${prop.disponibilidad}`);
-            if(prop.id == '76242'){
-                logger.info(`Property: ${JSON.stringify(prop, null, 2)}`);
-            }
-        }
         logger.info(`Fetched total ${allProperties.length} properties until cutoff date ${cutoff.toISOString()}`);
 
-        return {
-            properties : allProperties,
-            totalPages: currentPage - 1,
-            cutoffDate: cutoff
-        };
-
-
+        const casos = this.transformToCasos(allProperties);
+        return casos;
     }
 
-    filterPropertiesByDate(properties, cutoffDate) {
+    filterPropertiesByDate(properties, cutoffDate, currentPage) {
         const filteredProperties = [];
         let shouldStop = false;
 
@@ -122,17 +120,19 @@ class MacalService {
             const fixedAuctionDate = transformDateString(property.auction.auction_date);
             fixedAuctionDate.setHours(0);
 
-            if (fixedAuctionDate <= cutoffDate) {
+            if (fixedAuctionDate <= cutoffDate || currentPage < 5) {
                 filteredProperties.push(property);
             } else {
+                // console.log(`Se llego a la fecha limite con ${cutoffDate} en ${property}`);
                 shouldStop = true;
                 break;
             }
 
         }
-        if (filteredProperties.length === 0 && !shouldStop) {
-            shouldStop = true;
-        }
+        // if ( !shouldStop) {
+        //     console.log('Cantidad de propiedades filtradas ', filteredProperties.length)
+        //     shouldStop = true;
+        // }
 
         return { shouldStop, properties: filteredProperties };
     }
@@ -157,7 +157,6 @@ class MacalService {
             per_page,
             ...otherFilters
         };
-        // logger.debug('Search filters:', filters);
 
         // Construir filtros complejos si es necesario
         if (commune) params.commune = commune;
@@ -198,7 +197,6 @@ class MacalService {
             id: propertyId
         };
 
-        logger.info(`Fetching property with ID: ${propertyId}`);
         
         try {
             const apiResponse = await this.httpClient.get(
@@ -224,6 +222,126 @@ class MacalService {
 
         error.isOperational = true;
         return error;
+
+    }
+
+    /* TODO :   juzgado,  
+                ocupacino, 
+                dato,  R
+                precio minimo,  R
+                mapa
+                Causa
+
+    */
+    transformToCasos(allProperties) {
+
+        const casos = [];
+        for (let property of allProperties) {
+            let comuna, lat, long, mapa, rolPropiedad, causaPropiedad, juzgado = null;
+
+
+            const link = `https://www.macal.cl/propiedades/${property.id}`;
+
+            const caso = new CasoBuilder(new Date(),link, MACAL).construir();
+
+            if (property.other_features) {
+                const rol = property.other_features.find(feat => feat.label.toLowerCase().includes('rol de '));
+                if (rol) {
+                    rolPropiedad = rol.value;
+                    caso.rolPropiedad = rol.value
+                }
+
+                const causa = property.other_features.find(feat => feat.label.toLowerCase().includes('causa'));
+                if (causa) {
+                    causaPropiedad = causa.value;
+                    caso.causa = causa.value
+                }
+
+                const mandante = property.other_features.find(feat => feat.label.toLowerCase().includes('mandante'));
+                if(mandante){
+                    juzgado = mandante.value;
+                    caso.juzgado = mandante.value
+                }
+
+                const estado_ocupacion = property.other_features.find(feat => feat.label.toLowerCase().includes('disponibilidad'));
+                if(estado_ocupacion){
+                    // writeLine(ws, `${config.OCUPACION}`, currentRow, estado_ocupacion.value, 's');
+                    // console.log('OCUPACION: ', estado_ocupacion);
+
+                }
+            }
+            if (property.property_location) {
+                const location = property.property_location;
+                caso.comuna = location.commune
+                lat = location.lat || null;
+                long = location.lng || null;
+                logger.debug(`caso: ${property.id} location: ${JSON.stringify(location, null, 2)} lat ${lat} y long ${long}`);
+                if (lat && long) {
+                    const link = `https://www.google.com/maps/place/${lat},${long}`;
+                    caso.linkMap =link; 
+                    // logger.debug(`Con link = ${caso.linkMap} y el origianl= ${link}`)
+                    // logger.info(`${JSON.stringify(caso.toObject(),null,2)}`)
+                }
+            }
+            caso.fechaRemate = transformDateString(property.auction.auction_date)
+            caso.montoMinimo = property.property_price.price
+            caso.metros = this.createFeaturesSummary(property.general_features);
+            caso.direccion = property.property_name
+
+            // const buildCaso = caso.construir();
+
+            // logger.info(`Caso: ${JSON.stringify(caso, null, 2)}`);
+
+            casos.push(caso);
+        }
+
+        return casos;
+    }
+
+    createFeaturesSummary(generalFeatures) {
+        if (!Array.isArray(generalFeatures)) return '';
+
+        const features = {};
+        const mappings = {
+            'dormitorio': 'd', 'dormitorios': 'd',
+            'baño': 'b', 'baños': 'b', 'bano': 'b', 'banos': 'b',
+            'estacionamiento': 'est',
+            'bodega': 'bod',
+            'superficie': 'm2', 'superficie útil': 'm2', 'terreno': 'm2'
+        };
+
+        generalFeatures.forEach(({ label, value }) => {
+            const labelLower = label?.toLowerCase();
+            if (!labelLower || !value) return;
+
+            for (const [key, abbr] of Object.entries(mappings)) {
+                if (labelLower.includes(key)) {
+                    if (abbr === 'm2') {
+                        // Para metros: limpiar y mantener formato
+                        if(value.toLowerCase().includes('m2')){
+                            const cleanValue = value.replace(/[^\d\s]2/g, '').trim();
+                            features[abbr] = cleanValue ? cleanValue + 'm2' : value;
+                        }else{
+                            // console.log(`Parsing superficie value without m2: ${value} y label: ${label}`);
+                            const numericValue = value.replace(/,/,'.').replace(/[^\d\.]/g, '');
+                            // console.log(`Parsed superficie numeric value: ${numericValue}`);
+                            if (numericValue) features[abbr] = numericValue + 'ha';
+                        }
+                    } else {
+                        // Para otras: solo el número
+                        const numericValue = value.replace(/[^\d]/g, '').replace(/,/,'.');
+                        // console.log(`Parsed feature ${abbr}: ${numericValue}`);
+                        if (numericValue) features[abbr] = numericValue + abbr;
+                    }
+                    break;
+                }
+            }
+        });
+
+        return ['d', 'b', 'est', 'bod', 'm2']
+            .map(abbr => features[abbr])
+            .filter(Boolean)
+            .join('-');
     }
 }
 

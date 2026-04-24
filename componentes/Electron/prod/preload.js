@@ -42,16 +42,6 @@ contextBridge.exposeInMainWorld('api', {
     return result;
   },
 
-  completeInfoFromExcel: async(filePath) => {
-    try {
-      const result = await ipcRenderer.invoke('complete-info-excel', filePath);
-      console.log("Resultados de la consulta en el preload :", result);
-      return result;
-    } catch (error) {
-      console.error('Error al obtener información del Pjud:', error);
-      throw error; // Re-lanzar el error para manejarlo en el lugar donde se llama
-    }
-  },
 
   onShowAlert : async  (callback) => {
     ipcRenderer.on('show-alert', callback);

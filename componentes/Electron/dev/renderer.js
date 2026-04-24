@@ -1,36 +1,20 @@
-
 const selectFileBtn = document.getElementById('selectFileBtn');
 const checkFPMG = document.getElementById('checkFPMG');
 const fillMapa = document.getElementById('fillMapa');
 const fileInfo = document.getElementById('fileInfo');
 const fileInfoPjud = document.getElementById('fileInfoPjud');
-
 const excelBase = document.getElementById('fileExcelBase');
 const excelNuevo = document.getElementById('fileExcelNuevo');
-
 const inputAutoComplete = document.getElementById('autoCompleteText');
 const divAutoComplete = document.getElementById('autocomplete'); 
 
 let pathExcelBase, pathExcelNuevo;
-
 let countdownInterval = null;
-
-
-
-// document.getElementById('imbeddedText').addEventListener('click', () => {
-//   const result = window.api.testEconomico(["imbeddedText"]);
-//   console.log(result);
-// });
 
 document.getElementById('uploadedText').addEventListener('click', () => {
     const text = document.getElementById('textInput').value;
     const result = window.api.testEconomico(["uploadedText", text]);
 });
-
-// document.getElementById('downloadPDF').addEventListener('click', () => {
-//   const url = document.getElementById('PDFLink').value;
-//   const result = window.api.testEconomico(["downloadPDF", url]);
-// });
 
 document.getElementById('readPdf').addEventListener('click', async () => {
   try {
@@ -58,6 +42,7 @@ document.getElementById('ExcelBase').addEventListener('click',async ()=>{
       excelBase.textContent = `${filePath.split('/').pop()}`;
     }
 });
+
 document.getElementById('ExcelNuevo').addEventListener('click',async ()=>{
     const filePath = await window.api.selectExcelPath();
     if (filePath) {
@@ -66,27 +51,19 @@ document.getElementById('ExcelNuevo').addEventListener('click',async ()=>{
 
     }
 });
+
 document.getElementById('compararExcel').addEventListener('click', async ()=>{
     if(!pathExcelNuevo){
         alert("Debe seleccionar ambos archivos");
         return;
     }
     window.api.searchRepeatedCases(pathExcelBase, pathExcelNuevo);
-
 });
 
 document.getElementById('testUserAgents').addEventListener('click', async ()=>{
   const result = window.api.testEconomico(["testUserAgents"]);
 
 });
-
-// document.getElementById('testConsultaCausa').addEventListener('click', ()=>{
-//   const result = window.api.testEconomico(["testConsultaCausa"]);
-// })
-
-// document.getElementById('consultaDia').addEventListener('click', ()=>{
-//   const result = window.api.testEconomico(["consultaDia"]);
-// })
 
 document.getElementById('testEconomicoPuppeteer').addEventListener('click', ()=>{
   const result = window.api.testEconomico(["testEconomicoPuppeteer"]);

@@ -4,6 +4,8 @@ const path = require('path');
 const fs = require('fs')
 const os = require('os')
 
+require('dotenv').config();
+
 class Logger {
   constructor() {
     

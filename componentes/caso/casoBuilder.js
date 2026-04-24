@@ -104,6 +104,10 @@ class CasoBuilder{
         return this;
     }   
 
+    conMetros(metros){
+        this.caso.metros = metros;
+        return this;
+    }
 
     construir(){
         return this.caso;
