@@ -57,9 +57,9 @@ class GestorRematesPjud{
                     await delay(awaitTime * 1000);
                 }
 
-                if(counter > 10){
-                    return 
-                }
+                // if(counter > 10){
+                //     return 
+                // }
             }
         }catch (error) {
             console.error("Error al obtener datos de los casos: ", error.message);
