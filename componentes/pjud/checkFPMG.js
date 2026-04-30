@@ -9,8 +9,7 @@ const pie = require('puppeteer-in-electron');
 const puppeteer = require('puppeteer-core');
 const { fakeDelay, delay } = require('../../utils/delay');
 
-
-const consultaCausaPjud = require("./consultaCausaPjud");
+const ConsultaCausaPjud = require("./consultaCausaPjudRefactored");
 const CasoBuilder = require('../caso/casoBuilder');
 const config = require('../../config');
 const { obtainCorteJuzgadoNumbers } = require('../../utils/corteJuzgado');
@@ -23,6 +22,7 @@ const listUserAgents = require('../../utils/userAgents.json');
 
 const DELAY_RANGE = {"min": 2, "max" : 5}
 let DEUDA_SEARCH = false;
+const DEUDA = config.DEUDA
 
 const indexEstado = config.obtenerNumero('ESTADO');
 const indexCausa = config.obtenerNumero('CAUSA');
@@ -35,6 +35,7 @@ const indexMartillero = config.obtenerNumero('MARTILLERO')
 const indexMontoMinimo = config.obtenerNumero('MONTO_MINIMO');
 const indexBancoDeuda = config.obtenerNumero('BANCO_DEUDA');
 const indexDeudaHipotecaria = config.obtenerNumero('DEUDA_HIPOTECA');
+const indexOcupacion = config.obtenerNumero('OCUPACION')
 
 class checkFPMG {
     constructor(event, mainWindow, filePath,data) {
@@ -279,6 +280,7 @@ class checkFPMG {
         const montoMinimo = line[indexMontoMinimo];
         const bancoDeuda = line[indexBancoDeuda];
         const deudaHipotecaria = line[indexDeudaHipotecaria];
+        const ocupacion = line[indexOcupacion]
 
         return {
             'estado': estado,
@@ -292,6 +294,7 @@ class checkFPMG {
             'montoMinimo': montoMinimo,
             'bancoDeuda': bancoDeuda,
             'deudaHipotecaria': deudaHipotecaria,
+            'ocupacion': ocupacion,
         }
     }
     
@@ -1050,10 +1053,8 @@ class checkFPMG {
         }
         console.log(`📊 Total casos cambiados: ${casosCambiados.length}`);
 
-        // 3. Preparar array para el nuevo Excel
         const nuevosDatos = [];
 
-        // 4. Preparar headers
         const headers = ['Estado','Fecha Remate','Causa','Juzgado','Monto Minimo','Banco Deuda','Deuda Hipotecaria'];
         nuevosDatos.push(headers);
 
@@ -1164,6 +1165,7 @@ class checkFPMG {
 
         obtainCorteJuzgadoNumbers(this.casos)
 
+        //TODO: Ocupar el GestorRematesPjud
         DEUDA_SEARCH = true;
         await this.processListDeuda();
 
@@ -1176,7 +1178,7 @@ class checkFPMG {
     obtainListDeuda(){
         if(!this.data){
             logger.warn('No se pudo recuperar la data')
-            return false;
+            return;
         }
         let count = 0;
         for (let line of this.data) {
@@ -1202,17 +1204,12 @@ class checkFPMG {
             }
 
         }
-        for(let caso of this.casos){
-            console.log(caso.causa, caso.juzgado, caso.fechaRemate);
-        }
+        // for(let caso of this.casos){
+        //     console.log(caso.causa, caso.juzgado, caso.fechaRemate);
+        // }
     }
 
     isDeuda(dataLine){
-        //revisa que no sea ladrillo
-        // if (dataLine.notas) {
-        //     return false;
-        // }
-
         //Revisa si el remate fue catalogado como seguir
         if (!dataLine.estado.toLowerCase().includes('seguir')) {
             return false;
@@ -1223,21 +1220,50 @@ class checkFPMG {
         }
         // 2. revisar que la fecha de remate sea mayor a la fecha actual
         const dateToday = new Date();
-        const fechaLimite = new Date('01/02/2026');
+        const fechaLimite = new Date('2026/02/28');
         const fechaRemateDate = new Date(convertDate(fixStringDate(dataLine.fechaRem)));
 
         if(fechaRemateDate < fechaLimite  ){
             return false;
         }
-        console.log('Causa: ', dataLine.causa, 'Fecha de remate:', fechaRemateDate, 'Fecha límite:', fechaLimite);
+        // console.log('Causa: ', dataLine.causa, 'Fecha de remate:', fechaRemateDate, 'Fecha límite:', fechaLimite);
 
         //TODO: agregar que revise columna de Ocupacion (H) y VV(E)
-        if (!dataLine.martillero || !dataLine.martillero.toLowerCase().includes('deuda')) {
-            return false;
+        // console.log(dataLine)
+        if(this.searchDeudaInColumn(dataLine)){
+        // if (!dataLine.martillero || !dataLine.martillero.toLowerCase().includes('deuda')) {
+            return true;
         }
-        console.log(dataLine)
-        return true;
+        return false;
     }
+
+    searchDeudaInColumn(line){
+        const martillero = line.martillero.toLowerCase();
+        const ocupacion = line.ocupacion.toLowerCase();
+        // Notas era el nombre de la columna que ahora tenemos como VV
+        const notas = line.notas.toLowerCase();
+        if(martillero && martillero.includes('deuda')){
+            return true;
+        }
+        if(ocupacion && ocupacion.includes('deuda')){
+            return true;
+        }
+        if(notas && notas.includes('deuda')){
+            return true;
+        }
+        return false;
+    }
+
+    async consultaCausaGeneral(caso){
+        const browser = await pie.connect(app, puppeteer);
+        let window;
+        window = this.openWindow(window, false);
+        const consultaCausa = new ConsultaCausaPjud(browser, window, caso, this.mainWindow, DEUDA);
+        const result = await consultaCausa.getConsulta()
+
+        return result;
+    }
+    
 
     async processListDeuda() {
         const mainWindow = BrowserWindow.fromWebContents(this.event.sender);
@@ -1246,12 +1272,13 @@ class checkFPMG {
             for (let caso of this.casos) {
                 counter++;
                 logger.info(`Revisando caso ${counter} de ${this.casos.length}`);
-                logToRenderer(this.mainWindow, `Revisando caso ${counter} de ${this.casos.length}`);
+                logToRenderer(this.mainWindow, `Revisando caso ${counter} de ${this.casos.length} ${caso.causa} y ${caso.juzgado}`);
                 if (!caso.numeroJuzgado || !caso.corte) {
                     continue;
                 }
-                const result = await this.consultaCausa(caso);
-                // if(counter > 3){
+                // const result = await this.consultaCausa(caso);
+                const result = await this.consultaCausaGeneral(caso);
+                // if(counter > 15){
                 //     return true;
                 // }
 
@@ -1268,14 +1295,10 @@ class checkFPMG {
 }
 
 function copyRowBetweenFiles(sourceSheet, targetSheet, sourceRowIndex, targetRowIndex) {
-    
-    // 1. Convertir la hoja de origen a JSON para obtener la fila
     const sourceData = XLSX.utils.sheet_to_json(sourceSheet, { header: 1 });
     
-    // 2. Obtener la fila específica (index basado en 0)
     const rowToCopy = sourceData[sourceRowIndex];
     
-    // 3. Escribir la fila en la posición destino
     for (let col = 0; col < rowToCopy.length; col++) {
         const cellAddress = XLSX.utils.encode_cell({ r: targetRowIndex, c: col });
         targetSheet[cellAddress] = { v: rowToCopy[col], t: typeof rowToCopy[col] };

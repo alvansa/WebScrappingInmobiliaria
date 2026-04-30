@@ -14,10 +14,15 @@ const PjudPdfData = require("./PjudPdfData.js");
 // const PdfProcess = require("../pdfProcess/PdfProcess.js");
 const listUserAgents = require("../../utils/userAgents.json");
 const logger = require("../../utils/logger.js");
+const config = require('../../config.js');
 
 const ERROR = 0;
 const EXITO = 1;
 const DELAY_RANGE = { min: 2, max: 5 };
+
+const NORMAL = config.NORMAL;
+const LADRILLERO = config.LADRILLERO;
+const DEUDA = config.DEUDA;
 
 // User-Agents por defecto en caso de que .env no esté disponible
 const defaultUserAgents = [
@@ -31,8 +36,10 @@ const defaultUserAgents = [
     },
 ];
 
+//TODO: Agregar variacion de ladrillero
+
 class ConsultaCausaPjud {
-    constructor(browser, window, caso, mainWindow) {
+    constructor(browser, window, caso, mainWindow, type) {
         this.browser = browser;
         this.window = window;
         this.caso = caso;
@@ -47,6 +54,7 @@ class ConsultaCausaPjud {
         this.dirPath = "";
         this.pdfPath = "";
         this.PjudData = new PjudPdfData(this.caso, mainWindow);
+        this.type = type;
     }
 
     async getConsulta() {
@@ -159,8 +167,10 @@ class ConsultaCausaPjud {
             console.log("No se cambio el resultado. Saltando caso.");
             return false; // Salta al siguiente caso
         }
+
         await this.getPartesCaso();
 
+        //TODO: De aqui todo para atras podria ser una funcion configuradora
         const isValid = await this.searchAuctionInfo();
         if (isValid) {
             console.log("Datos posibles del caso obtenidos correctamente");
@@ -336,8 +346,10 @@ class ConsultaCausaPjud {
 
         await this.searchInMainTable();
         // Descargar el texto de la demanda.
-        console.log("Descargando demanda");
-        await this.downloadDemanda();
+        if(this.type == NORMAL){
+            console.log("Descargando demanda");
+            await this.downloadDemanda();
+        }
         return true;
     }
 
@@ -539,6 +551,14 @@ class ConsultaCausaPjud {
     }
 
     async searchDataInRow(row) {
+        let dateToday = null;
+        if(this.type == DEUDA){
+            dateToday = this.caso.fechaRemate;
+        }else{
+            dateToday = new Date();
+        }
+        dateToday.setDate(dateToday.getDate() - 7);
+
         try {
             //TODO: elimnar la variable llamada uselessFile ya que no se esta usando para nada, se dejo para pruebas pero ya no es necesaria
             const [number, uselessFile, directory, dirHasLink, stage, tramite, descripcion, fecha, linkToDir] = await Promise.all([
@@ -553,28 +573,39 @@ class ConsultaCausaPjud {
                 row.$("td:nth-child(3) a")
             ]);
 
-            if (dirHasLink) {
-                logger.info(`El numero ${number} tiene directorio se hace click`);
+            if(this.type == NORMAL){
+                if (dirHasLink) {
+                    logger.info(`El numero ${number} tiene directorio se hace click`);
 
-                await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
-                // const linkToDir = await row.$("td:nth-child(3) a");
-                await linkToDir.click();
-                await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
-
-                //TODO: Separar la busqueda y descarga del pdf?
-                await this.downloadPdfFile();
-
-                const xSelector = "#modalAnexoSolicitudCivil > div > div > div.modal-header > button";
-                const xButton = await this.page.$(xSelector);
-                if (xButton) {
                     await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
-                    await this.page.waitForSelector(xSelector, {visible: true,});
-                    await this.page.click(xSelector);
-                    return false;
+                    // const linkToDir = await row.$("td:nth-child(3) a");
+                    await linkToDir.click();
+                    await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
+
+                    //TODO: Separar la busqueda y descarga del pdf?
+                    await this.downloadPdfFile();
+
+                    const xSelector = "#modalAnexoSolicitudCivil > div > div > div.modal-header > button";
+                    const xButton = await this.page.$(xSelector);
+                    if (xButton) {
+                        await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
+                        await this.page.waitForSelector(xSelector, {visible: true,});
+                        await this.page.click(xSelector);
+                        return false;
+                    }
                 }
+                logger.info(`Fila: ${number}, ${uselessFile}, ${directory}, ${stage}, ${tramite}, ${descripcion}, ${fecha}`);
+                this.checkDescription(descripcion);
+
+            }else if(this.type == LADRILLERO){
+                console.log('Ladrillero');
+            }else if(this.type == DEUDA){
+                // console.log('Deuda');
+                if(stage.toLowerCase().includes("acta")){
+                    caso.hasChanged = true;
+                }
+
             }
-            logger.info(`Fila: ${number}, ${uselessFile}, ${directory}, ${stage}, ${tramite}, ${descripcion}, ${fecha}`);
-            this.checkDescription(descripcion);
 
             return false;
         } catch (error) {

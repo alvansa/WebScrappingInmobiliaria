@@ -109,6 +109,9 @@ const baseConfig = {
     BODEGA : 2,
     TODOS : 3,
 
+    NORMAL:0,
+    LADRILLERO : 1,
+    DEUDA: 2,
 }
 
 const environmentConfig = {
