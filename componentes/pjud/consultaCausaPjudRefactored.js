@@ -346,10 +346,10 @@ class ConsultaCausaPjud {
 
         await this.searchInMainTable();
         // Descargar el texto de la demanda.
-        if(this.type == NORMAL){
+        // if(this.type == NORMAL){
             console.log("Descargando demanda");
             await this.downloadDemanda();
-        }
+        // }
         return true;
     }
 
@@ -551,13 +551,13 @@ class ConsultaCausaPjud {
     }
 
     async searchDataInRow(row) {
-        let dateToday = null;
-        if(this.type == DEUDA){
-            dateToday = this.caso.fechaRemate;
-        }else{
-            dateToday = new Date();
-        }
-        dateToday.setDate(dateToday.getDate() - 7);
+        // let dateToday = null;
+        // if(this.type == DEUDA){
+        //     dateToday = this.caso.fechaRemate;
+        // }else{
+        //     dateToday = new Date();
+        // }
+        // dateToday.setDate(dateToday.getDate() - 7);
 
         try {
             //TODO: elimnar la variable llamada uselessFile ya que no se esta usando para nada, se dejo para pruebas pero ya no es necesaria
@@ -573,7 +573,40 @@ class ConsultaCausaPjud {
                 row.$("td:nth-child(3) a")
             ]);
 
-            if(this.type == NORMAL){
+            // if(this.type == NORMAL){
+            //     if (dirHasLink) {
+            //         logger.info(`El numero ${number} tiene directorio se hace click`);
+
+            //         await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
+            //         // const linkToDir = await row.$("td:nth-child(3) a");
+            //         await linkToDir.click();
+            //         await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
+
+            //         //TODO: Separar la busqueda y descarga del pdf?
+            //         await this.downloadPdfFile();
+
+            //         const xSelector = "#modalAnexoSolicitudCivil > div > div > div.modal-header > button";
+            //         const xButton = await this.page.$(xSelector);
+            //         if (xButton) {
+            //             await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
+            //             await this.page.waitForSelector(xSelector, {visible: true,});
+            //             await this.page.click(xSelector);
+            //             return false;
+            //         }
+            //     }
+            //     logger.info(`Fila: ${number}, ${uselessFile}, ${directory}, ${stage}, ${tramite}, ${descripcion}, ${fecha}`);
+            //     this.checkDescription(descripcion);
+
+            // }else if(this.type == LADRILLERO){
+            //     console.log('Ladrillero');
+            // }else if(this.type == DEUDA){
+            //     // console.log('Deuda');
+            //     if(stage.toLowerCase().includes("acta")){
+            //         caso.hasChanged = true;
+            //     }
+
+            // }
+
                 if (dirHasLink) {
                     logger.info(`El numero ${number} tiene directorio se hace click`);
 
@@ -596,17 +629,6 @@ class ConsultaCausaPjud {
                 }
                 logger.info(`Fila: ${number}, ${uselessFile}, ${directory}, ${stage}, ${tramite}, ${descripcion}, ${fecha}`);
                 this.checkDescription(descripcion);
-
-            }else if(this.type == LADRILLERO){
-                console.log('Ladrillero');
-            }else if(this.type == DEUDA){
-                // console.log('Deuda');
-                if(stage.toLowerCase().includes("acta")){
-                    caso.hasChanged = true;
-                }
-
-            }
-
             return false;
         } catch (error) {
             logger.error(`Error al obtener los datos de la fila: ${error.message}`);

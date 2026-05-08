@@ -1,6 +1,8 @@
 const {matchJuzgado} = require('../utils/compareText');
 const {tribunales2} = require('../componentes/caso/datosLocales');
 
+const logger = require('./logger.js');
+
 
 const tribunalesPorCorte = {
   //Todos
@@ -327,7 +329,7 @@ function obtainCorteJuzgadoNumbers(casos,isDev = false) {
 
 
       if(isDev){
-        console.log(`Caso: ${caso.id} - Juzgado: ${juzgado}`);
+        logger.debug(`Caso: ${caso.id} - Juzgado: ${juzgado}`);
       }
     const result = searchTribunalPorNombre(juzgado);
     if (result) {

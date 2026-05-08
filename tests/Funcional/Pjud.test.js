@@ -44,7 +44,7 @@ describe('Test de funcionalidad Pjud a normalizacion',() => {
         const testPjudPdf = new PjudPdfData(caso4991,null,true);
         testPjudPdf.processInfo(AV.textoHabitacionMultiple);
         const casoObj = caso4991.toObject();
-        expect(casoObj.rolPropiedad).toEqual('03795 - 00302');
+        expect(casoObj.rolPropiedad).toEqual('3795-302');
         expect(casoObj.avaluoPropiedad).toEqual(59921526);
     });
 

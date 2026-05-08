@@ -188,7 +188,7 @@ class PdfProccess{
 
     static logNewInfo(tipe, info){
         if(info){
-            logger.info(`${tipe} obtenido: ${info}`);
+            logger.debug(`${tipe} obtenido: ${info}`);
         }
     }
 }

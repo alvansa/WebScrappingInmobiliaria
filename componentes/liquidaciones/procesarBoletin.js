@@ -5,6 +5,7 @@ const pdf = require('pdf-parse');
 const os = require('os');
 const FormData = require('form-data');
 const axios = require('axios');
+const logger = require('../../utils/logger.js');
 
 const Caso = require('../caso/caso.js');
 const { comunas, tribunales2 } = require('../caso/datosLocales.js');
@@ -23,12 +24,11 @@ class ProcesarBoletin {
 
     obtainDataRematesPdf(data, caso) {
         if (!caso) {
-            console.error("No se ha recibido caso");
+            logger.error("No se ha recibido caso");
             return;
         }
-        console.log(data)
+        logger.debug(data)
         const normalizedData = this.normalizeData(data);
-        // console.log("Texto normalizado: ", normalizedData);
 
         const fechaRemate = this.getfechaRemate(normalizedData);
         const causa = this.getCausa(normalizedData);
@@ -87,24 +87,24 @@ class ProcesarBoletin {
             for (let pdf of pdfs) {
                 const pdfFile = path.join(this.downloadPath, pdf);
                 if (fs.existsSync(pdfFile)) {
-                    console.log("Procesando pdf: ", pdf," con path: ",pdfFile,"\n-----------------------------");
+                    logger.debug(`Procesando pdf: ${pdf} con path: ${pdfFile}, \n-----------------------------`);
                     // Aqui se envian los pdf a el proceso principal para ser convertidos a texto y poder trabajar con ellos.
                     try{
                         texto = await ProcesarBoletin.convertPdfToText(pdfFile);
                         if(!texto){
-                            console.error("No se pudo procesar el PDF, saltando al siguiente...");
+                            logger.error("No se pudo procesar el PDF, saltando al siguiente...");
                             continue;
                         }
                         const caso = this.getCaso(pdf, casos);
                         this.obtainDataRematesPdf(texto, caso);
                     }catch(error){
-                        console.log("Error en convertir el pdf a texto",error);
+                        logger.error(`Error en convertir el pdf a texto ${error}`);
                         continue;
                     }
                 }
             }
         } catch (error) {
-            console.error("Error en getPdfData:", error);
+            logger.error(`Error en getPdfData: ${error.message}`);
         } finally {
             this.deleteFiles();
             return casos;
@@ -113,23 +113,23 @@ class ProcesarBoletin {
 
 
     deleteFiles() {
-        console.log("Eliminando archivos");
+        logger.debug("Eliminando archivos");
         // const downloadPath = path.join(os.homedir(), "Documents", "infoRemates/pdfDownload");
         fs.readdir(this.downloadPath, (err, files) => {
             if (err) {
-                console.error("Error al leer el directorio:", err);
+                logger.error(`Error al leer el directorio: ${err}`);
                 return;
             }
             for (const file of files) {
                 fs.unlink(path.join(this.downloadPath, file), (err) => {
                     if (err) {
-                        console.error("Error al eliminar el archivo:", err);
+                        logger.error(`Error al eliminar el archivo: ${err.message}`);
                         return;
                     }
                 });
             }
         });
-        console.log("Archivos eliminados");
+        logger.debug("Archivos eliminados");
     }
 
 
@@ -163,7 +163,7 @@ class ProcesarBoletin {
         const indexTribunal = texto.indexOf("tribunal:");
         const indexDeudor = texto.indexOf("deudor:");
         if (indexTribunal === -1 || indexDeudor === -1 || indexTribunal > indexDeudor) {
-            console.error("No se encontró el tribunal o el deudor en el texto.");
+            logger.error("No se encontró el tribunal o el deudor en el texto.");
             return null;
         }
         let juzgado = texto.slice(indexTribunal + 9, indexDeudor);
@@ -183,7 +183,6 @@ class ProcesarBoletin {
     }
 
     getComuna(texto) {
-        // console.log(texto)
         const foundComunas = [];
         const indexInicio = texto.indexOf("Detalle");
         texto = texto.slice(indexInicio);
@@ -201,12 +200,10 @@ class ProcesarBoletin {
         for(let comuna of foundComunas){
             const findComuna = 'comuna de ' + comuna;
             if(texto.includes(findComuna)){
-                console.log(`Comunas encontradas : ${comuna}`)
                 return comuna;
             }
         }
         if(foundComunas.length > 0){
-            console.log(`Retornar comunas encontradas : ${foundComunas}`)
             return foundComunas[0]
         }
         return null;
@@ -302,7 +299,7 @@ class ProcesarBoletin {
             return text;
 
        }catch(error){
-            console.error("Error al convertir PDF a texto:", error.message);
+            logger.error(`Error al convertir PDF a texto: ${error.message}`);
             return null;
        }
 
@@ -313,20 +310,20 @@ class ProcesarBoletin {
             const pdfParser = new PDFParser(this,1);
 
             pdfParser.on('pdfParser_dataError', errData => {
-                console.error('Error al procesar PDF:', errData.parserError);
+                logger.error(`Error al procesar PDF: ${errData.parserError}`);
                 resolve(null); // Resolviendo con null en caso de error
 
             });
 
             pdfParser.on('pdfParser_dataReady', pdfData => {
-                console.log('PDF procesado exitosamente.');
+                logger.debug('PDF procesado exitosamente.');
                 resolve(pdfParser.getRawTextContent());
             });
 
             try {
                 pdfParser.loadPDF(filePath);
             } catch (error) {
-                console.error('Error al cargar el archivo PDF:', error);
+                logger.error(`Error al cargar el archivo PDF: ${error}`);
                 reject(error);
             }
         });
@@ -344,18 +341,14 @@ class ProcesarBoletin {
                 // originalWarn = console.warn;
                 // console.warn = function () {};
                 // console.error = function () {};
-                console.log("leyendo con simple pdf-parse");
+                logger.debug("leyendo con simple pdf-parse");
 
                 const dataBuffer = fs.readFileSync(filePath);
                 const data = await pdf(dataBuffer);
-                console.log("procesado con pdf-parse :) ");
-                // console.log(data.text);
-                // console.warn = originalWarn;
-                // console.error = originalWarn;
                 return data.text;
             // }
         } catch (error) {
-            console.error('Error al procesar PDF:', error.message);
+            logger.error(`Error al procesar PDF: ${error.message}`);
             return null;
         }
     }
@@ -377,7 +370,7 @@ class ProcesarBoletin {
             const normalizedResponse = normalizeResponse(response.data);
             return normalizedResponse;
         }catch(error){
-            console.error(`Ocurrio un error procesando el pdf con tesseract: ${error.message}`);
+            logger.error(`Ocurrio un error procesando el pdf con tesseract: ${error.message}`);
             return null;
         }
     }

@@ -93,6 +93,7 @@ function handleResults(filePath) {
     3: 'La fecha de inicio es mayor a la fecha de fin.',
     4: 'No se seleccionó ninguna opción.',
     5: 'Error: No se encontró ningún caso en el rango de fechas seleccionado.',
+    6: 'Error: No se obtuvieron todos los datos, se han registrado los datos obtenidos en un archivo Excel, revise el archivo para más detalles.',
     default: 'Error al registrar los datos.',
   };
 

@@ -18,7 +18,7 @@ class dataInmobiliaria {
         }
         if (data.detalle_construccion) {
             const metros = data.detalle_construccion[0].superficie_m2;
-            console.log(`Metros obtenidos para rol ${rol}: ${metros}`);
+            // console.log(`Metros obtenidos para rol ${rol}: ${metros}`);
             return Number(metros);
         }
     }

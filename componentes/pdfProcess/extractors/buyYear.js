@@ -1,5 +1,6 @@
 const { isLawsuit, consoleDebug } = require('./utilsPdf');
 const convertWordToNumbers = require('../../../utils/convertWordToNumbers');
+const logger = require('../../../utils/logger')
 
 const regexMutuoHipotecario = /mutuo\s*hipotecario/i;
 
@@ -13,7 +14,7 @@ function processBuyYear(text, debug = false) {
         }
         const anno = obtainBuyYear(GPnormalizedInfo, debug);
         if (anno) {
-            console.log(`-----------------\nanno: ${anno}\n-----------------`);
+            logger.debug(`-----------------\nanno: ${anno}\n-----------------`);
             return anno;
         }
     }

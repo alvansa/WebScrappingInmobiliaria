@@ -314,7 +314,10 @@ class Economico {
             const casoObj = new Caso(fechaHoyCaso, fechaPublicacion, announcement, EMOL);
             casoObj.fechaRemate = currentCase.fechaRemate;
 
-            this.casosARevisar.push(casoObj);
+            // this.casosARevisar.push(casoObj);
+            if (!casoObj.fechaRemate || (casoObj.fechaRemate >= this.originStartDate && casoObj.fechaRemate <= this.originEndDate)) {
+                this.casosARevisar.push(casoObj);
+            }
         }
     }
 

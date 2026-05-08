@@ -1,9 +1,12 @@
 const convertWordToNumbers = require('../../../utils/convertWordToNumbers');
+const {normalizeText} = require('../../../utils/textNormalizers');
+const logger = require('../../../utils/logger');
+const { isNumber } = require('puppeteer-core');
 
 let isDev = false;
 
 const NUMBER_CONFIG = {
-    keywords: new Set(['numero', 'número', 'num', 'nro']),
+    keywords: new Set(['numero', 'número', 'num', 'nro','n°', 'dp', 'bod', 'est']),
     specialWords: new Set(['y','-']),
     patterns: new Set([
         'cero','uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve',
@@ -145,34 +148,46 @@ function adaptDirectionToExcel(direction){
     if(matchedEstacionamiento){
         finalDirection = direction.replace(matchedEstacionamiento[0],"Est ");
     }
-    finalDirection = finalDirection.replace(/estacionamiento\b/i,"Est");
+    finalDirection = shorteningDirection(finalDirection);
     // console.log(`-------------------------Direccion que va a cambiar string por num\n-----------------\n${finalDirection}\n--------------------`)
     finalDirection = changeWordsToNumbers(finalDirection);
 
     //Normalizar numero de piso (septimo piso -> P7)
+    finalDirection = changeFloorNumber(finalDirection)
+
 
     return finalDirection
 }
 
 function changeWordsToNumbers(phrase,isDevLog = false) {
-    isDev = isDevLog;
+    let isDev = isDevLog;
+    // isDev = true;
     if (!phrase) return phrase;
+
+    phrase = phrase.replace(/\s+/ig, " ");
+
     phrase = phrase.replace(/(\w*)-(\w)/ig,"$1 - $2");
 
     const spacedPhrase = phrase.split(' ');
     for (let i = 0; i < spacedPhrase.length; i++) {
+        // console.log(`Buscando palabra clave en: ${spacedPhrase[i]} es un numero ${isNumberKeyWord(spacedPhrase[i])}`)
         if (!isNumberKeyWord(spacedPhrase[i])) {
             continue;
         }
+
         for (let j = i + 1; j < spacedPhrase.length; j++) {
             const isLiteralNumber = isaNumber(spacedPhrase[j]);
             if(isLiteralNumber){
+                // console.log(`Se rompe con ${spacedPhrase[j]}`)
+                break;
+            }
+            if(isNumberKeyWord(spacedPhrase[j])){
                 break;
             }
             //Si encuentra numero empieza a buscar hasta enonctrar una palabra que no sea numero para delimitar el numero
-            if(isDev) console.log(`Pre ${spacedPhrase}`)
+            // if(isDev) logger.info(`Pre ${spacedPhrase}`)
             let isNumber = isWordANumber(spacedPhrase[j], isDev);
-            if(isDev) console.log(`Post ${spacedPhrase}`)
+            // if(isDev) logger.info(`Post ${spacedPhrase}`)
 
             if (spacedPhrase[j].includes(',')) {
                 isNumber = false;
@@ -197,8 +212,92 @@ function changeWordsToNumbers(phrase,isDevLog = false) {
 }
 
 function changeFloorNumber(phrase){
-    const regexFloor = /piso\s+((\w+[-\s]?)+)/i;
+    const posibleRegex = [
+        '(([a-zA-Záéíóú]+[\\s]?){2})\\s*piso',
+        '([a-zA-Záéíóú]+)\\s*piso',
+        'piso\\s+([a-zA-Záéíóú]+[\\s]?)',
+        'piso\\s+([a-zA-Záéíóú]+[\\s]?){2}'
+    ]
 
+    let cont = 1;
+    for(let posible of posibleRegex){
+        const regex = new RegExp(posible, 'i');
+        const match = phrase.match(regex);
+        if(!match) continue;
+        const floorToChange = match[1].toLowerCase();
+
+        const FloorNumber = replaceFloorNumber(match[1]);
+        if(FloorNumber){
+            phrase = phrase.replace(match[0],FloorNumber);
+            break
+        }
+        cont++;
+    }
+    return phrase;
+}
+
+function shorteningDirection(direction){
+    direction = direction
+        .replace(/estacionamiento\b/i,"Est")
+        .replace(/departamento\b/i,"dp")
+        .replace(/bodega\b/i,"bod")
+        .replace(/oficina\b/i,"of")
+        .replace(/avenida\b/i,"avd")
+        .replace(/((n(u|ú)mero|nº|num|nro|n°))/ig,'n° ')
+
+    return direction;
+}
+
+function replaceFloorNumber(numberPhrase){
+    const opciones = {
+        '^primero': 'P1',
+        '^primer' : 'P1',
+        '^segundo': 'P2',
+        'tercero': 'P3',
+        '^cuarto': 'P4',
+        '^quinto': 'P5',
+        '^sexto': 'P6',
+        '^septimo': 'P7',
+        '^octavo': 'P8',
+        '^noveno': 'P9',
+        '^decimo': 'P10',
+        '^onceavo': 'P11',
+        '^doceavo': 'P12',
+        '^doce' : 'P12',
+        '^treceavo': 'P13',
+        '^catorceavo': 'P14',
+        '^quinceavo': 'P15',
+        '^dieciseisavo': 'P16',
+        '^diecisieteavo': 'P17',
+        '^dieciochoavo': 'P18',
+        '^diecinueveavo': 'P19',
+        '^veinteavo': 'P20',
+        '^vige|ésimo': 'P20',
+        '^vige|ésimo primero': 'P21',
+        '^vige|ésimo segundo': 'P22',
+        '^vige|ésimo tercer': 'P23',
+        '((vig(e|é)simo cuarto)|vig(e|é)simocuarto)': 'P24',
+        '^vige|ésimo quinto': 'P25',
+        '^vige|ésimo sexto': 'P26',
+        '^vige|ésimo septimo': 'P27',
+        '^vige|ésimo octavo': 'P28',
+        '^vige|ésimo noveno': 'P29',
+        '^trigésimo': 'P30'
+     }
+     let lastValue;
+     
+     for(const [key, value] of Object.entries(opciones)){
+        const regex = new RegExp(key);
+        if(regex.test(numberPhrase)){
+            lastValue = value;
+        }
+     }
+
+     if(lastValue){
+        return lastValue;
+     }
+
+     return null;
 }
 
 function normalize(word){
@@ -216,10 +315,13 @@ function processAndChangeNumberPhrase(phrase, spacedPhrase, i, j){
     const phraseToChange = numberArray.join(' ');
 
     // const phraseToChangeNormalized = normalizeText(phraseToChange)
-    const regexPhrase = new RegExp(`n[uú]mero\\s*${phraseToChange}`, "i");
+    // const regexPhrase = new RegExp(`n[uú]mero\\s*${phraseToChange}`, "i");
+    const regexPhrase = new RegExp(`${phraseToChange}`, "i");
     const phraseInNumber = convertWordToNumbers(phraseToChange);
-    phrase = phrase.replace(regexPhrase, `n° ${phraseInNumber}`);
-    if(isDev) console.log("Frase a cambiar: ", phrase,"|", i + 1, j)
+    if(isNumber(phraseInNumber) && phraseInNumber != 0){
+        phrase = phrase.replace(regexPhrase, `${phraseInNumber}`);
+        if (isDev) console.log("Frase a cambiar: ", phrase, "|", i + 1, j);
+    }
     return phrase;
 }
 
@@ -233,7 +335,6 @@ function isaNumber(word){
 
 function isWordANumber(word, isDevLog){
     let normalized = normalize(word);
-    if(isDevLog) console.log(word)
 
     if(NUMBER_CONFIG.specialWords.has(normalized)) {
         return true;
@@ -243,11 +344,10 @@ function isWordANumber(word, isDevLog){
         if(normalized.includes(pattern)) {
             const regex = new RegExp(`(${pattern})`);
             normalized = normalized.replace(regex, " $1 ");
-            if(isDevLog) console.log(normalized)
             return true;
         }
     }
 
     return false;
 }
-module.exports = {extractDirection,changeWordsToNumbers}
+module.exports = {extractDirection,changeWordsToNumbers, adaptDirectionToExcel}

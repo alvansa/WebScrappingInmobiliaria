@@ -41,6 +41,7 @@ class scrapeAuction {
     }
 
     async startSearch() {
+        let casosPreliminares = [];
         let casos = [];
         let casosEconomico = [];
         let casosPreremates = [];
@@ -51,67 +52,82 @@ class scrapeAuction {
         let casosMacal = [];
         let spreadSheetData = null;
         const fechaHoy = new Date();
-        await this.launchPuppeteer_inElectron();
-        logger.info(`Iniciando la inserción de datos desde ${this.startDate} hasta ${this.endDate} y tipos ${typeof this.startDate} y ${typeof this.endDate}`);
+        try {
+            await this.launchPuppeteer_inElectron();
+            logger.info(`Iniciando la inserción de datos desde ${this.startDate} hasta ${this.endDate} y tipos ${typeof this.startDate} y ${typeof this.endDate}`);
 
-        if (this.emptyMode) {
-            casos = emptyCaseEconomico();
-        } else {
-            spreadSheetData = await SpreadSheetManager.processData();
+            if (this.emptyMode) {
+                casos = emptyCaseEconomico();
+            } else {
+                spreadSheetData = await SpreadSheetManager.processData();
 
-            casosEconomico = await this.getCasosEconomico(this.startDate, this.endDate, this.checkedBoxes.economico);
-            casosPJUD = await this.getCasosPjud(this.startDate, this.endDate, this.checkedBoxes.pjud, this.event)
-            casosMacal = await this.getCasosMacal(this.startDate, this.endDate, this.checkedBoxes.macal);
-            casosBoletin = await this.getCasosBoletin(this.startDate, this.endDate, fechaHoy, this.checkedBoxes.liquidaciones),
-            casosPYL = await this.getPublicosYLegales(this.startDate, this.endDate, fechaHoy, this.checkedBoxes.PYL),
-            casosCapitalRemates = await this.getCapitalRemates(this.startDate, this.endDate, this.checkedBoxes.capitalRemates);
+                casosEconomico = await this.getCasosEconomico(this.startDate, this.endDate, this.checkedBoxes.economico);
+                casosPreliminares = [...casosEconomico];
+                casosPJUD = await this.getCasosPjud(this.startDate, this.endDate, this.checkedBoxes.pjud, this.event);
+                casosPreliminares = [...casosPreliminares, ...casosPJUD];
+                casosMacal = await this.getCasosMacal(this.startDate, this.endDate, this.checkedBoxes.macal);
+                casosPreliminares = [...casosPreliminares, ...casosMacal];
+                casosBoletin = await this.getCasosBoletin(this.startDate, this.endDate, fechaHoy, this.checkedBoxes.liquidaciones),
+                    casosPreliminares = [...casosPreliminares, ...casosBoletin];
+                casosPYL = await this.getPublicosYLegales(this.startDate, this.endDate, fechaHoy, this.checkedBoxes.PYL),
+                    casosPreliminares = [...casosPreliminares, ...casosPYL];
+                casosCapitalRemates = await this.getCapitalRemates(this.startDate, this.endDate, this.checkedBoxes.capitalRemates);
+                casosPreliminares = [...casosPreliminares, ...casosCapitalRemates];
 
                 logger.info('Casos obtenidos por fuente');
 
-            if (casosPJUD.length == 0) {
-                logger.info('Reintentando obtencion de casos PJUD, casos obtenidos: ', casosPJUD.length);
-                casosPJUD = await this.getCasosPjud(this.startDate, this.endDate, this.checkedBoxes.pjud, this.event)
+                if (casosPJUD.length == 0) {
+                    logger.info('Reintentando obtencion de casos PJUD, casos obtenidos: ', casosPJUD.length);
+                    casosPJUD = await this.getCasosPjud(this.startDate, this.endDate, this.checkedBoxes.pjud, this.event);
+                }
+                if (casosEconomico.length == 0) {
+                    logger.info('Reintentando obtencion de casos Economico, casos obtenidos: ', casosPJUD.length);
+                    // casosEconomico = await this.getCasosEconomico(this.startDate, this.endDate, this.checkedBoxes.economico);
+                }
+
+                casos = [...casosPreremates, ...casosBoletin, ...casosPYL, ...casosPJUD, ...casosCapitalRemates, ...casosMacal];
+
+                //Luego de obtener los casos de emol se revisaran los casos obtenidos en pjud
+                if (!this.isTestMode) {
+                    // casosEconomico = await this.searchEmolAuctionsInPjud(casosEconomico);
+                }
+
+                //Agrega los casos de economico al listado general despues de la busqueda en pjud
+                casos = [...casosEconomico, ...casos];
+
             }
-            if (casosEconomico.length == 0) {
-                logger.info('Reintentando obtencion de casos Economico, casos obtenidos: ', casosPJUD.length);
-                // casosEconomico = await this.getCasosEconomico(this.startDate, this.endDate, this.checkedBoxes.economico);
+            if (!this.isTestMode) {
+                casos = await this.secondRound(casos);
+                if (casos.length > 1) {
+                    await this.obtainMapasSIIInfo(casos);
+                    logger.info('Datos de Mapas SII obtenidos');
+                    await this.obtainMetros(casos);
+                    logger.info('Metros obtenidos');
+                }
             }
 
-            casos = [...casosPreremates, ...casosBoletin, ...casosPYL, ...casosPJUD, ...casosCapitalRemates, ...casosMacal];
-
-            //Luego de obtener los casos de emol se revisaran los casos obtenidos en pjud
-            if(!this.isTestMode){
-                // casosEconomico = await this.searchEmolAuctionsInPjud(casosEconomico);
+            if (casos.length === 0) {
+                // console.log("No se encontraron datos");
+                logger.warn("No se encontraron datos");
+                return 5;
             }
 
-            //Agrega los casos de economico al listado general despues de la busqueda en pjud
-            casos = [...casosEconomico, ...casos];
+            const enricher = new DataEnricher();
+            let data = spreadSheetData.data;
+            enricher.enrichWithSpreadsheetData(casos, data);
+            logger.info('Escribiendo casos');
+            const createExcelFile = new createExcel(this.saveFile, this.startDate, this.endDate, this.emptyMode, null, this.isTestMode);
+            const filePath = await createExcelFile.writeData(casos);
+            return filePath;
 
+        } catch (error) {
+            logger.error('Error en el proceso de scrapping:', error);
+            const createExcelFile = new createExcel(this.saveFile, this.startDate, this.endDate, this.emptyMode, null, this.isTestMode);
+            const filePath = await createExcelFile.writeData(casosPreliminares);
+            return 6;
         }
-        if (!this.isTestMode) {
-            casos = await this.secondRound(casos);
-            if (casos.length > 1) {
-                await this.obtainMapasSIIInfo(casos);
-                logger.info('Datos de Mapas SII obtenidos');
-                await this.obtainMetros(casos);
-                logger.info('Metros obtenidos');
-            }
-        }
-
-        if (casos.length === 0) {
-            // console.log("No se encontraron datos");
-            logger.warn("No se encontraron datos");
-            return 5;
-        }
-
-        const enricher = new DataEnricher();
-        let data = spreadSheetData.data;
-        enricher.enrichWithSpreadsheetData(casos, data);
-        logger.info('Escribiendo casos');
-        const createExcelFile = new createExcel(this.saveFile, this.startDate, this.endDate, this.emptyMode, null, this.isTestMode);
-        const filePath = await createExcelFile.writeData(casos);
-        return filePath;
     }
+
 
 
     async secondRound(casos) {
@@ -175,11 +191,16 @@ class scrapeAuction {
             return [];
         }
 
-        let casos = [];
+        try{
 
-        casos = await MacalService.getPropertiesUntilDate(fechaFin);
+            let casos = [];
 
-        return casos;
+            casos = await MacalService.getPropertiesUntilDate(fechaFin);
+
+            return casos;
+        }catch(error){
+            return [];
+        }
     }
 
     async getCasosBoletin(fechaInicioStr, fechaFinStr, fechaHoy, BoletinChecked) {
@@ -258,8 +279,12 @@ class scrapeAuction {
         // let startDate = stringToDate(fechaInicioStr);
         // let endDate = stringToDate(fechaInicioStr);
 
-        casos = await CapitalRemates.getRemates(fechaInicioStr, fechaFinStr);
-        return casos;
+        try{
+            casos = await CapitalRemates.getRemates(fechaInicioStr, fechaFinStr);
+            return casos;
+        }catch(error){
+            return [];
+        }
     }
 
     async getCasosPjud(startDateOrigin, endDateOrigin, PJUDChecked, event) {

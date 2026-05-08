@@ -13,6 +13,11 @@ const LIQUIDACIONES = config.LIQUIDACIONES;
 const PREREMATES = config.PREREMATES;
 // const config = config.LETRAS;
 
+const MACAL = 0
+const ONEDAY = 1
+const ONE = 2
+const PRELIMINAR = 3;
+
 const RANGO_EXCEL = `${config.INICIO}5:${config.COMENTARIOS3}`;
 
 class createExcel {
@@ -118,7 +123,10 @@ class createExcel {
                 lastRow = this.insertMacal(casos,ws);
                 const dateToday = `1-1-25`
                 filePath = path.join(this.saveFile, `Remates_macal_` + dateToday + '.xlsx');
-            }else {
+            }else if(this.type == PRELIMINAR){
+
+            }
+            else {
                 lastRow = await this.insertarCasosExcel(casos, ws) - 1;
                 const fechaInicioDMA = cambiarFormatoFecha(this.startDate);
                 const fechaFinDMA = cambiarFormatoFecha(this.endDate);

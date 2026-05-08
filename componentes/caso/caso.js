@@ -1,5 +1,6 @@
 const {cleanInitialZeros} = require('../../utils/cleanStrings');
 const config = require('../../config');
+const logger = require('../../utils/logger.js');
 const DateHelper = require('./Normalizers/DateHelper');
 const RolHelper = require('./Normalizers/RolHelper');
 const StringHelper = require('./Normalizers/StringHelper');
@@ -697,46 +698,45 @@ class Caso{
     }
 
     
-    // Devuelve el monto numerico mínimo del remate
-    getMontoMinimo(){
-        this.#montoMinimo = this.#montoMinimo.replaceAll(" ","");
-        // Busca un patron numerico en el texto de la forma 1.000.000,00 o 1,000,000.00
-        const montoRegex = /\d{1,12}(?:\.\d{3})*(?:,\d+|\.\d+)?/g;
-        let monto = this.#montoMinimo.match(montoRegex)[0];
-        //Para normalizar el monto se eliminan los puntos y se cambian las comas por puntos
-        // asi quedan en formato numero en Excel.
-        const montoNormalizado = monto.replaceAll('.','').replaceAll(',','.');
-        return montoNormalizado;
-    }
+    // // Devuelve el monto numerico mínimo del remate
+    // getMontoMinimo(){
+    //     this.#montoMinimo = this.#montoMinimo.replaceAll(" ","");
+    //     // Busca un patron numerico en el texto de la forma 1.000.000,00 o 1,000,000.00
+    //     const montoRegex = /\d{1,12}(?:\.\d{3})*(?:,\d+|\.\d+)?/g;
+    //     let monto = this.#montoMinimo.match(montoRegex)[0];
+    //     //Para normalizar el monto se eliminan los puntos y se cambian las comas por puntos
+    //     // asi quedan en formato numero en Excel.
+    //     const montoNormalizado = monto.replaceAll('.','').replaceAll(',','.');
+    //     return montoNormalizado;
+    // }
     
     normalizarMontoMinimo() {
-        try {
+        // logger.info(`BUscando el monto minimo ${this.montoMinimo}`)
+        if (this.#montoMinimo == "N/A" || !this.#montoMinimo) {
+            return false;
+        }
+        let montoFinal;
+        let moneda = this.#moneda;
 
-            if (this.#montoMinimo == "N/A" || !this.#montoMinimo) {
-                return false;
-            }
-            let montoFinal;
-            let moneda = this.#moneda;
+        if (typeof this.#montoMinimo == "number") {
+            this.#montoMinimo = this.#montoMinimo;
+            return true;
+        }
 
-            if (typeof this.#montoMinimo == "number") {
-                this.#montoMinimo = this.#montoMinimo;
-                return true;
-            }
-
-            if (this.#origen == LIQUIDACIONES) {
-                montoFinal = this.#montoMinimo.replaceAll('.', '').replaceAll(',', '.');
-                moneda = "Pesos";
-            } else if (this.#montoMinimo !== null) {
-                let montominimo = this.#montoMinimo;
+        if (this.#origen == LIQUIDACIONES) {
+            montoFinal = this.#montoMinimo.replaceAll('.', '').replaceAll(',', '.');
+            moneda = "Pesos";
+        } else if (this.#montoMinimo !== null) {
+            let montominimo = this.#montoMinimo;
+            if(this.#montoMinimo.monto){
+                montoFinal = montominimo.monto;
+            }else{
                 montoFinal = montominimo.replaceAll('.', '').replaceAll(',', '.').replaceAll(' ', '');
             }
-            this.#montoMinimo = parseFloat(montoFinal);
-            this.#moneda = moneda;
-            return true;
-        } catch (error) {
-            console.error(error.message, this.#causa);
-            console.error(error);
         }
+        this.#montoMinimo = parseFloat(montoFinal);
+        this.#moneda = moneda;
+        return true;
     }
 
     // Devuelve el tipo de moneda en que se encuentra el monto mínimo
