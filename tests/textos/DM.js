@@ -400,6 +400,297 @@ electrónico c.maturana@montesylavin.cl,  ambos  de  mi  mismo  domicilio,  Aven
 Nº  42,  piso  5,  comuna  de  Providencia,  Región  Metropolitana,    quienes  podrán  actuar
 separada e indistintamente y firman a continuación en señal de aceptación.`;
 
+const dm2414 = `“BancoEstado Cobranzas. Para consultas, llámenos desde celular al *2326 o al 800 38 2727
+de lunes a viernes de 09:00 a 19:00 horas. También nos pueden contactar al whatsapp
++56958942219, opción 6 o escanea el QR “
+
+PROCEDIMIENTO :   Ejecutivo Civil (C07)
+MATERIA :    Cobro de Pagaré
+DEMANDANTE :   Banco del Estado de Chile
+RUT Nº :    97.030.000-7
+REPRESENTANTE
+LEGAL:   OSCAR RAUL ANTONIO GONZALEZ NARBONA
+RUT Nº:   6.362.085-8
+ABOGADO PATROCINANTE
+Y APODERADO:   CLAUDIO FELIPE ALTAMIRANO RODRIGUEZ
+RUT Nº:    13.902.651-9
+ABOGADO PATROCINANTE
+Y APODERADO:   ISMAEL CANALES PINTO
+RUT Nº:    5.739.416-1
+DEMANDADO:  NORA MAGALY VILLANUEVA VILLANUEVA
+RUT N°:  10.880.026-7
+N° OPERACIÓN:   00038389300
+Nº PAGARE:   00011952523
+GARANTIA:  FOGAPE
+__________________________________________________________________________________
+EN  LO  PRINCIPAL:  Demanda  ejecutiva  y  mandamiento  de  ejecución  y  embargo. PRIMER
+OTROSÍ:   Acompaña   documentos   bajo   apercibimiento   legal   y   solicita   custodia. SEGUNDO
+OTROSÍ: Señala  bienes  para  la  traba  del  embargo  y  designa  depositario. TERCER  OTROSÍ: Se
+tenga  presente. CUARTO  OTROSÍ:  Señala  correo  electrónico. QUINTO  OTROSÍ: Patrocinio  y
+poder.
+
+S. J. L. en lo Civil de Iquique.
+
+CLAUDIO  FELIPE  ALTAMIRANO  RODRIGUEZ, chileno,  abogado,  Cédula  Nacional  de
+Identidad  y  RUT  Nº  13.902.651-9,  correo  electrónico notificaciones@canalesabogados.cl, y
+abogadonorte@beco.bancoestado.cl, en  representación,  según  se  acreditará,  del BANCO
+DEL   ESTADO   DE   CHILE,   empresa   autónoma   del   Estado,   dedicada   al   giro   de   su
+denominación,  Rut  Nº  97.030.000-7,  ambos  domiciliados  en  esta  ciudad,  calle  San  Martín
+número trescientos uno, institución bancaria representada por su Gerente General  ejecutivo don
+OSCAR  GONZALEZ  NARBONA,  chileno,  casado,  ingeniero  civil   industrial,   Cedula
+nacional de identidad N° 6.362.085-8,  domiciliado en Avenida Libertador Bernardo O’Higgins
+N°1111 Santiago, a US. Respetuosamente digo:
+
+Mi  representado,  el  Banco  del  Estado  de  Chile,  es  dueño  del  pagaré  que  fue  suscrito  en  calidad  de
+deudor   principal   por don   (ña) NORA   MAGALY   VILLANUEVA   VILLANUEVA, ignoro
+profesión  u  oficio,  con domicilio  en Calle Los  Manzanos  N°2906,  Iquique y/o Calle  Los  Kiwis
+N°2912,  y/o  Feria  La  Quebradilla y/o  Avenida  Las  Americas  N°74,todos  los domicilios  de  Alto
+Hospicio.
+
+El pagaré N° 00011952523, N°operación Nº00038389300 fue suscrito por la suma de $4.091.732.- por
+concepto de capital, más un interés del 0,8300 % MENSUAL, a contar del 20 de Enero de 2025, que
+el  deudor se obligó a pagar en 60 cuotas MENSUALES y sucesiva, cuyos  montos  y vencimientos  se
+señalan en el mismo pagaré.
+
+Se  estableció  en  el  pagaré  que  en  caso  de  mora  o  simple  retardo  en  el  pago  de  cualesquiera  de  las
+cuotas   pactadas,   el   deudor   está   obligado   a   pagar,   desde   el   incumplimiento,   intereses   penales
+equivalentes  al  máximo convencional según las  tasas que rijan  durante  el retardo, sin perjuicio de los
+demás  derechos  del acreedor, quedando facultado  el Banco del Estado de Chile para hacer exigible la
+totalidad de la deuda como si fuese de plazo vencido en el caso de no pago de cualquiera de las cuotas
+en que se dividió la obligación.
+
+____________________________________________________________________________
+“BancoEstado Cobranzas. Para consultas, llámenos desde celular al *2326 o al 800 38 2727
+de lunes a viernes de 09:00 a 19:00 horas. También nos pueden contactar al whatsapp
++56958942219, opción 6 o escanea el QR “
+
+
+El deudor se obligó a pagar la comisión legal de 0 % anual sobre el capital garantizado que el
+Banco  del  Estado  de  Chile  recauda  para  el  Fondo  de  Garantía  para  Pequeños  Empresarios
+(FOGAPE), el cual cauciona el crédito con una tasa de garantía de 95% del saldo capital.
+
+Es del caso señalar que el deudor ha dejado de pagar desde la cuota con vencimiento al 07 de Abril de
+2025,  inclusive,  y  todas  las  posteriores,  por  tanto  el  Banco  del  Estado  de  Chile  ha  decidido  hacer
+exigible la totalidad de la deuda, demandando la suma de $ 4.091.732.- más la comisión  legal del 0
+% anual  sobre  el  saldo  del  capital  garantizado  por  el  Fondo  de  Garantía  para  Pequeños
+Empresarios (FOGAPE), más las costas de esta causa.
+
+Como consta del pagaré que se acompaña, la obligación es indivisible, el (los) suscriptor(es)  relevaron
+al  portador  de  los  documentos  de  la  obligación  de  protesto  y,  la(s)  firma(s)  de  este(os)  se  encuentra
+autorizada  por  Notario.  La  obligación  es  líquida,  actualmente  exigible  y  la  acción  ejecutiva  no  se
+encuentra prescrita.
+
+POR TANTO, de acuerdo a lo expuesto, documentos acompañados, y a lo dispuesto en el artículo 98
+y siguientes de la ley 18.092, artículos 254, 434 N° 4 y siguientes del Código de Procedimiento Civil, y
+demás normas pertinentes.
+
+A  SS.  PIDO: tener  por  interpuesta  demanda  ejecutiva  en  contra de  don (ña) NORA  MAGALY
+VILLANUEVA  VILLANUEVA, ya  individualizado(s),  en  la(s)  calidad(es)  ya  indicada(s), admitirla
+a tramitación y ordenar se despache mandamiento de ejecución y embargo en su contra por la suma de
+$ 4.091.732.- más la comisión legal del 0% anual sobre el saldo del capital garantizado por el
+Fondo  de  Garantía  para  Pequeños  Empresarios  (FOGAPE),  más  intereses  pactados  y  costas,
+requerir  de  pago  al  deudor,  y  disponer  se  siga  adelante  esta  ejecución  hasta  que  a  mi
+representada  se  le  haga  entero  y  cumplido  pago  de  lo  adeudado,  con  expresa  condena  en
+costas.
+
+PRIMER OTROSÍ Solicito a S.S. tener por acompañado, bajo apercibimiento del artículo 346
+N° 3 del Código de Procedimiento Civil, el pagaré individualizado en lo principal, y se ordene
+su custodia.
+
+SEGUNDO  OTROSÍ: Solicito  a  S.S.  tener  presente  que  señalo  para  la  traba  del  embargo  todos  los
+bienes del ejecutado, corporales  e incorporales, muebles  e inmuebles, y todos los que puedan aparecer
+en  el futuro,  los  que  permanecerán  en  su  poder  en  calidad  de  depositarios  provisionales,  bajo  su
+responsabilidad civil y penal.
+
+TERCER OTROSÍ: Sírvase US. tener presente que  mi personería, para actuar en representación del
+BANCO DEL ESTADO DE CHILE, consta de mandato judicial con firma electrónica avanzada de
+la  Ley  20.886  que  en  su  artículo  7°  inciso    2°  señala  que  el  mandato  judicial  podrá  constituirse
+mediante  la  firma  electrónica  avanzada  del  mandante.  En  consecuencia  para  obrar  como  mandatario
+judicial  se considerará  poder  suficiente  el  constituido  mediante  declaración  escrita  del  mandante
+suscrita con firma electrónica avanzada sin que se requiera su comparecencia personal para autorizar su
+representación  judicial,  mandato  que  fue  otorgado  por  don OSCAR  GONZALEZ  NARBONA,
+chileno, casado, ingeniero civil industrial, Cedula nacional de identidad N° 6.362.085-8, en su calidad
+de Gerente General Ejecutivo del Banco del Estado de Chile, de fecha 14 de Julio de 2022, cuya copia
+se encuentra archivada en secretaria del tribunal.
+
+CUARTO  OTROSÍ: Que  por  este  acto  vengo  en  señalar  a  S.S.,  como  medio  de  notificación  los
+siguientes correo electrónicos; notificaciones@canalesabogados.cl y
+abogadonorte@beco.bancoestado.cl
+
+QUINTO  OTROSÍ: Solicito  a  S.S.  tener  presente  en  mi  calidad  de  abogado  habilitado  para  el
+ejercicio de la profesión, asumo el patrocinio de la demandante y actuaré personalmente en su nombre
+
+____________________________________________________________________________
+“BancoEstado Cobranzas. Para consultas, llámenos desde celular al *2326 o al 800 38 2727
+de lunes a viernes de 09:00 a 19:00 horas. También nos pueden contactar al whatsapp
++56958942219, opción 6 o escanea el QR “
+
+y representación en el presente proceso. Asimismo, en virtud de las facultades que me ha conferido mi
+mandante,  otorgo  patrocinio  y  poder  al  abogado  habilitado  para  el  ejercicio  de  la  profesión  don
+ISMAEL   CANALES   PINTO,   ambos   domiciliados   para   estos   efectos, en BAQUEDANO   1081,
+IQUIQUE, con quien podré actuar en forma conjunta o separada, indistintamente, quien firma junto a
+mí en señal de aceptación.
+
+
+
+
+
+
+
+
+Claudio Altamirano Rodriguez
+C.I. 13.902.651-9
+Abogado
+Ismael Canales Pinto
+C.I. 5.739.416-1
+Abogado`;
+
+const dm2478 = `Consultas, pagos o normalizaciones, diríjase a Letelier 300, Valdivia; escriba al correo abogadoal@socofin.cl;
+llame al fono +56 2 28768218 o ingrese a www.socofin.cl
+
+Materia  : Cobro de Pagaré.
+Código  : C07
+Demandante : Banco de Chile.
+Rut   : 97.004.000-5
+Rep. Legal              : Eduardo Ebensperger Orrego.
+Rut                          : 9.851.837-1
+Mandataria             : Paula Arancibia Rodríguez
+Rut                          : 9.342.648-7
+Ab. Patrocinante : María Teresa Heiss Manieu.
+Rut   : 11.657.472-1
+Apoderado  : María Teresa Heiss Manieu.
+Rut   : 11.657.472-1
+Demandado            : CONSTRUCTORA E INMOBILIARIA FERCOM LIMITADA
+Rut                          : 76.166.162-0
+Rep. Legal              : Gerardo Manuel Fernández Cocio
+Rut                          : 9.348.029-5
+Demandado 2        : Gerardo Manuel Fernández Cocio
+Rut                          : 9.348.029-5
+
+EN LO PRINCIPAL: demanda ejecutiva y mandamiento de ejecución y embargo;
+PRIMER  OTROSÍ: acompaña  documento. SEGUNDO  OTROSI: señala  bienes
+para   la   traba   del   embargo   y   depositario   provisional; TERCER   OTROSÍ:
+personería; CUARTO OTROSÍ: se tenga presente; QUINTO OTROSI: reserva de
+acciones; SEXTO  OTROSI: señala  medio  de  notificación  electrónica; SEPTIMO
+OTROSI:  patrocinio y poder.
+S. J. L.
+
+ PAULA ARANCIBIA RODRÍGUEZ, abogada, Rut: 9.342.648-7,
+domiciliada  en  calle  Bandera  N°  577,  Piso  10,  Santiago, mandataria  judicial  en
+representación   convencional, según   se   acreditará, del BANCO   DE   CHILE,
+sociedad  anónima  bancaria  del  giro  de  su  denominación,  Rut:  97.004.000-5,
+representada a su vez por su gerente general don Eduardo Ebensperger Orrego,
+ingeniero  comercial, domiciliado  en calle  Ahumada  Nº  251  de  la  ciudad  de
+Santiago, a US., con respeto digo:
+ En la calidad invocada deduzco demanda ejecutiva de cobro de pagaré en
+contra  de CONSTRUCTORA  E  INMOBILIARIA  FERCOM LIMITADA, sociedad
+del  giro  de  su  denominación,  representada  legalmente  por  don GERARDO
+MANUEL FERNANDEZ COCIO, ignoro profesión u oficio, en calidad de deudora
+principal  y  en  contra  de  don GERARDO  MANUEL  FERNANDEZ  COCIO, en
+calidad de avalista sin limitaciones, fiador y codeudor solidario, con domicilio en
+Calle  Nueva  5  Norte 250 y/o Sevilla  250, Lote  5 y/o Condominio  Los  Cisnes
+Parcela   36,   todos de   Valdivia, conforme con los   antecedentes   que   a
+continuación se detallan.
+
+
+
+Consultas, pagos o normalizaciones, diríjase a Letelier 300, Valdivia; escriba al correo abogadoal@socofin.cl;
+llame al fono +56 2 28768218 o ingrese a www.socofin.cl
+
+Mi  representado  es  dueño  y  legítimo  tenedor  de  un PAGARÉ  FOGAPE
+CHILE APOYA N° 166162 y ANEXO PAGARÉ FOGAPE CHILE APOYA, por la
+suma de $14.817.779.- que recibió la deudora a entera conformidad y satisfacción
+en dinero efectivo con fecha nueve de agosto de 2024.
+Se  estableció  en  el  señalado  documento  que  a  contar  de  la  fecha  de
+suscripción la obligación devengará intereses con una tasa anual de 11,4 %.
+La  demandada  se  obligó  a  pagar  la  cantidad  adeudada  por  concepto  de
+capital e intereses en sesenta cuotas, cuyos vencimientos y demás estipulaciones
+quedaron establecidas en el pagaré, el que doy completamente por reproducido.
+ Sin  perjuicio  de  los  intereses  antes  apuntados, se  estableció  que  en  caso
+de mora o simple retardo en el pago del capital o de los intereses el banco haría
+exigible al deudor el pago total de la deuda o el saldo adeudado como si fuese de
+plazo vencido y devengará desde la mora o simple retardo hasta el pago efectivo,
+intereses  penales  a  razón  de  la  tasa  máxima  que  la  ley  permite  estipular  de  la
+forma que en dicho documento se señala.
+La garantía otorgada por FOGAPE para caucionar el crédito que da cuenta
+el pagaré corresponde al 90 % del saldo de capital adeudado.
+Pues  bien,  como  la  demandada  no  pagó  en  la  fecha  pactada,  esto  es, el
+diecisiete  de  octubre 2024, hago  exigible  mediante  la  presente  demanda el  total
+de  lo  adeudado  que  asciende  a la  suma  de $11.789.383.- (once millones
+setecientos ochenta  y  nueve mil trescientos  ochenta  y  tres pesos), más  los
+intereses que  procedan de  conformidad  al  pagaré  recién  indicado  que  se  da
+íntegramente por reproducido y las costas de la causa.
+En el pagaré quedó establecido que las obligaciones derivadas del mismo
+tendrían  el  carácter  de  indivisibles  pudiendo  el  Banco  cobrarlas  íntegramente  a
+cada  uno  de  los  herederos  o  sucesores  a  cualquier  título,  en  los  términos  que
+establecen los artículos 1526 Nº 4, 1528 y 1531 del Código Civil.
+ La  deudora  liberó  a  mi  representado  de  la  obligación  de  protesto  y  para
+todos   los   efectos   legales   constituyó   domicilio   en   la   ciudad   de   Valdivia,
+sometiéndose a la jurisdicción de sus Tribunales.
+ La  firma  de los  obligados  al  pago fue  autorizada  ante  Notario,  por  lo  que
+dicho instrumento tiene mérito ejecutivo.
+ En consecuencia, este pagaré constituye un título ejecutivo que da cuenta
+de una obligación líquida, no prescrita y actualmente exigible.
+           POR  TANTO, en  mérito  de  lo  expuesto,  los  documentos  acompañados  y
+de  conformidad  a  lo  dispuesto  en  los  artículos  434  y  siguientes  del  Código  de
+Procedimiento Civil y demás disposiciones legales pertinentes,
+
+
+
+Consultas, pagos o normalizaciones, diríjase a Letelier 300, Valdivia; escriba al correo abogadoal@socofin.cl;
+llame al fono +56 2 28768218 o ingrese a www.socofin.cl
+
+RUEGO  A S. S., se  sirva tener  por  entablada  demanda  ejecutiva de  cobro  de
+pagaré en  contra  de CONSTRUCTORA  E  INMOBILIARIA  FERCOM LIMITADA,
+representada legalmente por don GERARDO MANUEL FERNANDEZ COCIO, en
+calidad   de   deudora principal, y   en   contra   de   don GERARDO   MANUEL
+FERNANDEZ  COCIO, en  calidad  de  avalista  sin  limitaciones,  fiador  y  codeudor
+solidario, ya individualizado, y ordenar se despache mandamiento de ejecución y
+embargo en su contra y sea requerido de pago por la suma $11.789.383.- (once
+millones setecientos ochenta y nueve mil trescientos ochenta y tres pesos),
+más  los  intereses que  procedan  de  conformidad con el pagaré  que  se  da
+íntegramente  por  reproducido,  ordenando  seguir  adelante  la  ejecución  hasta
+hacer entero y cumplido pago de lo adeudado a mi representado Banco de Chile,
+calculado al momento de su pago efectivo, con costas.
+PRIMER OTROSI: ruego a US. tener por acompañado, con citación, el PAGARÉ
+FOGAPE  CHILE  APOYA,  Pagaré  N° 166162 y  ANEXO  PAGARÉ  FOGAPE
+CHILE  APOYA, detallados en  lo  principal,  disponiendo  su  custodia  por  el  (la)
+señor (a) Secretario (a) del Tribunal.
+SEGUNDO OTROSI: señalo para la traba del embargo todos los bienes que sean
+o  aparezcan  de  dominio  de  la  demandada,  al  momento  de  la  traba,  bienes  que
+solicito  queden  en  su  poder  en  calidad  de  depositario  provisional  bajo  las
+responsabilidades legales. En especial señalo el inmueble de propiedad de la
+demandada CONSTRUCTORA E INMOBILIARIA FERCOM LIMITADA, inscrito
+a  fojas  3091  vuelta,  bajo  el  Nº  3574  en  el  Registro  de  Propiedad  del
+Conservador de Bienes Raíces de Valdivia, correspondiente al año 2012.
+TERCER   OTROSI: sírvase   S.   S.   tener   presente   que   mi   personería   para
+representar  a  BANCO  DE  CHILE  consta  en  escritura  pública  de  fecha  treinta  de
+junio de 2025, otorgada en la Décimo Octava Notaría de Santiago de doña María
+Pilar Gutiérrez Rivera, repertorio 9082-2025, cuya copia con firma electrónica del
+Notario acompaño con citación.
+CUARTO OTROSI: conforme lo dispuesto por la ley 21.320, y con el fin de ofrecer
+al demandado salidas alternativas a este juicio, distintas del remate de los bienes
+del  embargados  en  autos;  o  del  pago  íntegro  e  inmediato  de  los  créditos
+demandados en esta ejecución, vengo en solicitar a S. S. tener presente que para
+efectos  de  evaluar  alternativas  de  normalización  de  su  situación  crediticia,  el
+demandado puede comunicarse con Socofin S.A. al teléfono +56 2 28768218; al
+correo electrónico abogadoal@socofin.cl; dirigirse a nuestras oficinas ubicadas en
+Letelier 300, Valdivia; o ingresar en el sitio web www.socofin.cl
+QUINTO OTROSI:  sírvase S. S. tener presente que hago expresa reserva de las
+demás acciones que me confiere la ley.
+
+
+
+Consultas, pagos o normalizaciones, diríjase a Letelier 300, Valdivia; escriba al correo abogadoal@socofin.cl;
+llame al fono +56 2 28768218 o ingrese a www.socofin.cl
+
+SEXTO   OTROSÍ: señala   como   medio   de   notificación   electrónica   el   correo
+mtheiss2016@hotmail.com
+SEPTIMO OTROSI:  por el presente instrumento confiero patrocinio y poder a la
+abogada doña María Teresa Heiss Manieu, Rut 11.657.472-1, domiciliada en calle
+Vicente  Pérez  Rosales  560,  oficina  406-D,  Valdivia,  quien  firma  en  señal  de
+aceptación.
+`;
 
 
 
@@ -409,5 +700,7 @@ separada e indistintamente y firman a continuación en señal de aceptación.`;
 module.exports = {
     dm1056,
     dm1138,
-    dm8094
+    dm8094,
+    dm2414,
+    dm2478
 }

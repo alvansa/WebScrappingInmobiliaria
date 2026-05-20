@@ -2,20 +2,23 @@ const {app, BrowserWindow, ipcMain, dialog,electron} = require('electron');
 const pie = require('puppeteer-in-electron');
 const puppeteer = require('puppeteer-core');
 const { fakeDelay, delay } = require('../../utils/delay');
+const config = require('../../config.js');
 // const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 // const puppeteerExtra = require('puppeteer-extra');
 
 const ConsultaCausaPjud = require('./consultaCausaPjudRefactored');
+const NORMAL = config.NORMAL;
 
 // puppeteerExtra.use(StealthPlugin());
 
 class GestorRematesPjud{
-    constructor(casos,event,mainWindow){
+    constructor(casos,event,mainWindow,type){
         this.casos = casos;
         this.event = event;
         this.mainWindow = mainWindow;
         this.browser = null;
         this.activeWindows = new Set();
+        this.type = type;
     }
 
     async getInfoFromAuctions(options = {}){
@@ -70,7 +73,7 @@ class GestorRematesPjud{
         const browser = await pie.connect(app, puppeteer);
         let window;
         window = this.openWindow(window, false);
-        const consultaCausa = new ConsultaCausaPjud(browser, window, caso, this.mainWindow);
+        const consultaCausa = new ConsultaCausaPjud(browser, window, caso, this.mainWindow,this.type);
         const result = await consultaCausa.getConsulta()
 
         return result;

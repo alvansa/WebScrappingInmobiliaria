@@ -1162,6 +1162,14 @@ class checkFPMG {
             return false;
         }
         console.log(`Se encontraron ${this.casos.length} casos de deuda para procesar`);
+        let cont = 0;
+        for(let caso of this.casos){
+            console.log(caso.causa, caso.juzgado, caso.fechaRemate);
+            cont++;
+            if(cont > 5){
+                break;
+            }
+        }
 
         obtainCorteJuzgadoNumbers(this.casos)
 
@@ -1278,7 +1286,7 @@ class checkFPMG {
                 }
                 // const result = await this.consultaCausa(caso);
                 const result = await this.consultaCausaGeneral(caso);
-                // if(counter > 15){
+                // if(counter > 3){
                 //     return true;
                 // }
 

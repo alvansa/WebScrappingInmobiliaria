@@ -27,6 +27,8 @@ const { randomDelay } = require('../../../utils/stealth.js');
 const PJUD = config.PJUD;
 const MACAL = config.MACAL;
 
+const NORMAL = config.NORMAL;
+
 class scrapeAuction {
     constructor(startDate, endDate, saveFile, checkedBoxes, event, isEmptyMode, mainWindow, isTestMode = false) {
         this.startDate = startDate;
@@ -302,7 +304,7 @@ class scrapeAuction {
             casos = await this.searchCasesByDay(startDate, endDate);
             casos.reverse(); // Invertir el orden de los casos para que aparezcan del mas reciente al mas antiguo
 
-            const gestorRemates = new GestorRematesPjud(casos, event, this.mainWindow);
+            const gestorRemates = new GestorRematesPjud(casos, event, this.mainWindow,NORMAL);
             const result = await gestorRemates.getInfoFromAuctions();
 
             // console.log("Cantidad de casos obtenidos de pjud: ", casos.length);

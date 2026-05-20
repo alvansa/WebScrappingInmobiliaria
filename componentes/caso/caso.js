@@ -55,6 +55,7 @@ class Caso{
     #isPaid;
     #origen;
     #deudaHipotecaria;
+    #deudaPagare;
     #alreadyAppear;
     #unitRol;
     #unitAvaluo;
@@ -644,7 +645,8 @@ class Caso{
             dato : this.#dato,
             estado : this.#estado,
             montoMinimo2 : this.#montoMinimo2,
-            metros : this.metros
+            metros : this.metros,
+            deudaPagare : this.deudaPagare
         };
     } 
 

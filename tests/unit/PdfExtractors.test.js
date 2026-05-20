@@ -8,6 +8,8 @@ const GP = require('../textos/GP');
 const AR = require('../textos/ActaRemate');
 const DV = require('../textos/DV');
 const EX = require('../textos/Extracto');
+const DM = require('../textos/DM');
+
 
 const PROPIEDAD = config.PROPIEDAD;
 const ESTACIONAMIENTO = config.ESTACIONAMIENTO;
@@ -218,5 +220,35 @@ habitación, etcétera; constituir servidumbres activas o pasivas; posponerlas`;
         const norm = normalizeText(text);
         const tipoDerecho = extractor.rightType(norm);
         // expect(tipoDerecho).toBeNull();
+    })
+})
+
+describe('Test para obtener la deuda de la demanda, sea hipoteca o pagare', ()=>{
+    describe('Test para deuda hipoteacaria', ()=>{
+        test('Test para caso negativo que expresa materia pagare',()=>{
+            const textTest = DM.dm2414;
+            const norm = normalizeText(textTest);
+            const deudaPagare = extractor.mortageDebt(norm);
+            expect(deudaPagare).toBeNull()
+        })
+
+    })
+
+
+    describe('Test para deuda de pagare', ()=>{
+        test('Test deuda de pagare con materia de pagare',()=>{
+            const textTest = DM.dm2414;
+            const norm = normalizeText(textTest);
+            const deudaPagare = extractor.promissoryNoteDebt(norm);
+            expect(deudaPagare).toBe(4091732)
+        });
+        
+        test('Test deuda de pagare con materia de pagare',()=>{
+            const textTest = DM.dm2478;
+            const norm = normalizeText(textTest);
+            const deudaPagare = extractor.promissoryNoteDebt(norm);
+            expect(deudaPagare).toBe(11789383)
+        });
+
     })
 })

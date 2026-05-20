@@ -183,7 +183,10 @@ class PdfProccess{
         }else{
             caso.deudaHipotecaria = deudaHipotecaria;
         }
-        // }
+
+        const deudaPagare = extractors.promissoryNoteDebt(text);
+        this.logNewInfo(`Deuda pagaré`, deudaPagare);
+        caso.deudaPagare = deudaPagare;
     }
 
     static logNewInfo(tipe, info){

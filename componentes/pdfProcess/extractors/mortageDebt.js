@@ -3,12 +3,10 @@ const regexMutuoHipotecario = /mutuo\s*hipotecario/i;
 function processMortageDebt(text, debug = false) {
 
     if (!isHipotecario(text)) {
-        return;
+        return null;
     }
 
     return obtainMortageDebt(text);
-
-
 }
 
 function isHipotecario(text) {
