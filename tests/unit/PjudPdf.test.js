@@ -1,6 +1,9 @@
 const PjudPdfData = require('../../componentes/pjud/PjudPdfData');
 const Caso = require('../../componentes/caso/caso');
 const config = require('../../config')
+
+const {loadFile} = require('../loadFile.js');
+
 const PROPIEDAD = config.PROPIEDAD;
 const ESTACIONAMIENTO = config.ESTACIONAMIENTO;
 const BODEGA = config.BODEGA;
@@ -573,16 +576,17 @@ describe('ObtainMontoCompra', () => {
 });
 
 describe('obtainDeudaHipoteca', ()=>{
-    test('Monto de compra donde dice mutuo y prestamo',()=>{
-        const info = normalizeText(dm1056);
+    test('Monto de compra donde dice mutuo y prestamo',async ()=>{
+        const info = await loadFile('Demandas', 'mutuo3');
         const deuda = extractor.mortageDebt(info);
-        expect(deuda).toEqual('uf 1248,2274');
+        expect(deuda).toEqual('uf 1248');
     });
 
-    test('Monto de compra donde dice mutuo hipotecario',()=>{
-        const info = normalizeText(dm1138);
+    test('Monto de compra donde dice mutuo hipotecario', async ()=>{
+
+        const info = await loadFile('Demandas', 'mutuo2')
         const deuda = extractor.mortageDebt(info);
-        expect(deuda).toEqual('uf 3684,5498');
+        expect(deuda).toEqual('uf 3684');
     });
 });
 

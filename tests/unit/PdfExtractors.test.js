@@ -1,6 +1,7 @@
 const extractor = require('../../componentes/pdfProcess/extractors');
 const {normalizeText, normalizeTextSpanish}  = require('../../utils/textNormalizers');
 const config = require('../../config');
+const {loadFile} = require('../loadFile.js');
 
 
 const AV = require('../textos/Avaluo');
@@ -224,31 +225,75 @@ habitación, etcétera; constituir servidumbres activas o pasivas; posponerlas`;
 })
 
 describe('Test para obtener la deuda de la demanda, sea hipoteca o pagare', ()=>{
+    beforeAll(async()=>{
+    })
+
     describe('Test para deuda hipoteacaria', ()=>{
-        test('Test para caso negativo que expresa materia pagare',()=>{
-            const textTest = DM.dm2414;
-            const norm = normalizeText(textTest);
+        test('Test para caso negativo que expresa materia pagare',async ()=>{
+            const pagare6 = await loadFile('Demandas','pagare6');
+            const norm = normalizeText(pagare6);
             const deudaPagare = extractor.mortageDebt(norm);
             expect(deudaPagare).toBeNull()
         })
 
+        test('Test para caso materia cobro mutuo', async ()=>{
+            const dmMutuo1 = await loadFile('Demandas','mutuo1');
+            const norm = normalizeText(dmMutuo1);
+            const deudaPagare = extractor.mortageDebt(norm);
+            expect(deudaPagare).toBe('2488 uf')
+        })
+
+        test('Test para caso materia obligacion de dar', async ()=>{
+            const obligacion1 = await loadFile('Demandas','obligacion1');
+            const norm = normalizeText(obligacion1);
+            const deudaPagare = extractor.mortageDebt(norm);
+            expect(deudaPagare).toBe('3338 uf')
+        })
     })
 
 
     describe('Test para deuda de pagare', ()=>{
-        test('Test deuda de pagare con materia de pagare',()=>{
-            const textTest = DM.dm2414;
+        test('Test deuda de pagare con materia de pagare',async ()=>{
+            const textTest = await loadFile('Demandas','pagare1');
             const norm = normalizeText(textTest);
             const deudaPagare = extractor.promissoryNoteDebt(norm);
             expect(deudaPagare).toBe(4091732)
         });
         
-        test('Test deuda de pagare con materia de pagare',()=>{
-            const textTest = DM.dm2478;
+        test('Test deuda de pagare con materia de pagare',async ()=>{
+            const textTest = await loadFile('Demandas','pagare2');
             const norm = normalizeText(textTest);
             const deudaPagare = extractor.promissoryNoteDebt(norm);
             expect(deudaPagare).toBe(11789383)
         });
 
+        test('Test deuda de pagare con materia de pagare',async ()=>{
+            const textTest = await loadFile('Demandas','mutuo1');
+            const norm = normalizeText(textTest);
+            const deudaPagare = extractor.promissoryNoteDebt(norm);
+            expect(deudaPagare).toBeNull()
+        });
+
+
+        test('Test deuda de pagare con materia de pagare',async ()=>{
+            const textTest = await loadFile('Demandas','pagare5');
+            const norm = normalizeText(textTest);
+            const deudaPagare = extractor.promissoryNoteDebt(norm);
+            expect(deudaPagare).toBe('145 uf')
+        });
+
+        test('Test deuda de pagare con materia de pagare',async ()=>{
+            const textTest = await loadFile('Demandas','pagare6');
+            const norm = normalizeText(textTest);
+            const deudaPagare = extractor.promissoryNoteDebt(norm);
+            expect(deudaPagare).toBe(4091732)
+        });
+
+        test('Test deuda de pagare con demanda ejecutiva', async ()=>{
+            const textTest = await loadFile('Demandas','pagare7');
+            const norm = normalizeText(textTest);
+            const deudaPagare = extractor.promissoryNoteDebt(norm);
+            expect(deudaPagare).toBe('22151 uf')
+        });
     })
 })

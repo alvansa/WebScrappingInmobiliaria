@@ -21,15 +21,6 @@ class MapasSII {
             throw error; // Re-throw the error to handle it in the calling function
         }
     }
-    
-    async Secondinit() {
-        try{
-            await this.entryPage2();
-        }catch (error) {
-            console.error("Error al inicializar MapasSII:", error);
-            throw error; // Re-throw the error to handle it in the calling function
-        }
-    }
 
     async finishPage(){
         if(this.window && !this.window.isDestroyed()){
@@ -74,30 +65,6 @@ class MapasSII {
     }
 
     async entryPage() {
-        const defaultUserAgents = [
-            { userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' },
-            { userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' }
-        ];
-
-        let userAgents;
-
-        try {
-            // Intenta cargar USER_AGENTS desde .env, si no existe usa los valores por defecto
-            userAgents = process.env.USER_AGENTS ? JSON.parse(process.env.USER_AGENTS) : defaultUserAgents;
-        } catch (error) {
-            console.error('Error parsing USER_AGENTS from .env, using default agents:', error);
-            userAgents = defaultUserAgents;
-        }
-
-        // Selecciona un User-Agent aleatorio
-        const randomIndex = Math.floor(Math.random() * userAgents.length);
-        await this.page.setUserAgent(userAgents[randomIndex].userAgent);
-
-        await this.page.waitForSelector("div.col-xs-7 button.btn-lg");
-        await this.page.click("div.col-xs-7 button.btn-lg");
-    }
-
-    async entryPage2() {
         const defaultUserAgents = [
             // { userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' },
             // { userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' },

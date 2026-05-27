@@ -22,7 +22,8 @@ const listUserAgents = require('../../utils/userAgents.json');
 
 const DELAY_RANGE = {"min": 2, "max" : 5}
 let DEUDA_SEARCH = false;
-const DEUDA = config.DEUDA
+const DEUDA = config.DEUDA;
+const LADRILLERO = config.LADRILLERO;
 
 const indexEstado = config.obtenerNumero('ESTADO');
 const indexCausa = config.obtenerNumero('CAUSA');
@@ -66,14 +67,16 @@ class checkFPMG {
         this.sender.send('checkFPMG-progress', { type: 'status', message: `Obteniendo información de ${this.casos.length} casos...` });
 
         //TODO : agregar parte de consultaCausaPjid
+
         // const webScrapper = new ConsultaCausaPjud()
 
 
+        await this.processListDeuda(LADRILLERO);
         // Search and process each cause
-        await this.processList();
+        // await this.processList();
 
         // //Write each cause that had changes in the last week
-        // this.writeChangesDeuda();
+        this.writeChangesDeuda();
 
         console.log("Proceso Finalizado")
         return true;
@@ -1175,7 +1178,7 @@ class checkFPMG {
 
         //TODO: Ocupar el GestorRematesPjud
         DEUDA_SEARCH = true;
-        await this.processListDeuda();
+        await this.processListDeuda(DEUDA);
 
         this.writeChangesDeuda();
 
@@ -1262,18 +1265,10 @@ class checkFPMG {
         return false;
     }
 
-    async consultaCausaGeneral(caso){
-        const browser = await pie.connect(app, puppeteer);
-        let window;
-        window = this.openWindow(window, false);
-        const consultaCausa = new ConsultaCausaPjud(browser, window, caso, this.mainWindow, DEUDA);
-        const result = await consultaCausa.getConsulta()
-
-        return result;
-    }
+    
     
 
-    async processListDeuda() {
+    async processListDeuda(type) {
         const mainWindow = BrowserWindow.fromWebContents(this.event.sender);
         let counter = 0;
         try {
@@ -1285,7 +1280,7 @@ class checkFPMG {
                     continue;
                 }
                 // const result = await this.consultaCausa(caso);
-                const result = await this.consultaCausaGeneral(caso);
+                const result = await this.consultaCausaGeneral(caso,type);
                 // if(counter > 3){
                 //     return true;
                 // }
@@ -1300,7 +1295,18 @@ class checkFPMG {
             console.error("Error al obtener datos de los casos: ", error.message);
         }
     }
+    async consultaCausaGeneral(caso,type){
+        const browser = await pie.connect(app, puppeteer);
+        let window;
+        window = this.openWindow(window, false);
+        const consultaCausa = new ConsultaCausaPjud(browser, window, caso, this.mainWindow, type);
+        const result = await consultaCausa.getConsulta()
+
+        return result;
+    }
 }
+
+
 
 function copyRowBetweenFiles(sourceSheet, targetSheet, sourceRowIndex, targetRowIndex) {
     const sourceData = XLSX.utils.sheet_to_json(sourceSheet, { header: 1 });

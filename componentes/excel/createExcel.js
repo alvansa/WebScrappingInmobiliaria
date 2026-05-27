@@ -510,8 +510,8 @@ async function insertarCasoIntoWorksheet(caso, ws, currentRow) {
     }
     writeLine(ws, `${config.ANNO_COMPRA}`, currentRow, caso.anno, "n");
     writeLine(ws, `${config.DEUDA_BANCO}` , currentRow, caso.mortageBank , 's')
-    writeLine(ws, `${config.DEUDA_HIPOTECA}`, currentRow, caso.deudaHipotecaria, "n");
-    writeLine(ws, `${config.DEUDA_PAGARE}`, currentRow, caso.deudaPagare, "n");
+    writeLine(ws, `${config.DEUDA_HIPOTECA}`, currentRow, caso.deudaHipotecaria, "s");
+    writeLine(ws, `${config.DEUDA_PAGARE}`, currentRow, caso.deudaPagare, "s");
     console.log(`Escribiendo el excel con el caso :${caso.causa} con link: ${caso.linkMap}`);
     writeLine(ws, `${config.OTRA_DEUDA}`, currentRow, caso.linkMap, 's');
     // ws[`AG` + currentRow ] = {v: 'año compr ant ', t: 's'};

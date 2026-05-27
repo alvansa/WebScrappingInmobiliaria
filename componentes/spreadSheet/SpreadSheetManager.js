@@ -86,10 +86,8 @@ class SpreadSheetManager {
 
         // Ahora puedes acceder a las variables
         const spreadsheetId = EnvLoader.get('SPREADSHEET_ID');
-        // console.log('Spreadsheet ID:', spreadsheetId);
 
         // Intentar cargar token existente
-        // console.log('Intentando leer token desde', TOKEN_PATH);
         try {
             const tokenContent = await readFile(TOKEN_PATH, 'utf8');
             const credentials = JSON.parse(tokenContent);
@@ -117,7 +115,6 @@ class SpreadSheetManager {
             console.log('Autenticado con éxito escribiendo en el token');
             // Guardar token para uso futuro
             await writeFile(TOKEN_PATH, JSON.stringify(auth.credentials));
-            // console.log('Token guardado en', TOKEN_PATH);
         }
 
         // Crear cliente de Sheets

@@ -62,7 +62,6 @@ class scrapeAuction {
                 casos = emptyCaseEconomico();
             } else {
                 spreadSheetData = await SpreadSheetManager.processData();
-
                 casosEconomico = await this.getCasosEconomico(this.startDate, this.endDate, this.checkedBoxes.economico);
                 casosPreliminares = [...casosEconomico];
                 casosPJUD = await this.getCasosPjud(this.startDate, this.endDate, this.checkedBoxes.pjud, this.event);
@@ -86,17 +85,13 @@ class scrapeAuction {
                     logger.info('Reintentando obtencion de casos Economico, casos obtenidos: ', casosPJUD.length);
                     // casosEconomico = await this.getCasosEconomico(this.startDate, this.endDate, this.checkedBoxes.economico);
                 }
-
                 casos = [...casosPreremates, ...casosBoletin, ...casosPYL, ...casosPJUD, ...casosCapitalRemates, ...casosMacal];
-
                 //Luego de obtener los casos de emol se revisaran los casos obtenidos en pjud
                 if (!this.isTestMode) {
                     // casosEconomico = await this.searchEmolAuctionsInPjud(casosEconomico);
                 }
-
                 //Agrega los casos de economico al listado general despues de la busqueda en pjud
                 casos = [...casosEconomico, ...casos];
-
             }
             if (!this.isTestMode) {
                 casos = await this.secondRound(casos);
@@ -109,7 +104,6 @@ class scrapeAuction {
             }
 
             if (casos.length === 0) {
-                // console.log("No se encontraron datos");
                 logger.warn("No se encontraron datos");
                 return 5;
             }
@@ -146,12 +140,11 @@ class scrapeAuction {
             return casos;
         }
         logger.info(`Iniciando segunda vuelta, casos con partes vacias: ${countEmptyParts}`);
-        // const awaitTime = rando;
         await randomDelay(5, 10);
         //Volver a revisar los casos faltantes
+        logger.info(`-----------\nSegunda Vuelta \n--------------------------`);
         const gestorRemates = new GestorRematesPjud(casos, this.event, this.mainWindow);
         const result = await gestorRemates.getInfoFromAuctions({ skipIfHasPartes: true });
-        logger.info(`-----------\nSegunda Vuelta \n--------------------------`);
         return casos;
     }
 
@@ -192,13 +185,9 @@ class scrapeAuction {
         if(!macalChecked){
             return [];
         }
-
         try{
-
             let casos = [];
-
             casos = await MacalService.getPropertiesUntilDate(fechaFin);
-
             return casos;
         }catch(error){
             return [];
@@ -221,7 +210,6 @@ class scrapeAuction {
             endDate = stringToDate(fechaFinStr);
         }
         let window = null;  
-        // console.log("Obteniendo casos de boletin desde: ", startDate, " hasta: ", endDate);
         logger.info("Obteniendo casos de boletin desde: ", startDate, " hasta: ", endDate);
         try {
             window = new BrowserWindow({ show: false });
@@ -307,7 +295,6 @@ class scrapeAuction {
             const gestorRemates = new GestorRematesPjud(casos, event, this.mainWindow,NORMAL);
             const result = await gestorRemates.getInfoFromAuctions();
 
-            // console.log("Cantidad de casos obtenidos de pjud: ", casos.length);
             logger.info("Cantidad de casos obtenidos de pjud: ", casos.length);
         } catch (error) {
             console.error("Error en el pjud :", error.message);
@@ -321,11 +308,10 @@ class scrapeAuction {
         let mapasSII = null;
         // let window = null;
         try {
-            // console.log("Obteniendo datos de Mapas SII");
             logger.info("Obteniendo datos de Mapas SII");
             let page;
             mapasSII = new MapasSII(page, this.browser);
-            await mapasSII.Secondinit();
+            await mapasSII.init();
             for (let caso of casos) {
                 if ((caso.rolPropiedad !== null && caso.comuna !== null) && caso.origen != MACAL ) {
                     try {
@@ -353,14 +339,21 @@ class scrapeAuction {
         for (let caso of casos) {
             // logger.info(`Obteniendo metros para caso ${caso.causa} con rol ${caso.rolPropiedad} y comuna ${caso.comuna}`);
             if (caso.rolPropiedad !== null && caso.comuna !== null) {
-                try {
-                    const metrosTotales = await dataInmobiliaria.obtenerMetrosTotales(caso.comuna, caso.rolPropiedad);
-                    caso.metros = metrosTotales;
-                    await fakeDelay(1, 3);
-                } catch (error) {
-                    // console.error(`Error obteniendo metros para caso ${caso.rolPropiedad}:`, error.message);
+                continue;
+            }
+            try {
+                const data = await dataInmobiliaria.obtainData(caso.comuna, caso.rolPropiedad);
+                if (!data) {
                     continue;
                 }
+                caso.metros = data.metros;
+                if (data.linkMap) {
+                    caso.linkMap = data.linkMap;
+                }
+                await fakeDelay(1, 3);
+            } catch (error) {
+                // console.error(`Error obteniendo metros para caso ${caso.rolPropiedad}:`, error.message);
+                continue;
             }
         }
     }
@@ -368,11 +361,9 @@ class scrapeAuction {
     async searchEmolAuctionsInPjud(casos) {
         const fixedStartDate = this.startDate.replace(/-/g, '/');
         const fixedEndDate = this.endDate.replace(/-/g, '/');
-        // console.log("Fechas para descartar casos economico: ",fixedStartDate, fixedEndDate, new Date(fixedStartDate), new Date(fixedEndDate));
         logger.info("Fechas para descartar casos economico: ", fixedStartDate, fixedEndDate, new Date(fixedStartDate), new Date(fixedEndDate));
 
         if (!casos || casos.length === 0) {
-            // console.log("No hay casos para buscar en Pjud");
             logger.warn("No hay casos para buscar en Pjud");
             return [];
         }
@@ -419,26 +410,26 @@ class scrapeAuction {
     }
 }
 
-function openWindow(window, useProxy) {
-    const isVisible = true;
-    if (useProxy) {
-        const proxyData = JSON.parse(process.env.PROXY_DATA);
-        const randomIndex = Math.floor(Math.random() * proxyData.length);
-        window = new BrowserWindow({
-            show: isVisible,// Ocultar ventana para procesos en background
-            proxy: {
-                username: proxyData[randomIndex].username,
-                password: proxyData[randomIndex].password,
-                server: proxyData[randomIndex].server,
-            }
-        });
-    } else {
-        window = new BrowserWindow({
-            show: isVisible,// Ocultar ventana para procesos en background
-        });
-    }
-    return window;
-}
+// function openWindow(window, useProxy) {
+//     const isVisible = true;
+//     if (useProxy) {
+//         const proxyData = JSON.parse(process.env.PROXY_DATA);
+//         const randomIndex = Math.floor(Math.random() * proxyData.length);
+//         window = new BrowserWindow({
+//             show: isVisible,// Ocultar ventana para procesos en background
+//             proxy: {
+//                 username: proxyData[randomIndex].username,
+//                 password: proxyData[randomIndex].password,
+//                 server: proxyData[randomIndex].server,
+//             }
+//         });
+//     } else {
+//         window = new BrowserWindow({
+//             show: isVisible,// Ocultar ventana para procesos en background
+//         });
+//     }
+//     return window;
+// }
 
 
 // Dado un objeto Date, devuelve un string con el formato dd/mm/yyyy

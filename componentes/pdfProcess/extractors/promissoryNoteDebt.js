@@ -1,9 +1,6 @@
 const {normalizeText} = require('../../../utils/textNormalizers');
 
 function processPromissoryNoteDebt(text){
-    console.log("Procesando deuda pagaré...")
-    // console.log(text)
-
     if(!isDemandaPagare(text)){
         return null;
     }
@@ -15,12 +12,24 @@ function processPromissoryNoteDebt(text){
     }
     const textAfterInicio = text.substring(indexHipoteca).replaceAll('.','');
 
-    console.log("Texto después de 'por tanto': ", textAfterInicio);
     const regexNumber = "(\\d{1,}|\\d{1,3}(\\.\\d{1,3})*),?(\\d{1,})?"
+
+    const regexUF = "(u\\.?[fe]\\.?|unidades?\\s*de\\s*fomento)"
+    const regexDeudaUF = new RegExp(`(${regexNumber}\\s*(-\\s*)?${regexUF}|${regexUF}\\s*${regexNumber})`, "gi")
+    const matchDeudaUF = textAfterInicio.match(regexDeudaUF)
+    if(matchDeudaUF){
+        const regexComa = new RegExp(',\\d{1,}')
+        let deuda = matchDeudaUF[0].replace(/unidades?\s*de\s*fomento/i,'uf')
+        if(regexComa.test(deuda)){
+            deuda = deuda.replace(regexComa,'');
+        }
+        return deuda
+    }
+
     const regexDeuda = new RegExp(`\\$\\s*${regexNumber}`)
+
     const matchNumero = textAfterInicio.match(regexDeuda);
     if(matchNumero){
-        console.log(matchNumero[1]);
         return Number(matchNumero[1]);
     }
     return null;
@@ -28,7 +37,8 @@ function processPromissoryNoteDebt(text){
 
 function isDemandaPagare(text){
     const regexForPagare = [
-        'materia\\s*:\\s*cobro\\s*de\\s*pagar[e|é]'
+        'materia\\s*:\\s*cobro\\s*(de)?\\s*pagar[e|é]',
+        'pagar[eé]\\s*n[uú]mero\\s*'
     ]
 
     for(let posibleRegex of regexForPagare){
@@ -45,5 +55,6 @@ function isDemandaPagare(text){
 
 
 module.exports = {
-    processPromissoryNoteDebt
+    processPromissoryNoteDebt,
+    isDemandaPagare
 }

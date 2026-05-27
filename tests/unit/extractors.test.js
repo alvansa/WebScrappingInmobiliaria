@@ -5,6 +5,7 @@ const {extractDirection, adaptDirectionToExcel} = require('../../componentes/eco
 const PjudPdfData = require('../../componentes/pjud/PjudPdfData');
 const extractors = require('../../componentes/pdfProcess/extractors/index');
 const {normalizeText} = require('../../utils/textNormalizers');
+const {loadFile} = require('../loadFile.js')
 
 const txGP = require('../textos/GP');
 const DEMANDA = require('../textos/DM');
@@ -268,13 +269,12 @@ describe('test para extraer el banco que tiene la hipoteca del GP', ()=>{
 
 describe('Test para obtener el texto de la demanda', ()=>{
 
-    test('Test para texto de demanda que la deuda esta separada por espacios',()=>{
+    test('Test para texto de demanda que la deuda esta separada por espacios', async ()=>{
         // const pjud = new PjudPdfData(null,null,null);
-
-        const demanda = DEMANDA.dm8094;
+        const demanda = await loadFile('demandas','mutuo1')
         const normDemanda = normalizeText(demanda);
         const deuda = extractors.mortageDebt(normDemanda);
-        expect(deuda).toBe('2488,1308 unidades de fomento');
+        expect(deuda).toBe('2488 uf');
 
     })
 })
@@ -300,7 +300,7 @@ describe('Test para probar la direccion y adaptacion a excel', () =>{
 
         test('Test de cambio caso "piso vigesimocuarto', ()=>{
             const direccion = adaptDirectionToExcel('departamento 24 del piso vigesimocuarto y la bod 15 del primer subterráneo ubicado en avd manquehue norte n° 555 denominado edificio los cedros.');
-            expect(direccion).toBe('dp 24 P24 y la bod 15 del primer subterráneo ubicado en avd manquehue norte n° 555 denominado edificio los cedros.');
+            expect(direccion).toBe('dp 24 del P24 y la bod 15 del primer subterráneo ubicado en avd manquehue norte n° 555 denominado edificio los cedros.');
         })
     })
 

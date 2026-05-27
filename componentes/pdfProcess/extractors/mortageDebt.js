@@ -1,4 +1,4 @@
-const regexMutuoHipotecario = /mutuo\s*hipotecario/i;
+const {isDemandaPagare} = require('../extractors/promissoryNoteDebt');
 
 function processMortageDebt(text, debug = false) {
 
@@ -10,8 +10,22 @@ function processMortageDebt(text, debug = false) {
 }
 
 function isHipotecario(text) {
-    if (regexMutuoHipotecario.exec(text) || text.includes('mutuo')) {
-        return true;
+
+    const posibleRegexHipotecario = [
+        'mutuo\\s*hipotecario',
+        'obligaci[oó]n\\s*de\\s*dar',
+        'mutuo',
+    ]
+    const regexMutuoHipotecario = /mutuo\s*hipotecario/i;
+
+    if(isDemandaPagare(text)){
+        return false;
+    }
+    for(let posibleRegex of posibleRegexHipotecario){
+        const regex = new RegExp(posibleRegex, 'i');
+        if(regex.test(text)){
+            return true;
+        }
     }
     if (text.includes("prestamo")) {
         // console.log("No valido para deuda por prestamo");
@@ -24,14 +38,14 @@ function isHipotecario(text) {
         // console.log("no valido para deuda por pagare");
         return false;
     }
-    const regexMeses = /\d{2,}\s*(meses|cuotas\s*mensual)/;
-    const matchRegexMeses = text.match(regexMeses);
-    if (matchRegexMeses) {
-        const numMeses = parseInt(matchRegexMeses[0].match(/\d{1,}/)[0]);
-        if (numMeses > 60) {
-            return true;
-        }
-    }
+    // const regexMeses = /\d{2,}\s*(meses|cuotas\s*mensual)/;
+    // const matchRegexMeses = text.match(regexMeses);
+    // if (matchRegexMeses) {
+    //     const numMeses = parseInt(matchRegexMeses[0].match(/\d{1,}/)[0]);
+    //     if (numMeses > 60) {
+    //         return true;
+    //     }
+    // }
     return false;
 }
 function obtainMortageDebt(text) {
@@ -49,6 +63,11 @@ function obtainMortageDebt(text) {
         deuda = checkBiggerDebt(matchNumero)
         if (deuda.includes("ue")) {
             deuda = deuda.replace("ue", "uf");
+        }
+        const regexComa = new RegExp(',\\d{1,}')
+        deuda = deuda.replace(/unidades?\s*de\s*fomento/i,'uf')
+        if(regexComa.test(deuda)){
+            deuda = deuda.replace(regexComa,'');
         }
         return deuda;
     }

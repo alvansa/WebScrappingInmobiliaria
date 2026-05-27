@@ -14,6 +14,7 @@ const PjudPdfData = require("./PjudPdfData.js");
 // const PdfProcess = require("../pdfProcess/PdfProcess.js");
 const listUserAgents = require("../../utils/userAgents.json");
 const logger = require("../../utils/logger.js");
+const {stringToDate} = require('../../utils/cleanStrings.js')
 const config = require('../../config.js');
 const { logToRenderer } = require("../../utils/utilsRenderer.js");
 
@@ -64,29 +65,26 @@ class ConsultaCausaPjud {
         let result = false;
 
         try {
-            console.log("Iniciando la consulta de causa en Pjud...");
+            logger.info("Iniciando la consulta de causa en Pjud...");
             await this.loadConfig();
             await this.loadPageWithRetries();
 
             result = await this.procesarCaso(lineaAnterior);
             if (result) {
-                console.log("Caso procesado correctamente");
+                logger.info("Caso procesado correctamente");
                 // return true;
             } else {
-                console.log("No se pudo procesar el caso");
+                logger.info("No se pudo procesar el caso");
                 // return false;
             }
             // await this.cleanFilesDownloaded();
         } catch (error) {
-            console.error(
-                "Error en la función getEspecificDataFromPjud:",
-                error.message,
-            );
+            logger.error(`Error en la función getConsulta: ${error.message}`);
             await this.window.close();
             return false;
         } finally {
             if (this.window && !this.window.isDestroyed()) {
-                console.log("Cerrando ventana del pjud");
+                logger.info("Cerrando ventana del pjud");
                 this.window.close();
             }
         }
@@ -94,7 +92,7 @@ class ConsultaCausaPjud {
         return true;
     }
 
-    async loadConfig() {
+    async loadConfig(maxRetries = 3) {
         // TODO: Revisar si el try catch es necesario o si es mejor manejarlo a nivel de la función que llama a loadConfig
         let userAgents;
 
@@ -108,31 +106,28 @@ class ConsultaCausaPjud {
         }
         const randomIndex = Math.floor(Math.random() * userAgents.length);
 
-        try {
-            this.page = await pie.getPage(this.browser, this.window);
-            await this.page.setUserAgent(userAgents[randomIndex].userAgent);
-            await this.page.goto(this.link);
-        } catch (error) {
-            logger.error(`Error during page navigation: ${error.message}`);
-            throw error; // Opcional: relanzar el error si quieres manejarlo fuera
+        for(let attempt = 1; attempt <= maxRetries; attempt++){
+            try {
+                this.page = await pie.getPage(this.browser, this.window);
+                await this.page.setUserAgent(userAgents[randomIndex].userAgent);
+                await this.page.goto(this.link);
+            } catch (error) {
+                logger.error(`Error during page navigation: ${error.message}`);
+                throw error; // Opcional: relanzar el error si quieres manejarlo fuera
+            }
         }
     }
 
     async loadPageWithRetries(maxRetries = 3) {
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
             try {
-                console.log(`Intento ${attempt} de carga de página...`);
+                logger.debug(`Intento ${attempt} de carga de página...`);
                 await this.page.goto(this.link, { waitUntil: "networkidle2" });
                 await this.page.waitForSelector("#competencia");
-                console.log(
-                    `Página cargada exitosamente en el intento ${attempt}`,
-                );
                 return; // Salir de la función si se carga correctamente
             } catch (error) {
                 console.error(
-                    `Error al cargar la página (intento ${attempt}):`,
-                    error.message,
-                );
+                    `Error al cargar la página (intento ${attempt}): ${error.message}`);
                 if (attempt === maxRetries) {
                     throw new Error(
                         `No se pudo cargar la página después de ${maxRetries} intentos`,
@@ -148,7 +143,7 @@ class ConsultaCausaPjud {
 
         const valorInicial = await this.setValoresIncialesBusquedaCausa();
         if (!valorInicial) {
-            console.log("No se pudieron setear los valores iniciales");
+            logger.warn("No se pudieron setear los valores iniciales");
             return false; // Salta al siguiente caso
         }
 
@@ -157,15 +152,12 @@ class ConsultaCausaPjud {
             // Y cambiar funcion para que revise si cambio pero no a base de comparacion
             cambioPagina = await this.revisarPrimeraLinea(lineaAnterior);
         } catch (error) {
-            console.error(
-                "Error al verificar o procesar la primera línea del caso:",
-                error.message,
-            );
+            logger.error(`Error al verificar o procesar la primera línea del caso: ${error.message}`);
             return lineaAnterior; // Salta al siguiente caso
         }
 
         if (!cambioPagina) {
-            console.log("No se cambio el resultado. Saltando caso.");
+            logger.warn("No se cambio el resultado. Saltando caso.");
             return false; // Salta al siguiente caso
         }
 
@@ -174,10 +166,10 @@ class ConsultaCausaPjud {
         //TODO: De aqui todo para atras podria ser una funcion configuradora
         const isValid = await this.searchAuctionInfo();
         if (isValid) {
-            console.log("Datos posibles del caso obtenidos correctamente");
+            logger.debug("Datos posibles del caso obtenidos correctamente");
             return true;
         } else {
-            console.log("Fallo al buscar la informacion");
+            logger.warn("Fallo al buscar la informacion");
             return false;
         }
     }
@@ -197,10 +189,9 @@ class ConsultaCausaPjud {
                 },
             );
         } catch (error) {
-            console.error("Error al obtener las partes :", error.message);
+            logger.error(`Error al obtener las partes : ${error.message}`);
             return false;
         }
-        console.log("Partes del caso:", partes);
         this.caso.partes = partes;
         return true;
     }
@@ -227,10 +218,7 @@ class ConsultaCausaPjud {
                             .join(" ");
                         // Verifica la tabla contiene parte del texto que indica que no se encontró el caso
                         if (newContent.includes("No se han encontrado")) {
-                            console.log(
-                                "La tabla presenta que no se encontro el caso.",
-                                cells[0].innerText,
-                            );
+                            logger.debug(`La tabla presenta que no se encontro el caso ${cells[0].innerText}`);
                             return false;
                         }
                         return newContent && newContent !== lineaAnterior;
@@ -265,9 +253,10 @@ class ConsultaCausaPjud {
         // Primero se revisa que el caso tenga los valores necesarios para la búsqueda
         const valores = this.validateInitialValues();
         if (!valores) {
+            logger.warn(`Error al precargar valores`);
             return false;
         }
-        console.log("Valores precargados : Listo");
+        logger.debug("Valores precargados : Listo");
 
         if (!(await this.configurateCompetencia())) {
             return false;
@@ -317,40 +306,45 @@ class ConsultaCausaPjud {
             // Si se encuentra un valor, lo retornamos; si no, retornamos null
             return value;
         } catch (error) {
-            console.error("Error al seleccionar el tribunal");
+            logger.error(`Error al seleccionar el tribunal ${error.message}`);
             return null;
         }
     }
 
     async searchAuctionInfo() {
-        console.log("Se esta buscando los datos del cuaderno");
+        logger.debug("Se esta buscando los datos del cuaderno");
 
         // Busca y presiona el boton que muestra la tabla principal del caso.
         const findLink = await this.searchButtonAuction();
 
         if (!findLink) {
-            console.error("No se pudo encontrar el enlace del caso");
+            logger.error("No se pudo encontrar el enlace del caso");
             return false;
         }
 
         //Funcion que actualmente no esta en uso porque nose si esta concluido el caso implica algo
         // const estadoCaso = await this.checkIfCaseIsConcluded();
-        // console.log("Estado actual del caso: ", estadoCaso);
 
         //Se selecciona el cuaderno de apremio o en caso de que no este el principal.
         //TODO: Hay que cambiar la funcion de cambio de cuaderno.
         const selectedCuaderno = await this.selectCuaderno();
 
         if (!selectedCuaderno) {
-            console.log("no se encontro el cuaderno");
+            logger.debug("no se encontro el cuaderno");
             return false;
         }
 
         //TODO: agregar busqueda en no resueltos
+        if(this.type == LADRILLERO){
+            logger.info(`Buscando en no resueltos`)
+            await this.searchInMainTable('notResolved')
+            await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
+        }
+
         await this.searchInMainTable();
         // Descargar el texto de la demanda.
         if(this.type == NORMAL){
-            console.log("Descargando demanda");
+            logger.debug("Descargando demanda");
             await this.downloadDemanda();
         }
         return true;
@@ -374,10 +368,8 @@ class ConsultaCausaPjud {
             const linkToDownload = linkBaseDemanda + value;
             //TODO : Separar la descarga del pdf de la lectura
             const isDone = await this.downloadPdfFromUrl(linkToDownload);
-            console.log("Valor obtenido:", value);
         } catch (error) {
-            console.error("Error al descargar la demanda:", error.message);
-            return false;
+            logger.error(`Error al descargar la demanda: ${error.message}`);
         }
     }
 
@@ -423,7 +415,7 @@ class ConsultaCausaPjud {
             // Selecciona el enlace dentro del tbody con id "verDetalle"
             const link = await this.page.$("#verDetalle a");
             if (!link) {
-                console.log("Enlace no econtrado");
+                logger.warn("Enlace no econtrado");
                 return false;
             }
             await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
@@ -469,32 +461,24 @@ class ConsultaCausaPjud {
                 await this.page.select("#selCuaderno", optionToSelect.value);
                 logger.debug(`Seleccinado cuaderno: ${optionToSelect.value}`);
             } else {
-                console.log("La opción deseada no se encuentra en el select.");
+                logger.debug("La opción deseada no se encuentra en el select.");
                 secondOption = options.find((option) =>
                     option.text.includes(targetOptionConcursal),
                 );
                 if (secondOption) {
-                    console.log(
-                        'La opción "Administracion concursal" se seleccionará en su lugar.',
-                        secondOption,
-                    );
-                    console.log(secondOption.text, secondOption.value);
+                    logger.debug(`La opción "Administracion concursal" se seleccionará en su lugar. ${secondOption} `);
+                    logger.debug(`${secondOption.text} , ${secondOption.value} `);
                     await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
                     // Seleccionar la segunda opción si "Apremio" no está disponible
                     await this.page.select("#selCuaderno", secondOption.value);
                 } else {
-                    console.log(
-                        "La opción deseada no se encuentra en el select.",
-                    );
+                    logger.debug(`La opción deseada no se encuentra en el select.`);
                     secondOption = options.find((option) =>
                         option.text.includes("Principal"),
                     );
                     if (secondOption) {
-                        console.log(
-                            'La opción "Principal" se seleccionará en su lugar.',
-                            secondOption,
-                        );
-                        console.log(secondOption.text, secondOption.value);
+                        logger.debug(`La opción "Principal" se seleccionará en su lugar: ${secondOption}`);
+                        logger.debug(`${secondOption.text} , ${secondOption.value}`);
                         await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
                         // Seleccionar la segunda opción si "Apremio" no está disponible
                         await this.page.select(
@@ -514,17 +498,11 @@ class ConsultaCausaPjud {
             );
             if (optionToSelect) {
                 if (cuadernoValue !== optionToSelect.value) {
-                    console.log(
-                        "No se seleccionó el cuaderno:",
-                        optionToSelect.text,
-                    );
+                    logger.warn(`No se seleccionó el cuaderno: ${optionToSelect.text}`);
                 }
             } else if (secondOption) {
                 if (cuadernoValue !== secondOption.value) {
-                    console.log(
-                        "Tampoco se selecciono la opcion de Principal",
-                        secondOption.text,
-                    );
+                    logger.warn(`Tampoco se selecciono la opcion de Principal ${secondOption.text}`);
                     return false;
                 }
             }
@@ -538,13 +516,25 @@ class ConsultaCausaPjud {
         }
     }
 
-    async searchInMainTable() {
+    async searchInMainTable(table = 'main') {
         let isDone;
-        await this.page.waitForSelector("#historiaCiv", { timeout: 10000 });
-        const tableRows = await this.page.$$("#historiaCiv .table tbody tr");
+        let selector;
+        if (table == 'main'){
+            selector = '#historiaCiv';
+        }else{
+            selector = '#escritosCiv';
+        }
+        await this.page.waitForSelector(selector , { timeout: 10000 });
+        const tableRows = await this.page.$$(`${selector} .table tbody tr`);
         for (const row of tableRows) {
             try {
-                await this.searchDataInRow(row);
+                if(table == 'main'){
+                    await this.searchDataInRow(row);
+                }else{
+                    logger.info('LLAMANDO A LA FUNCION NOT RESOLVED')
+                    await this.searchForDirectoryNotResolved(row)
+                }
+
             } catch (error) {
                 logger.error(
                     `Error processing row on attempt : ${error.message}`,
@@ -579,7 +569,7 @@ class ConsultaCausaPjud {
 
             if(this.type == NORMAL){
                 if (dirHasLink) {
-                    logger.info(`El numero ${number} tiene directorio se hace click`);
+                    logger.debug(`El numero ${number} tiene directorio se hace click`);
 
                     await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
                     // const linkToDir = await row.$("td:nth-child(3) a");
@@ -598,43 +588,44 @@ class ConsultaCausaPjud {
                         return false;
                     }
                 }
-                logger.info(`Fila: ${number}, ${uselessFile}, ${directory}, ${stage}, ${tramite}, ${descripcion}, ${fecha}`);
+                logger.debug(`Fila: ${number}, ${uselessFile}, ${directory}, ${stage}, ${tramite}, ${descripcion}, ${fecha}`);
                 this.checkDescription(descripcion);
 
             }else if(this.type == LADRILLERO){
-                console.log('Ladrillero');
+                if(stringToDate(fecha) >= dateToday){
+                    this.caso.hasChanged = true;
+                }
+
             }else if(this.type == DEUDA){
-                // console.log('Deuda');
                 if(descripcion.toLowerCase().includes("acta")){
                     this.caso.hasChanged = true;
                     logger.debug(`Acta encontrada cambiando hasChanged de caso ${this.caso.causa}`)
                 }
                 logger.debug(`Fila ${stage} ${number} ${descripcion}`)
-
             }
+            return false;
+        } catch (error) {
+            logger.error(`Error al obtener los datos de la fila: ${error.message}`);
+            return false;
+        }
+    }
 
-                // if (dirHasLink) {
-                //     logger.info(`El numero ${number} tiene directorio se hace click`);
-
-                //     await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
-                //     // const linkToDir = await row.$("td:nth-child(3) a");
-                //     await linkToDir.click();
-                //     await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
-
-                //     //TODO: Separar la busqueda y descarga del pdf?
-                //     await this.downloadPdfFile();
-
-                //     const xSelector = "#modalAnexoSolicitudCivil > div > div > div.modal-header > button";
-                //     const xButton = await this.page.$(xSelector);
-                //     if (xButton) {
-                //         await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
-                //         await this.page.waitForSelector(xSelector, {visible: true,});
-                //         await this.page.click(xSelector);
-                //         return false;
-                //     }
-                // }
-                // logger.info(`Fila: ${number}, ${uselessFile}, ${directory}, ${stage}, ${tramite}, ${descripcion}, ${fecha}`);
-                // this.checkDescription(descripcion);
+    async searchForDirectoryNotResolved(row) {
+        logger.info(`BUCASNOD EN DIRECTORIO NO RESUELTO`)
+        const dateToday = new Date();
+        dateToday.setDate(dateToday.getDate() - 7);
+        try {
+            const [number, uselessFile, date, type, lawyer] = await Promise.all([
+                row.$eval('td:nth-child(1)', el => el.textContent.trim()),
+                row.$eval('td:nth-child(2)', el => el.textContent.trim()),
+                row.$eval('td:nth-child(3)', el => el.textContent.trim()),
+                row.$eval('td:nth-child(4)', el => el.textContent.trim()),
+                row.$eval('td:nth-child(5)', el => el.textContent.trim()),
+            ]);
+            if (stringToDate(date) >= dateToday) {
+                this.caso.hasChanged = true;
+                logger.debug("EXITO");
+            }
             return false;
         } catch (error) {
             logger.error(`Error al obtener los datos de la fila: ${error.message}`);
@@ -678,20 +669,18 @@ class ConsultaCausaPjud {
                     row.$eval('td:nth-child(1) form input[name="dtaDoc"', (input) => input.value),
                 ]);
                 //Donwload pdf and save it in a specific folder
-                console.log(
+                logger.debug(
                     "**********************************************************",
                 );
-                // console.log("Trabajando en el documento: ",doc," referencia :", reference);
                 if (this.isTPDocument(reference)) {
                     this.caso.tp = true;
                 }
                 if (this.shouldSkipDoc(reference)) {
-                    console.log("Saltando el documento: ", reference);
+                    logger.debug(`Saltando el documento: ${reference}`);
                     continue; // Salta la revision de documento si es un documento que no intersa por ahora.
                 }
-                // console.log("revisando si crashea aca con el valuePdf: ", valuePdf);
                 await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
-                console.log("Procesando el documento: ", reference);
+                logger.debug(`Procesando el documento: ${reference}`);
                 if (valuePdf && valuePdf !== "") {
                     const linkToPdf =
                         "https://oficinajudicialvirtual.pjud.cl/ADIR_871/civil/documentos/anexoDocCivil.php?dtaDoc=" +
@@ -799,7 +788,7 @@ class ConsultaCausaPjud {
         let resultOfProcess = false;
         let pdfWindow = null;
         try {
-            console.log("O si crashea por aca");
+            logger.debug("O si crashea por aca");
             pdfWindow = new BrowserWindow({ show: false });
             await pdfWindow.loadURL(url, { timeout: 120000 }); // Aumentar el tiempo de espera a 120 segundos
 
@@ -857,7 +846,7 @@ class ConsultaCausaPjud {
             // return false;
         } finally {
             if (pdfWindow && !pdfWindow.isDestroyed()) {
-                console.log("Cerrando ventana del pdf");
+                logger.debug("Cerrando ventana del pdf");
                 pdfWindow.destroy();
             }
         }
@@ -868,7 +857,6 @@ class ConsultaCausaPjud {
     //     let resultOfProcess = false;
     //     let pdfWindow = null;
     //     try {
-    //         console.log("O si crashea por aca");
     //         pdfWindow = new BrowserWindow({ show: true });
 
     //         const nameDir = `${this.caso.causa}_${this.caso.juzgado}`;
@@ -908,7 +896,6 @@ class ConsultaCausaPjud {
     //         }
     //         pdfWindow.destroy();
     //         if (resultOfProcess) {
-    //             console.log("Caso completo");
     //             return true;
     //         }
     //         return false;
@@ -929,7 +916,6 @@ class ConsultaCausaPjud {
     //     let pdfPage = null;
 
     //     try {
-    //         console.log("Iniciando descarga de PDF desde URL");
     //         pdfWindow = new BrowserWindow({
     //             show: true,
     //             webPreferences: {
@@ -1028,7 +1014,6 @@ class ConsultaCausaPjud {
     //         });
     //         return directDownload;
     //     } catch (error) {
-    //         console.log("Fallando a estrategia de captura de página...");
 
     //         // Intento 2: Capturar como PDF desde la página renderizada
     //         const pdf = await page.pdf({
@@ -1090,7 +1075,7 @@ class ConsultaCausaPjud {
         };
         for (const [clave, valor] of Object.entries(valores)) {
             if (valor === null) {
-                console.log("Falta valor:", clave);
+                logger.warn(`Falta valor: ${clave}`);
                 return false;
             }
         }
@@ -1129,7 +1114,7 @@ class ConsultaCausaPjud {
                 (el) => el.value,
             );
             if (valorCortePage !== valorCorte) {
-                console.log("No se seleccionó el corte:", valorCorte);
+                logger.warn(`No se seleccionó el corte: ${valorCorte}`);
                 return false;
             }
             // Esperar actualización del selector dependiente
@@ -1151,7 +1136,7 @@ class ConsultaCausaPjud {
             // Selecciona el valor del tribunal entre las opciones disponibles segun el juzgado
             const valorTribunal = await this.seleccionarTribunal(valorJuzgado);
             if (valorTribunal === null) {
-                console.log("No se encontró el tribunal:", valorJuzgado);
+                logger.warn(`No se encontró el tribunal: ${valorJuzgado}`);
                 return false;
             }
 
@@ -1289,7 +1274,7 @@ class ConsultaCausaPjud {
                     throw new Error("El directorio no está vacío");
                 }
                 await fs.promises.rmdir(this.dirPath);
-                console.log(`Directorio eliminado: ${this.dirPath}`);
+                logger.debug(`Directorio eliminado: ${this.dirPath}`);
             }
         } catch (error) {
             console.error(

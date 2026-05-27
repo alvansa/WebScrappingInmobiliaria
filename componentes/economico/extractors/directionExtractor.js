@@ -149,6 +149,7 @@ function adaptDirectionToExcel(direction){
         finalDirection = direction.replace(matchedEstacionamiento[0],"Est ");
     }
     finalDirection = shorteningDirection(finalDirection);
+
     // console.log(`-------------------------Direccion que va a cambiar string por num\n-----------------\n${finalDirection}\n--------------------`)
     finalDirection = changeWordsToNumbers(finalDirection);
 
@@ -215,7 +216,7 @@ function changeFloorNumber(phrase){
     const posibleRegex = [
         '(([a-zA-Záéíóú]+[\\s]?){2})\\s*piso',
         '([a-zA-Záéíóú]+)\\s*piso',
-        'piso\\s+([a-zA-Záéíóú]+[\\s]?)',
+        'piso\\s+([a-zA-Záéíóú]+)',
         'piso\\s+([a-zA-Záéíóú]+[\\s]?){2}'
     ]
 
@@ -277,11 +278,11 @@ function replaceFloorNumber(numberPhrase){
         '^vige|ésimo segundo': 'P22',
         '^vige|ésimo tercer': 'P23',
         '((vig(e|é)simo cuarto)|vig(e|é)simocuarto)': 'P24',
-        '^vige|ésimo quinto': 'P25',
-        '^vige|ésimo sexto': 'P26',
-        '^vige|ésimo septimo': 'P27',
-        '^vige|ésimo octavo': 'P28',
-        '^vige|ésimo noveno': 'P29',
+        '\b(vige|ésimo quinto)\b': 'P25',
+        '\b(vige|ésimo sexto)\b': 'P26',
+        '\b(vige|ésimo septimo)\b': 'P27',
+        '\b(vige|ésimo octavo)\b': 'P28',
+        '\b(vige|ésimo noveno)\b': 'P29',
         '^trigésimo': 'P30'
      }
      let lastValue;

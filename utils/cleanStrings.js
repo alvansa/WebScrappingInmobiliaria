@@ -7,7 +7,6 @@ function cleanInitialZeros(cadena) {
     while (indice < cadena.length && cadena[indice] === '0') {
         indice++;
     }
-
     // Si todos los caracteres son '0', devuelve '0' (o cadena vacía si prefieres)
     if (indice === cadena.length) {
         return '0'; // o return ''; según lo que necesites
@@ -44,19 +43,8 @@ function stringToDate(fecha) {
         const [año, mes, dia] = partes; // Desestructuramos las partes
         return new Date(`${año}/${mes}/${dia}`);
     }
+    return new Date(fecha)
 }
-
-function formatDateToDDMMAA(date) {
-    if (date instanceof Date == false) {
-        return null
-    }
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = String(date.getFullYear()).slice(-2);
-
-    return `${day}-${month}-${year}`;
-}
-
 function transformDateString(fechaString) {
     if (!fechaString) {
         return null;
@@ -83,6 +71,19 @@ function parseSpreadSheeToDate(dateString) {
     }
     return new Date(`${ano}/${mes}/${dia}`);
 }
+
+function formatDateToDDMMAA(date) {
+    if (date instanceof Date == false) {
+        return null
+    }
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = String(date.getFullYear()).slice(-2);
+
+    return `${day}-${month}-${year}`;
+}
+
+
 
 
 function convertDate(dateString, isDev = false) {
@@ -168,6 +169,7 @@ function parseSpanishDate(dateString) {
 
     return fecha;
 }
+
 function isValidDate(d) {
     return d instanceof Date && !isNaN(d);
 }
