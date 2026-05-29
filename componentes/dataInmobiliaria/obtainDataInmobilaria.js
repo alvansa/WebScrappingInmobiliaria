@@ -11,13 +11,20 @@ class dataInmobiliaria {
 
     static async obtainData(comuna, rol){
         try{
-            const [codComuna, manzana, predio] = this.parseParamenters(comuna, rol);
+            const parameters = this.parseParamenters(comuna, rol);
+            const codComuna = parameters[0]
+            const manzana = parameters[1]
+            const predio = parameters[2]
 
             const data = await this.fetchApi(codComuna, manzana, predio);
+            logger.info('b')
+            console.log(JSON.stringify(data,null,2));
 
-            const metros = await this.obtenerMetrosTotales(data);
+            const metros = await this.obtenerMetrosTotales(data,rol);
+            logger.info('c')
 
             const linkMap = await this.obtenerLinkMap(data);
+            logger.info('d')
 
             return {
                 'metros': metros,
@@ -25,12 +32,12 @@ class dataInmobiliaria {
             }
 
         }catch(error){
-            logger.error(`Error obteniendo datos para comuna ${comuna} y rol ${rol}: ${error.message}`);
+            logger.error(`DataInmobiliaria: Error obteniendo datos para comuna ${comuna} y rol ${rol}: ${error.message}`);
             return null;
         }
     }
 
-    static async parseParamenters(comuna, rol){
+    static parseParamenters(comuna, rol){
         const normalizedComuna = this.normalizeComuna(comuna);
         const codeComuna = this.getCodeComuna(normalizedComuna);
         const [manzana, predio] = rol.split("-");
@@ -68,7 +75,7 @@ class dataInmobiliaria {
     /*
         devuelve un string con la forma 'metros utiles - metros superficie - metros totales'
     */
-    static async obtenerMetrosTotales(data) {
+    static async obtenerMetrosTotales(data,rol) {
         let metrosUtiles = null;
         let metrosTerreno = null;
         if (data.detalle_construccion) {
@@ -107,11 +114,13 @@ class dataInmobiliaria {
         try {
             const response = await fetch(url);
             const dataBase = await response.json();
+            console.log(JSON.stringify(dataBase,null,2))
             if (dataBase && dataBase.data) {
                 return dataBase.data;
             }
         } catch (error) {
             console.error(`Error al obtener metros para rol ${rol}:`, error);
+            console.log('Retornando nulo')
             return null;
         }
     }

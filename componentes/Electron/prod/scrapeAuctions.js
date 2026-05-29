@@ -352,7 +352,7 @@ class scrapeAuction {
                 }
                 await fakeDelay(1, 3);
             } catch (error) {
-                // console.error(`Error obteniendo metros para caso ${caso.rolPropiedad}:`, error.message);
+                logger.error(`Error obteniendo metros para caso ${caso.rolPropiedad}: ${error.message}`);
                 continue;
             }
         }
