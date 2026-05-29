@@ -1276,6 +1276,7 @@ class checkFPMG {
                 counter++;
                 logger.info(`Revisando caso ${counter} de ${this.casos.length}`);
                 logToRenderer(this.mainWindow, `Revisando caso ${counter} de ${this.casos.length} ${caso.causa} y ${caso.juzgado}`);
+                const percentage = Math.floor((counter / this.casos.length) * 100);
                 if (!caso.numeroJuzgado || !caso.corte) {
                     continue;
                 }
@@ -1290,6 +1291,7 @@ class checkFPMG {
                     mainWindow.webContents.send('aviso-espera', [awaitTime, counter + 1, this.casos.length]);
                     await delay(awaitTime * 1000);
                 }
+                this.sender.send('checkFPMG-progress', { type: 'progress', percentage: percentage, message: `Trabajando` });
             }
         } catch (error) {
             console.error("Error al obtener datos de los casos: ", error.message);
