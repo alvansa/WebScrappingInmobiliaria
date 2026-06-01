@@ -195,6 +195,38 @@ class MainApp{
             };
         });
 
+        ipcMain.handle('start-process' , async (event, startDate, endDate, saveFile, checkedBoxes) => {
+            const sources = [
+                new EconomicosSource(),
+                new PjudSource(),
+                new LiquidacionesSource(),
+                new MacalSource(),
+                new CapitalRematesSource(), 
+            ]
+
+            const enrichers = [
+                new DataInmobiliariaEnricher(),
+                new DataPjudEnricher(),
+                new DataLiquidacionesEnricher(),
+            ]
+
+            const exporter = new ExcelExporter();
+
+            const configOrquester = {
+                isEmptyMode: isEmptyMode,
+                isTestMode: isTestMode,
+                config : config,
+                checkedBoxes: checkedBoxes,
+                saveFile : saveFile,
+            }
+
+            const orchestator = new auctionScraperOrchestator(sources, enrichers, exporter, configOrquester);
+            const filePath = await orchestator.run(startDate, endDate, { event, mainWindow: this.mainWindow, emptyMode: isEmptyMode, testMode: isTestMode, saveFile });
+            return filePath;
+
+        });
+
+
         ipcMain.handle('complete-info-excel', async (event, filePath) => {
             try{
                 const FillExcel = new CompleteExcelInfo(filePath,event,this.mainWindow);
