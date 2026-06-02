@@ -57,7 +57,7 @@ document.getElementById('compararExcel').addEventListener('click', async ()=>{
         alert("Debe seleccionar ambos archivos");
         return;
     }
-    window.api.searchRepeatedCases(pathExcelBase, pathExcelNuevo);
+    window.api.testEconomico(['testCompleteExcelInfo', pathExcelBase, pathExcelNuevo]);
 });
 
 document.getElementById('testUserAgents').addEventListener('click', async ()=>{
@@ -85,24 +85,6 @@ selectFileBtn.addEventListener('click', async () => {
 
   }
 });
-
-// document.getElementById('consultaMultipleCases').addEventListener('click', async () => {
-//   const result = await window.api.testEconomico(['consultaMultipleCases']);
-//   showWaitingModal(false);
-// });
-
-// document.getElementById('consultaCausaDB').addEventListener('click', async () => {
-//   const query = document.getElementById('textConsultaCausaDB').value;
-//   try {
-//     const result = await window.api.consultaDB(query);
-//     alert("Consulta realizada con éxito\n" + JSON.stringify(result, null, 2));
-//     console.log("Resultados de la consulta:", result);
-//   } catch (error) {
-//     console.error('Error al consultar la base de datos:', error);
-//   }
-// });
-
-
 
 checkFPMG.addEventListener('click', async () => {
   try {

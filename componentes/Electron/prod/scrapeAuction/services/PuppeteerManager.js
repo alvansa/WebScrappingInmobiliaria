@@ -1,3 +1,6 @@
+const pie = require('puppeteer-in-electron');
+const {app} = require('electron');
+const puppeteer = require('puppeteer-core');
 
 class PupperteerManager{
     constructor(){
@@ -7,6 +10,20 @@ class PupperteerManager{
     
     async getBrowser(){
         if (this.browser && this.browser.isConnected()) {
+            return this.browser;
+        }
+
+        // Evitar llamadas concurrentes que intenten crear varias conexiones
+        if (this.isConnecting) {
+            // Esperar a que termine la conexión en curso
+            await new Promise(resolve => {
+                const checkInterval = setInterval(() => {
+                    if (!this.isConnecting && this.browser && this.browser.isConnected()) {
+                        clearInterval(checkInterval);
+                        resolve();
+                    }
+                }, 100);
+            });
             return this.browser;
         }
 
@@ -42,4 +59,4 @@ class PupperteerManager{
 
 }
 
-module.exports = PupperteerManager
+module.exports = new PupperteerManager();

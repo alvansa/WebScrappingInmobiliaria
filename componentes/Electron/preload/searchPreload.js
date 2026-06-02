@@ -37,12 +37,17 @@ contextBridge.exposeInMainWorld('searchAPI', {
 
 
 function allValuesAllFalse(checkboxes) {
-  for(let key in checkboxes) {
-    if(checkboxes[key] == true) {
-      return false;
+    console.log(`Checkboxes recibidos en allValuesAllFalse: ${JSON.stringify(checkboxes, null, 2)}`);
+    if(!checkboxes || checkboxes.length === 0) {
+        return true
     }
-  }
-  return true;
+    return false;
+//   for(let key in checkboxes) {
+//     if(checkboxes[key] == true) {
+//       return false;
+//     }
+//   }
+//   return true;
 }
 
 

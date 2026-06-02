@@ -12,23 +12,35 @@ const WindowManager = require('./windows/WindowManager.js');
 
 const scrapeAuction = require('./prod/scrapeAuctions.js');
 const CompleteExcelInfo = require('./prod/CompleteExcelInfo.js');
-const Economico = require('../economico/Economico.js');
 const ProcesarBoletin = require('../liquidaciones/procesarBoletin.js');
-const Pjud = require('../pjud/getPjud.js');
 const {createExcel} = require('../excel/createExcel.js');
 const Caso = require('../caso/caso.js')
 const config = require('../../config.js');
 const ConsultaCausaPjud = require('../pjud/consultaCausaPjudRefactored.js');
 const { fakeDelay, delay } = require('../../utils/delay.js');
-const {tribunalesPorCorte, obtainCorteJuzgadoNumbers} = require('../../utils/corteJuzgado.js');
-const {stringToDate} = require('../../utils/cleanStrings.js');
+const {tribunalesPorCorte} = require('../../utils/corteJuzgado.js');
 const testUnitarios = require('./dev/testUnitarios.js');
 const checkFPMG = require('../pjud/checkFPMG.js');
 const obtainLinkMapa = require('./dev/obtainLinkMapa.js');
 const SpreadSheetManager = require('../spreadSheet/SpreadSheetManager.js');
 
+const PuppeteerManager = require('./prod/scrapeAuction/services/PuppeteerManager.js');
+
+const EconomicosSource = require('./prod/scrapeAuction/sources/EconomicosSource.js');
+const PjudSource = require('./prod/scrapeAuction/sources/PjudSource.js');
+const LiquidacionesSource = require('./prod/scrapeAuction/sources/LiquidacionesSource.js');
+const MacalSource = require('./prod/scrapeAuction/sources/MacalSource.js');
+const CapitalRematesSource = require('./prod/scrapeAuction/sources/CapitalRematesSource.js');
+
+const DataInmobiliariaEnricher = require('./prod/scrapeAuction/enrichers/DataInmobiliariaEnricher.js');
+const MapasSIIEnricher = require('./prod/scrapeAuction/enrichers/MapasSIIEnricher.js');
+const SpreadSheetEnricher = require('./prod/scrapeAuction/enrichers/SpreadSheetEnricher.js');
+
+const ExcelExporter = require('./prod/scrapeAuction/exporters/ExcelExporter.js');
+
+const auctionScraperOrchestator = require('./prod/scrapeAuction/auctionScraperOrchestator.js');
+
 const Causas = require('../../model/Causas.js');
-const { json } = require('node:stream/consumers');
 
 const isDevMode = process.argv.includes('--dev');
 const isEmptyMode = process.argv.includes('--empty');
@@ -179,7 +191,7 @@ class MainApp{
         });
 
         // Funcion para iniciar el proceso principal de busqueda
-        ipcMain.handle("start-proccess", async (event,startDate,endDate,saveFile, checkedBoxes) => {
+        ipcMain.handle("start-proccess2", async (event,startDate,endDate,saveFile, checkedBoxes) => {
             console.log("handle start-proccess starDate: ", startDate, " endDate: ", endDate, " saveFile: ", saveFile, " checkedBoxes: ", checkedBoxes);
             try{
                 console.time("scrapeAuction");
@@ -195,10 +207,11 @@ class MainApp{
             };
         });
 
-        ipcMain.handle('start-process' , async (event, startDate, endDate, saveFile, checkedBoxes) => {
+        ipcMain.handle('start-proccess' , async (event, startDate, endDate, saveFile, checkedBoxes) => {
+            
             const sources = [
                 new EconomicosSource(),
-                new PjudSource(),
+                new PjudSource(PuppeteerManager,{'mode': config.NORMAL} ),
                 new LiquidacionesSource(),
                 new MacalSource(),
                 new CapitalRematesSource(), 
@@ -206,8 +219,8 @@ class MainApp{
 
             const enrichers = [
                 new DataInmobiliariaEnricher(),
-                new DataPjudEnricher(),
-                new DataLiquidacionesEnricher(),
+                new MapasSIIEnricher(),
+                new SpreadSheetEnricher(),
             ]
 
             const exporter = new ExcelExporter();
@@ -221,7 +234,7 @@ class MainApp{
             }
 
             const orchestator = new auctionScraperOrchestator(sources, enrichers, exporter, configOrquester);
-            const filePath = await orchestator.run(startDate, endDate, { event, mainWindow: this.mainWindow, emptyMode: isEmptyMode, testMode: isTestMode, saveFile });
+            const filePath = await orchestator.run(startDate, endDate);
             return filePath;
 
         });
@@ -434,20 +447,8 @@ class MainApp{
             console.log("Buscando si hay un resultado en especifico: ",dbcausa.searchCausa('C-746-2024',9))
             return resultados;
         });
-
-        ipcMain.handle('search-repeated-cases', async (event, excelBase, excelNuevo) => {
-            try {
-                const result = await CompleteExcelInfo.searchRepeatedCases(excelBase, excelNuevo,isDevMode);
-                // const result = await CompleteExcelInfo.newSearchRepeatedCases(excelNuevo,isDevMode);
-                console.log("Resultados de la busqueda de casos repetidos:", result);
-                return result;
-            } catch (error) {
-                console.error('Error al buscar casos repetidos:', error);
-                throw error; // Re-lanzar el error para manejarlo en el lugar donde se llama
-            }
-        });
-
     }
+
     logToRenderer(msg){
         this.mainWindow.webContents.send('message-renderer', msg)
     }

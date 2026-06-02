@@ -26,11 +26,6 @@ window.api.onWaitingNotification((args) => {
   }, 1000);
 });
 
-// window.api.electronLog((event, message) => {
-//   console.log('Mensaje del proceso principal:', message);
-//   alert(`Mensaje del proceso principal:\n${message}`);
-// });
-
 function updateCountdown(data) {
   const seconds = data[0];
   const actualCase = data[1];
@@ -45,20 +40,6 @@ function showWaitingModal(show) {
   modal.style.display = show ? 'flex' : 'none';
   if (!show && countdownInterval) clearInterval(countdownInterval);
 }
-
-
-
-// document.getElementById('select-excel-file-btn').addEventListener('click', async()=>{
-//   const excelInput = document.getElementById('excel-input'); // Obtén el input
-//   const excelPath = await window.api.selectExcelPath();
-
-//   if (excelPath) {
-//     excelInput.value = excelPath;
-//   } else {
-//     excelInput.value = 'No se seleccionó ninguna carpeta.';
-//   }
-// });
-
 
 document.getElementById('openSearchWindow').addEventListener('click', () => {
   console.log('presionado send en el renderer de search')

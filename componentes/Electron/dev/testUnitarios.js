@@ -18,6 +18,7 @@ const { fakeDelay } = require('../../../utils/delay.js');
 const { createExcel } = require('../../excel/createExcel.js');
 const { LIQUIDACIONES } = require('../../../config.js');
 const Economico = require('../../economico/Economico.js');
+const CompleteExcelInfo = require('../prod/CompleteExcelInfo.js');
 
 
 class testUnitarios{
@@ -131,6 +132,13 @@ class testUnitarios{
             const economico = new Economico(this.browser, '', '', null,null, true);
             await economico.testPage();
 
+        }else if(arg === "testCompleteExcelInfo"){
+            const excelBase = this.args[1];
+            const excelNuevo = this.args[2];
+            //TODO: esto dejo de funcionar una vez que se cambio el complete excel info para que funcione con el spreadSheet
+
+            // const result = await CompleteExcelInfo.searchRepeatedCases(excelBase, excelNuevo, this.devMode);
+            console.log("Resultados de la busqueda de casos repetidos:", result);
         }else { 
             logger.warn("No se ha especificado un test valido");
         }

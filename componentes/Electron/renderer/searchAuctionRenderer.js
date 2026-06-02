@@ -10,6 +10,7 @@ searchButton.addEventListener('click', async () => {
   try {
     const { startDate, endDate, saveFile } = getFormValues();
     const checkedBoxes = getCheckedBoxes();
+    console.log(`Checked Boxes:  ${checkedBoxes} y tipo de checkedBoxes : ${typeof checkedBoxes}`);
 
     // Verifica que window.api exista antes de usarla
     if (!window.searchAPI?.startProcess) {
@@ -32,7 +33,8 @@ searchButton.addEventListener('click', async () => {
   }
 });
 
-function getCheckedBoxes() {
+function getCheckedBoxesPre() {
+  
   return {
     pjud: document.getElementById('pjud').checked,
     economico: document.getElementById('economicos').checked,
@@ -41,6 +43,18 @@ function getCheckedBoxes() {
     macal: document.getElementById('macal').checked,
     capitalRemates:  document.getElementById('capitalremates').checked
   }
+}
+
+function getCheckedBoxes() {
+  const checkboxIds = ['pjud', 'economicos', 'PYL', 'liquidaciones', 'macal', 'capitalremates'];
+
+  const checkedIds = checkboxIds.filter(id => {
+    const element = document.getElementById(id);
+    return element ? element.checked : false;
+  });
+
+  console.log(`Checkboxes marcados: ${JSON.stringify(checkedIds)}`);
+  return checkedIds;
 }
 
 document.getElementById('select-folder-btn').addEventListener('click', async () => {
