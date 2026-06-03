@@ -338,7 +338,7 @@ class scrapeAuction {
     async obtainMetros(casos) {
         for (let caso of casos) {
             // logger.info(`Obteniendo metros para caso ${caso.causa} con rol ${caso.rolPropiedad} y comuna ${caso.comuna}`);
-            if (caso.rolPropiedad !== null && caso.comuna !== null) {
+            if (!caso.rolPropiedad || !caso.comuna) {
                 continue;
             }
             try {
