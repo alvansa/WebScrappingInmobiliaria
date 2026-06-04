@@ -36,7 +36,7 @@ class auctionScraperOrchestator{
             await enricher.enrich(allCases);
         }
 
-        const filePath = this.exporter.export(allCases, { saveFile : this.saveFile, startDate, endDate });
+        const filePath = await this.exporter.export(allCases, { saveFile : this.saveFile, startDate, endDate });
         logger.info(`Proceso completado. Archivo guardado en: ${filePath}`);
         return filePath;
     }

@@ -1,6 +1,10 @@
 const {stringToDate} = require('../../../../../utils/cleanStrings');
 const GestorRematesPjud = require('../../../../pjud/GestorRematesPjud.js');
 const Pjud = require('../../../../pjud/getPjud.js');
+const {BrowserWindow} =  require('electron')
+const pie = require('puppeteer-in-electron')
+const {obtainCorteJuzgadoNumbers} = require('../../../../../utils/corteJuzgado.js');
+const logger = require('../../../../../utils/logger.js');
 
 
 class PjudSource{
@@ -22,20 +26,21 @@ class PjudSource{
         const endDate = dateToPjud(endDateModified);
 
         this.browser = await this.puppeteerManager.getBrowser();
+        let casos = [];
 
-    //     try {
+        try {
 
-    //         casos = await this.searchCasesByDay(startDate, endDate);
-    //         casos.reverse(); // Invertir el orden de los casos para que aparezcan del mas reciente al mas antiguo
+            casos = await this.searchCasesByDay(startDate, endDate);
+            casos.reverse(); // Invertir el orden de los casos para que aparezcan del mas reciente al mas antiguo
 
-    //         const gestorRemates = new GestorRematesPjud(casos, event, this.mainWindow, NORMAL);
-    //         const result = await gestorRemates.getInfoFromAuctions();
+            // const gestorRemates = new GestorRematesPjud(casos, event, this.mainWindow, NORMAL);
+            // const result = await gestorRemates.getInfoFromAuctions();
 
-    //         logger.info("Cantidad de casos obtenidos de pjud: ", casos.length);
-    //     } catch (error) {
-    //         console.error("Error en el pjud :", error.message);
-    //     }
-    //     return casos;
+            logger.info("Cantidad de casos obtenidos de pjud: ", casos.length);
+        } catch (error) {
+            console.error("Error en el pjud :", error.message);
+        }
+        return casos;
 
         return [];
     }

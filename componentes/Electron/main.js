@@ -223,7 +223,7 @@ class MainApp{
                 new SpreadSheetEnricher(),
             ]
 
-            const exporter = new ExcelExporter();
+            const exporter = new ExcelExporter(startDate, endDate, saveFile, { emptyMode : isEmptyMode, type : config.NORMAL, isTestMode : isTestMode });
 
             const configOrquester = {
                 isEmptyMode: isEmptyMode,
