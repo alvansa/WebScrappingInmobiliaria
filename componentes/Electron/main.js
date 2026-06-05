@@ -558,7 +558,7 @@ async function consultaCausa(caso){
     const browser = await pie.connect(app, puppeteer);
     let window;
     window = openWindow(window,false);
-    const consultaCausa = new ConsultaCausaPjud(browser,window,caso);
+    const consultaCausa = new ConsultaCausaPjud(browser,window,caso,null, 0);
     const result = await consultaCausa.getConsulta()
 
     return result;
