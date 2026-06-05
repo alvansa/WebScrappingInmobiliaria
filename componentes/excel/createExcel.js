@@ -7,6 +7,11 @@ const config = require("../../config.js");
 const Caso = require(`../caso/caso.js`);
 const {fixStringDate, transformDateString} = require(`../../utils/cleanStrings.js`);
 
+const excelRowWriter = require(`./excelRowWriter.js`);
+
+// TODO: Cambiar las columnas del config a un config de columnas para que quede mas claro y se pueda modificar facilmente, ademas de agregar la letra de la columna para evitar confusiones, por ejemplo:
+
+
 const PJUD = config.PJUD;
 const EMOL = config.EMOL;
 const LIQUIDACIONES = config.LIQUIDACIONES;
@@ -36,6 +41,7 @@ class createExcel {
     }
 
     crearBase() {
+        //TODO: Cambiar la creacion de la base por una interfaz
         // Crea una hoja de cálculo vacía
         const ws = {};
 
@@ -46,7 +52,8 @@ class createExcel {
         ws[`${config.NOTAS}5`] = { v: 'notas', t: 's' };
         ws[`${config.FECHA_REM}5`] = { v: 'F. remate', t: 's' };
         ws[`${config.HORA_REMATE}5`] = { v: 'Hora', t: 's' };
-        ws[`${config.OCUPACION}5`] = { v: 'Ocup', t: 's' };
+        ws[`${config.OCUPACION}5`] = { v: 'Luz', t: 's' };
+        ws[`${config.OCUPACION2}5`] = { v: 'Agua', t: 's' };
         ws[`${config.MARTILLERO}5`] = { v: 'macal', t: 's' };
         ws[`${config.DIRECCION}5`] = { v: 'direccion', t: 's' };
         ws[`${config.CAUSA}5`] = { v: 'causa', t: 's' };
@@ -146,6 +153,7 @@ class createExcel {
     insertCasos(casos, ws) {
         let currentRow = 6;
         for (let caso of casos) {
+            //TODO: Agregar interfaz
             insertarCasoIntoWorksheet(caso.toObject(), ws, currentRow);
             currentRow = currentRow + 1;
         }
@@ -454,6 +462,7 @@ async function insertarCasoIntoWorksheet(caso, ws, currentRow) {
         ws[`${config.FECHA_DESC}` + currentRow] = { v: caso.fechaObtencion, t: 'd', z: 'dd/mm/yyyy' };
     }
     writeLine(ws, `${config.ORIGEN}`, currentRow, caso.link, 's');
+    writeLine(ws, `${config.ESTADO}`, currentRow, caso.tp, 's');    
 
     if (caso.fechaRemate && caso.fechaRemate instanceof Date) {
         ws[`${config.FECHA_REM}` + currentRow] = { v: caso.fechaRemate, t: 'd', z: 'DD/MM/YYYY' };

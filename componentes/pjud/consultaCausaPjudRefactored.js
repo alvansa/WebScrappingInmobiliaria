@@ -38,7 +38,6 @@ const defaultUserAgents = [
     },
 ];
 
-//TODO: Agregar variacion de ladrillero
 
 class ConsultaCausaPjud {
     constructor(browser, window, caso, mainWindow, type) {
@@ -153,7 +152,7 @@ class ConsultaCausaPjud {
             cambioPagina = await this.revisarPrimeraLinea(lineaAnterior);
         } catch (error) {
             logger.error(`Error al verificar o procesar la primera línea del caso: ${error.message}`);
-            return lineaAnterior; // Salta al siguiente caso
+            return false;
         }
 
         if (!cambioPagina) {
@@ -568,6 +567,11 @@ class ConsultaCausaPjud {
             ]);
 
             if(this.type == NORMAL){
+                if(this.isTPDocument(descripcion)){
+                    logger.debug(`El numero ${number} tiene un documento TP asociado`);   
+                    this.caso.tp = `TP Folio ${number}`;
+
+                }
                 if (dirHasLink) {
                     logger.debug(`El numero ${number} tiene directorio se hace click`);
 
@@ -672,9 +676,9 @@ class ConsultaCausaPjud {
                 logger.debug(
                     "**********************************************************",
                 );
-                if (this.isTPDocument(reference)) {
-                    this.caso.tp = true;
-                }
+                // // if (this.isTPDocument(reference)) {
+                // //     this.caso.tp = `TP Folio ${doc}`;
+                // }
                 if (this.shouldSkipDoc(reference)) {
                     logger.debug(`Saltando el documento: ${reference}`);
                     continue; // Salta la revision de documento si es un documento que no intersa por ahora.
