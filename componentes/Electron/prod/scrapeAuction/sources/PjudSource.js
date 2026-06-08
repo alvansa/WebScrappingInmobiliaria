@@ -6,6 +6,8 @@ const pie = require('puppeteer-in-electron')
 const {obtainCorteJuzgadoNumbers} = require('../../../../../utils/corteJuzgado.js');
 const logger = require('../../../../../utils/logger.js');
 
+const config = require('../../../../../config.js');
+const NORMAL = config.NORMAL;
 
 class PjudSource{
     constructor(puppeteerManager,config){
@@ -33,8 +35,8 @@ class PjudSource{
             casos = await this.searchCasesByDay(startDate, endDate);
             casos.reverse(); // Invertir el orden de los casos para que aparezcan del mas reciente al mas antiguo
 
-            // const gestorRemates = new GestorRematesPjud(casos, event, this.mainWindow, NORMAL);
-            // const result = await gestorRemates.getInfoFromAuctions();
+            const gestorRemates = new GestorRematesPjud(casos, event, mainWindow, NORMAL);
+            const result = await gestorRemates.getInfoFromAuctions();
 
             logger.info("Cantidad de casos obtenidos de pjud: ", casos.length);
         } catch (error) {

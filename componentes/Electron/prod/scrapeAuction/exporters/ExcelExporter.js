@@ -15,7 +15,7 @@ class ExcelExporter {
     }
 
     async export(causas) {
-        const excelBuilder = new createExcel(this.saveFile, this.startDate, this.emptyMode, this.type, this.isTestMode);
+        const excelBuilder = new createExcel(this.saveFile, this.startDate, this.endDate, this.emptyMode, this.type, this.isTestMode);
         // const filePath = excelBuilder.build(causas);
 
         const fileName = await excelBuilder.writeData(causas)

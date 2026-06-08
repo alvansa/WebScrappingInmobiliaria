@@ -231,6 +231,8 @@ class MainApp{
                 config : config,
                 checkedBoxes: checkedBoxes,
                 saveFile : saveFile,
+                mainWindow : this.mainWindow,
+                event : event,
             }
 
             const orchestator = new auctionScraperOrchestator(sources, enrichers, exporter, configOrquester);

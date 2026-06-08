@@ -11,6 +11,8 @@ class auctionScraperOrchestator{
         this.isTestMode = config.isTestMode;
         this.checkedBoxes = config.checkedBoxes;
         this.saveFile = config.saveFile;
+        this.mainWindow = config.mainWindow;
+        this.event = config.event;
     }
 
     async run(startDate, endDate){
