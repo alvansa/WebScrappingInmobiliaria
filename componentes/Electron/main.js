@@ -7,6 +7,8 @@ const axios = require('axios');
 const FormData = require('form-data');
 const fs = require('fs')
 
+const logger = require('../../utils/logger.js');
+
 // Importar el nuevo WindowManager
 const WindowManager = require('./windows/WindowManager.js');
 
@@ -210,7 +212,7 @@ class MainApp{
         ipcMain.handle('start-proccess' , async (event, startDate, endDate, saveFile, checkedBoxes) => {
             
             const sources = [
-                new EconomicosSource(),
+                new EconomicosSource(PuppeteerManager,{'mode': config.NORMAL}, logger, isTestMode ),
                 new PjudSource(PuppeteerManager,{'mode': config.NORMAL} ),
                 new LiquidacionesSource(),
                 new MacalSource(),

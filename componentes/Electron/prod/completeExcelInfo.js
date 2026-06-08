@@ -6,12 +6,12 @@ const Caso = require('../../caso/caso.js');
 const CasoBuilder = require('../../caso/casoBuilder.js');
 const GestorRematesPjud = require('../../pjud/GestorRematesPjud.js');
 const SpreadSheetManager = require('../../spreadSheet/SpreadSheetManager.js')
-const {writeLine,insertarCasoIntoWorksheet,createExcel} = require('../../excel/createExcel.js')
+const {createExcel} = require('../../excel/createExcel.js')
+const excelRowWriter = require('../../excel/excelRowWriter.js');
 const {tribunalesPorCorte, obtainCorteJuzgadoNumbers} = require('../../../utils/corteJuzgado.js');
 const {stringToDate,formatDateToDDMMAA} = require('../../../utils/cleanStrings.js');   
 const {matchJuzgado, matchRol} = require('../../../utils/compareText.js');
 const config = require('../../../config.js');
-const { consultaCausa } = require('../dev/testUnitarios.js');
 
 const PJUD = config.PJUD;
 const EMOL = config.EMOL;
@@ -57,7 +57,7 @@ class CompleteExcelInfo{
         await this.obtainNewData()
 
         // Write the new data
-        this.writeData(ws);
+        await this.writeData(ws);
         console.log('------------------------------------------------------');
         // console.log(this.casos.map(obj => obj.toObject()));
 
@@ -126,7 +126,7 @@ class CompleteExcelInfo{
         }
     }
 
-    writeData(ws) {
+    async writeData(ws) {
         for (let caso of this.casos) {
             const actualCausa = caso.causa;
             let lastRow = 6;
@@ -135,7 +135,8 @@ class CompleteExcelInfo{
                 const causaExcel = celda.v;
                 if(actualCausa == causaExcel){
                     // console.log(`Actualizando caso: ${actualCausa} en la fila ${lastRow}`);
-                    insertarCasoIntoWorksheet(caso,ws,lastRow)
+                    // insertarCasoIntoWorksheet(caso,ws,lastRow)
+                    await excelRowWriter.writeCasoRow(ws, lastRow, caso);
                 }
                 lastRow++;
             }

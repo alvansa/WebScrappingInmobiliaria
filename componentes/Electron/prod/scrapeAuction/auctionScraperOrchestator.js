@@ -1,6 +1,6 @@
 const logger = require('../../../../utils/logger.js');
 
-
+const NOT_AUCTIONS_FOUND = 5;
 class auctionScraperOrchestator{
     constructor(sources, enrichers, exporter, config){
         this.sources = sources;
@@ -20,6 +20,7 @@ class auctionScraperOrchestator{
 
         let allCases = [];
 
+        logger.info(`Checked Boxes ${this.checkedBoxes}`)
         for (const source of this.sources) {
             const sourceName = source.getName();
             if (this.checkedBoxes.includes(sourceName)) {
@@ -31,6 +32,11 @@ class auctionScraperOrchestator{
 
         if(this.isEmptyMode){
             return this.exporter.export(allCases, { saveFile : this.saveFile, startDate, endDate, saveFile : this.saveFile});
+        }
+
+        if(allCases.length === 0){
+            logger.warn("No se obtuvieron casos de ninguna fuente. El proceso se detendrá.");
+            return NOT_AUCTIONS_FOUND;
         }
 
         for (const enricher of this.enrichers) {

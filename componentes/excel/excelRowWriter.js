@@ -1,3 +1,4 @@
+const {fixStringDate, transformDateString} = require(`../../utils/cleanStrings.js`);
 
 class ExcelRowWriter {
     static async writeRow(worksheet, rowIndex, rowData) {
@@ -66,7 +67,7 @@ class ExcelRowWriter {
             ws[`${config.PX_COMPRA}` + currentRow] = { v: caso.montoCompra.monto, t: 'n' };
         }
         this.writeLine(ws, `${config.ANNO_COMPRA}`, currentRow, caso.anno, "n");
-        this.writeLine(ws, `${config.DEUDA_BANCO}`, currentRow, caso.mortageBank, 's');
+        this.writeLine(ws, `${config.DEUDA_BANCO}`, currentRow, `Tod ${caso.mortageBank}`, 's');
         this.writeLine(ws, `${config.DEUDA_HIPOTECA}`, currentRow, caso.deudaHipotecaria, "s");
         this.writeLine(ws, `${config.DEUDA_PAGARE}`, currentRow, caso.deudaPagare, "s");
         this.writeLine(ws, `${config.OTRA_DEUDA}`, currentRow, caso.linkMap, 's');
@@ -140,6 +141,49 @@ class ExcelRowWriter {
         if (value != null) {
             ws[row + col] = { v: value, t: type };
         }
+    }
+
+    static createFeaturesSummary(generalFeatures) {
+        if (!Array.isArray(generalFeatures)) return '';
+
+        const features = {};
+        const mappings = {
+            'dormitorio': 'd', 'dormitorios': 'd',
+            'baño': 'b', 'baños': 'b', 'bano': 'b', 'banos': 'b',
+            'estacionamiento': 'est',
+            'bodega': 'bod',
+            'superficie': 'm2', 'superficie útil': 'm2', 'terreno': 'm2'
+        };
+
+        generalFeatures.forEach(({ label, value }) => {
+            const labelLower = label?.toLowerCase();
+            if (!labelLower || !value) return;
+
+            for (const [key, abbr] of Object.entries(mappings)) {
+                if (labelLower.includes(key)) {
+                    if (abbr === 'm2') {
+                        // Para metros: limpiar y mantener formato
+                        if(value.toLowerCase().includes('m2')){
+                            const cleanValue = value.replace(/[^\d\s]2/g, '').trim();
+                            features[abbr] = cleanValue ? cleanValue + 'm2' : value;
+                        }else{
+                            const numericValue = value.replace(/[^\d]/g, '');
+                            if (numericValue) features[abbr] = numericValue + 'ha';
+                        }
+                    } else {
+                        // Para otras: solo el número
+                        const numericValue = value.replace(/[^\d]/g, '');
+                        if (numericValue) features[abbr] = numericValue + abbr;
+                    }
+                    break;
+                }
+            }
+        });
+
+        return ['d', 'b', 'est', 'bod', 'm2']
+            .map(abbr => features[abbr])
+            .filter(Boolean)
+            .join('-');
     }
 }
 
