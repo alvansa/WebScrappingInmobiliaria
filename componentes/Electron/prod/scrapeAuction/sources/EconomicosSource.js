@@ -36,7 +36,7 @@ class EconomicosSource {
 
         this.logger.info(`Fechas para Economicos - Fecha Inicio: ${fechaInicio}, Fecha Fin: ${fechaFin} is test mode: ${this.isTestMode}`);
 
-        return [];
+        // return [];
         let casos = [];
         try {
             const economico = new Economico(this.browser, fechaInicio, fechaFin, fixStartDate, fixEndDate, this.isTestMode);

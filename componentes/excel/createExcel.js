@@ -143,7 +143,7 @@ class createExcel {
         for (let caso of remates) {
             const casoObj = caso[1].toObject()
             // await insertarCasoIntoWorksheet(casoObj, ws, currentRow);
-            await excelRowWriter.writeCasoRow(ws, currentRow, casoObj);  
+            await excelRowWriter.writeRow(ws, currentRow, casoObj);  
             currentRow++;
         }
         // Agrega los remates a la base de datos
