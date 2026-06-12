@@ -26,7 +26,9 @@ class auctionScraperOrchestator{
             if (this.checkedBoxes.includes(sourceName)) {
                 logger.info(`Obteniendo casos de la fuente: ${sourceName}`);
                 const cases = await source.fetch(startDate, endDate, { event : this.event, mainWindow : this.mainWindow, emptyMode : this.isEmptyMode, testMode : this.isTestMode });
-                allCases.push(...cases);
+                if(cases && cases.length > 0){
+                    allCases.push(...cases);
+                }
             }
         }
 

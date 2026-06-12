@@ -21,11 +21,16 @@ class CapitalRemates{
     }
 
     static async getRematesFromApi(fechaDesde, fechaHasta){
-        const listOfAuctions = await this.getLinksToRemates(fechaDesde, fechaHasta);
+        try{
+            const listOfAuctions = await this.getLinksToRemates(fechaDesde, fechaHasta);
 
-        const remates = await this.getRematesFromLinks(listOfAuctions);
+            const remates = await this.getRematesFromLinks(listOfAuctions);
 
-        return remates;
+            return remates;
+        }catch(error){
+            logger.error(`Error obteniendo remates desde API: ${error.message}`);
+            return [];
+        }
     }
 
     static async getLinksToRemates(fechaDesde, fechaHasta){
@@ -34,10 +39,12 @@ class CapitalRemates{
         let areRematesAvailable = true;
         while(areRematesAvailable){
             logger.info(`Obteniendo remates desde API, fechaDesde: ${fechaDesde}, fechaHasta: ${fechaHasta}, start: ${start}`);
+            //TODO: agregar cosas para que funcione, que cosas, nose
             const response = await fetch(
                 `https://capitalremates.cl/remate-api/list?fecha_desde=${fechaDesde}&fecha_hasta=${fechaHasta}&draw=1&length=100&start=${start}`,
             );
             const data = await response.json();
+            logger.info(`Remates obtenidos desde API: ${data.data.length}`);
             links = this.addLinks(links,data.data);
 
             let totalRecords = data.recordsTotal;

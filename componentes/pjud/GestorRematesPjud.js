@@ -6,7 +6,7 @@ const config = require('../../config.js');
 // const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 // const puppeteerExtra = require('puppeteer-extra');
 
-const ConsultaCausaPjud = require('./consultaCausaPjudRefactored');
+const ConsultaCausaPjud = require('./consultaCausaPlay');
 const NORMAL = config.NORMAL;
 
 // puppeteerExtra.use(StealthPlugin());
@@ -60,9 +60,9 @@ class GestorRematesPjud{
                     await delay(awaitTime * 1000);
                 }
 
-                // if(counter > 10){
-                //     return 
-                // }
+                if(counter > 3){
+                    return 
+                }
             }
         }catch (error) {
             console.error("Error al obtener datos de los casos: ", error.message);

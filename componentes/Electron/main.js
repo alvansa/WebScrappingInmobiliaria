@@ -27,6 +27,7 @@ const obtainLinkMapa = require('./dev/obtainLinkMapa.js');
 const SpreadSheetManager = require('../spreadSheet/SpreadSheetManager.js');
 
 const PuppeteerManager = require('./prod/scrapeAuction/services/PuppeteerManager.js');
+const PlaywrightManager = require('./prod/scrapeAuction/services/PlaywrigthManager.js');
 
 const EconomicosSource = require('./prod/scrapeAuction/sources/EconomicosSource.js');
 const PjudSource = require('./prod/scrapeAuction/sources/PjudSource.js');
@@ -213,7 +214,7 @@ class MainApp{
             
             const sources = [
                 new EconomicosSource(PuppeteerManager,{'mode': config.NORMAL}, logger, isTestMode ),
-                new PjudSource(PuppeteerManager,{'mode': config.NORMAL} ),
+                new PjudSource(PlaywrightManager,{'mode': config.NORMAL} ),
                 new LiquidacionesSource(),
                 new MacalSource(),
                 new CapitalRematesSource(), 
