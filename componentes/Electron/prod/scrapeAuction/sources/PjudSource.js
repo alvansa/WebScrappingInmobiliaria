@@ -109,8 +109,8 @@ class PjudSource{
             const url = 'https://www.pjud.cl/';
 
             const page = await this.context.newPage();
-            await page.goto(url,{timeout: 60000}); // Página real
-            const scraper = new Pjud(this.browser, this.page, startDate, endDate);
+            await page.goto(url,{timeout: 160000}); // Página real
+            const scraper = new Pjud(this.browser, page, startDate, endDate);
             casos = await scraper.getPJUD();
             obtainCorteJuzgadoNumbers(casos);
             logger.info(`Cantidad de resultados obtenidos: ${casos.length}`);
@@ -121,6 +121,10 @@ class PjudSource{
                 window.destroy();
             }
 
+        }finally{
+            if(page && !page.isClosed()){
+                page.close();
+            }
         }
         return casos;
     }

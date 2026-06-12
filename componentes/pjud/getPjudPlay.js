@@ -25,40 +25,40 @@ class Pjud {
             //     verRemates(); // Asegúrate de que esta función existe en el contexto de la página
             // });
             this.page = await this.ejecutarVerRemates();
-            await this.setValoresInciales();
-            console.log("Valores fecha :", this.startDate, this.endDate);
-            await this.setDates('#desde', this.startDate);
-            await fakeDelay(1, 3);
-            await delay(500);
-            await this.setDates('#hasta', this.endDate);
-            await fakeDelay(1, 3);
+            // await this.setValoresInciales();
+            // console.log("Valores fecha :", this.startDate, this.endDate);
+            // await this.setDates('#desde', this.startDate);
+            // await fakeDelay(1, 3);
+            // await delay(500);
+            // await this.setDates('#hasta', this.endDate);
+            // await fakeDelay(1, 3);
 
-            await this.page.waitForSelector('#btnConsultaRemates.btn.btn-primary', { state: 'visible' });
-            // En Playwright, se recomienda usar page.click() en lugar de evaluate
-            await this.page.click('#btnConsultaRemates');
-            console.log("Botón de consulta clickeado");
+            // await this.page.waitForSelector('#btnConsultaRemates.btn.btn-primary', { state: 'visible' });
+            // // En Playwright, se recomienda usar page.click() en lugar de evaluate
+            // await this.page.click('#btnConsultaRemates');
+            // console.log("Botón de consulta clickeado");
 
-            // Esperar a que la tabla aparezca
-            console.log("Esperando tabla");
-            await this.page.waitForSelector('#dtaTableDetalleRemate', { state: 'visible' });
-            console.log("Tabla encontrada");
+            // // Esperar a que la tabla aparezca
+            // console.log("Esperando tabla");
+            // await this.page.waitForSelector('#dtaTableDetalleRemate', { state: 'visible' });
+            // console.log("Tabla encontrada");
 
-            while (tienePaginaSiguiente) {
-                try {
-                    let firstRowContent = await this.getPrimeraLinea();
-                    let datosTabla = await this.getDatosTabla();
-                    tableData.push(...datosTabla);
-                    tienePaginaSiguiente = await this.manejarPaginaSiguiente(firstRowContent);
-                    await fakeDelay(2, 4);
-                } catch (error) {
-                    console.error('Error en el while de getPJUD:', error);
-                    break;
-                }
-            }
+            // while (tienePaginaSiguiente) {
+            //     try {
+            //         let firstRowContent = await this.getPrimeraLinea();
+            //         let datosTabla = await this.getDatosTabla();
+            //         tableData.push(...datosTabla);
+            //         tienePaginaSiguiente = await this.manejarPaginaSiguiente(firstRowContent);
+            //         await fakeDelay(2, 4);
+            //     } catch (error) {
+            //         console.error('Error en el while de getPJUD:', error);
+            //         break;
+            //     }
+            // }
             this.page.close();
-            this.page = originalPage;
-            this.page.bringToFront();
-            this.page.close();
+            // this.page = originalPage;
+            // this.page.bringToFront();
+            // this.page.close();
             return tableData;
         } catch (error) {
             console.error('Error en la función getPJUD:', error.message);
@@ -74,16 +74,16 @@ class Pjud {
 
     async ejecutarVerRemates() {
         try {
-            const [newPage] = await Promise.all([
-                this.page.context().waitForEvent('page'),
-                await this.page.click('img[alt="Audiencia de Remates"]')
-            ]);
-            await newPage.waitForLoadState();
+            await this.page.click('img[alt="Audiencia de Remates"]')
+            // this.page.waitForURL('**/indexN.php')
+            // await this.page.click('img[alt="Audiencia de Remates"]')
+            // await newPage.waitForLoadState();
 
-            return newPage;
+            // return newPage;
+            return this.page;
 
         } catch (err) {
-            console.error("No se encontró la función verRemates() en la página:", err.message);
+            console.error("Fallo al buscar la audiencia de remates:", err.message);
             // Podrías intentar un fallback: buscar el botón que ejecuta esa acción y hacer clic
             return this.page;
         }
