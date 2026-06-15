@@ -13,8 +13,8 @@ const NORMAL = config.NORMAL;
 const { webkit } = require('playwright');
 
 class PjudSource{
-    constructor(puppeteerManager,config){
-        this.puppeteerManager = puppeteerManager;
+    constructor(manager,config){
+        this.manager = manager;
         this.browser = null;
         this.context = null;
         this.mode = config.mode
@@ -31,7 +31,7 @@ class PjudSource{
         const startDate = dateToPjud(stringToDate(startDateOrigin));
         const endDate = dateToPjud(endDateModified);
 
-        this.browser = await this.puppeteerManager.getBrowser();
+        this.browser = await this.manager.getBrowser();
         let casos = [];
 
         try {
@@ -60,8 +60,8 @@ class PjudSource{
         const endDate = dateToPjud(endDateModified);
         let casos = [];
 
-        this.browser = await this.puppeteerManager.getBrowser();
-        this.context = await this.puppeteerManager.createHumanContext();
+        this.browser = await this.manager.getBrowser();
+        this.context = await this.manager.createHumanContext();
 
         try{
             casos = await this.searchCasesByDay(startDate, endDate);
@@ -129,48 +129,6 @@ class PjudSource{
         return casos;
     }
 
-    async examplefetch(startDate, endDate, { event, mainWindow, emptyMode, isTestMode }) {
-        if (emptyMode) return [];
-
-        // Ajuste de fecha: incluir el día final
-        const endDateModified = new Date(endDate);
-        endDateModified.setDate(endDateModified.getDate() + 1);
-        const startStr = dateToPjud(startDate);
-        const endStr = dateToPjud(endDateModified);
-
-        const browser = await this.puppeteerManager.getBrowser();
-        let window = null;
-        let casos = [];
-
-        try {
-            window = new BrowserWindow({ show: false });
-            const url = 'https://oficinajudicialvirtual.pjud.cl/home/index.php';
-            await window.loadURL(url);
-            const page = await pie.getPage(browser, window);
-            const pjud = new Pjud(browser, page, startStr, endStr);
-            casos = await pjud.datosFromPjud();
-            obtainCorteJuzgadoNumbers(casos);
-            window.destroy();
-
-            // Obtener información completa de remates
-            const gestor = new GestorRematesPjud(casos, event, mainWindow, NORMAL);
-            const updatedCasos = await gestor.getInfoFromAuctions();
-            casos = updatedCasos; // o merge según lógica
-
-            // Segunda vuelta si muchas partes vacías
-            const emptyParts = casos.filter(c => !c.partes).length;
-            if (emptyParts > casos.length / 20) {
-                const gestor2 = new GestorRematesPjud(casos, event, mainWindow, NORMAL);
-                const secondPass = await gestor2.getInfoFromAuctions({ skipIfHasPartes: true });
-                casos = secondPass;
-            }
-        } catch (error) {
-            console.error('Error en PjudSource:', error);
-            if (window) window.destroy();
-            return [];
-        }
-        return casos;
-    }
 }
 
 function dateToPjud(date) {
