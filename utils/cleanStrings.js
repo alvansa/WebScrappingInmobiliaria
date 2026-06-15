@@ -1,4 +1,3 @@
-const { date } = require("joi");
 
 function cleanInitialZeros(cadena) {
     // Encuentra el primer índice donde el carácter no es '0'

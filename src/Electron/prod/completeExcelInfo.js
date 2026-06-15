@@ -1,0 +1,526 @@
+const XLSX = require('xlsx');
+const fs = require('fs');
+const path = require('path');
+
+const Caso = require('#models/caso/caso.js');
+const CasoBuilder = require('#models/caso/casoBuilder.js');
+const GestorRematesPjud = require('#sources/pjud/GestorRematesPjud.js');
+const SpreadSheetManager = require('#enrichers/spreadSheet/SpreadSheetManager.js')
+const {createExcel} = require('#exporters/excel/createExcel.js')
+const excelRowWriter = require('#exporters/excel/excelRowWriter.js');
+const {tribunalesPorCorte, obtainCorteJuzgadoNumbers} = require('#utils/corteJuzgado.js');
+const {stringToDate,formatDateToDDMMAA} = require('#utils/cleanStrings.js');   
+const {matchJuzgado, matchRol} = require('#utils/compareText.js');
+const config = require('#config');
+
+const PJUD = config.PJUD;
+const EMOL = config.EMOL;
+const LIQUIDACIONES = config.LIQUIDACIONES;
+
+const COLUMNAS_EXCEL = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z','AA', 'AB', 'AC', 'AD', 'AE', 'AF', 'AG', 'AH', 'AI', 'AJ', 'AK', 'AL', 'AM', 'AN', 'AO', 'AP', 'AQ','AR'];
+
+const COlUMNAS_MANTENER = [
+    config.FECHA_DESC,
+    config.ORIGEN,
+    config.FECHA_REM,
+    config.OCUPACION,
+    config.CAUSA, 
+    config.TRIBUNAL,
+    config.COMUNA_TRIBUNAL, 
+    config.PRECIO_MINIMO,
+    config.AVALUO_FISCAL
+];
+
+class CompleteExcelInfo{
+    constructor(filePath,event,mainWindow,mode=false){
+        this.filePath = filePath;
+        this.mainWindow = mainWindow;
+        this.event = event;
+        this.casos = [];
+        this.mode = mode;
+    }
+
+    async fillData(){
+        const wb = XLSX.readFile(this.filePath, {cellDates: true});
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        let lastRow = 6;
+
+        // Obtain de auctions
+        lastRow = this.getCausasFromExcel(ws,lastRow);
+
+        console.log(`Casos a buscar: ${this.casos.length}`);
+        if(this.casos.length == 0){
+            return true;
+        }
+
+        // Process de auctions
+        await this.obtainNewData()
+
+        // Write the new data
+        await this.writeData(ws);
+        console.log('------------------------------------------------------');
+        // console.log(this.casos.map(obj => obj.toObject()));
+
+        CompleteExcelInfo.saveNewExcel(wb,ws,lastRow,this.filePath);
+
+        return this.filePath;
+    }
+
+    getCausasFromExcel(ws,lastRow){
+        let origen;
+        while(ws[`${config.CAUSA}${lastRow}`]){
+            let fechaDesc = ws[`${config.FECHA_DESC}${lastRow}`];
+            let link = ws[`${config.ORIGEN}${lastRow}`].v;
+            let fechaRem = ws[`${config.FECHA_REM}${lastRow}`];
+            const causa = ws[`${config.CAUSA}${lastRow}`].v;
+            const juzgado = ws[`${config.TRIBUNAL}${lastRow}`].v
+            const celdaPartes = ws[`${config.PARTES}${lastRow}`]
+            let partes = null;
+            // console.log(`fechaRem type: ${JSON.stringify(fechaRem,null,4)}`);
+            if(celdaPartes){
+                partes = celdaPartes.v;
+            }
+            if(fechaRem){
+                fechaRem = stringToDate(fechaRem.w);
+            }else{
+                fechaRem = null;
+            }
+            if(fechaDesc){
+                fechaDesc = stringToDate(fechaDesc.w);
+            }else{
+                fechaDesc = null;
+            }
+            if(origen){
+                if(origen == 'Lgr'){
+                    origen = PJUD;
+                }else if(origen.includes('economico')){
+                    origen = EMOL;
+                }else if(origen.includes('Boletin')){
+                    origen = LIQUIDACIONES;
+                }
+            }
+            // console.log(`cont = ${lastRow - 5} Fecha Remate: ${fechaRem} y fecha Desc: ${fechaDesc} `);
+            const casoExcel = new CasoBuilder(new Date(fechaDesc),link, origen)
+                .conExcel(causa,juzgado,partes)
+                .conFechaRemate(fechaRem)
+                .construir();
+
+            // console.log(causa);
+            if(!casoExcel.partes){
+                this.casos.push(casoExcel)
+            }
+            lastRow++;
+        }
+        return lastRow;
+    }
+
+    async obtainNewData(){
+        try{
+            obtainCorteJuzgadoNumbers(this.casos);
+            const gestorRemates = new GestorRematesPjud(this.casos, this.event, this.mainWindow);
+            const result = await gestorRemates.getInfoFromAuctions();
+            return true;
+        }catch(error){
+            console.error('Error al obtener nueva información:', error);
+            return false;
+        }
+    }
+
+    async writeData(ws) {
+        for (let caso of this.casos) {
+            const actualCausa = caso.causa;
+            let lastRow = 6;
+            while (ws[`${config.CAUSA}${lastRow}`]) {
+                const celda = ws[`${config.CAUSA}${lastRow}`];
+                const causaExcel = celda.v;
+                if(actualCausa == causaExcel){
+                    // console.log(`Actualizando caso: ${actualCausa} en la fila ${lastRow}`);
+                    // insertarCasoIntoWorksheet(caso,ws,lastRow)
+                    await excelRowWriter.writeCasoRow(ws, lastRow, caso);
+                }
+                lastRow++;
+            }
+        }
+    }
+
+    static async searchRepeatedCases(excelBase, excelNuevo, isDevMode) {
+
+        const wbBase = XLSX.readFile(excelBase, {cellDates: true});
+        const wsBase = wbBase.Sheets[wbBase.SheetNames[0]];
+        
+        const wbNew = XLSX.readFile(excelNuevo, {cellDates: true});
+        const wsNew = wbNew.Sheets[wbNew.SheetNames[0]];
+
+        let lastRowNew = this.obtainLastRow(wsNew);
+        const findedCausas = this.findRepeatedAuctions(wsBase, wsNew);
+
+        // console.log(`Causas a buscar: ${findedCausas.length}`);
+        console.table(findedCausas.map(causa => ({
+            causa: causa.causa,
+            Rol : causa.rol,
+            baseLine: causa.baseLine,
+            newLine: causa.newLine
+        })));
+        lastRowNew = lastRowNew + 5;
+        findedCausas.forEach(causa => {
+            const newCausaCell = wsNew[`${config.CAUSA}${lastRowNew}`];
+            if(newCausaCell){
+                newCausaCell.v = causa.causa;
+            }else{
+                // console.log('Copiando linea ',lastRowNew)
+                this.copyRowFromBaseToNew(wsBase, wsNew, causa.baseLine, causa.newLine);
+            }   
+            lastRowNew++;
+        });
+        this.saveNewExcel(wbNew, wsNew, lastRowNew, excelNuevo);
+    }
+
+    static async newSearchRepeatedCases(newInfo,isDevMode){
+        const wbNew = XLSX.readFile(newInfo, {cellDates: true});
+        const wsNew = wbNew.Sheets[wbNew.SheetNames[0]];
+
+        const baseInfo = await SpreadSheetManager.processData(isDevMode);
+        console.log("largo de los datos obtenidos: ", baseInfo.length)
+
+        const findedCausas = this.newFindRepeatedAuctions(baseInfo, wsNew, isDevMode);
+        return 0;
+    }
+
+    static saveNewExcel(wb, ws, lastRow, filePath) {
+        this.formatCells(ws);
+        createExcel.cambiarAnchoColumnas(ws);
+        ws['!ref'] = `${config.INICIO}5:${config.COMENTARIOS3}` + lastRow;
+        const fileName = filePath.split('.')[0];
+        const newFilePath = fileName+'Completo'+'.xlsx';
+        XLSX.writeFile(wb,newFilePath, { cellDates: true });
+    }
+
+    static obtainLastRow(ws) {
+        let lastRow = 6;
+        while(ws[`${config.FECHA_REM}${lastRow}`]){
+            lastRow++;
+        }
+        return lastRow - 1; // Retorna la última fila con datos
+    }
+
+    static findRepeatedAuctions(wsBase, wsNew) {
+        const findedCausas = [];
+        const lastRowBase = this.obtainLastRow(wsBase);
+        let actualRowBase = lastRowBase;
+        let lastRowNew = 6;
+
+        while(wsNew[`${config.FECHA_DESC}${lastRowNew}`]){
+            const {causa, juzgado,comuna,rol, isValid} = this.processNewRow(wsNew, lastRowNew);
+            if(!isValid){
+                lastRowNew++;
+                continue;
+            }
+
+            actualRowBase = lastRowBase;
+            while(actualRowBase >= 1){
+
+                const cellCausa = wsBase[`${config.CAUSA}${actualRowBase}`];
+                const cellCourt = wsBase[`${config.TRIBUNAL}${actualRowBase}`];
+                const cellComuna = wsBase[`${config.COMUNA}${actualRowBase}`];
+                const cellRol = wsBase[`${config.ROL}${actualRowBase}`];
+                // console.log(`Revisando fila ${lastRowBase} del archivo base`)
+                if(this.checkCausaJuzgado(causa, juzgado, cellCausa, cellCourt, findedCausas, actualRowBase, lastRowNew)) break;
+                if(this.checkComunaRol(causa,comuna, rol, cellComuna, cellRol, findedCausas, actualRowBase, lastRowNew)) break;
+                actualRowBase--;
+            }
+            lastRowNew++;
+        }
+        return findedCausas;
+    }
+
+    static newFindRepeatedAuctions(baseInfo, newInfo,isDevMode){
+        let findedAuctions;
+
+        findedAuctions = this.obtainNewAuctionsFromExcel(newInfo);
+        let cont = 1;
+        // console.log(findedAuctions);
+        // for(let newAuction of findedAuctions.keys()){
+        //     const newData = findedAuctions.get(newAuction)
+        //     findedAuctions.set(newAuction,{...newData,cont})
+        //     cont++;
+        // }
+        let index = 0;
+        for(let auction of baseInfo){
+            index++;
+            const {causa, juzgado,comuna, rol, isValid} = this.obtainDataLine(auction)
+            
+            if(!isValid){
+                continue;
+            }
+            if(findedAuctions.has(causa)){
+                console.log("Encontrada ",findedAuctions.get(causa));
+                console.log(`Econtrada causa ${baseInfo[index][10]}`);
+            }
+
+        }
+    }
+
+    static obtainDataLine(auction){
+        let isValid = true;
+        const indexCausa = config.obtenerNumero('CAUSA');
+        const indexJuzgado = config.obtenerNumero('TRIBUNAL');
+        const indexComuna = config.obtenerNumero('COMUNA');
+        const indexRol = config.obtenerNumero('ROL');
+
+        const datos = {
+            causa : auction[indexCausa],
+            juzgado : auction[indexJuzgado],
+            comuna : auction[indexComuna],
+            rol : auction[indexRol],
+        }
+        if(!datos.causa || !datos.juzgado){
+            isValid = false;
+            return { ...datos, isValid }
+        }
+
+        const causaMatch = datos.causa.match(/C-\d+-\d+/i);
+        
+        if(!causaMatch){
+            isValid = false;
+            return { ...datos , isValid };
+
+        }
+        datos.causa = causaMatch[0].toUpperCase();
+
+        return { ...datos, isValid };
+    }
+
+    static obtainNewAuctionsFromExcel(wsNew){
+        const auctions = new Map();
+        let lastRow = 6;
+        while(wsNew[`${config.FECHA_DESC}${lastRow}`]){
+            const { causa, juzgado, comuna, rol, isValid } = this.processNewRow(wsNew, lastRow);
+            if (!isValid) {
+                lastRow++;
+                continue;
+            }
+            auctions.set(causa,{'causa': causa,'juzgado' : juzgado,'comuna': comuna,'rol': rol});
+            lastRow++;
+        }
+        return auctions
+    }
+
+
+    static processNewRow(wsNew, rowNum){
+        let isValid = true;
+        let juzgado;
+        let comuna;
+        let rol;
+        const causaCell = wsNew[`${config.CAUSA}${rowNum}`];
+        const comunaCell = wsNew[`${config.COMUNA}${rowNum}`];
+        const rolCell = wsNew[`${config.ROL}${rowNum}`];
+        
+        let causa = causaCell ? causaCell.v.toUpperCase().replace(/\s*/g, '') : null;
+        if(!causa){
+            isValid = false;
+            return {causa, juzgado, comuna, rol, isValid};
+        }   
+        const causaMatch = causa.match(/C-\d+-\d+/);
+        if(!causaMatch){
+            isValid = false;
+            return {causa, juzgado, comuna, rol, isValid};
+        }
+        causa = causaMatch[0]; 
+
+        comuna = comunaCell ? comunaCell.v : null;
+        rol = rolCell ? rolCell.v : null;
+
+        juzgado = wsNew[`${config.TRIBUNAL}${rowNum}`];
+        if (!juzgado || typeof juzgado.v != 'string') {
+            console.log(`No se encontró el juzgado en la fila ${rowNum}`);
+            isValid = false;
+            return {causa, juzgado, comuna, rol, isValid}
+        }
+        juzgado = juzgado.v;
+        return { causa, juzgado, comuna, rol, isValid };
+    }
+
+    static checkCausaJuzgado(newCase, newCourt, baseCaseCell, baseCourtCell, findedCausas, actualRowBase, lastRowNew){
+        if (!baseCaseCell || typeof baseCaseCell.v != 'string' || !baseCourtCell || typeof baseCourtCell.v != 'string') {
+            return false;
+        }
+        let causaBase = baseCaseCell.v.toUpperCase().replace(/\s*/g, '');;
+        if(!causaBase){
+            isValid = false;
+            return false;
+        }   
+        const causaMatch = causaBase.match(/C-\d+-\d+/);
+        if(!causaMatch){
+            return false
+        }
+        causaBase = causaMatch[0]; 
+
+        const baseCourt = baseCourtCell.v;
+
+        if (newCase == causaBase) {
+            const matchedJuzgado = matchJuzgado(baseCourt, newCourt);
+            if (matchedJuzgado) {
+                // console.log(`Causa repetida: ${newCase} fila base: ${actualRowBase} fila nueva: ${lastRowNew}`);
+                findedCausas.push({ causa: newCase, rol: null,  baseLine: actualRowBase, newLine: lastRowNew });
+                return true;
+            }
+        }
+    }
+
+    static checkComunaRol(causa,newComuna, newRol, baseComunaCell, baseRolCell,findedCausas, actualRowBase, lastRowNew){
+        if (!baseComunaCell || typeof baseComunaCell.v != 'string' || !baseRolCell || typeof baseRolCell.v != 'string' || !newComuna || !newRol) {
+            return;
+        }
+        const baseComuna = baseComunaCell.v.toLowerCase();
+        const baseRol = baseRolCell.v;
+
+        newComuna = newComuna.toLowerCase();
+
+        if(newComuna == baseComuna){
+            console.log(newRol, baseRol,lastRowNew)
+            if(matchRol(newRol, baseRol)){
+                findedCausas.push({ causa: causa, rol: newRol, baseLine: actualRowBase, newLine: lastRowNew });
+                return true;
+            }
+        }
+
+    }
+
+    static copyRowFromBaseToNew(wsBase, wsNew, baseRow, newRow) {
+        COLUMNAS_EXCEL.forEach(columna => {
+            const baseCell = wsBase[`${columna}${baseRow}`];
+            if (!COlUMNAS_MANTENER.includes(columna)) {
+                if (columna == config.MARTILLERO) {
+                    const updatedTextMartillero = this.modifyColumnMartillero(wsNew, newRow, wsBase, baseRow);
+                    wsNew[`${config.MARTILLERO}${newRow}`] = {
+                        v: updatedTextMartillero,
+                        t: 's',
+                    }
+                }else if(baseCell){
+                    //Hay que agregar que si en la celda antigua habia precio minimo revisarlo
+                    // Revisar porque el minimo se escribe en la columna Z, pero si ya habia uno anterior se escirbe en la AA 
+                    // y otro anterior en la AB.
+                    this.writeCell(baseCell, wsNew, columna, newRow);
+
+                }
+
+            }    
+            });
+        // Copiar el formato de la celda si es necesario
+        if (wsBase[`!cols`]) {
+            wsNew[`!cols`] = wsBase[`!cols`];
+        }
+    }
+
+    static modifyColumnMartillero(wsNew, newRow, wsBase, baseRow){
+        // console.log("Escribiendo fila ", newRow)
+        let text = '';
+        const fechaRemCell = wsBase[`${config.FECHA_REM}${baseRow}`];
+        const actualValueMartilleroCell = wsNew[`${config.MARTILLERO}${newRow}`];
+        const estadoColumn = wsBase[`${config.ESTADO}${baseRow}`];
+        const notasColumn = wsBase[`${config.NOTAS}${baseRow}`];
+        const martilleroColumn = wsBase[`${config.MARTILLERO}${baseRow}`];
+        const ocupacionColumn = wsBase[`${config.OCUPACION}${baseRow}`];
+        if (actualValueMartilleroCell) {
+            text += actualValueMartilleroCell.v + ' ';
+        }
+        if(fechaRemCell){
+            const fecha = formatDateToDDMMAA(fechaRemCell.v)
+            text += fecha +' ';
+        }
+        //Agregar la columna G de Ocupacion
+        text += '(';
+        if (estadoColumn) {
+            text += '-' + estadoColumn.v + ' ';
+        }
+        if (notasColumn) {
+            text += notasColumn.v + ' ';
+        }
+        if (martilleroColumn) {
+            text += '-' + martilleroColumn.w;
+        }
+        if (ocupacionColumn) {
+            text += ocupacionColumn.v + '';
+        }
+        text += ')';
+
+        return text;
+    }
+
+    static writeCell(baseCell, wsNew, columna, newRow) {
+        if(baseCell.f && baseCell.f.length > 0){
+            const formula = baseCell.f.replace(/([a-zA-Z]+)\d+/g,`$1${newRow}`);
+            wsNew[`${columna}${newRow}`] = {
+                v: baseCell.v,
+                t: baseCell.t,
+                w: baseCell.w,
+                f : formula,
+            }
+        }else if (baseCell.t === 'd' && baseCell.w) {
+            wsNew[`${columna}${newRow}`] = {
+                v: baseCell.v,
+                t: baseCell.t,
+                w: baseCell.w,
+                z: 'dd/mm/yyyy' // Mantener el formato de fecha si existe
+            }
+        } else {
+            wsNew[`${columna}${newRow}`] = {
+                v: baseCell.v,
+                t: baseCell.t,
+                w: baseCell.w,
+            }
+        }
+}
+
+    static formatCells(ws) {
+        let lastRow = 6;
+        // Formatear las fechas en las columnas específicas
+        while (ws[`${config.FECHA_DESC}${lastRow}`]) {
+            const fechaInicio = ws[`${config.INICIO}${lastRow}`];
+            if (fechaInicio && fechaInicio.t === 'd') {
+                fechaInicio.z = 'dd/mm/yyyy'; // Formato de fecha
+            }
+
+            const fechaDescCell = ws[`${config.FECHA_DESC}${lastRow}`];
+            if (fechaDescCell && fechaDescCell.t === 'd') {
+                fechaDescCell.z = 'dd/mm/yyyy'; // Formato de fecha
+            }
+            const fechaRemCell = ws[`${config.FECHA_REM}${lastRow}`];
+            if (fechaRemCell && fechaRemCell.t === 'd') {
+                fechaRemCell.z = 'dd/mm/yyyy'; // Formato de fecha
+            }
+
+            const minAmountCell = ws[`${config.PRECIO_MINIMO}${lastRow}`];
+            if (minAmountCell && minAmountCell.t === 'n') {
+                minAmountCell.z = '#,##0'; // Formato de fecha
+            }
+
+            const avaluoCell = ws[`${config.AVALUO_FISCAL}${lastRow}`];
+            if (avaluoCell && avaluoCell.t === 'n') {
+                avaluoCell.z = '#,##0'; // Formato de fecha
+            }
+
+            const percentajeCell = ws[`${config.PORCENTAJE}${lastRow}`];
+            if(percentajeCell){
+                if(percentajeCell.v == 10 || percentajeCell == 20){
+                    percentajeCell.v = percentajeCell.v / 100;
+                }
+                percentajeCell.t = 'n';
+                percentajeCell.z = '0%';
+            }
+
+            const deudaCell = ws[`${config.DEUDA_HIPOTECA}${lastRow}`];
+            if (deudaCell && deudaCell.t === 'n') {
+                deudaCell.z = '#,##0'; // Formato de fecha
+            }
+
+            const buyAmountCell = ws[`${config.PX_COMPRA}${lastRow}`];
+            if (buyAmountCell && buyAmountCell.t === 'n') {
+                buyAmountCell.z = '#,##0'; // Formato de fecha
+            }
+            lastRow++;
+        }
+    }
+}
+
+module.exports = CompleteExcelInfo;

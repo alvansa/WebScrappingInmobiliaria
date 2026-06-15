@@ -2,7 +2,7 @@
   "name": "app-remates",
   "version": "1.0.0",
   "description": "Aplicacion para la busqueda y entrega de resumen de remates",
-  "main": "componentes/Electron/main.js",
+  "main": "src/Electron/main.js",
   "scripts": {
     "start": "electron .",
     "start:test": "electron . --test",
@@ -18,6 +18,16 @@
     "test:functional": "jest tests/Funcional",
     "app:dir": "electron-builder --dir",
     "commands" : "node scripts/help.js"
+  },
+  "imports": {
+    "#sources/*" : "./src/core/sources/*",
+    "#enrichers/*" : "./src/core/enrichers/*",
+    "#exporters/*" : "./src/core/exporters/*",
+    "#core/*" : "./src/core/*",
+    "#utils/*" : "./utils/*",
+    "#models/*" : "./src/models/*",
+    "#config" : "./config.js",
+    "#src/*" : "./src/*" 
   },
   "author": "Alvaro Soto",
   "type": "commonjs",
