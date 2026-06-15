@@ -119,7 +119,7 @@ class dataInmobiliaria {
                 return dataBase.data;
             }
         } catch (error) {
-            console.error(`Error al obtener metros para rol ${rol}:`, error);
+            console.error(`Error al obtener metros para rol ${manzana}${predio}:`, error);
             console.log('Retornando nulo')
             return null;
         }

@@ -1,0 +1,216 @@
+.
+├── build
+│   ├── icon.ico
+│   └── icon.png
+├── columnMapping.js
+├── componentes
+│   ├── capitalRemates
+│   │   ├── capitalRemates.js
+│   │   └── capitalRematesTest.js
+│   ├── caso
+│   │   ├── caso.js
+│   │   ├── casoBuilder.js
+│   │   ├── CasoLadrillo.js
+│   │   ├── datosLocales.js
+│   │   ├── Normalizers
+│   │   │   ├── DateHelper.js
+│   │   │   ├── NumberHelper.js
+│   │   │   ├── RolHelper.js
+│   │   │   └── StringHelper.js
+│   │   └── tribunalesPjud.js
+│   ├── dataInmobiliaria
+│   │   ├── comunas.js
+│   │   ├── obtainDataInmobilaria.js
+│   │   └── testDataInmobiliaria.js
+│   ├── economico
+│   │   ├── datosRemateEmol.js
+│   │   ├── Economico.js
+│   │   ├── EconomicoCurl.js
+│   │   ├── extractors
+│   │   │   ├── auctionDateExtractor.js
+│   │   │   ├── causaExtractor.js
+│   │   │   ├── courtExtractor.js
+│   │   │   ├── deliveryDayExtractor.js
+│   │   │   ├── deliveryFormatExtractor.js
+│   │   │   ├── directionExtractor.js
+│   │   │   ├── districtExtract.js
+│   │   │   ├── index.js
+│   │   │   ├── minAmountExtractor.js
+│   │   │   ├── partiesExtractor.js
+│   │   │   ├── percentExtractor.js
+│   │   │   ├── propertyIdExtractor.js
+│   │   │   ├── rightTypeExtractor.js
+│   │   │   └── yearExtractor.js
+│   │   └── testEconomico.js
+│   ├── Electron
+│   │   ├── dev
+│   │   │   ├── index.html
+│   │   │   ├── obtainLinkMapa.js
+│   │   │   ├── renderer.js
+│   │   │   ├── style.css
+│   │   │   └── testUnitarios.js
+│   │   ├── main.js
+│   │   ├── preload
+│   │   │   ├── completeInfoPreload.js
+│   │   │   ├── ladrilleroPreload.js
+│   │   │   ├── searchPreload.js
+│   │   │   └── searchSinglePreload.js
+│   │   ├── prod
+│   │   │   ├── completeExcelInfo.js
+│   │   │   ├── indexOriginal.html
+│   │   │   ├── oldIndex.html
+│   │   │   ├── preload.js
+│   │   │   ├── renderer.js
+│   │   │   └── scrapeAuctions.js
+│   │   ├── renderer
+│   │   │   ├── completeInfoRenderer.js
+│   │   │   ├── ladrilleroRenderer.js
+│   │   │   ├── searchAuctionRenderer.js
+│   │   │   └── searchSingleRenderer.js
+│   │   └── windows
+│   │       ├── completeInfo.html
+│   │       ├── index.html
+│   │       ├── ladrillero.html
+│   │       ├── searchAuction.html
+│   │       ├── searchSingleAuction.html
+│   │       └── WindowManager.js
+│   ├── excel
+│   │   ├── createExcel.js
+│   │   ├── excelRowWriter.js
+│   │   ├── excelTemplateBuilder.js
+│   │   └── testExcel.js
+│   ├── liquidaciones
+│   │   ├── getBoletinConcursal.js
+│   │   ├── procesarBoletin.js
+│   │   └── testBoletin.js
+│   ├── macal
+│   │   ├── apiConfig.js
+│   │   ├── httpClient.js
+│   │   ├── macalService.js
+│   │   ├── models
+│   │   │   ├── EnrichedPropertyValidator.js
+│   │   │   └── PropertyValidator.js
+│   │   └── parser.js
+│   ├── mapasSII
+│   │   ├── MapasSII.js
+│   │   └── tests
+│   │       └── mapasSII.html
+│   ├── pdfProcess
+│   │   ├── extractors
+│   │   │   ├── address.js
+│   │   │   ├── buyYear.js
+│   │   │   ├── deliveryFormat.js
+│   │   │   ├── district.js
+│   │   │   ├── housePrice.js
+│   │   │   ├── index.js
+│   │   │   ├── minAmount.js
+│   │   │   ├── mortageBank.js
+│   │   │   ├── mortageDebt.js
+│   │   │   ├── pdfType.js
+│   │   │   ├── percent.js
+│   │   │   ├── promissoryNoteDebt.js
+│   │   │   ├── propertyId.js
+│   │   │   ├── propertyValuation.js
+│   │   │   ├── rightType.js
+│   │   │   └── utilsPdf.js
+│   │   ├── PdfProcess.js
+│   │   └── validators
+│   ├── pjud
+│   │   ├── checkFPMG.js
+│   │   ├── consultaCausaPjud.js
+│   │   ├── consultaCausaPjudRefactored.js
+│   │   ├── downloadPDF.js
+│   │   ├── GestorRematesPjud.js
+│   │   ├── getPjud.js
+│   │   └── PjudPdfData.js
+│   ├── preremates
+│   │   ├── obtenerPublicaciones.js
+│   │   └── testPreremates.js
+│   ├── publicosYlegales
+│   │   ├── DataPublicosYLegales.js
+│   │   ├── publicosYLegales.js
+│   │   └── testPublicosYLegales.js
+│   └── spreadSheet
+│       ├── data.json
+│       ├── DataEnricher.js
+│       ├── SpreadSheetManager.js
+│       └── testEnricher.js
+├── config.js
+├── credentials
+├── css
+│   └── styles.css
+├── logs
+│   ├── combined.log
+│   ├── combined1.log
+│   ├── combined2.log
+│   ├── error.log
+│   └── exceptions.log
+├── model
+│   ├── bdmng.js
+│   └── Causas.js
+├── package-lock.json
+├── package.json
+├── README.md
+├── scripts
+│   └── help.js
+├── tests
+│   ├── docs
+│   │   └── Demandas
+│   │       ├── mutuo1.txt
+│   │       ├── mutuo2.txt
+│   │       ├── mutuo3.txt
+│   │       ├── obligacion1.txt
+│   │       ├── pagare1.txt
+│   │       ├── pagare2.txt
+│   │       ├── pagare5.txt
+│   │       ├── pagare6.txt
+│   │       └── pagare7.txt
+│   ├── Funcional
+│   │   ├── Boletin.test.js
+│   │   ├── dataInmobiliariaFuncina.test.js
+│   │   ├── Emol.test.js
+│   │   ├── Pjud.test.js
+│   │   ├── scrapeAuction.test.js
+│   │   └── testHeaders.js
+│   ├── loadFile.js
+│   ├── textos
+│   │   ├── ActaRemate.js
+│   │   ├── Avaluo.js
+│   │   ├── BF.js
+│   │   ├── Boletin.js
+│   │   ├── diario.js
+│   │   ├── DM.js
+│   │   ├── DV.js
+│   │   ├── Extracto.js
+│   │   ├── GP.js
+│   │   └── textosLargos
+│   │       └── dm1138.txt
+│   └── unit
+│       ├── caso.test.js
+│       ├── cleanString.test.js
+│       ├── dataInmobiliaria.test.js
+│       ├── DateHelper.test.js
+│       ├── extractors.test.js
+│       ├── NumberHelper.test.js
+│       ├── PdfExtractors.test.js
+│       ├── PjudPdf.test.js
+│       ├── StringHelper.test.js
+│       └── utils.test.js
+├── tree.txt
+├── unit.js
+└── utils
+    ├── cleanStrings.js
+    ├── compareText.js
+    ├── convertWordToNumbers.js
+    ├── corteJuzgado.js
+    ├── delay.js
+    ├── EnvLoader.js
+    ├── logger.js
+    ├── mouseMovement.js
+    ├── stealth.js
+    ├── textNormalizers.js
+    ├── userAgents.json
+    ├── userAgents2.json
+    └── utilsRenderer.js
+
+41 directories, 173 files
