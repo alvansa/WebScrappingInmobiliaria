@@ -16,7 +16,8 @@
     "test": "jest",
     "test:unit": "jest tests/unit",
     "test:functional": "jest tests/Funcional",
-    "app:dir": "electron-builder --dir"
+    "app:dir": "electron-builder --dir",
+    "commands" : "node scripts/help.js"
   },
   "author": "Alvaro Soto",
   "type": "commonjs",
