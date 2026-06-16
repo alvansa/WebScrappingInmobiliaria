@@ -1,4 +1,4 @@
-const NumberHelper = require('../../componentes/caso/Normalizers/NumberHelper');
+const NumberHelper = require('#models/caso/Normalizers/NumberHelper');
 
 describe('Normalizar deuda hipotecaria',()=>{
     test('Caso null', ()=>{

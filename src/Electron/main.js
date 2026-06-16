@@ -14,36 +14,36 @@ const WindowManager = require('./windows/WindowManager.js');
 
 // const scrapeAuction = require('./prod/scrapeAuctions.js');
 const CompleteExcelInfo = require('./prod/CompleteExcelInfo.js');
-const ProcesarBoletin = require('../liquidaciones/procesarBoletin.js');
-const {createExcel} = require('../core/exporters/excel/createExcel.js');
-const Caso = require('../caso/caso.js')
+const ProcesarBoletin = require('#sources/liquidaciones/procesarBoletin.js');
+const {createExcel} = require('#exporters/excel/createExcel.js');
+const Caso = require('#models/caso/caso.js')
 const config = require('#config');
-const ConsultaCausaPjud = require('../pjud/consultaCausaPjudRefactored.js');
-const { fakeDelay, delay } = require('../../utils/delay.js');
-const {tribunalesPorCorte} = require('../../utils/corteJuzgado.js');
+const ConsultaCausaPjud = require('#sources/pjud/consultaCausaPjudRefactored.js');
+const { fakeDelay, delay } = require('#utils/delay.js');
+const {tribunalesPorCorte} = require('#utils/corteJuzgado.js');
 const testUnitarios = require('./dev/testUnitarios.js');
-const checkFPMG = require('../pjud/checkFPMG.js');
+const checkFPMG = require('#sources/pjud/checkFPMG.js');
 const obtainLinkMapa = require('./dev/obtainLinkMapa.js');
-const SpreadSheetManager = require('../spreadSheet/SpreadSheetManager.js');
+const SpreadSheetManager = require('#enrichers/spreadSheet/SpreadSheetManager.js');
 
 const PuppeteerManager = require('#core/scrapeAuction/services/PuppeteerManager.js');
 const PlaywrightManager = require('#core/scrapeAuction/services/PlaywrigthManager.js');
 
 const EconomicosSource = require('#core/scrapeAuction/sources/EconomicosSource.js');
 const PjudSource = require('#core/scrapeAuction/sources/PjudSource.js');
-const LiquidacionesSource = require('./prod/scrapeAuction/sources/LiquidacionesSource.js');
-const MacalSource = require('./prod/scrapeAuction/sources/MacalSource.js');
-const CapitalRematesSource = require('./prod/scrapeAuction/sources/CapitalRematesSource.js');
+const LiquidacionesSource = require('#core/scrapeAuction/sources/LiquidacionesSource.js');
+const MacalSource = require('#core/scrapeAuction/sources/MacalSource.js');
+const CapitalRematesSource = require('#core/scrapeAuction/sources/CapitalRematesSource.js');
 
-const DataInmobiliariaEnricher = require('./prod/scrapeAuction/enrichers/DataInmobiliariaEnricher.js');
-const MapasSIIEnricher = require('./prod/scrapeAuction/enrichers/MapasSIIEnricher.js');
-const SpreadSheetEnricher = require('./prod/scrapeAuction/enrichers/SpreadSheetEnricher.js');
+const DataInmobiliariaEnricher = require('#core/scrapeAuction/enrichers/DataInmobiliariaEnricher.js');
+const MapasSIIEnricher = require('#core/scrapeAuction/enrichers/MapasSIIEnricher.js');
+const SpreadSheetEnricher = require('#core/scrapeAuction/enrichers/SpreadSheetEnricher.js');
 
-const ExcelExporter = require('./prod/scrapeAuction/exporters/ExcelExporter.js');
+const ExcelExporter = require('#core/scrapeAuction/exporters/ExcelExporter.js');
 
-const auctionScraperOrchestator = require('./prod/scrapeAuction/auctionScraperOrchestator.js');
+const auctionScraperOrchestator = require('#core/scrapeAuction/auctionScraperOrchestator.js');
 
-const Causas = require('../models/Causas.js');
+const Causas = require('#models/Causas.js');
 
 const isDevMode = process.argv.includes('--dev');
 const isEmptyMode = process.argv.includes('--empty');
@@ -215,7 +215,7 @@ class MainApp{
             const sources = [
                 new EconomicosSource(PuppeteerManager,{'mode': config.NORMAL}, logger, isTestMode ),
                 new PjudSource(PlaywrightManager,{'mode': config.NORMAL} ),
-                new LiquidacionesSource(),
+                new LiquidacionesSource(PuppeteerManager, {mode: 0, logger: logger, isTestMode: isTestMode }),
                 new MacalSource(),
                 new CapitalRematesSource(), 
             ]

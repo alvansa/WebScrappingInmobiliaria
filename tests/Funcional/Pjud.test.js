@@ -1,6 +1,6 @@
 
-const Caso = require('../../componentes/caso/caso');
-const PjudPdfData = require('../../componentes/pjud/PjudPdfData');
+const Caso = require('#models/caso/caso');
+const PjudPdfData = require('#sources/pjud/PjudPdfData');
 
 const {dv1750, dv4991} = require('../textos/DV');
 const {bf1750} = require('../textos/BF');

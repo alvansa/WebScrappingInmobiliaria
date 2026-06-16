@@ -1,7 +1,7 @@
-const {matchJuzgado, matchRol} = require('../../utils/compareText');
-const convertWordToNumbers = require('../../utils/convertWordToNumbers');
-const {obtainCorteJuzgadoNumbers, searchInList} = require('../../utils/corteJuzgado');
-const CasoBuilder  = require('../../componentes/caso/casoBuilder');
+const {matchJuzgado, matchRol} = require('#utils/compareText');
+const convertWordToNumbers = require('#utils/convertWordToNumbers');
+const {obtainCorteJuzgadoNumbers, searchInList} = require('#utils/corteJuzgado');
+const CasoBuilder  = require('#models/caso/casoBuilder');
 
 
 describe('matchJuzgado', () => {

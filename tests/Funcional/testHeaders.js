@@ -1,5 +1,6 @@
+//TODO: No me acuerdo que era esto. eliminar?
 
-const Economico = require('../../componentes/economico/Economico');
+const Economico = require('#sources/economico/Economico');
 
 
 class testHeaders {

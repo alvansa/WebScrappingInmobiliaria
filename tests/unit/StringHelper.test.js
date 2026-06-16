@@ -1,4 +1,4 @@
-const StringHelper = require('../../componentes/caso/Normalizers/StringHelper');
+const StringHelper = require('#models/caso/Normalizers/StringHelper');
 
 
 const PJUD = 2;

@@ -1,7 +1,7 @@
 const {testUnico, procesarDatosRemate} = require('./datosRemateEmol.js');
-const Caso = require('../caso/caso.js');
+const Caso = require('#models/caso/caso.js');
 const process = require('process');
-const Causas = require('../../model/Causas.js');
+const Causas = require('#models/Causas.js');
 
 async function testLink(){
     try {

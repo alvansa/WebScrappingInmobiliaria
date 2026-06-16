@@ -4,21 +4,23 @@ const {app, BrowserWindow, ipcMain, dialog,electron} = require('electron');
 const path = require('path');
 const os = require('os');
 
-const Caso = require('../../caso/caso.js')
-const {downloadPdfFromUrl,checkUserAgent} = require('../../pjud/downloadPDF.js');
-const {testTexto,testTextoArgs} = require('../../economico/testEconomico.js');
-const PjudPdfData = require('../../pjud/PjudPdfData.js');
-const PdfProcess = require('../../pdfProcess/PdfProcess.js');
-const ProcesarBoletin = require('../../liquidaciones/procesarBoletin.js');
+const Caso = require('#models/caso/caso.js')
+const {downloadPdfFromUrl,checkUserAgent} = require('#sources/pjud/downloadPDF.js');
+const {testTexto,testTextoArgs} = require('#sources/economico/testEconomico.js');
+const PjudPdfData = require('#sources/pjud/PjudPdfData.js');
+const PdfProcess = require('#src/pdfProcess/PdfProcess.js');
+const ProcesarBoletin = require('#sources/liquidaciones/procesarBoletin.js');
 // const ConsultaCausaPjud = require('../../pjud/ConsultaCausaPjud.js');
-const MapasSII = require('../../mapasSII/MapasSII.js');
-const MacalService = require('../../macal/macalService.js');
-const logger = require('../../../utils/logger.js');
-const { fakeDelay } = require('../../../utils/delay.js');
-const { createExcel } = require('../../core/exporters/excel/createExcel.js');
-const { LIQUIDACIONES } = require('../../../config.js');
-const Economico = require('../../economico/Economico.js');
+const MapasSII = require('#enrichers/mapasSII/MapasSII.js');
+const MacalService = require('#sources/macal/macalService.js');
+const logger = require('#utils/logger.js');
+const { fakeDelay } = require('#utils/delay.js');
+const { createExcel } = require('#exporters/excel/createExcel.js');
+const config = require('#config');
+const Economico = require('#sources/economico/Economico.js');
 const CompleteExcelInfo = require('../prod/CompleteExcelInfo.js');
+
+const LIQUIDACIONES = config.LIQUIDACIONES;
 
 
 class testUnitarios{

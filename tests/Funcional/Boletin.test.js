@@ -1,8 +1,8 @@
 const BOLETIN = require('../textos/Boletin');
-const ProcesarBoletin = require('../../componentes/liquidaciones/procesarBoletin');
-const CasoBuilder = require('../../componentes/caso/casoBuilder');
-const config = require('../../config');
-const { extractPercent } = require('../../componentes/economico/extractors/percentExtractor');
+const ProcesarBoletin = require('#sources/liquidaciones/procesarBoletin');
+const CasoBuilder = require('#models/caso/casoBuilder');
+const config = require('#config');
+const { extractPercent } = require('#sources/economico/extractors/percentExtractor');
 
 const LIQUIDACIONES = config.LIQUIDACIONES;
 

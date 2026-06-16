@@ -8,7 +8,7 @@ const puppeteer = require('puppeteer-core');
 const config = require('#config');
 const { fakeDelay, delay } = require('#utils/delay.js');
 const logger = require('#utils/logger.js');
-const MapasSII = require('#sources/mapasSII/MapasSII.js');
+const MapasSII = require('#enrichers/mapasSII/MapasSII.js');
 
 const CasoBuilder = require('#models/caso/casoBuilder.js');
 // const {stringToDate} = require('../../utils/cleanStrings')

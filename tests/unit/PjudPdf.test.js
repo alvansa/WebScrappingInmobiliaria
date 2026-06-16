@@ -1,6 +1,6 @@
-const PjudPdfData = require('../../componentes/pjud/PjudPdfData');
-const Caso = require('../../componentes/caso/caso');
-const config = require('../../config')
+const PjudPdfData = require('#sources/pjud/PjudPdfData');
+const Caso = require('#models/caso/caso');
+const config = require('config')
 
 const {loadFile} = require('../loadFile.js');
 

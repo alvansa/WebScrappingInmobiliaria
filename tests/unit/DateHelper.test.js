@@ -1,4 +1,4 @@
-const DateHelper = require('../../componentes/caso/Normalizers/DateHelper');
+const DateHelper = require('#models/caso/Normalizers/DateHelper');
 
 const PJUD = 2;
 
