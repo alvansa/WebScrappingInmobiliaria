@@ -111,7 +111,7 @@ class obtainLinkMapa {
             logger.info("Obteniendo datos de Mapas SII");
             let page;
             mapasSII = new MapasSII(page, this.browser);
-            await mapasSII.Secondinit();
+            await mapasSII.init();
             for (let caso of this.casos) {
                 if (caso.rolPropiedad !== null && caso.comuna !== null) {
                     try {

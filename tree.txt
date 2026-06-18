@@ -1,6 +1,6 @@
 .
 ├── build
-│   ├── icon.ico
+│   ├── icon.ico  
 │   └── icon.png
 ├── columnMapping.js
 ├── componentes

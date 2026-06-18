@@ -462,7 +462,7 @@ async function insertarCasoIntoWorksheet(caso, ws, currentRow) {
         ws[`${config.FECHA_DESC}` + currentRow] = { v: caso.fechaObtencion, t: 'd', z: 'dd/mm/yyyy' };
     }
     writeLine(ws, `${config.ORIGEN}`, currentRow, caso.link, 's');
-    writeLine(ws, `${config.ESTADO}`, currentRow, caso.tp, 's');    
+    writeLine(ws, `${config.NOTAS}`, currentRow, caso.tp, 's');    
 
     if (caso.fechaRemate && caso.fechaRemate instanceof Date) {
         ws[`${config.FECHA_REM}` + currentRow] = { v: caso.fechaRemate, t: 'd', z: 'DD/MM/YYYY' };
