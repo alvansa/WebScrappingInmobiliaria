@@ -1,10 +1,11 @@
+const capitalRemates = require('#sources/capitalRemates/capitalRemates.js');
 
 class CapitalRematesSource {
     constructor() {
 
     }
 
-    getName() {return "Capital Remates";}
+    getName() {return "capitalremates";}
 
     async fetch(startDate, endDate, options) {
         return [];
