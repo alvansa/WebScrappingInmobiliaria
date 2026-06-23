@@ -32,6 +32,11 @@ class auctionScraperOrchestator{
             }
         }
 
+        //TODO: Agregar que si los casos economicos son 0 haga una segunda vuelta
+        //TODO : Agregar que si hay muchas partes vacias vuelva a buscar en pjud
+        //TODO: Tal vez agregar como segundo buscador el playwritgh?
+        //TODO:  Agregar busqueda de casos de emol en pjud.
+
         if(this.isEmptyMode){
             return this.exporter.export(allCases, { saveFile : this.saveFile, startDate, endDate, saveFile : this.saveFile});
         }

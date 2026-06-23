@@ -8,9 +8,9 @@ const CasoBuilder = require('#models/caso/casoBuilder.js');
 const {fakeDelay} = require('#utils/delay.js');
 const logger = require('#utils/logger.js');   
 
+
 /*
-    TODO:
-        - fecha remate       
+    TODO: ESTO NO ESTA FUNCIOANDO 
 
 */
 
@@ -40,9 +40,23 @@ class CapitalRemates{
         while(areRematesAvailable){
             logger.info(`Obteniendo remates desde API, fechaDesde: ${fechaDesde}, fechaHasta: ${fechaHasta}, start: ${start}`);
             //TODO: agregar cosas para que funcione, que cosas, nose
-            const response = await fetch(
-                `https://capitalremates.cl/remate-api/list?fecha_desde=${fechaDesde}&fecha_hasta=${fechaHasta}&draw=1&length=100&start=${start}`,
+            const url = `https://capitalremates.cl/remate-api/list?fecha_desde=${fechaDesde}&fecha_hasta=${fechaHasta}&draw=1&length=100&start=${start}`;
+            const index = Math.floor(Math.random() * listUserAgents.length ); 
+            const userAgent = listUserAgents[0];
+            const response = await fetch( url, { headers:{
+                'User-Agent' : userAgent,
+                'Accept': 'application/json, text/plain, */*',
+                'Accept-Language': 'es-CL,es;q=0.9,en;q=0.8',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'Referer': 'https://capitalremates.cl/', // Simula que vienes de su propia web
+                'Origin': 'https://capitalremates.cl',
+                'Connection': 'keep-alive',
+            }}
             );
+
+            logger.info(`Response status ${response.status} user Agent usado: ${userAgent}`)
+            // logger.info(`Respuesta : ${JSON.stringify(response,null,2)}`)
+            // logger.info(`Respuesta : ${response.text()}`)
             const data = await response.json();
             logger.info(`Remates obtenidos desde API: ${data.data.length}`);
             links = this.addLinks(links,data.data);

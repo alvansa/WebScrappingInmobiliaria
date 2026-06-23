@@ -214,10 +214,10 @@ class MainApp{
             
             const sources = [
                 new EconomicosSource(PuppeteerManager,{'mode': config.NORMAL}, logger, isTestMode ),
-                new PjudSource(PlaywrightManager,{'mode': config.NORMAL} ),
+                new PjudSource(PuppeteerManager,{'mode': config.NORMAL} ),
                 new LiquidacionesSource(PuppeteerManager, {mode: 0, logger: logger, isTestMode: isTestMode }),
                 new MacalSource(),
-                new CapitalRematesSource(), 
+                new CapitalRematesSource(PuppeteerManager, logger, isTestMode), 
             ]
 
             const enrichers = [

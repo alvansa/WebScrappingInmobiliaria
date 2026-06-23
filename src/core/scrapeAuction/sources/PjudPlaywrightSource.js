@@ -1,8 +1,9 @@
+
 const pie = require('puppeteer-in-electron')
 const {BrowserWindow} =  require('electron')
 
-const Pjud = require('#sources/pjud/getPjud.js');
-const GestorRematesPjud = require('#sources/pjud/GestorRematesPjud.js');
+const Pjud = require('#sources/pjud/getPjudPlay.js')
+const GestorRematesPjud = require('#sources/pjud/GestorRematesPlay.js');
 
 const {obtainCorteJuzgadoNumbers} = require('#utils/corteJuzgado.js');
 const logger = require('#utils/logger.js');
@@ -11,8 +12,9 @@ const {stringToDate} = require('#utils/cleanStrings.js');
 const config = require('#config');
 const NORMAL = config.NORMAL;
 
+const { webkit } = require('playwright');
 
-class PjudSource{
+class PjudPlaywrightSource{
     constructor(manager,config){
         this.manager = manager;
         this.browser = null;
@@ -23,7 +25,7 @@ class PjudSource{
     getName(){ return 'pjud'; }
 
 
-    async fetch(startDateOrigin, endDateOrigin, { event, mainWindow, emptyMode, testMode }) {
+    async fetch2(startDateOrigin, endDateOrigin, { event, mainWindow, emptyMode, testMode }) {
         if (emptyMode) return [];
 
         const endDateModified = stringToDate(endDateOrigin);
@@ -51,7 +53,35 @@ class PjudSource{
         return [];
     }
 
-    async searchCasesByDay(startDate, endDate) {
+    //TODO: el problema es como se llega a la pagian principal de consultar, antes como era con verRemates() lo detectaba como bot, 
+    // Lo que hay que hacer es fingir mas desde la pagina principal del pjud y de ahi llegar a donde queremos.
+    async fetch(startDateOrigin, endDateOrigin, { event, mainWindow, emptyMode, testMode }){
+        const endDateModified = stringToDate(endDateOrigin);
+        endDateModified.setDate(endDateModified.getDate() + 1); // Aumentar un dia para incluir el ultimo dia
+        const startDate = dateToPjud(stringToDate(startDateOrigin));
+        const endDate = dateToPjud(endDateModified);
+        let casos = [];
+
+        this.browser = await this.manager.getBrowser();
+        this.context = await this.manager.createHumanContext();
+
+        try{
+            casos = await this.searchCasesByDay(startDate, endDate);
+            casos.reverse(); // Invertir el orden de los casos para que aparezcan del mas reciente al mas antiguo
+            const gestorRemates = new GestorRematesPjud(casos, event, mainWindow, NORMAL);
+            const result = await gestorRemates.getInfoFromAuctions();
+
+            logger.info("Cantidad de casos obtenidos de pjud: ", casos.length);
+            return casos;
+        }catch(error){
+
+            logger.warn(`Error: ${error.message}`)
+            return casos;
+        }
+
+    }
+
+    async searchCasesByDay2(startDate, endDate) {
         let window;
         let casos = [];
         try {
@@ -73,6 +103,34 @@ class PjudSource{
         }
         return casos;
     }
+
+    async searchCasesByDay(startDate, endDate) {
+        let window;
+        let casos = [];
+        try {
+            const url = 'https://www.pjud.cl/';
+
+            const page = await this.context.newPage();
+            await page.goto(url,{timeout: 160000}); // Página real
+            const scraper = new Pjud(this.browser, page, startDate, endDate);
+            casos = await scraper.getPJUD();
+            obtainCorteJuzgadoNumbers(casos);
+            logger.info(`Cantidad de resultados obtenidos: ${casos.length}`);
+            return casos;
+        } catch (error) {
+            console.error("Error al buscar casos por dia en Pjud: ", error.message);
+            if (window && !window.isDestroyed()) {
+                window.destroy();
+            }
+
+        }finally{
+            if(page && !page.isClosed()){
+                page.close();
+            }
+        }
+        return casos;
+    }
+
 }
 
 function dateToPjud(date) {
