@@ -73,6 +73,9 @@ document.getElementById('openExcelWindow').addEventListener('click', () => {
   window.api.openWindow('excel'); 
 });
 
+document.getElementById('openDeudaWindow').addEventListener('click', () => {
+  window.api.openWindow('deuda'); 
+});
 
 document.getElementById('openSettingsWindow').addEventListener('click', () => {
   window.api.openWindow('settings'); 

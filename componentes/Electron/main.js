@@ -103,8 +103,8 @@ class MainApp{
       createMainWindow(){
         this.mainWindow = new BrowserWindow({
             resizable: false,
-            width: 700,
-            height: 500,
+            width: 900,
+            height: 900,
             webPreferences: {
                 preload: path.join(__dirname, './prod/preload.js'), // Archivo que se ejecutará antes de cargar el renderer process
                 nodeIntegration: true,
@@ -147,6 +147,8 @@ class MainApp{
                     return 1;
                 case 'ladrillero':
                     return this.windowManager.createLadrilleroWindow();
+                case 'deuda':
+                    return this.windowManager.createDeudaWindow();
                 case 'settings':
                     // return this.windowManager.createSettingsWindow();
                     this.logToRenderer('Creando ventana de settings')
@@ -235,13 +237,14 @@ class MainApp{
             }
         });
 
-        ipcMain.handle('process-DEUDA', async (event, filePath) => {
+        ipcMain.handle('process-DEUDA', async (event, filePath, fechaLimite) => {
             try{
+                fechaLimite = null;
                 const data = await SpreadSheetManager.processData();
                 if(data){
                     let parsedData = data.data;
                     const check = new checkFPMG(event, this.mainWindow, filePath, parsedData);
-                    const result = await check.proccesDeudaSeguir();
+                    const result = await check.proccesDeudaSeguir(fechaLimite);
                     return result;
                 }
                 // let data = null;

@@ -20,8 +20,8 @@ class WindowManager {
         console.log('Path del preload: ',path.join(__dirname,'../prod/preload.js'));
 
         const mainWindow = new BrowserWindow({
-            width: 600,
-            height: 500,
+            width: 800,
+            height: 700,
             resizable: false,
             webPreferences: {
                 nodeIntegration: false,
@@ -195,6 +195,42 @@ class WindowManager {
 
         this.windows.set('ladrillero', ladrilleroWindow);
         // return excelWindow;
+    }
+
+    createDeudaWindow() {
+        if (this.windows.has('deuda')) {
+            const existing = this.windows.get('deuda');
+            existing.focus();
+            return;
+        }
+
+        const deudaWindow = new BrowserWindow({
+            width: 700,
+            height: 500,
+            minWidth: 700,
+            minHeight: 500,
+            resizable: false,
+            webPreferences: {
+                nodeIntegration: false,
+                contextIsolation: true,
+                enableRemoteModule: false,
+                preload : path.join(__dirname, '../prod/preload.js'),
+            },
+            show: false,
+            parent: this.mainWindow
+        });
+
+        deudaWindow.loadFile(path.join(__dirname, '../windows/deuda.html'));
+        
+        deudaWindow.once('ready-to-show', () => {
+            deudaWindow.show();
+        });
+
+        deudaWindow.on('closed', () => {
+            this.windows.delete('deuda');
+        });
+
+        this.windows.set('deuda', deudaWindow);
     }
 
     createSettingsWindow() {

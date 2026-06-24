@@ -107,13 +107,15 @@ selectFileBtn.addEventListener('click', async () => {
 checkFPMG.addEventListener('click', async () => {
   try {
     // const filePath = await window.ladrilleroAPI.openFileLocal();
+      let filePath = null
+      let fechaLimite = null;
     
     // if (filePath) {
       // fileInfo.textContent = `Archivo seleccionado: ${filePath}`;
       
       showWaitingProcess(true);
       // Llama a tu función que procesa el archivo
-      const result = await window.api.checkDEUDA();
+      const result = await window.api.checkDEUDA(filePath, fechaLimite);
       if(result){
         alert('Proceso de deuda finalizado con éxito');
       }else{
