@@ -450,7 +450,11 @@ function fechaMenosUno(fecha) {
 }
 function writeLine(ws, row, col, value, type) {
     if (value != null) {
-        ws[row + col] = { v: value, t: type };
+        if(row === config.DEUDA_HIPOTECA){
+            ws[row + col] = { v: `Tod ${value}`, t: type };
+        }else{
+            ws[row + col] = { v: value, t: type };
+        }
     }
 }
 
