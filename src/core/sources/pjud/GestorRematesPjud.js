@@ -6,7 +6,7 @@ const puppeteer = require('puppeteer-core');
 
 const { fakeDelay, delay } = require('#utils/delay.js');
 const config = require('#config');
-const ConsultaCausaPjud = require('./consultaCausaPlay.js');
+const ConsultaCausaPjud = require('./consultaCausaPjudRefactored.js');
 const NORMAL = config.NORMAL;
 
 // puppeteerExtra.use(StealthPlugin());

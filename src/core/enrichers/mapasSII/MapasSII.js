@@ -5,6 +5,7 @@ const pie = require('puppeteer-in-electron');
 
 const {delay, fakeDelay} = require('#utils/delay.js');
 
+const listUserAgents = require('#utils/userAgents.json');
 class MapasSII {
     constructor(page, browser) {
         this.URL = 'https://www4.sii.cl/mapasui/internet/#/contenido/index.html';
@@ -77,7 +78,8 @@ class MapasSII {
 
         try {
             // Intenta cargar USER_AGENTS desde .env, si no existe usa los valores por defecto
-            userAgents = this.readUserAgents();
+            // userAgents = this.readUserAgents();
+            userAgents = listUserAgents;
         } catch (error) {
             console.error('Error parsing USER_AGENTS from .env, using default agents:', error);
             userAgents = defaultUserAgents;
@@ -86,7 +88,7 @@ class MapasSII {
         // Selecciona un User-Agent aleatorio
         const randomIndex = Math.floor(Math.random() * userAgents.length);
 
-        this.window = new BrowserWindow({ show: false });
+        this.window = new BrowserWindow({ show: true });
         const url = 'https://www4.sii.cl/mapasui/internet/#/contenido/index.html';
         // const url = 'https://www.google.com/';
 

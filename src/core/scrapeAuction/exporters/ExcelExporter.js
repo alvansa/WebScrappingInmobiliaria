@@ -1,5 +1,6 @@
 const { fixStringDate } = require("#utils/cleanStrings.js");
 const {createExcel} = require("#exporters/excel/createExcel.js");
+const logger = require('#utils/logger.js')
 
 class ExcelExporter {
     constructor(startDate, endDate, saveFile, config) {
@@ -17,6 +18,7 @@ class ExcelExporter {
     async export(causas) {
         const excelBuilder = new createExcel(this.saveFile, this.startDate, this.endDate, this.emptyMode, this.type, this.isTestMode);
         // const filePath = excelBuilder.build(causas);
+        logger.info(`Exportando ${causas.length} casos a Excel... isTestMode ${this.isTestMode}`);
 
         const fileName = await excelBuilder.writeData(causas)
         

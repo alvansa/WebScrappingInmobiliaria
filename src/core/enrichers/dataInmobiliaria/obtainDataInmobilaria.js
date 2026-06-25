@@ -1,6 +1,6 @@
 const comunas = require("./comunas");
-const { normalizeText } = require("#utils/textNormalizers");
-const logger = require("#utils/logger");
+const { normalizeText } = require("#utils/textNormalizers.js");
+const logger = require("#utils/logger.js");
 
 class dataInmobiliaria {
     /*

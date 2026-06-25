@@ -68,7 +68,7 @@ class ExcelRowWriter {
             ws[`${columnMapping.PX_COMPRA}` + currentRow] = { v: caso.montoCompra.monto, t: 'n' };
         }
         this.writeLine(ws, `${columnMapping.ANNO_COMPRA}`, currentRow, caso.anno, "n");
-        this.writeLine(ws, `${columnMapping.DEUDA_BANCO}`, currentRow, `Tod ${caso.mortageBank}`, 's');
+        this.writeLine(ws, `${columnMapping.DEUDA_BANCO}`, currentRow, caso.mortageBank, 's');
         this.writeLine(ws, `${columnMapping.DEUDA_HIPOTECA}`, currentRow, caso.deudaHipotecaria, "s");
         this.writeLine(ws, `${columnMapping.DEUDA_PAGARE}`, currentRow, caso.deudaPagare, "s");
         this.writeLine(ws, `${columnMapping.OTRA_DEUDA}`, currentRow, caso.linkMap, 's');
@@ -140,7 +140,11 @@ class ExcelRowWriter {
     }
     static writeLine(ws, row, col, value, type) {
         if (value != null) {
-            ws[row + col] = { v: value, t: type };
+            if(row === columnMapping.DEUDA_HIPOTECA){
+                ws[row + col] = { v:`Tod ${value}`, t: type };
+            }else{
+                ws[row + col] = { v: value, t: type };
+            }
         }
     }
 

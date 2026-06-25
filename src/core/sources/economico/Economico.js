@@ -316,7 +316,7 @@ class Economico {
             casoObj.fechaRemate = currentCase.fechaRemate;
 
             // this.casosARevisar.push(casoObj);
-            if (!casoObj.fechaRemate || (casoObj.fechaRemate >= this.originStartDate && casoObj.fechaRemate <= this.originEndDate)) {
+            if ((!casoObj.fechaRemate || (casoObj.fechaRemate >= this.originStartDate && casoObj.fechaRemate <= this.originEndDate)) || this.isTestMode) {
                 this.casosARevisar.push(casoObj);
             }
         }

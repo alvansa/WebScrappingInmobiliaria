@@ -221,9 +221,9 @@ class MainApp{
             ]
 
             const enrichers = [
-                new DataInmobiliariaEnricher(),
-                new MapasSIIEnricher(),
                 new SpreadSheetEnricher(),
+                new MapasSIIEnricher(PuppeteerManager),
+                new DataInmobiliariaEnricher(),
             ]
 
             const exporter = new ExcelExporter(startDate, endDate, saveFile, { emptyMode : isEmptyMode, type : config.NORMAL, isTestMode : isTestMode });

@@ -11,7 +11,10 @@
 // jest.mock('../../utils/logger.js');
 
 
-// describe('ScrapeAuction', () => {
+describe('ScrapeAuction', () => {
+    test('a', ()=>{
+    })
+})
 //     let scrapper;
 
 //     beforeEach(() =>{

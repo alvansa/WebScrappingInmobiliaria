@@ -19,6 +19,10 @@ class auctionScraperOrchestator{
         console.log(`Ckecked Boxes en el orchestator : ${JSON.stringify(this.checkedBoxes,null,2)}`);
 
         let allCases = [];
+        const spreadSheet = this.enrichers[0];
+
+        logger.info(`Obteniendo la informacion de excel base`);
+        await spreadSheet.obtain();
 
         logger.info(`Checked Boxes ${this.checkedBoxes}`)
         for (const source of this.sources) {

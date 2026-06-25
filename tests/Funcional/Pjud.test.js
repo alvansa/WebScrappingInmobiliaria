@@ -8,7 +8,6 @@ const {ex1666} = require('../textos/Extracto');
 const AR = require('../textos/ActaRemate');
 const AV = require('../textos/Avaluo');
 const textosGP = require('../textos/GP');
-const { NormalModuleReplacementPlugin } = require('webpack');
 
 describe('Test de funcionalidad Pjud a normalizacion',() => {
     test('Obtener monto minimo de postura de un extracto', () => {

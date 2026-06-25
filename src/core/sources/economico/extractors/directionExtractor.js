@@ -1,7 +1,7 @@
 const convertWordToNumbers = require('#utils/convertWordToNumbers.js');
 const {normalizeText} = require('#utils/textNormalizers.js');
 const logger = require('#utils/logger.js');
-// const { isNumber } = require('puppeteer-core');
+const { isNumber } = require('puppeteer-core');
 
 let isDev = false;
 

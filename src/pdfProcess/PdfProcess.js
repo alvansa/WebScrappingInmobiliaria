@@ -1,4 +1,4 @@
-const extractors = require('./extractors');
+const extractors = require('./extractors/index.js');
 const config = require('#config');
 const {normalizeText, normalizeTextSpanish} = require('#utils/textNormalizers.js');
 const { extractRightType } = require('#sources/economico/extractors/rightTypeExtractor.js');

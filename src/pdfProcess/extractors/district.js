@@ -1,4 +1,4 @@
-// const extractors = require('#sources/economico/extractors');
+const extractors = require('#sources/economico/extractors/index.js');
 
 function processDistrict(spanishInfo, infoNormalized, logData = false) {
     const regexDominio = /dominio\s*con\s*vigencia/gi;
@@ -20,7 +20,7 @@ function processDistrict(spanishInfo, infoNormalized, logData = false) {
     if (comuna) {
         return comuna;
     }
-    comuna = extractor.district(spanishInfo, true, logData);
+    comuna = extractors.district(spanishInfo, true, logData);
 
     if (comuna) {
         return comuna;

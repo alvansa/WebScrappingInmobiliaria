@@ -1,6 +1,6 @@
 const extractor = require('#src/pdfProcess/extractors');
 const {normalizeText, normalizeTextSpanish}  = require('#utils/textNormalizers');
-const config = require('config');
+const config = require('#config');
 const {loadFile} = require('../loadFile.js');
 
 
