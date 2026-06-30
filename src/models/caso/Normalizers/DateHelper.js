@@ -1,9 +1,5 @@
 
-<<<<<<< HEAD:src/models/caso/Normalizers/DateHelper.js
 const config = require('#config');
-=======
-const config = require('../../../config/config');
->>>>>>> main:componentes/caso/Normalizers/DateHelper.js
 
 const PJUD = config.PJUD;
 const EMOL = config.EMOL;

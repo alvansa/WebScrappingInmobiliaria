@@ -18,7 +18,7 @@ const { fakeDelay } = require('#utils/delay.js');
 const { createExcel } = require('#exporters/excel/createExcel.js');
 const config = require('#config');
 const Economico = require('#sources/economico/Economico.js');
-const CompleteExcelInfo = require('../prod/CompleteExcelInfo.js');
+const CompleteExcelInfo = require('../main/prod/CompleteExcelInfo.js');
 
 const LIQUIDACIONES = config.LIQUIDACIONES;
 

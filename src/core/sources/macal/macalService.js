@@ -10,13 +10,8 @@ const CasoBuilder = require('#models/caso/casoBuilder.js');
 const { all } = require('axios');
 
 
-<<<<<<< HEAD:src/core/sources/macal/macalService.js
 const config = require('#config');
 const Caso = require('#models/caso/caso.js');
-=======
-const config = require('../../config/config.js');
-const Caso = require('../caso/caso.js');
->>>>>>> main:componentes/macal/macalService.js
 const { NormalModuleReplacementPlugin } = require('webpack');
 
 const MACAL = config.MACAL;

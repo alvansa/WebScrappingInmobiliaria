@@ -9,14 +9,8 @@ const os = require('os');
 
 require('dotenv').config();
 
-<<<<<<< HEAD:src/core/enrichers/spreadSheet/SpreadSheetManager.js
 const config = require('#config');
 const EnvLoader = require('#utils/EnvLoader.js');
-=======
-const config = require('../../config/config');
-const EnvLoader = require('../../utils/EnvLoader');
->>>>>>> main:componentes/spreadSheet/SpreadSheetManager.js
-
 
 // const isDev = process.argv.includes('--dev');
 

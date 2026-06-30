@@ -1,13 +1,8 @@
 const SpreadSheetManager = require('./SpreadSheetManager.js');
 const CasoBuilder = require('#models/caso/casoBuilder.js');
 
-<<<<<<< HEAD:src/core/enrichers/spreadSheet/DataEnricher.js
 const config = require('#config');
 const {searchInList} = require('#utils/corteJuzgado.js');
-=======
-const config = require('../../config/config.js');
-const {searchInList} = require('../../utils/corteJuzgado.js');
->>>>>>> main:componentes/spreadSheet/DataEnricher.js
 
 
 const indexEstado = config.obtenerNumero('ESTADO');

@@ -1,17 +1,8 @@
-<<<<<<< HEAD:src/pdfProcess/PdfProcess.js
 const extractors = require('./extractors/index.js');
 const config = require('#config');
 const {normalizeText, normalizeTextSpanish} = require('#utils/textNormalizers.js');
 const { extractRightType } = require('#sources/economico/extractors/rightTypeExtractor.js');
 const logger = require('#utils/logger.js');
-=======
-const extractors = require('./extractors');
-const config = require('../../config/config');
-const {normalizeText, normalizeTextSpanish} = require('../../utils/textNormalizers');
-const { extractRightType } = require('../economico/extractors/rightTypeExtractor');
-const logger = require('../../utils/logger');
-const { Logform } = require('winston');
->>>>>>> main:componentes/pdfProcess/PdfProcess.js
 
 const PROPIEDAD = config.PROPIEDAD;
 const ESTACIONAMIENTO = config.ESTACIONAMIENTO;

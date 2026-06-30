@@ -1,4 +1,3 @@
-<<<<<<< HEAD:src/models/caso/caso.js
 const {cleanInitialZeros} = require('#utils/cleanStrings.js');
 const config = require('#config');
 const logger = require('#utils/logger.js');
@@ -6,15 +5,6 @@ const DateHelper = require('./Normalizers/DateHelper.js');
 const RolHelper = require('./Normalizers/RolHelper.js');
 const StringHelper = require('./Normalizers/StringHelper.js');
 const NumberHelper = require('./Normalizers/NumberHelper.js');
-=======
-const {cleanInitialZeros} = require('../../utils/cleanStrings');
-const config = require('../../config/config.js');
-const logger = require('../../utils/logger.js');
-const DateHelper = require('./Normalizers/DateHelper');
-const RolHelper = require('./Normalizers/RolHelper');
-const StringHelper = require('./Normalizers/StringHelper');
-const NumberHelper = require('./Normalizers/NumberHelper');
->>>>>>> main:componentes/caso/caso.js
 // const CasoLadrillo = require('./CasoLadrillo');
 
 const EMOL = config.EMOL;

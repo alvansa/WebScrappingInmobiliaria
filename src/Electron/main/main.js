@@ -21,9 +21,9 @@ const config = require('#config');
 const ConsultaCausaPjud = require('#sources/pjud/consultaCausaPjudRefactored.js');
 const { fakeDelay, delay } = require('#utils/delay.js');
 const {tribunalesPorCorte} = require('#utils/corteJuzgado.js');
-const testUnitarios = require('./dev/testUnitarios.js');
+const testUnitarios = require('../dev/testUnitarios.js');
 const checkFPMG = require('#sources/pjud/checkFPMG.js');
-const obtainLinkMapa = require('./dev/obtainLinkMapa.js');
+const obtainLinkMapa = require('../dev/obtainLinkMapa.js');
 const SpreadSheetManager = require('#enrichers/spreadSheet/SpreadSheetManager.js');
 
 const PuppeteerManager = require('#core/scrapeAuction/services/PuppeteerManager.js');
@@ -215,7 +215,7 @@ class MainApp{
         ipcMain.handle('start-proccess' , async (event, startDate, endDate, saveFile, checkedBoxes) => {
             
             const sources = [
-                new EconomicosSource(PuppeteerManager,{'mode': config.NORMAL}, logger, isTestMode ),
+                new EconomicosSource(PuppeteerManager,{'mode': config.NORMAL, 'show': true }, logger, isTestMode ),
                 new PjudSource(PuppeteerManager,{'mode': config.NORMAL} ),
                 new LiquidacionesSource(PuppeteerManager, {mode: 0, logger: logger, isTestMode: isTestMode }),
                 new MacalSource(),

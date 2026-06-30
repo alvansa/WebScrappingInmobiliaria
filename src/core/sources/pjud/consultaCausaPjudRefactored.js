@@ -11,19 +11,11 @@ const { delay, fakeDelay, fakeDelayms } = require("#utils/delay.js");
 const ProcesarBoletin = require("#sources/liquidaciones/procesarBoletin.js");
 const PjudPdfData = require("./PjudPdfData.js");
 // const PdfProcess = require("../pdfProcess/PdfProcess.js");
-<<<<<<< HEAD:src/core/sources/pjud/consultaCausaPjudRefactored.js
 const listUserAgents = require("#utils/userAgents.json");
 const logger = require("#utils/logger.js");
 const {stringToDate} = require('#utils/cleanStrings.js')
 const config = require('#config');
 const { logToRenderer } = require("#utils/utilsRenderer.js");
-=======
-const listUserAgents = require("../../utils/userAgents.json");
-const logger = require("../../utils/logger.js");
-const {stringToDate} = require('../../utils/cleanStrings.js')
-const config = require('../../config/config.js');
-const { logToRenderer } = require("../../utils/utilsRenderer.js");
->>>>>>> main:componentes/pjud/consultaCausaPjudRefactored.js
 
 const ERROR = 0;
 const EXITO = 1;

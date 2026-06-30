@@ -7,6 +7,7 @@ class EconomicosSource {
         this.browser = null;
         this.logger = logger;
         this.isTestMode = testMode;
+        this.showWindow = config.show;
 
     }
 
@@ -39,7 +40,7 @@ class EconomicosSource {
         // return [];
         let casos = [];
         try {
-            const economico = new Economico(this.browser, fechaInicio, fechaFin, fixStartDate, fixEndDate, this.isTestMode);
+            const economico = new Economico(this.browser, fechaInicio, fechaFin, fixStartDate, fixEndDate, this.isTestMode, this.showWindow);
             casos = await economico.getCases() || [];
 
         } catch (error) {

@@ -27,7 +27,7 @@ class WindowManager {
                 nodeIntegration: false,
                 contextIsolation: true,
                 enableRemoteModule: false,
-                preload : path.join(__dirname, '../prod/preload.js'),
+                preload : path.join(__dirname, '../preload/mainPreload.js'),
             },
             icon: path.join(__dirname, '../../assets/icon.png'),
             show: false, // Ocultar hasta que esté listo

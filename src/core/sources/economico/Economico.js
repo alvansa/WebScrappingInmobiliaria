@@ -18,13 +18,15 @@ const SELECTORS =
 {
     'NEXT_PAGE_SELECTOR': 'span.pag_bt_result_left.pag_bt_resul_green.pag_bt_pad_r.pag_color_bt_green',
     'CASO_BLOQUE_SELECTOR': 'div.result.row-fluid',
+    // 'CASO_BLOQUE_SELECTOR': 'div.result.row-fluid',
     'ELEMENTO_TEXTO': 'div.col2.span6 > a > h3',
+    'ELEMENTO_LINK' : 'div.col2.span6 a',
 }
 const EMOL = 1;
 const MAIN_URL = 'https://www.economicos.cl/todo_chile/remates_de_propiedades_el_mercurio';
 
 class Economico {
-    constructor(browser, fechaInicio, fechaFin, originStartDate, originEndDate, isTestMode) {
+    constructor(browser, fechaInicio, fechaFin, originStartDate, originEndDate, isTestMode,show) {
         this.browser = browser;
         this.page = null;
         this.window = null;
@@ -37,12 +39,14 @@ class Economico {
         this.originEndDate = originEndDate;
         this.isFunctionSet = false;
         this.isTestMode = isTestMode;
+        this.show = show;
     }
 
     async getCases() {
         const curlEcomomico = new EconomicoAxios();
         try {
             console.log("Iniciando la búsqueda de casos en Economicos.cl desde ", this.fechaInicio, " hasta ", this.fechaFin);
+            logger.info(`Se mostrara la ventana? ${this.show}`);
             await this.createWindow(MAIN_URL);
 
             await this.setRealisticHeaders()
@@ -106,7 +110,7 @@ class Economico {
     }
 
     async createWindow(url) {
-        this.window = new BrowserWindow({ show: false });
+        this.window = new BrowserWindow({ show: this.show });
         await this.window.loadURL(url);
         this.page = await pie.getPage(this.browser, this.window);
         await this.page.setViewport({ width: 1280, height: 800 });
@@ -147,6 +151,8 @@ class Economico {
 
                 const processCases = await this.processPage(this.fechaInicio, this.fechaFin, SELECTORS);
 
+                logger.info(`Casos procesados en la pagina ${processCases.casos.length} y ya paro? ${processCases.stop}`);
+
                 await simulateHumanBehavior(this.page, 0.5, 0.5, 0.5, 0.5);
 
                 await fakeDelay(15, 20);
@@ -158,7 +164,7 @@ class Economico {
                     console.log("Ya se superó la fecha límite");
                     stopFlag = true;
                     console.log(`Se visitaron ${paginasVisitadas} páginas y se encontraron ${this.casosARevisar.length} casos en total.`);
-                    break;
+                    return;
                 }
                 if (stopFlag || !urlNextPage) {
                     console.log("No se encontró un enlace a la siguiente página. Deteniendo la extracción.");
@@ -256,7 +262,8 @@ class Economico {
 
     //Funcion encargada de procesar la pagina principal de emol donde aparecen los multiples remates
     async processPage(startDate, endDate, SELECTORS) {
-        const casosPagina = await this.page.evaluate(async (fechaInicio, fechaFin, SELECTORS) => {
+        logger.info(`Probando testMode en economicos porcessPage ${this.isTestMode}`)
+        const casosPagina = await this.page.evaluate(async (fechaInicio, fechaFin, SELECTORS,testMode) => {
             const fechaInicioDate = new Date(fechaInicio);
             const casos = [];
             const bloqueCasos = document.querySelectorAll(SELECTORS.CASO_BLOQUE_SELECTOR)
@@ -278,10 +285,20 @@ class Economico {
                     let announcementDate = new Date(dateTimeStr);
 
                     // await logDesdePagina(`fecha actual ${announcementDate} fecha inicio ${fechaInicioDate} y deberia parar ${announcementDate < fechaInicioDate} `);
+                    //if para deterner la busqueda, si la fecha de publicacion es menor a la fecha que buscamos
                     if (announcementDate < fechaInicioDate) {
                         return { casos, stop: true };
-                    } else if (announcementDate >= new Date(fechaInicio) && announcementDate <= new Date(fechaFin)) {
-                        const linkElement = element.querySelector('div.col2.span6 a');
+                    } else if(testMode){
+                        // Modo test: agregar todos los casos sin importar la fecha
+                        const linkElement = element.querySelector(SELECTORS.ELEMENTO_LINK);
+                        const announcement = linkElement ? linkElement.getAttribute('href') : null;
+                        casos.push({
+                            fechaPublicacion: announcementDate.toISOString(),
+                            announcement,
+                            fechaRemate: auctionDate
+                        });
+                    }else if (announcementDate >= new Date(fechaInicio) && announcementDate <= new Date(fechaFin)) {
+                        const linkElement = element.querySelector(SELECTORS.ELEMENTO_LINK);
                         const announcement = linkElement ? linkElement.getAttribute('href') : null;
                         casos.push({
                             fechaPublicacion: announcementDate.toISOString(),
@@ -293,7 +310,7 @@ class Economico {
             }
 
             return { casos, stop: false, bloqueCasos };
-        }, startDate.toISOString(), endDate.toISOString(), SELECTORS);
+        }, startDate.toISOString(), endDate.toISOString(), SELECTORS, this.isTestMode);
         return casosPagina;
     }
 
@@ -307,6 +324,7 @@ class Economico {
         return null;
     }
     addFoundCases(cases, fechaHoy) {
+        let cont = 0;
         for (let currentCase of cases) {
             const announcement = currentCase.announcement ? this.urlBase + currentCase.announcement : null;
             const fechaPublicacion = new Date(currentCase.fechaPublicacion);
@@ -314,11 +332,13 @@ class Economico {
 
             const casoObj = new Caso(fechaHoyCaso, fechaPublicacion, announcement, EMOL);
             casoObj.fechaRemate = currentCase.fechaRemate;
+            logger.info(`Agregando caso ${cont} ${casoObj.fechaPublicacion}`);
 
             // this.casosARevisar.push(casoObj);
             if ((!casoObj.fechaRemate || (casoObj.fechaRemate >= this.originStartDate && casoObj.fechaRemate <= this.originEndDate)) || this.isTestMode) {
                 this.casosARevisar.push(casoObj);
             }
+            cont ++;
         }
     }
 

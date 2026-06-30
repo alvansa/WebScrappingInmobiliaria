@@ -1,9 +1,5 @@
 
-<<<<<<< HEAD:src/models/caso/Normalizers/StringHelper.js
 const config = require('#config');
-=======
-const config = require('../../../config/config');
->>>>>>> main:componentes/caso/Normalizers/StringHelper.js
 
 const PJUD = config.PJUD;
 const EMOL = config.EMOL;
