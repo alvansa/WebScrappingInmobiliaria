@@ -22,7 +22,7 @@ const { fakeDelay, delay } = require('../../../utils/delay.js');
 const { emptyCaseEconomico } = require('../../economico/datosRemateEmol.js');
 const { PreRemates } = require('../../preremates/obtenerPublicaciones.js');
 const logger = require('../../../utils/logger.js');
-const config = require('../../../config.js');
+const config = require('../../../config/config.js');
 const { randomDelay } = require('../../../utils/stealth.js');
 
 const PJUD = config.PJUD;
@@ -286,9 +286,10 @@ class scrapeAuction {
         try {
             await this.launchPuppeteer_inElectron();
             const endDateModified = stringToDate(endDateOrigin)
-            endDateModified.setDate(endDateModified.getDate() + 1); // Aumentar un dia para incluir el ultimo dia
+            endDateModified.setDate(endDateModified.getDate() + 0); // Aumentar un dia para incluir el ultimo dia
             const startDate = dateToPjud(stringToDate(startDateOrigin));
             const endDate = dateToPjud(endDateModified);
+            logger.info(`StarDate ${startDate} y final ${endDate}`);
 
             casos = await this.searchCasesByDay(startDate, endDate);
             casos.reverse(); // Invertir el orden de los casos para que aparezcan del mas reciente al mas antiguo

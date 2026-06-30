@@ -1,4 +1,8 @@
+<<<<<<< HEAD:src/core/sources/preremates/obtenerPublicaciones.js
 const config =  require("#config");
+=======
+const config =  require("../../config/config.js");
+>>>>>>> main:componentes/preremates/obtenerPublicaciones.js
 const puppeteer = require('puppeteer-core');
 const Caso = require('#models/caso/caso.js');
 const {procesarDatosRemate} = require('#sources/economico/datosRemateEmol.js');

@@ -1157,7 +1157,8 @@ class checkFPMG {
         ];
     }
 
-    async proccesDeudaSeguir(){
+    async proccesDeudaSeguir(fechaLimite){
+        return true;
         this.obtainListDeuda();
         if(this.casos.length == 0){
             console.log('No hay casos de deuda para procesar');
@@ -1230,7 +1231,8 @@ class checkFPMG {
         }
         // 2. revisar que la fecha de remate sea mayor a la fecha actual
         const dateToday = new Date();
-        const fechaLimite = new Date('2026/02/28');
+        //FECHA limite de deuda
+        const fechaLimite = new Date('2026/04/28');
         const fechaRemateDate = new Date(convertDate(fixStringDate(dataLine.fechaRem)));
 
         if(fechaRemateDate < fechaLimite  ){

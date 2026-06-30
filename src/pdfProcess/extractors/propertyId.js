@@ -1,4 +1,8 @@
+<<<<<<< HEAD:src/pdfProcess/extractors/propertyId.js
 const config = require('#config');
+=======
+const config = require('../../../config/config');
+>>>>>>> main:componentes/pdfProcess/extractors/propertyId.js
 const {obtainType} = require('./utilsPdf');
 
 const PROPIEDAD = config.PROPIEDAD;

@@ -1,6 +1,11 @@
 const {app, BrowserWindow, ipcMain, dialog,electron} = require('electron');
 const pie = require('puppeteer-in-electron');
 const puppeteer = require('puppeteer-core');
+<<<<<<< HEAD:src/core/sources/pjud/GestorRematesPjud.js
+=======
+const { fakeDelay, delay } = require('../../utils/delay');
+const config = require('../../config/config.js');
+>>>>>>> main:componentes/pjud/GestorRematesPjud.js
 // const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 // const puppeteerExtra = require('puppeteer-extra');
 

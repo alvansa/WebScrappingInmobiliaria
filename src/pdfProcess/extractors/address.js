@@ -1,4 +1,8 @@
+<<<<<<< HEAD:src/pdfProcess/extractors/address.js
 const config = require('#config');
+=======
+const config = require('../../../config/config');
+>>>>>>> main:componentes/pdfProcess/extractors/address.js
 
 const {obtainType} = require('./utilsPdf');
 

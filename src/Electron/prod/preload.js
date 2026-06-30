@@ -89,5 +89,6 @@ contextBridge.exposeInMainWorld('ladrilleroAPI', {
         ipcRenderer.removeListener('checkFPMG-progress', progressHandler);
       });
   },
-  checkDEUDA: () => ipcRenderer.invoke('process-DEUDA'),
+  checkDEUDA: (filePath, fechaLimite) => ipcRenderer.invoke('process-DEUDA', filePath, fechaLimite),
+  selectFolder: async () => ipcRenderer.invoke('select-folder-btn'),
 });
