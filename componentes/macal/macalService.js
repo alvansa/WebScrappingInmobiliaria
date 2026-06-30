@@ -10,7 +10,7 @@ const CasoBuilder = require('../caso/casoBuilder.js');
 const { all } = require('axios');
 
 
-const config = require('../../config.js');
+const config = require('../../config/config.js');
 const Caso = require('../caso/caso.js');
 const { NormalModuleReplacementPlugin } = require('webpack');
 

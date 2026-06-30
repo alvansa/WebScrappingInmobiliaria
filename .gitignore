@@ -1,7 +1,21 @@
-out/
-node_modules/
+
+#Archivos de base de datos
+*.sqlite
+*.db
+
+# Archivos privados
+**/credentials.json
 .env
-Inmobiliaria-casos.db
+
+# Archivos temporales de prueba
+tree.txt
+unit.js
+
+# Archivos cache
 .cache/
 .cache/puppeteer/
-**/credentials.json
+.vscode/
+
+# Archivos que no se desean en subida
+out/
+node_modules/

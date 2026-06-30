@@ -1,5 +1,5 @@
 const {cleanInitialZeros} = require('../../utils/cleanStrings');
-const config = require('../../config');
+const config = require('../../config/config.js');
 const logger = require('../../utils/logger.js');
 const DateHelper = require('./Normalizers/DateHelper');
 const RolHelper = require('./Normalizers/RolHelper');

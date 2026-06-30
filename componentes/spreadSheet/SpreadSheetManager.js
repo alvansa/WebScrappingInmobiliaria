@@ -9,7 +9,7 @@ const os = require('os');
 
 require('dotenv').config();
 
-const config = require('../../config');
+const config = require('../../config/config');
 const EnvLoader = require('../../utils/EnvLoader');
 
 

@@ -21,7 +21,7 @@ const { fakeDelay, delay } = require('../../../utils/delay.js');
 const { emptyCaseEconomico } = require('../../economico/datosRemateEmol.js');
 const { PreRemates } = require('../../preremates/obtenerPublicaciones.js');
 const logger = require('../../../utils/logger.js');
-const config = require('../../../config.js');
+const config = require('../../../config/config.js');
 const { randomDelay } = require('../../../utils/stealth.js');
 
 const PJUD = config.PJUD;

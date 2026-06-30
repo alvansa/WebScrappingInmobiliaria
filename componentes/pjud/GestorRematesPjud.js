@@ -2,7 +2,7 @@ const {app, BrowserWindow, ipcMain, dialog,electron} = require('electron');
 const pie = require('puppeteer-in-electron');
 const puppeteer = require('puppeteer-core');
 const { fakeDelay, delay } = require('../../utils/delay');
-const config = require('../../config.js');
+const config = require('../../config/config.js');
 // const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 // const puppeteerExtra = require('puppeteer-extra');
 

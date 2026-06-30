@@ -1,4 +1,4 @@
-const config =  require("../../config.js");
+const config =  require("../../config/config.js");
 const puppeteer = require('puppeteer-core');
 const Caso = require('../caso/caso.js');
 const {procesarDatosRemate} = require('../economico/datosRemateEmol.js');

@@ -3,7 +3,7 @@ const XLSX = require(`xlsx`);
 const fs = require(`fs`);
 const path = require(`path`);
 const Causas = require(`../../model/Causas.js`);
-const config = require("../../config.js");
+const config = require("../../config/config.js");
 const Caso = require(`../caso/caso.js`);
 const {fixStringDate, transformDateString} = require(`../../utils/cleanStrings.js`);
 

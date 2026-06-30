@@ -1,4 +1,4 @@
-const config = require('../../../config');
+const config = require('../../../config/config');
 const {obtainType} = require('./utilsPdf');
 
 const PROPIEDAD = config.PROPIEDAD;

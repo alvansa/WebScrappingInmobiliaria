@@ -1,5 +1,5 @@
 
-const config = require('../../../config');
+const config = require('../../../config/config');
 
 const PJUD = config.PJUD;
 const EMOL = config.EMOL;

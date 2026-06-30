@@ -1,7 +1,7 @@
 const SpreadSheetManager = require('./SpreadSheetManager.js');
 const CasoBuilder = require('../caso/casoBuilder.js');
 
-const config = require('../../config.js');
+const config = require('../../config/config.js');
 const {searchInList} = require('../../utils/corteJuzgado.js');
 
 

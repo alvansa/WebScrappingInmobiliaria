@@ -15,7 +15,7 @@ const PjudPdfData = require("./PjudPdfData.js");
 const listUserAgents = require("../../utils/userAgents.json");
 const logger = require("../../utils/logger.js");
 const {stringToDate} = require('../../utils/cleanStrings.js')
-const config = require('../../config.js');
+const config = require('../../config/config.js');
 const { logToRenderer } = require("../../utils/utilsRenderer.js");
 
 const ERROR = 0;

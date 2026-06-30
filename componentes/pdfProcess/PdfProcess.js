@@ -1,5 +1,5 @@
 const extractors = require('./extractors');
-const config = require('../../config');
+const config = require('../../config/config');
 const {normalizeText, normalizeTextSpanish} = require('../../utils/textNormalizers');
 const { extractRightType } = require('../economico/extractors/rightTypeExtractor');
 const logger = require('../../utils/logger');
