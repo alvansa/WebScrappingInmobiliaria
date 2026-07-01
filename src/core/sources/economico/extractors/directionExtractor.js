@@ -317,13 +317,17 @@ function processAndChangeNumberPhrase(phrase, spacedPhrase, i, j){
 
     // const phraseToChangeNormalized = normalizeText(phraseToChange)
     // const regexPhrase = new RegExp(`n[uú]mero\\s*${phraseToChange}`, "i");
-    const regexPhrase = new RegExp(`${phraseToChange}`, "i");
-    const phraseInNumber = convertWordToNumbers(phraseToChange);
+    const phraseWithoutRegex = escapeRegExp(phraseToChange);
+    const regexPhrase = new RegExp(escapeRegExp(phraseWithoutRegex), "i");
+    const phraseInNumber = convertWordToNumbers(phraseWithoutRegex, isDev);
     if(isNumber(phraseInNumber) && phraseInNumber != 0){
         phrase = phrase.replace(regexPhrase, `${phraseInNumber}`);
         if (isDev) console.log("Frase a cambiar: ", phrase, "|", i + 1, j);
     }
     return phrase;
+}
+function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 function isaNumber(word){
