@@ -1,5 +1,5 @@
-const {matchJuzgado} = require('../utils/compareText');
-const {tribunales2} = require('../componentes/caso/datosLocales');
+const {matchJuzgado} = require('#utils/compareText.js');
+const {tribunales2} = require('#models/caso/datosLocales.js');
 
 const logger = require('./logger.js');
 

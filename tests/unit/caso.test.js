@@ -1,6 +1,6 @@
-const Caso = require('../../componentes/caso/caso');
-const CasoBuilder = require('../../componentes/caso/casoBuilder');
-const config = require('../../config');
+const Caso = require('#models/caso/caso');
+const CasoBuilder = require('#models/caso/casoBuilder');
+const config = require('#config');
 const { tribunalesPorCorte, obtainCorteJuzgadoNumbers, searchTribunalPorNombre } = require('../../utils/corteJuzgado');
 // const createExcel = require('../../componentes/excel/createExcel')
 

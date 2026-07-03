@@ -1,4 +1,4 @@
-const {stringToDate, parseSpanishDate, parseSpreadSheeToDate, isValidDate, convertDate} = require('../../utils/cleanStrings');
+const {stringToDate, parseSpanishDate, parseSpreadSheeToDate, isValidDate, convertDate} = require('#utils/cleanStrings');
 
 
 describe('Test de fechas',()=>{

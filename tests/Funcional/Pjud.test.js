@@ -1,6 +1,6 @@
 
-const Caso = require('../../componentes/caso/caso');
-const PjudPdfData = require('../../componentes/pjud/PjudPdfData');
+const Caso = require('#models/caso/caso');
+const PjudPdfData = require('#sources/pjud/PjudPdfData');
 
 const {dv1750, dv4991} = require('../textos/DV');
 const {bf1750} = require('../textos/BF');
@@ -8,7 +8,6 @@ const {ex1666} = require('../textos/Extracto');
 const AR = require('../textos/ActaRemate');
 const AV = require('../textos/Avaluo');
 const textosGP = require('../textos/GP');
-const { NormalModuleReplacementPlugin } = require('webpack');
 
 describe('Test de funcionalidad Pjud a normalizacion',() => {
     test('Obtener monto minimo de postura de un extracto', () => {

@@ -1,6 +1,9 @@
-const PjudPdfData = require('../../componentes/pjud/PjudPdfData');
-const Caso = require('../../componentes/caso/caso');
-const config = require('../../config')
+const PjudPdfData = require('#sources/pjud/PjudPdfData.js');
+const Caso = require('#models/caso/caso');
+const config = require('#config')
+
+const extractor = require('#src/pdfProcess/extractors/index');
+const PdfProccess = require('#src/pdfProcess/PdfProcess');
 
 const {loadFile} = require('../loadFile.js');
 
@@ -19,11 +22,9 @@ const AR = require('../textos/ActaRemate');
 const {ex1666, ex800, ex2240, ex2226} = require('../textos/Extracto'); 
 const BF = require('../textos/BF');
 const {dm1056, dm1138} = require('../textos/DM');
-const {obtainCorteJuzgadoNumbers} = require('../../utils/corteJuzgado');
-const {normalizeText, normalizeTextSpanish} = require('../../utils/textNormalizers');
-const extractor = require('../../componentes/pdfProcess/extractors/index');
+const {obtainCorteJuzgadoNumbers} = require('#utils/corteJuzgado');
+const {normalizeText, normalizeTextSpanish} = require('#utils/textNormalizers');
 const PdfParse = require('pdf-parse');
-const PdfProccess = require('../../componentes/pdfProcess/PdfProcess');
 
 
 // const excelConstructor = new createExcel("","","","",false,1);

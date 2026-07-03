@@ -1,10 +1,10 @@
-const {changeWordsToNumbers} = require('../../componentes/economico/extractors/directionExtractor');
-const {extractAuctionDate} = require('../../componentes/economico/extractors/auctionDateExtractor');
-const {processMortageBank} = require('../../componentes/pdfProcess/extractors/mortageBank');
-const {extractDirection, adaptDirectionToExcel} = require('../../componentes/economico/extractors/directionExtractor.js');
-const PjudPdfData = require('../../componentes/pjud/PjudPdfData');
-const extractors = require('../../componentes/pdfProcess/extractors/index');
-const {normalizeText} = require('../../utils/textNormalizers');
+const {changeWordsToNumbers} = require('#sources/economico/extractors/directionExtractor');
+const {extractAuctionDate} = require('#sources/economico/extractors/auctionDateExtractor');
+const {processMortageBank} = require('#src/pdfProcess/extractors/mortageBank');
+const {extractDirection, adaptDirectionToExcel} = require('#sources/economico/extractors/directionExtractor.js');
+const PjudPdfData = require('#sources/pjud/PjudPdfData');
+const extractors = require('#src/pdfProcess/extractors/index');
+const {normalizeText} = require('#utils/textNormalizers');
 const {loadFile} = require('../loadFile.js')
 
 const txGP = require('../textos/GP');

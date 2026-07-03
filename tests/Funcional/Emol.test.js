@@ -1,7 +1,6 @@
-const { normalizeOptions } = require('electron-builder/out/builder');
-const Caso = require('../../componentes/caso/caso');
-const {procesarDatosRemate, normalizeDescription} = require('../../componentes/economico/datosRemateEmol');
-const {obtainCorteJuzgadoNumbers} = require('../../utils/corteJuzgado');
+const Caso = require('#models/caso/caso');
+const {procesarDatosRemate, normalizeDescription} = require('#sources/economico/datosRemateEmol');
+const {obtainCorteJuzgadoNumbers} = require('#utils/corteJuzgado.js');
 
 const Extractos = require('../textos/Extracto');
 

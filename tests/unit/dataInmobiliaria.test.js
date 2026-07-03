@@ -1,4 +1,4 @@
-const dataInmobiliaria = require('../../componentes/dataInmobiliaria/obtainDataInmobilaria');
+const dataInmobiliaria = require('#enrichers/dataInmobiliaria/obtainDataInmobilaria.js');
 
 jest.spyOn(dataInmobiliaria, 'obtenerMetrosTotales').mockResolvedValue(62);
 
