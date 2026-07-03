@@ -21,6 +21,7 @@ class DataInmobiliariaEnricher {
                     continue;
                 }
                 caso.metros = data.metros;
+                caso.linkData = data.linkData;
                 if (data.linkMap) {
                     caso.linkMap = data.linkMap;
                 }

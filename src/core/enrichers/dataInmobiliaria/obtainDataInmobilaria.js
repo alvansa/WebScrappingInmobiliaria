@@ -17,15 +17,12 @@ class dataInmobiliaria {
             const predio = parameters[2]
 
             const data = await this.fetchApi(codComuna, manzana, predio);
-            logger.info('b')
             console.log(JSON.stringify(data,null,2));
 
             const metros = await this.obtenerMetrosTotales(data,rol);
-            logger.info('c')
 
             const linkMap = await this.obtenerLinkMap(data);
-            logger.info('d')
-
+            
             return {
                 'metros': metros,
                 'linkMap': linkMap
@@ -88,9 +85,6 @@ class dataInmobiliaria {
         }
 
         if (metrosUtiles && metrosTerreno) {
-            logger.info(
-                `Metros obtenidos para rol ${rol}: ${metrosUtiles}-${metrosTerreno}`,
-            );
             return `${metrosUtiles}-${metrosTerreno}`;
         } else if (metrosUtiles) {
             return `${metrosUtiles} utiles`;

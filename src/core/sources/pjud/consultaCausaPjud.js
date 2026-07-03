@@ -62,7 +62,6 @@ class ConsultaCausaPjud{
                 console.log('Caso procesado correctamente');
             }else{
                 console.log('No se pudo procesar el caso');
-                return false;
             }
             await this.cleanFilesDownloaded();
         }catch(error){

@@ -129,6 +129,7 @@ class Caso{
         this.metros = null;
 
         this.#origen = origen;
+        this.lindData = null;
 
     }
 
@@ -317,6 +318,10 @@ class Caso{
     }
     set montoMinimo2(montoMinimo2){
         this.#montoMinimo2 = montoMinimo2;
+    }
+
+    set linkData(linkData){
+        this.linkData = linkData;
     }
 
    get hasChanged(){
@@ -578,6 +583,9 @@ class Caso{
     get montoMinimo2(){
         return this.#montoMinimo2;
     }
+    get linkData(){
+        return this.linkData;
+    }
 
 
   
@@ -646,7 +654,8 @@ class Caso{
             estado : this.#estado,
             montoMinimo2 : this.#montoMinimo2,
             metros : this.metros,
-            deudaPagare : this.deudaPagare
+            deudaPagare : this.deudaPagare,
+            linkData : this.linkData
         };
     } 
 

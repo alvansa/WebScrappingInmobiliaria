@@ -71,7 +71,9 @@ class ExcelRowWriter {
         this.writeLine(ws, `${columnMapping.DEUDA_BANCO}`, currentRow, caso.mortageBank, 's');
         this.writeLine(ws, `${columnMapping.DEUDA_HIPOTECA}`, currentRow, caso.deudaHipotecaria, "s");
         this.writeLine(ws, `${columnMapping.DEUDA_PAGARE}`, currentRow, caso.deudaPagare, "s");
-        this.writeLine(ws, `${columnMapping.OTRA_DEUDA}`, currentRow, caso.linkMap, 's');
+        this.writeLine(ws, `${columnMapping.LINK_MAP}`, currentRow, caso.linkMap, 's');
+        this.writeLine(ws, `${columnMapping.LINK_DATA}`, currentRow, caso.linkData, 's');
+        
         // ws[`AG` + currentRow ] = {v: 'año compr ant ', t: 's'};
         // ws[`AH` + currentRow ] = {v: 'precio venta nos ', t: 's'};
     }
