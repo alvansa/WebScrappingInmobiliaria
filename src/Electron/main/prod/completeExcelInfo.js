@@ -152,9 +152,10 @@ class CompleteExcelInfo{
         const wsNew = wbNew.Sheets[wbNew.SheetNames[0]];
 
         let lastRowNew = this.obtainLastRow(wsNew);
+        console.log(`Last Row New: ${lastRowNew}`);
         const findedCausas = this.findRepeatedAuctions(wsBase, wsNew);
 
-        // console.log(`Causas a buscar: ${findedCausas.length}`);
+        console.log(`Causas a buscar: ${findedCausas.length}`);
         console.table(findedCausas.map(causa => ({
             causa: causa.causa,
             Rol : causa.rol,
@@ -188,7 +189,7 @@ class CompleteExcelInfo{
 
     static saveNewExcel(wb, ws, lastRow, filePath) {
         this.formatCells(ws);
-        createExcel.cambiarAnchoColumnas(ws);
+        // createExcel.cambiarAnchoColumnas(ws);
         ws['!ref'] = `${config.INICIO}5:${config.COMENTARIOS3}` + lastRow;
         const fileName = filePath.split('.')[0];
         const newFilePath = fileName+'Completo'+'.xlsx';
@@ -206,10 +207,11 @@ class CompleteExcelInfo{
     static findRepeatedAuctions(wsBase, wsNew) {
         const findedCausas = [];
         const lastRowBase = this.obtainLastRow(wsBase);
+        console.log(`Last Row Base: ${lastRowBase}`);
         let actualRowBase = lastRowBase;
         let lastRowNew = 6;
 
-        while(wsNew[`${config.FECHA_DESC}${lastRowNew}`]){
+        while(wsNew[`${config.FECHA_REM}${lastRowNew}`]){
             const {causa, juzgado,comuna,rol, isValid} = this.processNewRow(wsNew, lastRowNew);
             if(!isValid){
                 lastRowNew++;
@@ -223,7 +225,6 @@ class CompleteExcelInfo{
                 const cellCourt = wsBase[`${config.TRIBUNAL}${actualRowBase}`];
                 const cellComuna = wsBase[`${config.COMUNA}${actualRowBase}`];
                 const cellRol = wsBase[`${config.ROL}${actualRowBase}`];
-                // console.log(`Revisando fila ${lastRowBase} del archivo base`)
                 if(this.checkCausaJuzgado(causa, juzgado, cellCausa, cellCourt, findedCausas, actualRowBase, lastRowNew)) break;
                 if(this.checkComunaRol(causa,comuna, rol, cellComuna, cellRol, findedCausas, actualRowBase, lastRowNew)) break;
                 actualRowBase--;
@@ -318,11 +319,13 @@ class CompleteExcelInfo{
         let causa = causaCell ? causaCell.v.toUpperCase().replace(/\s*/g, '') : null;
         if(!causa){
             isValid = false;
+            console.log(`No se encontró la causa en la fila ${rowNum}`);
             return {causa, juzgado, comuna, rol, isValid};
         }   
         const causaMatch = causa.match(/C-\d+-\d+/);
         if(!causaMatch){
             isValid = false;
+            console.log(`Causa inválida en la fila ${rowNum}: ${causa}`);
             return {causa, juzgado, comuna, rol, isValid};
         }
         causa = causaMatch[0]; 

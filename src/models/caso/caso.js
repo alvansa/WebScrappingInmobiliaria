@@ -129,7 +129,7 @@ class Caso{
         this.metros = null;
 
         this.#origen = origen;
-        this.lindData = null;
+        this.linkData = null;
 
     }
 
@@ -320,9 +320,9 @@ class Caso{
         this.#montoMinimo2 = montoMinimo2;
     }
 
-    set linkData(linkData){
-        this.linkData = linkData;
-    }
+    // set linkData(linkData){
+    //     this.linkData = linkData;
+    // }
 
    get hasChanged(){
         return this.#hasChanged;
@@ -583,9 +583,9 @@ class Caso{
     get montoMinimo2(){
         return this.#montoMinimo2;
     }
-    get linkData(){
-        return this.linkData;
-    }
+    // get linkData(){
+    //     return this.linkData;
+    // }
 
 
   

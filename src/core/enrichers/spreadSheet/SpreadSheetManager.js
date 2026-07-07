@@ -31,7 +31,7 @@ class SpreadSheetManager {
                 const filePath = path.join(__dirname, 'data.json');
 
                 if (!fs.existsSync(filePath)) {
-                    console.error('❌ Archivo data.json no encontrado en:', filePath);
+                    logger.error(`❌ Archivo data.json no encontrado en: ${filePath}`);
                 }else{
                     console.log("El archivo si existe")
                 }
@@ -111,7 +111,7 @@ class SpreadSheetManager {
                 scopes: SCOPES
             });
 
-            console.log('Autenticado con éxito escribiendo en el token');
+            // console.log('Autenticado con éxito escribiendo en el token');
             // Guardar token para uso futuro
             await writeFile(TOKEN_PATH, JSON.stringify(auth.credentials));
         }

@@ -2,7 +2,7 @@
 const pie = require('puppeteer-in-electron')
 const {BrowserWindow} =  require('electron')
 
-const Pjud = require('#sources/pjud/getPjudPlay.js')
+const PjudPlaywright = require('#sources/pjud/getPjudPlay.js')
 const GestorRematesPjud = require('#sources/pjud/GestorRematesPlay.js');
 
 const {obtainCorteJuzgadoNumbers} = require('#utils/corteJuzgado.js');
@@ -22,7 +22,7 @@ class PjudPlaywrightSource{
         this.mode = config.mode
     }
 
-    getName(){ return 'pjud'; }
+    getName(){ return 'pjudPlaywright'; }
 
 
     async fetch2(startDateOrigin, endDateOrigin, { event, mainWindow, emptyMode, testMode }) {
@@ -90,7 +90,7 @@ class PjudPlaywrightSource{
             const url = 'https://oficinajudicialvirtual.pjud.cl/home/index.php'
             await window.loadURL(url);
             const page = await pie.getPage(this.browser, window);
-            const pjud = new Pjud(this.browser, page, startDate, endDate);
+            const pjud = new PjudPlaywright(this.browser, page, startDate, endDate);
             casos = await pjud.datosFromPjud();
             obtainCorteJuzgadoNumbers(casos);
             window.destroy();
@@ -141,4 +141,4 @@ function dateToPjud(date) {
     return `${dia}/${mes}/${año}`;
 }
 
-module.exports = PjudSource;
+module.exports = PjudPlaywrightSource;

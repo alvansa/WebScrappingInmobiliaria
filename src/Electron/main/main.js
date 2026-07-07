@@ -34,6 +34,7 @@ const PjudSource = require('#core/scrapeAuction/sources/PjudSource.js');
 const LiquidacionesSource = require('#core/scrapeAuction/sources/LiquidacionesSource.js');
 const MacalSource = require('#core/scrapeAuction/sources/MacalSource.js');
 const CapitalRematesSource = require('#core/scrapeAuction/sources/CapitalRematesSource.js');
+const PjudPlaywrightSource = require('#core/scrapeAuction/sources/PjudPlaywrightSource.js');
 
 const DataInmobiliariaEnricher = require('#core/scrapeAuction/enrichers/DataInmobiliariaEnricher.js');
 const MapasSIIEnricher = require('#core/scrapeAuction/enrichers/MapasSIIEnricher.js');
@@ -121,7 +122,7 @@ class MainApp{
             width: 900,
             height: 900,
             webPreferences: {
-                preload: path.join(__dirname, './prod/preload.js'), // Archivo que se ejecutará antes de cargar el renderer process
+                preload: path.join(__dirname, './preload/mainPreload.js'), // Archivo que se ejecutará antes de cargar el renderer process
                 nodeIntegration: true,
                 webPreferences : {devTools : isDevMode},
                 devTools : isDevMode
@@ -129,7 +130,7 @@ class MainApp{
         })
 
         if(isDevMode){
-            this.mainWindow.loadFile('componentes/Electron/dev/index.html')
+            this.mainWindow.loadFile(path.join(__dirname, 'windows/dev.html'));
             this.mainWindow.webContents.openDevTools({mode:'right'});
             console.log("DevTools opened", isDevMode);
         }else{

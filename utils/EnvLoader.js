@@ -51,7 +51,7 @@ class EnvLoader {
         }
       }
       
-      console.log('✅ Variables .env cargadas:', Object.keys(envConfig));
+      // console.log('✅ Variables .env cargadas:', Object.keys(envConfig));
       return true;
     }
     

@@ -288,6 +288,48 @@ describe('procesarDatosRemate',()=>{
         // expect(caso18853.direccion).toEqual('parcela nº 80, resultante de la división de los siguientes predios: a) fundo denominado actualmente puerta de hierro; b) parcela nº 39 del proyecto de parcelación viluco, santa julia, la esperanza, los encinos y los carolinos; y c) parcela nº 40, del proyecto de parcelación denominado parte de la hijuela santa julia de viluco, san andrés de viluco, santa eugenia de cervera, santa maría de cervera y san luis de cervera, de la comuna de buin');
     });
 
+    test('Caso C-84-2016', ()=>{
+        const caso84 = new Caso();
+        const normalizedText = normalizeDescription(Extractos.ex84);
+        caso84.texto = normalizedText;
+        procesarDatosRemate(caso84);
+        expect(caso84.causa).toEqual('C-84-2016');
+        expect(caso84.tipoDerecho).toBeNull();
+        expect(caso84.montoMinimo).toEqual(134879111);
+        expect(caso84.moneda).toEqual('Pesos');
+        expect(caso84.fechaRemate).toEqual(new Date('2026/07/14'));
+        // expect(caso18853.diaEntrega).toEqual('con 48 horas de antelación a la subasta');
+        // expect(caso18853.direccion).toEqual('parcela nº 80, resultante de la división de los siguientes predios: a) fundo denominado actualmente puerta de hierro; b) parcela nº 39 del proyecto de parcelación viluco, santa julia, la esperanza, los encinos y los carolinos; y c) parcela nº 40, del proyecto de parcelación denominado parte de la hijuela santa julia de viluco, san andrés de viluco, santa eugenia de cervera, santa maría de cervera y san luis de cervera, de la comuna de buin');
+    });
+
+    test('Caso C-217-2025', ()=>{
+        const caso217 = new Caso();
+        const normalizedText = normalizeDescription(Extractos.ex217);
+        caso217.texto = normalizedText;
+        procesarDatosRemate(caso217);
+        expect(caso217.causa).toEqual('C-217-2025');
+        expect(caso217.tipoDerecho).toBeNull();
+        expect(caso217.montoMinimo).toEqual(82613036);
+        expect(caso217.moneda).toEqual('Pesos');
+        expect(caso217.fechaRemate).toEqual(new Date('2026/04/7'));
+        // expect(caso18853.diaEntrega).toEqual('con 48 horas de antelación a la subasta');
+        // expect(caso18853.direccion).toEqual('parcela nº 80, resultante de la división de los siguientes predios: a) fundo denominado actualmente puerta de hierro; b) parcela nº 39 del proyecto de parcelación viluco, santa julia, la esperanza, los encinos y los carolinos; y c) parcela nº 40, del proyecto de parcelación denominado parte de la hijuela santa julia de viluco, san andrés de viluco, santa eugenia de cervera, santa maría de cervera y san luis de cervera, de la comuna de buin');
+    });
+
+    test('Caso C-19904-2024', ()=>{
+        const caso19904 = new Caso();
+        const normalizedText = normalizeDescription(Extractos.ex19904);
+        caso19904.texto = normalizedText;
+        procesarDatosRemate(caso19904);
+        expect(caso19904.causa).toEqual('C-19904-2024');
+        expect(caso19904.tipoDerecho).toBeNull();
+        expect(caso19904.montoMinimo).toEqual(148313080);
+        expect(caso19904.moneda).toEqual('Pesos');
+        expect(caso19904.fechaRemate).toEqual(new Date('2026/04/29'));
+        // expect(caso18853.diaEntrega).toEqual('con 48 horas de antelación a la subasta');
+        // expect(caso18853.direccion).toEqual('parcela nº 80, resultante de la división de los siguientes predios: a) fundo denominado actualmente puerta de hierro; b) parcela nº 39 del proyecto de parcelación viluco, santa julia, la esperanza, los encinos y los carolinos; y c) parcela nº 40, del proyecto de parcelación denominado parte de la hijuela santa julia de viluco, san andrés de viluco, santa eugenia de cervera, santa maría de cervera y san luis de cervera, de la comuna de buin');
+    });
+
     test('Caso C-19532-2024', ()=>{
         const caso19532 = new Caso();
         const normalizedText = normalizeDescription(Extractos.ex19532);

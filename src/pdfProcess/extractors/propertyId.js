@@ -1,4 +1,5 @@
 const config = require('#config');
+const { obtainType } = require('./utilsPdf.js');
 
 const PROPIEDAD = config.PROPIEDAD;
 const ESTACIONAMIENTO = config.ESTACIONAMIENTO;

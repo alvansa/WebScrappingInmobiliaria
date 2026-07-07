@@ -4,10 +4,12 @@ function extractAuctionDate(data) {
     if(!data) return null;
     
     const regexs = [
-        /(\d{1,2})º?\s*(de\s+)?(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)\s*(del?\s+)?(año\s+)?(\d{4}|\d{1,3}(\.\d{1,3}))/i,
+        /(\d{1,2})º?\s*(de\s+)?(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)\s*(del?\s+)?(año\s+)?(\d{4}|\d{1,3}(\.\d{1,3}))?/i,
         /(lunes|martes|miércoles|jueves|viernes|sábado|domingo)?\s*([a-zA-Záéíóú]*\s+)(de\s+)?(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)(\s+de)\s+(dos mil (veinticuatro|veinticinco|veintiseis|veintisiete|veintiocho|veintinueve|treinta|treinta y uno)?)?/i,
         /(?:rematar[a|á])?\s*el\s*(?:d[i|í]a\s*)?(\d{1,2}\/\d{1,2}\/\d{4})/i,
         /(\d{1,2}-\d{1,2}-\d{4})\s*a\s*las\s*\d{1,2}:\d{1,2}/i,
+        /(\d+\/\d+\/\d+)[a-zA-Z,:\s0-9]{1,20}rematar(a|á)/i,
+        /remate\s*d(?:i|í)a\s*(\d+\/\d+\/\d+)/i
     ];
     for (let regex of regexs) {
         const fechaRemate = data.match(regex);

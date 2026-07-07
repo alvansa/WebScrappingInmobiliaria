@@ -27,18 +27,18 @@ class auctionScraperOrchestator{
         logger.info(`Checked Boxes ${this.checkedBoxes}`)
         let pjudNeedsSecondSearch = false;
         let emolHasCases = true;
+
         for (const source of this.sources) {
             const sourceName = source.getName();
             if (this.checkedBoxes.includes(sourceName)) {
                 logger.info(`Obteniendo casos de la fuente: ${sourceName}`);
                 const cases = await source.fetch(startDate, endDate, { event : this.event, mainWindow : this.mainWindow, emptyMode : this.isEmptyMode, testMode : this.isTestMode });
+                if(sourceName === "pjud") {
+                    pjudNeedsSecondSearch = this.shouldFetchAgainPjud(cases);
+                }
                 if(cases && cases.length > 0){
                     allCases.push(...cases);
                     //Agregarar que si es pjud, busque el porcentaje de casos que no tienen partes y si es mayor a 20% vuelva a buscar en pjud
-                    if(sourceName === "pjud") {
-                        pjudNeedsSecondSearch = this.shouldFetchAgainPjud(cases);
-                    }
-
                 }
                 if(cases.length === 0 && sourceName === "emol"){
                     emolHasCases = false;
@@ -58,7 +58,11 @@ class auctionScraperOrchestator{
             await delay(60000 * 5); // Espera 5 minutos antes de la segunda búsqueda
             const pjudSource = this.sources.find(source => source.getName() === "pjud");
             const cases = await pjudSource.fetch(startDate, endDate, { event : this.event, mainWindow : this.mainWindow, emptyMode : this.isEmptyMode, testMode : this.isTestMode });
-            allCases.push(...cases);
+            if(cases && cases.length > 0){
+                allCases.push(...cases);
+            }
+            // await delay(60000 * 5); // Espera 5 minutos antes de la segunda búsqueda
+
         }
 
         if(!emolHasCases){

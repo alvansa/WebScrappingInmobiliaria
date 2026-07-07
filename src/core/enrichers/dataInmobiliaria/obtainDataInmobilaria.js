@@ -17,7 +17,6 @@ class dataInmobiliaria {
             const predio = parameters[2]
 
             const data = await this.fetchApi(codComuna, manzana, predio);
-            console.log(JSON.stringify(data,null,2));
 
             const metros = await this.obtenerMetrosTotales(data,rol);
 
@@ -50,7 +49,6 @@ class dataInmobiliaria {
         }
         if (data.detalle_construccion) {
             const metros = data.detalle_construccion[0].superficie_m2;
-            // console.log(`Metros obtenidos para rol ${rol}: ${metros}`);
             return Number(metros);
         }
     }
@@ -108,13 +106,11 @@ class dataInmobiliaria {
         try {
             const response = await fetch(url);
             const dataBase = await response.json();
-            console.log(JSON.stringify(dataBase,null,2))
             if (dataBase && dataBase.data) {
                 return dataBase.data;
             }
         } catch (error) {
-            console.error(`Error al obtener metros para rol ${manzana}${predio}:`, error);
-            console.log('Retornando nulo')
+            logger.error(`Error al obtener metros para rol ${manzana}${predio}: ${error.message}`);
             return null;
         }
     }

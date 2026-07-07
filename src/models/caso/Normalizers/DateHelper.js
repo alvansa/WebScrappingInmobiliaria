@@ -92,6 +92,12 @@ class DateHelper{
             const newFecha = new Date(anno, mes - 1, dia);
             return newFecha;
         }
+        if(dia && mes && !anno){
+            const currentYear = new Date().getFullYear();
+            const newFecha = new Date(currentYear, mes - 1, dia);
+            return newFecha;
+        }
+
         return null;
     }
 

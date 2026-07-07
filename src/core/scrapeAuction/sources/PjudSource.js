@@ -39,16 +39,14 @@ class PjudSource{
             casos = await this.searchCasesByDay(startDate, endDate);
             casos.reverse(); // Invertir el orden de los casos para que aparezcan del mas reciente al mas antiguo
 
-            const gestorRemates = new GestorRematesPjud(casos, event, mainWindow, NORMAL);
-            const result = await gestorRemates.getInfoFromAuctions();
+            // const gestorRemates = new GestorRematesPjud(casos, event, mainWindow, NORMAL);
+            // const result = await gestorRemates.getInfoFromAuctions();
 
-            logger.info("Cantidad de casos obtenidos de pjud: ", casos.length);
+            // logger.info("Cantidad de casos obtenidos de pjud: ", casos.length);
         } catch (error) {
-            console.error("Error en el pjud :", error.message);
+            logger.error(`Error en el pjud : ${error.message}`);
         }
         return casos;
-
-        return [];
     }
 
     async searchCasesByDay(startDate, endDate) {
@@ -66,7 +64,7 @@ class PjudSource{
             window.destroy();
             return casos;
         } catch (error) {
-            console.error("Error al buscar casos por dia en Pjud: ", error.message);
+            logger.error(`Error al buscar casos por dia en Pjud: ${error.message}`);
             if (window && !window.isDestroyed()) {
                 window.destroy();
             }

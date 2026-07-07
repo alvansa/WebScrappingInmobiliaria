@@ -7,7 +7,7 @@ const { delay, fakeDelay } = require('#utils/delay.js');
 const EXITO = 1;
 const ERROR = 0;
 
-class PjudPlayWright {
+class PjudPlaywright {
     // El constructor recibe browser y page de Playwright (igual que en Puppeteer)
     constructor(browser, page, startDate, endDate) {
         this.browser = browser;
@@ -293,4 +293,4 @@ async function main() {
 // Si quieres ejecutar main, descomenta:
 // main();
 
-module.exports = Pjud;
+module.exports = PjudPlaywright;
