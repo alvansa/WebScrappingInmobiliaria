@@ -5,7 +5,7 @@ const apiConfig = require('./apiConfig.js');
 const logger = require('#utils/logger.js');
 const PropertyParser = require('./parser.js');
 const {delay} = require('#utils/delay.js');
-const {transformDateString} = require('#utils/cleanStrings.js');
+const {stringToDate} = require('#utils/cleanStrings.js');
 const CasoBuilder = require('#models/caso/casoBuilder.js');
 const { all } = require('axios');
 
@@ -117,7 +117,7 @@ class MacalService {
         let shouldStop = false;
 
         for (const property of properties) {
-            const fixedAuctionDate = transformDateString(property.auction.auction_date);
+            const fixedAuctionDate = stringToDate(property.auction.auction_date);
             fixedAuctionDate.setHours(0);
 
             if (fixedAuctionDate <= cutoffDate || currentPage < 5) {
@@ -283,7 +283,7 @@ class MacalService {
                     // logger.info(`${JSON.stringify(caso.toObject(),null,2)}`)
                 }
             }
-            caso.fechaRemate = transformDateString(property.auction.auction_date)
+            caso.fechaRemate = stringToDate(property.auction.auction_date);
             caso.montoMinimo = property.property_price.price
             caso.metros = this.createFeaturesSummary(property.general_features);
             caso.direccion = property.property_name

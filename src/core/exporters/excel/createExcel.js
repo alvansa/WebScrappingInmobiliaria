@@ -5,7 +5,7 @@ const path = require(`path`);
 const Causas = require(`#models/Causas.js`);
 const config = require("#config");
 const Caso = require(`#models/caso/caso.js`);
-const {fixStringDate, transformDateString} = require(`#utils/cleanStrings.js`);
+const {fixStringDate} = require(`#utils/cleanStrings.js`);
 const excelRowWriter = require(`./excelRowWriter.js`);
 const excelTemplateBuilder = require(`./excelTemplateBuilder.js`);
 
@@ -211,11 +211,6 @@ function cambiarFormatoFecha(fecha) {
 }
 
 // Dado un string con el formato yyyy-mm-dd, devuelve un objeto Date
-function stringToDate(fecha) {
-    const partes = fecha.split("-"); // Dividimos la fecha en partes [año, mes, día]
-    const [año, mes, día] = partes; // Desestructuramos las partes
-    return new Date(`${año}/${mes}/${día}`);
-}
 function formatDateToSQLite(date) {
     // Asegúrate de que el parámetro sea un objeto Date válido
     if (!(date instanceof Date) || isNaN(date)) {

@@ -28,11 +28,12 @@ class PjudPlaywrightSource{
     //TODO: el problema es como se llega a la pagian principal de consultar, antes como era con verRemates() lo detectaba como bot, 
     // Lo que hay que hacer es fingir mas desde la pagina principal del pjud y de ahi llegar a donde queremos.
     async fetch(startDateOrigin, endDateOrigin, { event, mainWindow, emptyMode, testMode }){
-        const endDateModified = stringToDate(endDateOrigin);
+        const endDateModified = stringToDate(endDateOrigin, 'YMD');
         endDateModified.setDate(endDateModified.getDate() + 1); // Aumentar un dia para incluir el ultimo dia
-        const startDate = dateToPjud(stringToDate(startDateOrigin));
+        const startDate = dateToPjud(stringToDate(startDateOrigin, 'YMD'));
         const endDate = dateToPjud(endDateModified);
         let casos = [];
+
 
         this.browser = await this.manager.getBrowser();
         this.context = await this.manager.createHumanContext();

@@ -49,7 +49,7 @@ function preProcessText(text) {
 //Procesa el monto cuando viene en formato de texto y devuelve un numero con su tipo de moneda.
 function processMonto(monto) {
     let total;
-    const regexNumber = /\d{1,}(?:[\.|,]\d{1,3})*/;
+    const regexNumber = /\d{1,}(?:[.|,]\d{1,3})*/;
     const ufRegex = /(unidades\s*de\s*fomento|u\.?f\.?)/i;
     const pesosRegex = /(\$|pesos)/i;
 

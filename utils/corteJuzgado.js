@@ -5,9 +5,6 @@ const logger = require('./logger.js');
 
 
 const tribunalesPorCorte = {
-  //Todos
-  0: [
-  ],
   // Arica
   10: [
     // { value: "0", nombre: "Todos" },
@@ -343,26 +340,7 @@ function obtainCorteJuzgadoNumbers(casos,isDev = false) {
 // Si no se encuentra, devuelve null.
 function searchTribunalPorNombre(nombreTribunal) {
   const tribunalesPorCorteNormalized = normalizeTribunalesPorCorte(tribunalesPorCorte);
-  for (const corte in tribunalesPorCorteNormalized) {
-    if (tribunalesPorCorteNormalized.hasOwnProperty(corte)) {
-      const tribunales = tribunalesPorCorteNormalized[corte];
-      for (let i = 0; i < tribunales.length; i++) {
-        if (tribunales[i].nombre.toLowerCase() === nombreTribunal) {
-          return {
-            corte: corte,
-            numeroJuzgado: tribunales[i].value,
-            index: i
-          };
-        }
-      }
-    }
-  }
-  return null; // Si no se encuentra el tribunal
-}
-
-function searchTribunalPorNombre2(nombreTribunal) {
-  const tribunalesPorCorteNormalized = normalizeTribunalesPorCorte(tribunalesPorCorte);
-  for (const corte in Object.keys(tribunalesPorCorteNormalized)) {
+  for (const corte of Object.keys(tribunalesPorCorteNormalized)) {
     const tribunales = tribunalesPorCorteNormalized[corte];
     for (let i = 0; i < tribunales.length; i++) {
       if (tribunales[i].nombre.toLowerCase() === nombreTribunal) {
@@ -380,8 +358,7 @@ function searchTribunalPorNombre2(nombreTribunal) {
 
 function normalizeTribunalesPorCorte(tribunalesPorCorte) {
   const normalized = {};
-  for (const corte in tribunalesPorCorte) {
-    if (tribunalesPorCorte.hasOwnProperty(corte)) {
+  for (const corte of Object.keys(tribunalesPorCorte)) {
       normalized[corte] = tribunalesPorCorte[corte].map(tribunal => ({
         ...tribunal,
         nombre: tribunal.nombre
@@ -391,7 +368,6 @@ function normalizeTribunalesPorCorte(tribunalesPorCorte) {
           .replace(/gar\./i, "garantia ")
           .replace(/pto\./i, "puerto "),
       }));
-    }
   }
   return normalized;
 }

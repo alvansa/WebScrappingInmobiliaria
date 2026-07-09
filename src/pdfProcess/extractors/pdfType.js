@@ -2,7 +2,7 @@
 //Este orden de busqueda es intencional, de mayor a menor prioridad
 // La demanda es lo primero porque en la demanda puede pedir GP y DV, entonces encuentra primero la demanda
 // La TP puede incluir AF y DV también, entonces se busca antes la TP
-function processPdfType(pdfType, logData=false) {
+function processPdfType(pdfType) {
     // if(logData) console.log("Procesando tipo de PDF: ", pdfType);
     if(checkDemanda(pdfType)){
         const tipoDemanda = checkDemandaType(pdfType)

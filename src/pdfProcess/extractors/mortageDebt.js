@@ -1,6 +1,6 @@
 const {isDemandaPagare} = require('./promissoryNoteDebt');
 
-function processMortageDebt(text, debug = false) {
+function processMortageDebt(text) {
 
     if (!isHipotecario(text)) {
         return null;
@@ -16,7 +16,6 @@ function isHipotecario(text) {
         'obligaci[oó]n\\s*de\\s*dar',
         'mutuo',
     ]
-    const regexMutuoHipotecario = /mutuo\s*hipotecario/i;
 
     if(isDemandaPagare(text)){
         return false;

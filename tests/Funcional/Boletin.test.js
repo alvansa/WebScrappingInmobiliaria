@@ -2,7 +2,6 @@ const BOLETIN = require('../textos/Boletin');
 const ProcesarBoletin = require('#sources/liquidaciones/procesarBoletin');
 const CasoBuilder = require('#models/caso/casoBuilder');
 const config = require('#config');
-const { extractPercent } = require('#sources/economico/extractors/percentExtractor');
 
 const LIQUIDACIONES = config.LIQUIDACIONES;
 

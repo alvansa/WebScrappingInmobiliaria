@@ -1,19 +1,12 @@
-const {cleanInitialZeros} = require('#utils/cleanStrings.js');
 const config = require('#config');
-const logger = require('#utils/logger.js');
 const DateHelper = require('./Normalizers/DateHelper.js');
 const RolHelper = require('./Normalizers/RolHelper.js');
 const StringHelper = require('./Normalizers/StringHelper.js');
 const NumberHelper = require('./Normalizers/NumberHelper.js');
 // const CasoLadrillo = require('./CasoLadrillo');
 
-const EMOL = config.EMOL;
 const PJUD = config.PJUD;
 const LIQUIDACIONES = config.LIQUIDACIONES;
-const PREREMATES = config.PREREMATES;
-const CAPITALREMATES = config.CAPITALREMATES;
-const MACAL = config.MACAL;
-const otros = config.OTROS;
 
 class Caso{
     #fechaPublicacion;
@@ -55,7 +48,6 @@ class Caso{
     #isPaid;
     #origen;
     #deudaHipotecaria;
-    #deudaPagare;
     #alreadyAppear;
     #unitRol;
     #unitAvaluo;
@@ -591,12 +583,13 @@ class Caso{
   
 
     toObject() {
-        const montoMoneda = this.normalizarMontoMinimo(); 
+        //TODO: refactorizar esta funcion porque no queda bien claro su uso
+        this.normalizarMontoMinimo(); 
         const causaNormalizada = this.normalizarCausa();
         const annoNormalizado = this.normalizarAnno();
         const porcentajeNormalizado = this.normalizarPorcentaje(); 
         const diaEntregaNormalizado = this.normalizarDiaEntrega();
-        const comunaNormalizada = this.normalizarComuna();
+        this.normalizarComuna();
         const tipoDerechoNormalizado = this.normalizarTipoDerecho();
 
         
@@ -730,7 +723,6 @@ class Caso{
         let moneda = this.#moneda;
 
         if (typeof this.#montoMinimo == "number") {
-            this.#montoMinimo = this.#montoMinimo;
             return true;
         }
 
@@ -837,7 +829,7 @@ class Caso{
         }else if(this.#origen == PJUD){
             return this.#partes;
         }
-        let partesNormalizadas = this.#partes.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
+        let partesNormalizadas = this.#partes.replace(/[\r\n\v\f\u0085\u2028\u2029]/g, '').trim();
         partesNormalizadas = partesNormalizadas
             .replace(/caratulad[oa]s?:?/gi,'')
             .replace(/causa/gi,'')
@@ -937,7 +929,7 @@ class Caso{
     //     if(this.#direccion == "N/A" || this.#direccion == null){
     //         return null;
     //     }
-    //     return this.#direccion.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
+    //     return this.#direccion.replace(/[\r\n\v\f\u0085\u2028\u2029]/g, '').trim();
     // }
     // normalizarDiaEntrega(){
     //     if(this.#diaEntrega == "N/A" || this.#diaEntrega == null){
@@ -949,20 +941,20 @@ class Caso{
         if(this.#diaEntrega == "N/A" || !this.#diaEntrega){
             return null;
         }
-        return this.#diaEntrega.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
+        return this.#diaEntrega.replace(/[\r\n\v\f\u0085\u2028\u2029]/g, '').trim();
     }
     normalizarComuna(){
         if(this.#comuna == "N/A" || this.#comuna == null){
             return null;
         }
 
-        return this.#comuna.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
+        return this.#comuna.replace(/[\r\n\v\f\u0085\u2028\u2029]/g, '').trim();
     }
     normalizarTipoDerecho(){
         if(this.#tipoDerecho == "N/A" || this.#tipoDerecho == null){
             return null;
         }
-        return this.#tipoDerecho.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
+        return this.#tipoDerecho.replace(/[\r\n\v\f\u0085\u2028\u2029]/g, '').trim();
     }
     normalizarFechaObtencion(){
         if(this.#fechaObtencion == "N/A" || this.#fechaObtencion == null || this.#fechaObtencion == "" || this.#fechaObtencion == " "){

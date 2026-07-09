@@ -1,5 +1,3 @@
-const {normalizeText} = require('#utils/textNormalizers.js');
-
 function processPromissoryNoteDebt(text){
     if(!isDemandaPagare(text)){
         return null;

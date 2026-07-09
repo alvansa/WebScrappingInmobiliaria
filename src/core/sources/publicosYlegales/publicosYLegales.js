@@ -1,7 +1,5 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
-const fs = require('fs');
-const puppeteer = require('puppeteer-core');
 const pie = require('puppeteer-in-electron');
 
 const Caso = require("#models/caso/caso.js");
@@ -12,7 +10,6 @@ class PublicosYLegales{
         this.endDate = endDate;
         this.queryDate = queryDate;
         this.link = "https://publicosylegales.cl/lorem-ipsum-dolor-sit-amet/";
-        this.date = "2024.12.9";
         this.casos = [];
         this.browser = browser;
         this.page = page;
@@ -32,15 +29,6 @@ class PublicosYLegales{
         // } 
         return this.casos;
     }
-
-    async testSearchAuction(){
-        // const browser = await puppeteer.launch();
-        // const page = await browser.newPage();
-        // await page.goto("https://publicosylegales.cl/busqueda/?jsf=jet-engine:lista_encontrada&tax=category:41&date=2024.12.9");
-        await page.screenshot({path: 'example.png'});
-        // await browser.close();
-    }
-
     async getDataAuction(caso){
         await this.page.goto(caso.link,{waitUntil: 'networkidle2'});
         const description = await this.page.evaluate(()=>{
@@ -56,7 +44,7 @@ class PublicosYLegales{
         const div = document.querySelector(".elementor-element-82500aa");
         const description = div.textContent.trim();
         const normalizedDescription = this.normalizeDescriptionFromWeb(description);
-        return description;
+        return normalizedDescription;
     }
 
     normalizeDescriptionFromWeb(description){
@@ -113,7 +101,6 @@ class PublicosYLegales{
             const caso = new Caso(this.queryDate,this.formatStringToDate(fecha),link);
             this.casos.push(caso);
             console.log(link);
-            console.log("Fecha: "+this.date+"--------------------"+fecha);
         })
     }
 
@@ -129,12 +116,6 @@ class PublicosYLegales{
     formatStringToDate(date){
         const [year,month,day] = date.split(".");
         return new Date(year,month-1,day);
-    }
-
-    async obtainHTML(link,number){
-        const { data } = await axios.get(link);
-        const $ = cheerio.load(data);
-        fs.writeFileSync(`./componentes/publicosYlegales/html/HTMLPagina${number}.html`,data);
     }
 }
 

@@ -32,44 +32,44 @@ function fixStringDate(string) {
     return string;
 }
 
-function stringToDate(fecha) {
-    if (fecha.includes('/')) {
-        const partes = fecha.split("/"); // Dividimos la fecha en partes [dia, mes, ano]
-        const [dia, mes, ano] = partes; // Desestructuramos las partes
-        return new Date(`${ano}/${mes}/${dia}`);
-    } else if (fecha.includes('-')) {
-        const partes = fecha.split("-"); // Dividimos la fecha en partes [año, mes, día]
-        const [año, mes, dia] = partes; // Desestructuramos las partes
-        return new Date(`${año}/${mes}/${dia}`);
-    }
-    return new Date(fecha)
-}
-function transformDateString(fechaString) {
-    if (!fechaString) {
+function stringToDate(fecha, formato = 'DMY') { // formato puede ser 'DMY' o 'YMD'
+    if (!fecha) {
         return null;
     }
-    if (fechaString instanceof Date) {
-        return fechaString;
+    if (fecha instanceof Date) {
+        return fecha;
     }
-    const [year, month, day] = fechaString.split('T')[0].split('-');
-    return new Date(`${year}/${month}/${day}`)
-}
 
-function parseSpreadSheeToDate(dateString) {
     let dia, mes, ano;
-    if (dateString.includes('/')) {
-        const partes = dateString.split("/"); // Dividimos la fecha en partes [dia, mes, ano]
-        [dia, mes, ano] = partes; // Desestructuramos las partes
-    } else if (dateString.includes('-')) {
-        const partes = dateString.split("-"); // Dividimos la fecha en partes [año, mes, día]
-        [dia, mes, ano] = partes; // Desestructuramos las partes
 
+    // El formato ISO con 'T' siempre es Año-Mes-Día, lo dejamos fijo
+    if (fecha.includes('T')) {
+        [ano, mes, dia] = fecha.split('T')[0].split('-');
+    } else {
+        // Detectamos si usa '/' o '-' de forma dinámica
+        const separador = fecha.includes('/') ? '/' : (fecha.includes('-') ? '-' : null);
+        
+        if (!separador) return null; // Si no tiene un separador válido, salimos
+
+        const partes = fecha.split(separador);
+
+        // Aquí es donde la magia del parámetro decide el orden
+        if (formato.toUpperCase() === 'YMD') {
+            [ano, mes, dia] = partes;
+        } else {
+            [dia, mes, ano] = partes; // Por defecto entra aquí (DMY)
+        }
     }
-    if (Number(ano) < 2000) {
-        ano = 20 + ano;
+
+    // Corrección segura para años de 2 dígitos (ej: "26" -> "2026")
+    if (ano && ano.length === 2) {
+        ano = '20' + ano;
     }
-    return new Date(`${ano}/${mes}/${dia}`);
+
+    const fechaFinal = new Date(`${ano}/${mes}/${dia}`);
+    return isValidDate(fechaFinal) ? fechaFinal : null;
 }
+
 
 function formatDateToDDMMAA(date) {
     if (date instanceof Date == false) {
@@ -89,7 +89,7 @@ function convertDate(dateString, isDev = false) {
     if(!dateString){
         return null;
     }
-    let date = parseSpreadSheeToDate(dateString);
+    let date = stringToDate(dateString);
     if(isDev) console.log("Date after parseSpreadSheeToDate: ",date);   
     if (isValidDate(date)) {
         return date;
@@ -128,8 +128,8 @@ function parseSpanishDate(dateString) {
 
     // Buscar coincidencias con diferentes formatos
     const formatos = [
-        /^(\d{1,2})[-/\.](\w{3,})[-/\.](\d{4})$/,      // 12-ene-2026, 12/ene/2026
-        /^(\d{1,2})\s+de\s+(\w+)\s+de\s+(\d{4})$/,     // 12 de enero de 2026
+        /^(\d{1,2})[-/.](\w{3,})[-/.](\d{4})$/,      // 12-ene-2026, 12/ene/2026
+        /^(\d{1,2})\s+de\s+(\w+)\s+del?\s+(\d{4})$/,     // 12 de enero de 2026
         /^(\d{1,2})\s+(\w+)\s+(\d{4})$/,               // 12 enero 2026
     ];
 
@@ -179,9 +179,7 @@ module.exports = {
     fixStringDate,
     stringToDate,
     formatDateToDDMMAA,
-    transformDateString,
     parseSpanishDate,
-    parseSpreadSheeToDate,
     isValidDate,
     convertDate,
 };

@@ -1,7 +1,7 @@
 const extractors = require('#sources/economico/extractors/index.js');
-const {isLawsuit, consoleDebug} = require('./utilsPdf');
+const {isLawsuit} = require('./utilsPdf');
 
-function processPercent(text, debug = false) {
+function processPercent(text) {
     if(isLawsuit(text)) {
         return null;
     }

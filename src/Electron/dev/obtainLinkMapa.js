@@ -11,7 +11,6 @@ const logger = require('#utils/logger.js');
 const MapasSII = require('#enrichers/mapasSII/MapasSII.js');
 
 const CasoBuilder = require('#models/caso/casoBuilder.js');
-// const {stringToDate} = require('../../utils/cleanStrings')
 // const {matchJuzgado} = require('../../utils/compareText')
 
 const RANGO_EXCEL = `${config.INICIO}5:${config.COMENTARIOS3}`;

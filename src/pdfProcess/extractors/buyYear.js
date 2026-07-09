@@ -41,11 +41,11 @@ function obtainBuyYear(texto, debug = false) {
         consoleDebug(debug, `anno encontrado por forma 1: ${anno}`);
         return anno;
     }
-    //Busca el anno por "con fecha"
-    // anno = this.obtainYearForm2(texto);
-    // if(anno) {
-    //     return anno;
-    // }
+    // Busca el anno por "con fecha"
+    anno = obtainYearForm2(texto);
+    if(anno) {
+        return anno;
+    }
     //Busca el anno por "registro de propiedad del año".
     anno = obtainFromRegistroPropiedad(texto);
     if (anno) {

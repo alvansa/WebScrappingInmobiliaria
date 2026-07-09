@@ -26,11 +26,11 @@ class Pjud {
 
             await this.closePopupsIfExist();
 
-            const buttonSelector = 'button[onclick="accesoConsultaCausas();"]';
-            await this.page.waitForSelector(buttonSelector, { visible: true });
-            await this.page.click(buttonSelector);
-            logger.debug(`Primer click realizado`)
-            await delay(5000); // Espera 5 segundos para que la página cargue después del clic
+            // const buttonSelector = 'button[onclick="accesoConsultaCausas();"]';
+            // await this.page.waitForSelector(buttonSelector, { visible: true });
+            // await this.page.click(buttonSelector);
+            // logger.debug(`Primer click realizado`)
+            // await delay(5000); // Espera 5 segundos para que la página cargue después del clic
             // Forzamos el click de JS directo en el contexto de la página
             await this.clickSearchButton();
 
@@ -119,23 +119,21 @@ class Pjud {
 
         return;
 
-        try{
-            await this.page.evaluate((selector) => {
-                const btn = document.querySelector(selector);
-                if (btn) {
-                    // Ejecuta la función asociada al click de forma explícita
-                    if (typeof accesoConsultaCausas === 'function') {
-                        accesoConsultaCausas();
-                    } else {
-                        btn.click(); // Alternativa nativa
-                    }
-                }
-            }, buttonSelector);
-        }catch(error){
-            logger.error(`Error al ejecutar la función de accesoConsultaCausas ${error.message}`);
-        }
-
-
+        // try{
+        //     await this.page.evaluate((selector) => {
+        //         const btn = document.querySelector(selector);
+        //         if (btn) {
+        //             // Ejecuta la función asociada al click de forma explícita
+        //             if (typeof accesoConsultaCausas === 'function') {
+        //                 accesoConsultaCausas();
+        //             } else {
+        //                 btn.click(); // Alternativa nativa
+        //             }
+        //         }
+        //     }, buttonSelector);
+        // }catch(error){
+        //     logger.error(`Error al ejecutar la función de accesoConsultaCausas ${error.message}`);
+        // }
     }
 
     // Guarda los valores inciiiales en la página de busqueda

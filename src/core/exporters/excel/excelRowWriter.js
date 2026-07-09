@@ -1,4 +1,4 @@
-const {fixStringDate, transformDateString} = require(`#utils/cleanStrings.js`);
+const {stringToDate} = require(`#utils/cleanStrings.js`);
 const columnMapping = require('#utils/columnMapping.js');
 
 class ExcelRowWriter {
@@ -80,51 +80,51 @@ class ExcelRowWriter {
 
     static async writeMacalRow(ws, currentRow, caso) {
         // writeLine(ws, `${columnMapping.INICIO}`, currentRow, caso.causa, 's');
-        writeLine(ws, `${columnMapping.ORIGEN}`, currentRow, `https://www.macal.cl/propiedades/${caso.id}`, 's');
-        writeLine(ws, `${columnMapping.MARTILLERO}`, currentRow, 'MACAL', 's');
-        writeLine(ws, `${columnMapping.DIRECCION}`, currentRow, caso.property_name, 's');
+        this.writeLine(ws, `${columnMapping.ORIGEN}`, currentRow, `https://www.macal.cl/propiedades/${caso.id}`, 's');
+        this.writeLine(ws, `${columnMapping.MARTILLERO}`, currentRow, 'MACAL', 's');
+        this.writeLine(ws, `${columnMapping.DIRECCION}`, currentRow, caso.property_name, 's');
 
-        const fechaRemateFixed = transformDateString(caso.auction.auction_date);
+        const fechaRemateFixed = stringToDate(caso.auction.auction_date);
 
         if (fechaRemateFixed) {
-            writeLine(ws, `${columnMapping.FECHA_REM}`, currentRow, fechaRemateFixed, 'd');
+            this.writeLine(ws, `${columnMapping.FECHA_REM}`, currentRow, fechaRemateFixed, 'd');
         }
 
         // writeLine(ws, `${columnMapping.DATO}`, currentRow, caso.property_dimensions, 'n');
 
-        writeLine(ws, `${columnMapping.PRECIO_MINIMO}`, currentRow, caso.property_price.price, 'n');
+        this.writeLine(ws, `${columnMapping.PRECIO_MINIMO}`, currentRow, caso.property_price.price, 'n');
         // writeLine(ws, `${columnMapping.AVALUO_FISCAL}`, currentRow, caso.avaluoFiscal, 'n');
         if (caso.property_location) {
-            writeLine(ws, `${columnMapping.COMUNA}`, currentRow, caso.property_location.commune, 's');
+            this.writeLine(ws, `${columnMapping.COMUNA}`, currentRow, caso.property_location.commune, 's');
         }
         if (caso.property_location) {
             const lat = caso.property_location.lat || null;
             const lon = caso.property_location.lng || null;
             const link = `https://www.google.com/maps/place/${lat},${lon}`;
-            writeLine(ws, `${columnMapping.OTRA_DEUDA}`, currentRow, link, 's');
+            this.writeLine(ws, `${columnMapping.OTRA_DEUDA}`, currentRow, link, 's');
         }
 
         if (caso.general_features) {
             const featuresSummary = this.createFeaturesSummary(caso.general_features);
-            writeLine(ws, `${columnMapping.DATO}`, currentRow, featuresSummary, 's');
+            this.writeLine(ws, `${columnMapping.DATO}`, currentRow, featuresSummary, 's');
         }
 
         if (caso.other_features) {
             const rol = caso.other_features.find(feat => feat.label.toLowerCase().includes('rol de '));
             if (rol) {
-                writeLine(ws, `${columnMapping.ROL}`, currentRow, rol.value, 's');
+                this.writeLine(ws, `${columnMapping.ROL}`, currentRow, rol.value, 's');
             }
             const estado_ocupacion = caso.other_features.find(feat => feat.label.toLowerCase().includes('disponibilidad'));
             if (estado_ocupacion) {
-                writeLine(ws, `${columnMapping.OCUPACION}`, currentRow, estado_ocupacion.value, 's');
+                this.writeLine(ws, `${columnMapping.OCUPACION}`, currentRow, estado_ocupacion.value, 's');
             }
             const rolCausa = caso.other_features.find(feat => feat.label.toLowerCase().includes('causa'));
             if (rolCausa) {
-                writeLine(ws, `${columnMapping.CAUSA}`, currentRow, rolCausa.value, 's');
+                this.writeLine(ws, `${columnMapping.CAUSA}`, currentRow, rolCausa.value, 's');
             }
             const mandante = caso.other_features.find(feat => feat.label.toLowerCase().includes('mandante'));
             if (mandante) {
-                writeLine(ws, `${columnMapping.TRIBUNAL}`, currentRow, mandante.value, 's');
+                this.writeLine(ws, `${columnMapping.TRIBUNAL}`, currentRow, mandante.value, 's');
 
             }
         }

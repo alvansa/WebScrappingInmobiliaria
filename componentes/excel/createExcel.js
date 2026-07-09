@@ -5,7 +5,7 @@ const path = require(`path`);
 const Causas = require(`../../model/Causas.js`);
 const config = require("../../config/config.js");
 const Caso = require(`../caso/caso.js`);
-const {fixStringDate, transformDateString} = require(`../../utils/cleanStrings.js`);
+const {fixStringDate, stringToDate} = require(`../../utils/cleanStrings.js`);
 const logger = require('#utils/logger.js');
 
 const excelRowWriter = require(`./excelRowWriter.js`);
@@ -169,7 +169,7 @@ class createExcel {
             writeLine(ws, `${config.MARTILLERO}`, currentRow, 'MACAL', 's');
             writeLine(ws, `${config.DIRECCION}`, currentRow, caso.property_name, 's');
 
-            const fechaRemateFixed = transformDateString(caso.auction.auction_date);    
+            const fechaRemateFixed = stringToDate(caso.auction.auction_date);    
 
             if(fechaRemateFixed){
                 writeLine(ws, `${config.FECHA_REM}`, currentRow, fechaRemateFixed, 'd');
@@ -414,12 +414,6 @@ function cambiarFormatoFecha(fecha) {
     return `${día}-${mes}-${año}`;  // Construimos el nuevo formato
 }
 
-// Dado un string con el formato yyyy-mm-dd, devuelve un objeto Date
-function stringToDate(fecha) {
-    const partes = fecha.split("-"); // Dividimos la fecha en partes [año, mes, día]
-    const [año, mes, día] = partes; // Desestructuramos las partes
-    return new Date(`${año}/${mes}/${día}`);
-}
 // Dado un juzgado, obtiene la comuna del juzgado
 function getComunaJuzgado(juzgado) {
     if (juzgado == null) {

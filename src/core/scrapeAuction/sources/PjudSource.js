@@ -27,10 +27,12 @@ class PjudSource{
     async fetch(startDateOrigin, endDateOrigin, { event, mainWindow, emptyMode, testMode }) {
         if (emptyMode) return [];
 
-        const endDateModified = stringToDate(endDateOrigin);
+        const endDateModified = stringToDate(endDateOrigin, 'YMD');
         endDateModified.setDate(endDateModified.getDate() + 1); // Aumentar un dia para incluir el ultimo dia
-        const startDate = dateToPjud(stringToDate(startDateOrigin));
+        const startDate = dateToPjud(stringToDate(startDateOrigin, 'YMD'));
         const endDate = dateToPjud(endDateModified);
+
+        logger.debug(`Fetching data from Pjud with end date: ${endDateOrigin}`);
 
         this.browser = await this.manager.getBrowser();
         let casos = [];

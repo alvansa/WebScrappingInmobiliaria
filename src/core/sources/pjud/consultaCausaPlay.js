@@ -452,7 +452,7 @@ class ConsultaCausaPjud {
                 }
                 this.checkDescription(descripcion);
             } else if (this.type === LADRILLERO) {
-                if (stringToDate(fecha) >= dateToday) {
+                if (stringToDate(fecha, 'YMD') >= dateToday) {
                     this.caso.hasChanged = true;
                 }
             } else if (this.type === DEUDA) {
@@ -476,7 +476,7 @@ class ConsultaCausaPjud {
                 row.$eval('td:nth-child(4)', el => el.textContent.trim()),
                 row.$eval('td:nth-child(5)', el => el.textContent.trim()),
             ]);
-            if (stringToDate(date) >= dateToday) {
+            if (stringToDate(date, 'YMD') >= dateToday) {
                 this.caso.hasChanged = true;
             }
         } catch (error) {

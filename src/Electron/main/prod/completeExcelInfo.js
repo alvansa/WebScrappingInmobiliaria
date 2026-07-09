@@ -47,6 +47,7 @@ class CompleteExcelInfo{
 
         // Obtain de auctions
         lastRow = this.getCausasFromExcel(ws,lastRow);
+        console.log(`Ultima fila obtenida desde Excel: ${lastRow}`);
 
         console.log(`Casos a buscar: ${this.casos.length}`);
         if(this.casos.length == 0){
@@ -68,20 +69,29 @@ class CompleteExcelInfo{
 
     getCausasFromExcel(ws,lastRow){
         let origen;
-        while(ws[`${config.CAUSA}${lastRow}`]){
+        while(ws[`${config.ORIGEN}${lastRow}`]){
+            let juzgado,causa;
             let fechaDesc = ws[`${config.FECHA_DESC}${lastRow}`];
             let link = ws[`${config.ORIGEN}${lastRow}`].v;
             let fechaRem = ws[`${config.FECHA_REM}${lastRow}`];
-            const causa = ws[`${config.CAUSA}${lastRow}`].v;
-            const juzgado = ws[`${config.TRIBUNAL}${lastRow}`].v
+            const tribunal = ws[`${config.TRIBUNAL}${lastRow}`]
+            const causaCell = ws[`${config.CAUSA}${lastRow}`];
+
             const celdaPartes = ws[`${config.PARTES}${lastRow}`]
             let partes = null;
-            // console.log(`fechaRem type: ${JSON.stringify(fechaRem,null,4)}`);
+            if(!tribunal || !causaCell){
+                lastRow++;
+                continue;
+            }
+            juzgado = tribunal.v
+            causa = causaCell.v;
             if(celdaPartes){
                 partes = celdaPartes.v;
             }
             if(fechaRem){
+                console.log(`Fila ${lastRow} - Fecha Remate: ${JSON.stringify(fechaRem,null,2)} `);
                 fechaRem = stringToDate(fechaRem.w);
+                console.log(`\tFila ${lastRow} - Fecha Remate FINAL: ${fechaRem}`);
             }else{
                 fechaRem = null;
             }

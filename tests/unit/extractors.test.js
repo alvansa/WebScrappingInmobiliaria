@@ -2,16 +2,17 @@ const {changeWordsToNumbers} = require('#sources/economico/extractors/directionE
 const {extractAuctionDate} = require('#sources/economico/extractors/auctionDateExtractor');
 const {processMortageBank} = require('#src/pdfProcess/extractors/mortageBank');
 const {extractDirection, adaptDirectionToExcel} = require('#sources/economico/extractors/directionExtractor.js');
-const PjudPdfData = require('#sources/pjud/PjudPdfData');
+//TODO: Agregar test para probar los extractores de pjudPDfData
+// const PjudPdfData = require('#sources/pjud/PjudPdfData');
 const extractors = require('#src/pdfProcess/extractors/index');
 const {normalizeText} = require('#utils/textNormalizers');
 const {loadFile} = require('../loadFile.js')
 
+
 const txGP = require('../textos/GP');
-const DEMANDA = require('../textos/DM');
+// TODO: Agregar test para probar demandas
+// const DEMANDA = require('../textos/DM');
 const extracto = require('../textos/Extracto');
-const { experiments } = require('webpack');
-const { desktopCapturer } = require('electron');
  
 
 
@@ -26,10 +27,10 @@ describe('test de convertir frases con n°s escritos en palabras a numeros',()=>
         expect(res).toBe('inmueble consistente en el departamento n° 103 del primer piso del edificio n° 4 y del Est n° 86 del segundo subterráneo del condominio parque tobalaba ii ubicado en avenida tobalaba n° 7311 comuna de la');
     });
 
-    test('Test n° dos con varias direcciones' , ()=>{
-        const texto = 'inmuebles de calle el parrón n° doscientos veinticuatro, doscientos cuarenta y cuatro, doscientos sesenta y cuatro- a y doscientos sesenta y cuatro-b, de la comuna de la';
-        const res = changeWordsToNumbers(texto);
-    });
+    // test('Test n° dos con varias direcciones' , ()=>{
+    //     const texto = 'inmuebles de calle el parrón n° doscientos veinticuatro, doscientos cuarenta y cuatro, doscientos sesenta y cuatro- a y doscientos sesenta y cuatro-b, de la comuna de la';
+    //     const res = changeWordsToNumbers(texto);
+    // });
 
     test('Test n° tres con varias direcciones' , ()=>{
         const texto = 'propiedad de la demandada doña angelica nataly villanueva galvez y que consiste en el departamento n° cuatrocientos dieciséis del cuarto piso y del estacionamiento n° e cero ciento veintitrés del segundo subterráneo, ambos del conjunto habitacional denominado doña petronila, con acceso por calle santa petronila n° treinta y dos, comuna de estaci Est santa petronila 32 est 123';
@@ -76,11 +77,15 @@ describe('test de convertir frases con n°s escritos en palabras a numeros',()=>
     test('Otro test con causa de emol C-6782-2025 4/11' , ()=>{
         const texto = 'departamento n° mil ciento siete del piso undécimo y del Est n° e cero veintiuno del piso primero, ambos del conjunto habitacional denominado edificio novo, con ingreso por calle santa petronila n° treinta y ocho, comuna de estaci';
         const res = changeWordsToNumbers(texto);
+        expect(res).toBe('departamento n° 1107 del piso undécimo y del Est n° 21 del piso primero, ambos del conjunto habitacional denominado edificio novo, con ingreso por calle santa petronila n° 38 comuna de estaci');
     });
 
     test('Otro test con causa de emol C-12721-2024 4/11' , ()=>{
+        //TODO: Agregar revision del 320 de este caso
         const texto = 'departamento n° setecientos seis del séptimo piso y el Est n° veintidós en conjunto con la bodega n° treinta y tres, ambos del primer subterráneo, todos del edificio denominado plaza de agua o edificio argomedo trescientos veinte con acceso principal por calle argomedo n° trescientos veinte, comuna de santiago';
         const res = changeWordsToNumbers(texto);
+        expect(res).toBe('departamento n° 706 del séptimo piso y el Est n° 22 en conjunto con la bodega n° 33 ambos del primer subterráneo, todos del edificio denominado plaza de agua o edificio argomedo trescientos veinte con acceso principal por calle argomedo n° 320 comuna de santiago');
+        
     });
 
     test('Test artificial para n° x' , ()=>{
@@ -125,17 +130,13 @@ describe('test de convertir frases con n°s escritos en palabras a numeros',()=>
         expect(res).toBe('la propiedad consistente en el departamento n° 1807')
     });
 
-    test('Test para probar cuando se mezclan n°s' , ()=>{
-        const texto = 'la propiedad consistente en el departo n° dosmil quinientos';
-        const res = changeWordsToNumbers(texto);
-        // expect(res).toBe('la propiedad consistente en el departamento n° 2500')
-    });
+    // test('Test para probar cuando se mezclan n°s' , ()=>{
+        //TODO: Agregar test para probar cuando se mezclan n°s escritos en palabras y n°s escritos en numeros 
+        // const texto = 'la propiedad consistente en el departamento n° dosmil quinientos';
+        // const res = changeWordsToNumbers(texto);
+        // expect(changeWordsToNumbers(texto)).toBe('la propiedad consistente en el departamento n° 2500')
+   // });
 
-    test('Test para probar n° con tilde' , ()=>{
-        const texto = 'la propiedad consistente en el departo n° dosmil quinientos';
-        const res = changeWordsToNumbers(texto);
-        // expect(res).toBe('la propiedad consistente en el departamento n° 2500')
-    });
 
     test('Test para probar n° veinticuatro', ()=>{
         const texto = 'dp veinticuatro del P2 y la bod quince del primer subterráneo, del edificio ubicado en avd manquehue norte n° quinientos cincuenta y cinco, denominado edificio los cedros, comuna de las';
@@ -156,7 +157,7 @@ describe('test para extraer fecha de remate',()=>{
     test('test prueba para verificar si obtiene del resumen', ()=>{
         const text = 'Remate: Primer Juzgado Civil De Santiago, Huérfanos 1409, piso 15 santiago, rematará 21 de octubre de 2025 a las 14:50 horas, departamento nº 2.619 del 26º piso y de la bodega nº 74 del 1º subterráneo, ambos de la torre oriente del edificio Portal Independencia, 2º etapa, con acceso por Avenida Inde';
         const res = extractAuctionDate(text);
-        // expect(res)
+        expect(res).toBe('21 de octubre de 2025')
     });
 });
 
