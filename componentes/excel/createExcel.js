@@ -6,6 +6,7 @@ const Causas = require(`../../model/Causas.js`);
 const config = require("../../config/config.js");
 const Caso = require(`../caso/caso.js`);
 const {fixStringDate, transformDateString} = require(`../../utils/cleanStrings.js`);
+const logger = require('#utils/logger.js');
 
 const excelRowWriter = require(`./excelRowWriter.js`);
 
@@ -108,7 +109,7 @@ class createExcel {
     }
 
     async writeData(casos, name = "") {
-        console.log("=====================\nEscibiendo informacion en excel\n==============================");
+        logger.info("Escibiendo informacion en excel");
         let filePath = path.join(this.saveFile, `Remates.xlsx`);
         // Revisa si el archivo base ya existe
         if (!fs.existsSync(path.join(this.saveFile, `Remates.xlsx`))) {
@@ -140,11 +141,11 @@ class createExcel {
                 filePath = path.join(this.saveFile, `Remates_` + fechaInicioDMA + '_a_' + fechaFinDMA + '.xlsx');
             }
             ws[`!ref`] = RANGO_EXCEL + lastRow;
-            console.log(`Guardando archivo en : ${filePath}`);
+            logger.info(`Guardando archivo en : ${filePath}`);
             XLSX.writeFile(wb, filePath, {cellDates: true});
             return filePath;
         } catch (error) {
-            console.error(`Error al obtener resultados:`, error);
+            logger.error(`Error al obtener resultados: ${error.message}`);
             return null;
         }
 
@@ -281,7 +282,7 @@ class createExcel {
         if (!Array.isArray(casos) || casos.length === 0) {
             return;
         }
-        console.log('Casos a procesar:', casos.length);
+        logger.debug(`Casos a procesar: ${casos.length}`);
 
         // Primero se leen todos los casos obtenidos y se verifican para agregarlos,
         // en caso de que ya hayan sido agregados se une la informacion 
@@ -525,7 +526,6 @@ async function insertarCasoIntoWorksheet(caso, ws, currentRow) {
     writeLine(ws, `${config.DEUDA_BANCO}` , currentRow, caso.mortageBank , 's')
     writeLine(ws, `${config.DEUDA_HIPOTECA}`, currentRow, caso.deudaHipotecaria, "s");
     writeLine(ws, `${config.DEUDA_PAGARE}`, currentRow, caso.deudaPagare, "s");
-    console.log(`Escribiendo el excel con el caso :${caso.causa} con link: ${caso.linkMap}`);
     writeLine(ws, `${config.OTRA_DEUDA}`, currentRow, caso.linkMap, 's');
     // ws[`AG` + currentRow ] = {v: 'año compr ant ', t: 's'};
     // ws[`AH` + currentRow ] = {v: 'precio venta nos ', t: 's'};

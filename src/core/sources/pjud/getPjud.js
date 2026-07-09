@@ -4,6 +4,8 @@ const fs = require('fs');
 const Caso = require('#models/caso/caso.js');
 const {delay, fakeDelay} = require('#utils/delay.js');
 
+const logger = require('#utils/logger.js');
+
 const EXITO = 1;
 const ERROR = 0;
 
@@ -19,25 +21,42 @@ class Pjud {
         let tableData = [];
         let tienePaginaSiguiente = true;
         try {
-            await this.page.evaluate(() => {
-                verRemates();
-            });
-            await this.setValoresInciales();
-            console.log("Valores fecha :", this.startDate, this.endDate);
-            await this.setDates('#desde', this.startDate);
-            await fakeDelay(1, 3);
-            await delay(500);
-            await this.setDates('#hasta', this.endDate);
-            await fakeDelay(1, 3);
+            // await this.page.waitForSelector('.dropbtn ::-p-text(Consulta causas)');
+            // await this.page.click('.dropbtn ::-p-text(Consulta causas)');
 
-            await this.page.waitForSelector('#btnConsultaRemates.btn.btn-primary', { visible: true });
+            await this.closePopupsIfExist();
+
+            const buttonSelector = 'button[onclick="accesoConsultaCausas();"]';
+            await this.page.waitForSelector(buttonSelector, { visible: true });
+            await this.page.click(buttonSelector);
+            logger.debug(`Primer click realizado`)
+            await delay(5000); // Espera 5 segundos para que la página cargue después del clic
+            // Forzamos el click de JS directo en el contexto de la página
+            await this.clickSearchButton();
+
+            // await this.page.evaluate(() => {
+            //     verRemates();
+            // });
+            // await this.page.click('button[onclick="accesoConsultaCausas();"]');
+
+            logger.debug(`Segundo click realizado con exito`)
+
             try {
+                await this.setValoresInciales();
+                console.log("Valores fecha :", this.startDate, this.endDate);
+                await this.setDates('#desde', this.startDate);
+                await fakeDelay(1, 3);
+                await delay(500);
+                await this.setDates('#hasta', this.endDate);
+                await fakeDelay(1, 3);
+
+                await this.page.waitForSelector('#btnConsultaRemates.btn.btn-primary', { visible: true });
                 await this.page.evaluate(() => {
                     document.querySelector('#btnConsultaRemates').click();
                 });
                 console.log("Botón de consulta clickeado")
             } catch (error) {
-                console.error('Error al hacer clic en el botón de consulta:', error);
+                console.error(`Error al hacer clic en el botón de consulta: ${error.message}`);
                 return tableData;
             }
             // Esperar a que la tabla aparezca después de hacer clic en el botón de consulta
@@ -64,6 +83,59 @@ class Pjud {
             console.error('Error en la función getPJUD:', error);
             return tableData;
         }
+    }
+
+    async closePopupsIfExist() {
+        try {
+            const closeBtnSelector = 'xpath/(//button[text()="Cerrar"])[3]';
+
+            // Espera y hace clic usando el selector XPath correcto
+            await this.page.waitForSelector(closeBtnSelector, { visible: true, timeout: 3000 });
+            await this.page.click(closeBtnSelector);
+
+            logger.debug('Cartel detectado y cerrado.');
+
+            // 🕒 Esperar a que termine la animación de desaparición del modal
+            await new Promise(r => setTimeout(r, 500));
+
+        } catch (error) {
+            // Si no aparece en 3 segundos, el flujo continúa sin romperse
+            logger.error(`El cartel no apareció o no se pudo cerrar. Continuando... Detalle: ${error.message}`);
+        }
+    }
+
+    async clickSearchButton() {
+        try {
+            const buttonSelector = 'button[onclick="accesoConsultaCausas();"]';
+            await this.page.waitForSelector(buttonSelector, { visible: true });
+
+            // Hacemos focus y presionamos Enter
+            await this.page.focus(buttonSelector);
+            await this.page.keyboard.press('Enter');
+            logger.debug(`Click forzado en el boton de busqueda realizado con exito`)
+        }catch(error){
+            logger.error(`Error al hacer click en el boton ${error.message}`);
+        }
+
+        return;
+
+        try{
+            await this.page.evaluate((selector) => {
+                const btn = document.querySelector(selector);
+                if (btn) {
+                    // Ejecuta la función asociada al click de forma explícita
+                    if (typeof accesoConsultaCausas === 'function') {
+                        accesoConsultaCausas();
+                    } else {
+                        btn.click(); // Alternativa nativa
+                    }
+                }
+            }, buttonSelector);
+        }catch(error){
+            logger.error(`Error al ejecutar la función de accesoConsultaCausas ${error.message}`);
+        }
+
+
     }
 
     // Guarda los valores inciiiales en la página de busqueda
@@ -286,7 +358,7 @@ class Pjud {
 
     async datosFromPjud() {
         const datos = await this.getPJUD();
-        console.log('Datos conseguidos del pjud', datos.length);
+        // console.log('Datos conseguidos del pj', datos.length);
         // const causa = new ConsultaCausaPjud(datos);
         // const casos = await causa.getConsultaCausaPjud();
         return datos;

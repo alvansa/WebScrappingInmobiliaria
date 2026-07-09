@@ -7,6 +7,7 @@ const GestorRematesPjud = require('#sources/pjud/GestorRematesPjud.js');
 const {obtainCorteJuzgadoNumbers} = require('#utils/corteJuzgado.js');
 const logger = require('#utils/logger.js');
 const {stringToDate} = require('#utils/cleanStrings.js');
+// const {delay} = require('#utils/delay.js');
 
 const config = require('#config');
 const NORMAL = config.NORMAL;
@@ -37,12 +38,13 @@ class PjudSource{
         try {
 
             casos = await this.searchCasesByDay(startDate, endDate);
+            return;
             casos.reverse(); // Invertir el orden de los casos para que aparezcan del mas reciente al mas antiguo
 
-            // const gestorRemates = new GestorRematesPjud(casos, event, mainWindow, NORMAL);
-            // const result = await gestorRemates.getInfoFromAuctions();
+            const gestorRemates = new GestorRematesPjud(casos, event, mainWindow, NORMAL);
+            const result = await gestorRemates.getInfoFromAuctions();
 
-            // logger.info("Cantidad de casos obtenidos de pjud: ", casos.length);
+            logger.info("Cantidad de casos obtenidos de pjud: ", casos.length);
         } catch (error) {
             logger.error(`Error en el pjud : ${error.message}`);
         }
@@ -53,11 +55,12 @@ class PjudSource{
         let window;
         let casos = [];
         try {
-            window = new BrowserWindow({ show: false });
+            window = new BrowserWindow({ show: true }); 
             // const url = 'https://oficinajudicialvirtual.pjud.cl/indexN.php';
             const url = 'https://oficinajudicialvirtual.pjud.cl/home/index.php'
             await window.loadURL(url);
             const page = await pie.getPage(this.browser, window);
+            await page.setViewport({ width: 1366, height: 768 });
             const pjud = new Pjud(this.browser, page, startDate, endDate);
             casos = await pjud.datosFromPjud();
             obtainCorteJuzgadoNumbers(casos);

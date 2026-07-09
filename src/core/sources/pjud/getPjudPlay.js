@@ -74,7 +74,8 @@ class PjudPlaywright {
 
     async goToRemates() {
         try {
-            await this.page.click('img[alt="Audiencia de Remates"]')
+            // await this.page.click('img[alt="Audiencia de Remates"]')
+            await this.page.click('a[href="https://oficinajudicialvirtual.pjud.cl/includes/sesion-consultaunificada.php"]');
             // this.page.waitForURL('**/indexN.php')
             // await this.page.click('img[alt="Audiencia de Remates"]')
             // await newPage.waitForLoadState();

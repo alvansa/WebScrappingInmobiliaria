@@ -221,6 +221,7 @@ class MainApp{
                 new LiquidacionesSource(PuppeteerManager, {mode: 0, logger: logger, isTestMode: isTestMode }),
                 new MacalSource(),
                 new CapitalRematesSource(PuppeteerManager, logger, isTestMode), 
+                new PjudPlaywrightSource(PlaywrightManager, {mode: config.NORMAL, logger: logger, isTestMode: isTestMode})
             ]
 
             const enrichers = [

@@ -317,7 +317,7 @@ function obtainCorteJuzgadoNumbers(casos,isDev = false) {
       .toLowerCase()
       .replace(/3er/, "3º")
       .replace(/en\s+lo/, "")
-      .replace(/de\s+\los\s+lagos/ig, "los lagos")
+      .replace(/de\s+los\s+lagos/ig, "los lagos")
       .replace(/de\scalera/ig, "de la calera")
       .replace(/de\ssan\svicente/ig, "de san vicente de tagua tagua")
       .replace(/1º juzgado\sde\sletras\sde\spuerto\svaras/ig, "juzgado de letras de puerto varas")
@@ -359,6 +359,24 @@ function searchTribunalPorNombre(nombreTribunal) {
   }
   return null; // Si no se encuentra el tribunal
 }
+
+function searchTribunalPorNombre2(nombreTribunal) {
+  const tribunalesPorCorteNormalized = normalizeTribunalesPorCorte(tribunalesPorCorte);
+  for (const corte in Object.keys(tribunalesPorCorteNormalized)) {
+    const tribunales = tribunalesPorCorteNormalized[corte];
+    for (let i = 0; i < tribunales.length; i++) {
+      if (tribunales[i].nombre.toLowerCase() === nombreTribunal) {
+        return {
+          corte: corte,
+          numeroJuzgado: tribunales[i].value,
+          index: i
+        };
+      }
+    }
+  }
+  return null; // Si no se encuentra el tribunal
+}
+
 
 function normalizeTribunalesPorCorte(tribunalesPorCorte) {
   const normalized = {};

@@ -1,4 +1,5 @@
 const logger = require('#utils/logger.js');
+const {delay} = require('#utils/delay.js');
 
 const NOT_AUCTIONS_FOUND = 5;
 class auctionScraperOrchestator{
@@ -16,6 +17,7 @@ class auctionScraperOrchestator{
     }
 
     async run(startDate, endDate){
+        const startTime = new Date();
         console.log(`Ckecked Boxes en el orchestator : ${JSON.stringify(this.checkedBoxes,null,2)}`);
 
         let allCases = [];
@@ -32,6 +34,9 @@ class auctionScraperOrchestator{
             const sourceName = source.getName();
             if (this.checkedBoxes.includes(sourceName)) {
                 logger.info(`Obteniendo casos de la fuente: ${sourceName}`);
+                // if(sourceName === "pjud" ){
+                //     await delay(60000 * 90); // Espera 5 minutos antes de la búsqueda en Pjud    
+                // }
                 const cases = await source.fetch(startDate, endDate, { event : this.event, mainWindow : this.mainWindow, emptyMode : this.isEmptyMode, testMode : this.isTestMode });
                 if(sourceName === "pjud") {
                     pjudNeedsSecondSearch = this.shouldFetchAgainPjud(cases);
@@ -40,7 +45,7 @@ class auctionScraperOrchestator{
                     allCases.push(...cases);
                     //Agregarar que si es pjud, busque el porcentaje de casos que no tienen partes y si es mayor a 20% vuelva a buscar en pjud
                 }
-                if(cases.length === 0 && sourceName === "emol"){
+                if(cases && cases.length === 0 && sourceName === "emol"){
                     emolHasCases = false;
                 }
             }
@@ -54,16 +59,24 @@ class auctionScraperOrchestator{
 
         
 
-        if(pjudNeedsSecondSearch){
-            await delay(60000 * 5); // Espera 5 minutos antes de la segunda búsqueda
-            const pjudSource = this.sources.find(source => source.getName() === "pjud");
-            const cases = await pjudSource.fetch(startDate, endDate, { event : this.event, mainWindow : this.mainWindow, emptyMode : this.isEmptyMode, testMode : this.isTestMode });
-            if(cases && cases.length > 0){
-                allCases.push(...cases);
-            }
-            // await delay(60000 * 5); // Espera 5 minutos antes de la segunda búsqueda
+        // if(pjudNeedsSecondSearch){
+        //     logger.debug(`Se realizará una segunda búsqueda en Pjud`);
+        //     await delay(60000 * 5); // Espera 5 minutos antes de la segunda búsqueda
+        //     const pjudSource = this.sources.find(source => source.getName() === "pjud");
+        //     const cases = await pjudSource.fetch(startDate, endDate, { event : this.event, mainWindow : this.mainWindow, emptyMode : this.isEmptyMode, testMode : this.isTestMode });
+        //     if(cases && cases.length > 0){
+        //         allCases.push(...cases);
+        //     }else{
+        //         logger.info(`Realizando 3era busqueda de Pjud ahora con playwright`);
+        //         const pjudPlaywrightSource = this.sources.find(source => source.getName() === "pjudPlaywright");
+        //         const casesPjud = await pjudPlaywrightSource.fetch(startDate, endDate, { event : this.event, mainWindow : this.mainWindow, emptyMode : this.isEmptyMode, testMode : this.isTestMode });
+        //         if(casesPjud && casesPjud.length > 0){
+        //             allCases.push(...casesPjud);
+        //         }
+        //     }
+        //     // await delay(60000 * 5); // Espera 5 minutos antes de la segunda búsqueda
 
-        }
+        // }
 
         if(!emolHasCases){
             await delay(60000 * 5); // Espera 5 minutos antes de la segunda búsqueda
@@ -71,6 +84,13 @@ class auctionScraperOrchestator{
             const cases = await emolSource.fetch(startDate, endDate, { event : this.event, mainWindow : this.mainWindow, emptyMode : this.isEmptyMode, testMode : this.isTestMode });
             allCases.push(...cases);
         }
+
+        const endTime = new Date();
+        const duration = (endTime - startTime) / 1000;
+        logger.info(`Tiempo total de ejecución: ${duration} segundos`);
+        logger.info(`Hora de cominenzo: ${startTime.toLocaleString()}`);
+        logger.info(`Hora de finalización: ${endTime.toLocaleString()}`);
+
 
         if(allCases.length === 0){
             logger.warn("No se obtuvieron casos de ninguna fuente. El proceso se detendrá.");

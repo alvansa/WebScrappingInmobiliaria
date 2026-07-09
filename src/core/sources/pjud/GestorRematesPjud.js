@@ -8,6 +8,7 @@ const { fakeDelay, delay } = require('#utils/delay.js');
 const config = require('#config');
 const ConsultaCausaPjud = require('./consultaCausaPjudRefactored.js');
 const NORMAL = config.NORMAL;
+const logger = require('#utils/logger.js');
 
 // puppeteerExtra.use(StealthPlugin());
 
@@ -35,37 +36,37 @@ class GestorRematesPjud{
                 // console.log(`Caso a investigar ${caso.causa} ${caso.juzgado} caso numero ${counter} de ${this.casos.length}`);
                 if (skipIfHasPartes && caso.partes) {
 
-                    console.log(`Caso ${caso.causa} ya tiene partes, se omite`);
+                    logger.debug(`Caso ${caso.causa} ya tiene partes, se omite`);
                     continue;
                 }
 
                 if(!caso.numeroJuzgado || !caso.corte ){
-                    console.log(`Caso ${caso.causa} no tiene numero de juzgado ni corte, se omite`);
+                    logger.debug(`Caso ${caso.causa} no tiene numero de juzgado ni corte, se omite`);
                     continue;
                 }
                 const result = await this.consultaCausa(caso);
                 if (result) {
-                    console.log("Resultados del caso de prueba en pjud: ", caso.toObject());
+                    logger.debug(`Resultados del caso de prueba en pjud: ${JSON.stringify(caso.toObject())}`);
                 }
 
                 if((counter + 1) % 5 == 0){
                     const awaitTime = Math.random() * (180 - 45) + 45; // Genera un número aleatorio entre 30 y 90
                     // mainWindow.webContents.send('aviso-espera', [awaitTime, counter + 1, this.casos.length]);
-                    console.log(`Esperando ${awaitTime} segundos para consulta numero ${counter + 1} de ${this.casos.length} ${secondlap}`);
+                    logger.info(`Esperando ${awaitTime} segundos para consulta numero ${counter + 1} de ${this.casos.length} ${secondlap}`);
                     await delay(awaitTime * 1000);
                 }else if ((counter + 1) < this.casos.length) {
                     const awaitTime = Math.random() * (60 - 30) + 30; // Genera un número aleatorio entre 30 y 90
                     // mainWindow.webContents.send('aviso-espera', [awaitTime, counter + 1, this.casos.length]);
-                    console.log(`Esperando ${awaitTime} segundos para consulta numero ${counter + 1} de ${this.casos.length} ${secondlap}`);
+                    logger.info(`Esperando ${awaitTime} segundos para consulta numero ${counter + 1} de ${this.casos.length} ${secondlap}`);
                     await delay(awaitTime * 1000);
                 }
 
-                if(counter > 3){
-                    return 
-                }
+                // if(counter > 3){
+                //     return 
+                // }
             }
         }catch (error) {
-            console.error("Error al obtener datos de los casos: ", error.message);
+            logger.error(`Error al obtener datos de los casos: ${error.message}`);
         }
     }
 

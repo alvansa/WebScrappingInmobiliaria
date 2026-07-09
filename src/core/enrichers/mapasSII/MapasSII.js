@@ -2,6 +2,7 @@ const fs = require('fs');
 const {app, BrowserWindow, ipcMain, dialog,electron} = require('electron');
 const path = require('path');
 const pie = require('puppeteer-in-electron');
+const logger = require('#utils/logger.js');
 
 const {delay, fakeDelay} = require('#utils/delay.js');
 
@@ -18,7 +19,7 @@ class MapasSII {
         try{
             await this.entryPage();
         }catch (error) {
-            console.error("Error al inicializar MapasSII:", error);
+            logger.error(`Error al inicializar MapasSII: ${error.message}`);
             throw error; // Re-throw the error to handle it in the calling function
         }
     }
@@ -56,11 +57,10 @@ class MapasSII {
             await this.page.type(selectorPredio, predio, { delay: Math.random() * 45 });
 
             await this.page.click('button[data-ng-click="validaBusqueda()"]');
-            // console.log("Se hizo click Buscando");
             await fakeDelay(1,2);
             await this.obtainMapValues(caso);
         } catch (error) {
-            console.error("Error al obtener los datos de la propiedad", error);
+            logger.error(`Error al obtener los datos de la propiedad ${error.message}`);
             return;
         }    
     }
@@ -81,7 +81,7 @@ class MapasSII {
             // userAgents = this.readUserAgents();
             userAgents = listUserAgents;
         } catch (error) {
-            console.error('Error parsing USER_AGENTS from .env, using default agents:', error);
+            logger.error(`Error parsing USER_AGENTS from .env, using default agents: ${error.message}`);
             userAgents = defaultUserAgents;
         }
 
@@ -105,14 +105,14 @@ class MapasSII {
             const filePath = path.join(__dirname, '../../utils/userAgents.json');
 
             if (!fs.existsSync(filePath)) {
-                console.error('❌ Archivo data.json no encontrado en:', filePath);
+                logger.error(`❌ Archivo data.json no encontrado en: ${filePath}`);
             } 
 
             const data = fs.readFileSync(filePath, 'utf8');
             const arrayString = JSON.parse(data);
             return arrayString;
         }catch(error){
-            console.error('Error reading USER_AGENTS from json:', error.message);
+            logger.error(`Error reading USER_AGENTS from json:  ${error.message}`);
             return [];
         }
     }
@@ -149,17 +149,13 @@ class MapasSII {
             // Verificar si el mensaje de error está presente
             const errorElement = await this.page.$(divError);
             if (errorElement) {
-                // console.log("Elemnto fallido econtrado");
                 const errorText = await this.page.evaluate(el => el.textContent, errorElement);
                 if (errorText.includes("No se pudo encontrar")) {
-                    // console.log("La búsqueda falló:", errorText);
                     // Hacer clic en el botón de cerrar
                     const cerrarButton = await this.page.$(botonCerrar);
                     if (cerrarButton) {
                         await cerrarButton.click();
-                        // console.log("Botón de cerrar clickeado.");
                     } else {
-                        // console.log("No se encontró el botón de cerrar.");
                     }
                     // caso.avaluoPropiedad = null; // O puedes asignar un valor por defecto
                     delay(500);
@@ -176,13 +172,10 @@ class MapasSII {
                 const element = document.querySelector("#mapaid > div.leaflet-pane.leaflet-map-pane > div.leaflet-pane.leaflet-popup-pane > div > div.leaflet-popup-content-wrapper > div > font:nth-child(3) > center");
                 return element ? element.innerText : null;
             });
-            // console.log("Coordenadas: ", coordenadas);
             if(coordenadas){
                 coordenadas = coordenadas.replace(/\s+/g," ").trim();
-                // console.log("Coordenadas limpias: ", coordenadas);
                 const [lat, long] = coordenadas.split(" ");
                 caso.linkMap = `${baseLink}${lat},${long}`;
-                // console.log("Link de Google Maps: ", caso.linkMap);
             }
 
             if(!caso.avaluoPropiedad && avaluoTotal){

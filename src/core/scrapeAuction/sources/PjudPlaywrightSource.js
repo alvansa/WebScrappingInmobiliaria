@@ -25,34 +25,6 @@ class PjudPlaywrightSource{
     getName(){ return 'pjudPlaywright'; }
 
 
-    async fetch2(startDateOrigin, endDateOrigin, { event, mainWindow, emptyMode, testMode }) {
-        if (emptyMode) return [];
-
-        const endDateModified = stringToDate(endDateOrigin);
-        endDateModified.setDate(endDateModified.getDate() + 1); // Aumentar un dia para incluir el ultimo dia
-        const startDate = dateToPjud(stringToDate(startDateOrigin));
-        const endDate = dateToPjud(endDateModified);
-
-        this.browser = await this.manager.getBrowser();
-        let casos = [];
-
-        try {
-
-            casos = await this.searchCasesByDay(startDate, endDate);
-            casos.reverse(); // Invertir el orden de los casos para que aparezcan del mas reciente al mas antiguo
-
-            const gestorRemates = new GestorRematesPjud(casos, event, mainWindow, NORMAL);
-            const result = await gestorRemates.getInfoFromAuctions();
-
-            logger.info("Cantidad de casos obtenidos de pjud: ", casos.length);
-        } catch (error) {
-            console.error("Error en el pjud :", error.message);
-        }
-        return casos;
-
-        return [];
-    }
-
     //TODO: el problema es como se llega a la pagian principal de consultar, antes como era con verRemates() lo detectaba como bot, 
     // Lo que hay que hacer es fingir mas desde la pagina principal del pjud y de ahi llegar a donde queremos.
     async fetch(startDateOrigin, endDateOrigin, { event, mainWindow, emptyMode, testMode }){
@@ -68,8 +40,8 @@ class PjudPlaywrightSource{
         try{
             casos = await this.searchCasesByDay(startDate, endDate);
             casos.reverse(); // Invertir el orden de los casos para que aparezcan del mas reciente al mas antiguo
-            const gestorRemates = new GestorRematesPjud(casos, event, mainWindow, NORMAL);
-            const result = await gestorRemates.getInfoFromAuctions();
+            // const gestorRemates = new GestorRematesPjud(casos, event, mainWindow, NORMAL);
+            // const result = await gestorRemates.getInfoFromAuctions();
 
             logger.info("Cantidad de casos obtenidos de pjud: ", casos.length);
             return casos;
@@ -81,28 +53,6 @@ class PjudPlaywrightSource{
 
     }
 
-    async searchCasesByDay2(startDate, endDate) {
-        let window;
-        let casos = [];
-        try {
-            window = new BrowserWindow({ show: false });
-            // const url = 'https://oficinajudicialvirtual.pjud.cl/indexN.php';
-            const url = 'https://oficinajudicialvirtual.pjud.cl/home/index.php'
-            await window.loadURL(url);
-            const page = await pie.getPage(this.browser, window);
-            const pjud = new PjudPlaywright(this.browser, page, startDate, endDate);
-            casos = await pjud.datosFromPjud();
-            obtainCorteJuzgadoNumbers(casos);
-            window.destroy();
-            return casos;
-        } catch (error) {
-            console.error("Error al buscar casos por dia en Pjud: ", error.message);
-            if (window && !window.isDestroyed()) {
-                window.destroy();
-            }
-        }
-        return casos;
-    }
 
     async searchCasesByDay(startDate, endDate) {
         let window;
@@ -112,7 +62,7 @@ class PjudPlaywrightSource{
 
             const page = await this.context.newPage();
             await page.goto(url,{timeout: 160000}); // Página real
-            const scraper = new Pjud(this.browser, page, startDate, endDate);
+            const scraper = new PjudPlaywright(this.browser, page, startDate, endDate);
             casos = await scraper.getPJUD();
             obtainCorteJuzgadoNumbers(casos);
             logger.info(`Cantidad de resultados obtenidos: ${casos.length}`);
@@ -130,7 +80,6 @@ class PjudPlaywrightSource{
         }
         return casos;
     }
-
 }
 
 function dateToPjud(date) {

@@ -1,9 +1,10 @@
-const { chromium,  } = require('playwright-extra');
+const { chromium, firefox, webkit  } = require('playwright-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 const { devices } = require('playwright');
 
+const browserType = webkit; // Puedes cambiar a chromium o webkit según tus necesidades
 // Aplicar el plugin stealth a Playwright
-chromium.use(StealthPlugin());
+webkit.use(StealthPlugin());
 
 class PlaywrightManager {
     constructor() {
@@ -79,7 +80,7 @@ class PlaywrightManager {
             };
 
             // Lanzar el navegador con Playwright + Stealth
-            this.browser = await chromium.launch(launchOptions);
+            this.browser = await browserType.launch(launchOptions);
 
             // Limpiar banderas de automatización visibles
             const contextOptions = await this._getHumanContextOptions();

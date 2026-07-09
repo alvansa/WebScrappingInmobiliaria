@@ -17,27 +17,34 @@
     "test:unit": "jest tests/unit",
     "test:functional": "jest tests/Funcional",
     "app:dir": "electron-builder --dir",
-    "commands" : "node scripts/help.js"
+    "commandsinfo": "node scripts/help.js",
+    "lint": "eslint ."
   },
   "imports": {
-    "#sources/*" : "./src/core/sources/*",
-    "#enrichers/*" : "./src/core/enrichers/*",
-    "#exporters/*" : "./src/core/exporters/*",
-    "#core/*" : "./src/core/*",
-    "#utils/*" : "./utils/*",
-    "#models/*" : "./src/models/*",
-    "#config" : "./config/config.js",
-    "#src/*" : "./src/*" 
+    "#sources/*": "./src/core/sources/*",
+    "#enrichers/*": "./src/core/enrichers/*",
+    "#exporters/*": "./src/core/exporters/*",
+    "#core/*": "./src/core/*",
+    "#utils/*": "./utils/*",
+    "#models/*": "./src/models/*",
+    "#config": "./config/config.js",
+    "#src/*": "./src/*"
   },
   "author": "Alvaro Soto",
   "type": "commonjs",
   "license": "ISC",
   "devDependencies": {
     "@electron/fuses": "^1.8.0",
+    "@eslint/js": "^10.0.1",
     "@types/electron": "^1.4.38",
     "electron": "^33.2.1",
     "electron-builder": "^25.1.8",
-    "jest": "^29.7.0"
+    "eslint": "^10.6.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.6",
+    "globals": "^17.7.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.9.4"
   },
   "dependencies": {
     "@google-cloud/local-auth": "^2.1.0",
@@ -55,6 +62,7 @@
     "playwright": "^1.60.0",
     "playwright-extra": "^4.3.6",
     "puppeteer-core": "^24.4.0",
+    "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "puppeteer-in-electron": "^3.0.5",
     "webpack": "^5.96.1",
