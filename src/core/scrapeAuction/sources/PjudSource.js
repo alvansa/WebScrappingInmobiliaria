@@ -38,7 +38,7 @@ class PjudSource{
         try {
 
             casos = await this.searchCasesByDay(startDate, endDate);
-            return;
+            // return;
             casos.reverse(); // Invertir el orden de los casos para que aparezcan del mas reciente al mas antiguo
 
             const gestorRemates = new GestorRematesPjud(casos, event, mainWindow, NORMAL);
