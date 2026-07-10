@@ -9,15 +9,6 @@ const {fixStringDate} = require(`#utils/cleanStrings.js`);
 const excelRowWriter = require(`./excelRowWriter.js`);
 const excelTemplateBuilder = require(`./excelTemplateBuilder.js`);
 
-const PJUD = config.PJUD;
-const EMOL = config.EMOL;
-const LIQUIDACIONES = config.LIQUIDACIONES;
-const PREREMATES = config.PREREMATES;
-// const config = config.LETRAS;
-
-const MACAL = 0
-const ONEDAY = 1
-const ONE = 2
 const PRELIMINAR = 3;
 
 const RANGO_EXCEL = `${config.INICIO}5:${config.COMENTARIOS3}`;
@@ -56,6 +47,7 @@ class createExcel {
                 const dateToday = `1-1-25`
                 filePathExcel = path.join(this.saveFile, `Remates_macal_` + dateToday + '.xlsx');
             }else if(this.type == PRELIMINAR){
+                //TODO: Agregar que esta funcion guarde los casos en caso de que falle
 
             }
             else {
@@ -172,12 +164,11 @@ class createExcel {
                 const key = `${auction[1].causa}|${auction[1].juzgado}`;
                 let actualCase = cacheAuctions.get(key);
                 if(actualCase){
-                    actualCase = Caso.fillMissingData(actualCase,currentCase);
+                    Caso.fillMissingData(actualCase,currentCase);
                 }
                 return false;
             }
         }
-        const fechaInicioTest = new Date(`2025/09/02`);
         // Si la fecha de remate es menor a la fecha de inicio, o mayor a la final
         if (currentCase.fechaRemate && (currentCase.fechaRemate < this.fixedStartDate || currentCase.fechaRemate > this.fixedEndDate )) {
         // if (currentCase.fechaRemate && (currentCase.fechaRemate < fechaInicioTest || currentCase.fechaRemate > fechaInicioTest )) {
@@ -191,7 +182,7 @@ class createExcel {
         // Agregar la busqueda de casos en DB y union si existe ya en la DB
         const caseDB = this.isCaseInDB(currentCase);
         if(caseDB){
-            currentCase = Caso.bindCaseWithDB(currentCase,caseDB);
+            Caso.bindCaseWithDB(currentCase,caseDB);
         }
         return true;
     }
@@ -210,21 +201,6 @@ function cambiarFormatoFecha(fecha) {
     return `${día}-${mes}-${año}`;  // Construimos el nuevo formato
 }
 
-// Dado un string con el formato yyyy-mm-dd, devuelve un objeto Date
-function formatDateToSQLite(date) {
-    // Asegúrate de que el parámetro sea un objeto Date válido
-    if (!(date instanceof Date) || isNaN(date)) {
-        throw new Error("El parámetro debe ser un objeto Date válido.");
-    }
-
-    // Obtener el año, mes y día
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, `0`); // Los meses van de 0 a 11
-    const day = String(date.getDate()).padStart(2, `0`);
-
-    // Formatear como YYYY-MM-DD
-    return `${year}-${month}-${day}`;
-}
 
 function fechaMenosUno(fecha) {
     const nuevaFecha = new Date(fecha);

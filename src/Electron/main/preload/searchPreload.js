@@ -22,7 +22,7 @@ contextBridge.exposeInMainWorld('searchAPI', {
                 console.log("No se selecciono ninguna opcion");
                 return 4;
             } else {
-                filePath = ipcRenderer.invoke('start-proccess', startDate, endDate, saveFile, checkedBoxes)
+                const filePath = ipcRenderer.invoke('start-proccess', startDate, endDate, saveFile, checkedBoxes)
                 return filePath;
             }
         } catch (error) {

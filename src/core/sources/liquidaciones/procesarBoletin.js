@@ -1,18 +1,13 @@
 const fs = require('fs');
 const path = require('path');
-const PDFParser = require( 'pdf2json' );
 const pdf = require('pdf-parse');
 const os = require('os');
-const FormData = require('form-data');
-const axios = require('axios');
 const logger = require('#utils/logger.js');
 
-const Caso = require('#models/caso/caso.js');
-const { comunas, tribunales2 } = require('#models/caso/datosLocales.js');
+const { comunas} = require('#models/caso/datosLocales.js');
 const BoletinConcursal = require('./getBoletinConcursal.js');
 const { delay } = require('#utils/delay.js');
 
-const PJUD = 2;
 
 
 class ProcesarBoletin {
@@ -77,8 +72,8 @@ class ProcesarBoletin {
     async getPdfData(fechaInicio, fechaFin, fechaHoy) {
         await delay(2000);
         let casos = [];
-        let texto = "";
         try {
+            let texto = "";
             this.deleteFiles();
             // return;
             const boletin = new BoletinConcursal(this.browser,this.page);
@@ -103,14 +98,13 @@ class ProcesarBoletin {
                     }
                 }
             }
+            return casos;
         } catch (error) {
             logger.error(`Error en getPdfData: ${error.message}`);
         } finally {
             this.deleteFiles();
-            return casos;
         }
     }
-
 
     deleteFiles() {
         logger.debug("Eliminando archivos");
@@ -305,32 +299,32 @@ class ProcesarBoletin {
 
     }
 
-    static async pdfToTextPdf2Json(filePath) {
-        return new Promise((resolve, reject) => {
-            const pdfParser = new PDFParser(this,1);
+    //TODO: Funcion intento de leer pdf, no la borro solo por si es util en el futuro
+    // static async pdfToTextPdf2Json(filePath) {
+    //     return new Promise((resolve, reject) => {
+    //         const pdfParser = new PDFParser(this,1);
 
-            pdfParser.on('pdfParser_dataError', errData => {
-                logger.error(`Error al procesar PDF: ${errData.parserError}`);
-                resolve(null); // Resolviendo con null en caso de error
+    //         pdfParser.on('pdfParser_dataError', errData => {
+    //             logger.error(`Error al procesar PDF: ${errData.parserError}`);
+    //             resolve(null); // Resolviendo con null en caso de error
 
-            });
+    //         });
 
-            pdfParser.on('pdfParser_dataReady', pdfData => {
-                logger.debug('PDF procesado exitosamente.');
-                resolve(pdfParser.getRawTextContent());
-            });
+    //         pdfParser.on('pdfParser_dataReady', pdfData => {
+    //             logger.debug('PDF procesado exitosamente.');
+    //             resolve(pdfParser.getRawTextContent());
+    //         });
 
-            try {
-                pdfParser.loadPDF(filePath);
-            } catch (error) {
-                logger.error(`Error al cargar el archivo PDF: ${error}`);
-                reject(error);
-            }
-        });
-    }
+    //         try {
+    //             pdfParser.loadPDF(filePath);
+    //         } catch (error) {
+    //             logger.error(`Error al cargar el archivo PDF: ${error}`);
+    //             reject(error);
+    //         }
+    //     });
+    // }
 
-    static async pdfToTextPdfParse(filePath, origen=1){
-        let originalWarn;
+    static async pdfToTextPdfParse(filePath){
         try {
             // if(origen == PJUD){
             //     const tesseractText = await ProcesarBoletin.processWithTesseract(filePath);
@@ -353,41 +347,28 @@ class ProcesarBoletin {
         }
     }
 
-    static async pdfToTextTesseract(filePath){
-        try{
-            const form = new FormData();
-            form.append("file", fs.createReadStream(filePath));
+    //Intento de lectura con tesseract, al final tampoco funciono 
+    // static async pdfToTextTesseract(filePath){
+    //     try{
+    //         const form = new FormData();
+    //         form.append("file", fs.createReadStream(filePath));
 
-            const headers = {
-                ...form.getHeaders(),
-            }
+    //         const headers = {
+    //             ...form.getHeaders(),
+    //         }
 
-            const response = await axios.post('http://localhost:8000/processPDF', form, {
-                headers: headers,
-                responseType: 'json',
-            });
+    //         const response = await axios.post('http://localhost:8000/processPDF', form, {
+    //             headers: headers,
+    //             responseType: 'json',
+    //         });
 
-            const normalizedResponse = normalizeResponse(response.data);
-            return normalizedResponse;
-        }catch(error){
-            logger.error(`Ocurrio un error procesando el pdf con tesseract: ${error.message}`);
-            return null;
-        }
-    }
-
-}
-
-function normalizeResponse(data){
-    let finalText = "";
-    for (let page of data['pages']) {
-        const text = page.text
-            .replace(/(\r\n|\n|\r)/gm, " ")
-            .replace(/\s+/g, " ")
-            .trim();
-
-        finalText += text + " ";
-    }
-    return finalText.trim();
+    //         const normalizedResponse = normalizeResponse(response.data);
+    //         return normalizedResponse;
+    //     }catch(error){
+    //         logger.error(`Ocurrio un error procesando el pdf con tesseract: ${error.message}`);
+    //         return null;
+    //     }
+    // }
 }
 
 module.exports = ProcesarBoletin

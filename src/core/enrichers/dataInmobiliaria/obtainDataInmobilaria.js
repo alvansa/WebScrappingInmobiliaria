@@ -70,7 +70,7 @@ class dataInmobiliaria {
     /*
         devuelve un string con la forma 'metros utiles - metros superficie - metros totales'
     */
-    static async obtenerMetrosTotales(data,rol) {
+    static async obtenerMetrosTotales(data) {
         let metrosUtiles = null;
         let metrosTerreno = null;
         if (data.detalle_construccion) {

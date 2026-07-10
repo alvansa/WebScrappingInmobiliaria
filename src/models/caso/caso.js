@@ -1121,7 +1121,6 @@ class Caso{
         if(new Date(dbCase.fechaRemate) < currentCase.fechaRemate){
             currentCase.alreadyAppear = new Date(dbCase.fechaRemate);
         }
-        return currentCase;
     }
 }
 

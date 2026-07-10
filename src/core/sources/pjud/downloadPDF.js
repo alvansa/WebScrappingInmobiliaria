@@ -7,9 +7,7 @@ const pie = require('puppeteer-in-electron');
 
 require('dotenv').config();
 
-const ProcesarBoletin = require('#sources/liquidaciones/procesarBoletin.js')
 const { delay } = require('#utils/delay.js');
-const { defaultApp } = require('process');
 
 const downloadPath = path.join(os.homedir(), "Documents", "infoRemates/pdfDownload");
 
@@ -33,26 +31,27 @@ async function downloadPdfFromUrl(browser,url) {
             }
         });
 
-        customUA = userAgents[randomIndex].userAgent;
+        const customUA = userAgents[randomIndex].userAgent;
         await page.setUserAgent(customUA);
         await page.goto(url);
         // await page.setRequestInterception(true);
         await delay(3000);
         //Leer el pdf descargado
-        let resultado = 'ah'
         // resultado = await ProcesarBoletin.convertPdfToText(pdfPath);
 
         window.destroy();
-        return resultado;
+        return true;
     }catch(error){
         console.error('Error al hacer la petición:', error.message);
         await browser.close();
-        return 'Error al hacer la petición';
+        return false;
     }
 }
 
 function openWindow(window, useProxy){
     if(useProxy){
+        const proxyData = JSON.parse(process.env.PROXY_DATA);
+        const randomIndex = Math.floor(Math.random * proxyData.length);
         window = new BrowserWindow({
             show: true,// Ocultar ventana para procesos en background
             proxy :{
@@ -78,7 +77,7 @@ async function checkUserAgent(browser,url){
     });
     await window.loadURL(url);
     const page = await pie.getPage(browser, window);
-    customUA  = userAgents[randomIndex].userAgent;
+    const customUA  = userAgents[randomIndex].userAgent;
     await page.setUserAgent(customUA);
     await page.goto(url);
 
@@ -91,14 +90,6 @@ async function checkUserAgent(browser,url){
     return customUA;
 }
 
-
-async function readPdf(pdfPath) {
-
-        let resultado = 'ah'
-        resultado = await ProcesarBoletin.convertPdfToText(pdfPath);
-
-        return resultado;
-}
 
 module.exports = { downloadPdfFromUrl,checkUserAgent };
 // Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36

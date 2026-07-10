@@ -58,6 +58,7 @@ class Causas {
             const causas = this.db.prepare(query).all(causa);
             return causas.length > 0 ? causas : null;
         }catch(error){
+            console.error(`Error en la causa ${error.message}`);
             return null;
         }
     }
@@ -83,6 +84,7 @@ class Causas {
             const causas = this.db.prepare(query).all(causa,numJuzgado);
             return causas.length > 0 ? causas[0] : null;
         }catch(error){
+            console.error(`Error en searchCausa: ${error.message}`);
             return null;
 
         }

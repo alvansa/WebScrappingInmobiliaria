@@ -1,8 +1,8 @@
 
 const checkFPMG = document.getElementById('openLadrillero');
 // const checkFPMG = document.getElementById('checkFPMG');
-let tribunalesPorCorte  = [];
 console.log('Renderer loaded succefully')
+let countdownInterval = null;
 
 // Manejo de notificaciones de espera con Modal
 window.api.onWaitingNotification((args) => {
@@ -70,10 +70,10 @@ document.getElementById('openSettingsWindow').addEventListener('click', () => {
 //   alert('Ladrillos Obtenidos');
 // });
 
-function showWaitingProcess(show){
-  const modal = document.getElementById('waitingModalProcess');
-  modal.style.display = show ? 'flex' : 'none';
-}
+// function showWaitingProcess(show){
+//   const modal = document.getElementById('waitingModalProcess');
+//   modal.style.display = show ? 'flex' : 'none';
+// }
 
 function showWaitingProcessLadrillo(show){
   const modal = document.getElementById('ladrilloWaitingModalProcess');
@@ -102,12 +102,10 @@ checkFPMG.addEventListener('click', async () => {
     }
 
   } catch (error) {
-    console.error('Error al seleccionar archivo:', error);
+    console.error('Error al seleccionar archivo:', error.message);
     showWaitingProcessLadrillo(false)
     alert('Ocurrio un error al obtener los ladrillos');
-  }finally{
   }
-
 });
 
 function updateModal(data) {

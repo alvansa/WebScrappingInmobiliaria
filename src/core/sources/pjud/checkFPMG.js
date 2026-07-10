@@ -4,7 +4,7 @@ El ladrillero
 const path = require('path');
 const os = require('os');
 const XLSX = require('xlsx');
-const { app, BrowserWindow, ipcMain, dialog, electron } = require('electron');
+const { app, BrowserWindow} = require('electron');
 const pie = require('puppeteer-in-electron');
 const puppeteer = require('puppeteer-core');
 
@@ -87,9 +87,7 @@ class checkFPMG {
         const lastWrittenRow = XLSX.utils.decode_range(this.ws['!ref']).e.r + 1;
         let lastRow = 2;
         while (lastRow <= lastWrittenRow) {
-            let causa, juzgado,fechaDesc;
-            let skipRowOutside = false;
-            [causa, juzgado, fechaDesc,skipRowOutside] = this.obtainDataFromRow(lastRow);
+            const [causa, juzgado, fechaDesc,skipRowOutside] = this.obtainDataFromRow(lastRow);
 
             if(skipRowOutside){
                 lastRow++;
@@ -130,7 +128,7 @@ class checkFPMG {
         const [fechaRem, skip3] = this.obtainCellAndState(config.FECHA_REM, lastRow, skipRow, false);
         let [type, skip4] = this.obtainCellAndState(config.NOTAS, lastRow, skipRow);
 
-        skipRow = skipRow || skip1 || skip2 || skip3 || skip4;
+        skipRow = skip0 || skipRow || skip1 || skip2 || skip3 || skip4;
 
         if(skipRow){
             return [causa, juzgado, fechaRem, skipRow];
@@ -186,7 +184,6 @@ class checkFPMG {
         if(!this.data){
             return [];
         }
-        const headers = this.data[0];
         let cont = 0;
         for (let line of this.data) {
             const dataLine = this.processNewRow(line);
@@ -206,7 +203,7 @@ class checkFPMG {
                 // if(cont >= 5){
                 //     return;
                 // }
-                cont++;
+                // cont++;
 
             //  2. Propios
             }else if(this.isPropio(dataLine)){
@@ -311,11 +308,11 @@ class checkFPMG {
                 if (!caso.numeroJuzgado || !caso.corte) {
                     continue;
                 }
-                const result = await this.consultaCausa(caso);
+                await this.consultaCausa(caso);
 
-                if(counter > 5){
-                    return;
-                }
+                // if(counter > 5){
+                //     return;
+                // }
                 if ((counter + 1) < this.casos.length) {
                     const awaitTime = Math.random() * (90 - 30) + 30; // Genera un número aleatorio entre 30 y 90
                     mainWindow.webContents.send('aviso-espera', [awaitTime, counter + 1, this.casos.length]);
@@ -344,9 +341,7 @@ class checkFPMG {
     async consultaCausa(caso) {
         this.browser = await pie.connect(app, puppeteer);
         this.window = this.openWindow(this.window, true);
-        let result = await this.processCausa(caso);
-
-        return result;
+        await this.processCausa(caso);
     }
 
     async processCausa(caso) {
@@ -356,8 +351,7 @@ class checkFPMG {
             await this.loadConfig();
             await this.loadPageWithRetries();
 
-            let result = await this.procesarCaso(lineaAnterior,caso)
-            return result;
+            await this.procesarCaso(lineaAnterior,caso)
         } catch (error) {
             console.error(error.message);
         }finally{
@@ -413,43 +407,33 @@ class checkFPMG {
             await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
         }
     }
-    async procesarCaso(lineaAnterior,caso) {
-        let cambioPagina = false;
+    async procesarCaso(lineaAnterior, caso) {
         try {
+            // 1. Intentar establecer los valores iniciales
             const valorInicial = await this.setValoresIncialesBusquedaCausa(caso);
             if (!valorInicial) {
-                console.log('No se pudieron setear los valores iniciales');
-                return false; // Salta al siguiente caso
+                console.warn('No se pudieron setear los valores iniciales');
+                return; // Salta al siguiente caso
             }
-        } catch (error) {
-            console.error('Error al setear los valores iniciales:', error.message);
-            return false; // Salta al siguiente caso
-        }
 
-        try {
-            cambioPagina = await this.revisarPrimeraLinea(lineaAnterior);
-        } catch (error) {
-            console.error('Error al verificar o procesar la primera línea del caso:', error.message);
-            return lineaAnterior; // Salta al siguiente caso
-        }
-
-        try {
+            // 2. Verificar si hubo cambio de página
+            const cambioPagina = await this.revisarPrimeraLinea(lineaAnterior);
             if (!cambioPagina) {
-                console.log('No se cambio el resultado. Saltando caso.');
-                return false // Salta al siguiente caso
+                console.log('No se cambió el resultado. Saltando caso.');
+                return; // Salta al siguiente caso
             }
-        } catch (error) {
-            console.error('Error al obtener la primera línea del caso:', error.message);
-            return lineaAnterior; // Salta al siguiente caso
-        }
 
-        const isValid = await this.searchAuctionInfo(caso);
-        if (isValid) {
-            console.log("Datos posibles del caso obtenidos correctamente");
-            return true;
-        } else {
-            console.log('Fallo al buscar la informacion');
-            return false;
+            // 3. Buscar y validar la información del remate
+            const isValid = await this.searchAuctionInfo(caso);
+            if (isValid) {
+                console.log("Datos posibles del caso obtenidos correctamente");
+            } else {
+                console.warn('Fallo al buscar la información');
+            }
+
+        } catch (error) {
+            // Un solo bloque catch atrapa CUALQUIER error de las promesas de arriba
+            console.error(`Error crítico al procesar el caso: ${error.message}`);
         }
     }
     async searchAuctionInfo(caso) {
@@ -1157,8 +1141,9 @@ class checkFPMG {
         ];
     }
 
+    //TODO: agregar que se ocupe efectivamente la fecha limite
     async proccesDeudaSeguir(fechaLimite){
-        return true;
+        // return true;
         this.obtainListDeuda();
         if(this.casos.length == 0){
             console.log('No hay casos de deuda para procesar');
@@ -1191,9 +1176,7 @@ class checkFPMG {
             logger.warn('No se pudo recuperar la data')
             return;
         }
-        let count = 0;
         for (let line of this.data) {
-            count++;
             const dataLine = this.processNewRow(line);
             let causaNormalizada = null;
 
@@ -1230,7 +1213,6 @@ class checkFPMG {
             return false;
         }
         // 2. revisar que la fecha de remate sea mayor a la fecha actual
-        const dateToday = new Date();
         //FECHA limite de deuda
         const fechaLimite = new Date('2026/04/28');
         const fechaRemateDate = new Date(convertDate(fixStringDate(dataLine.fechaRem)));
@@ -1282,7 +1264,7 @@ class checkFPMG {
                     continue;
                 }
                 // const result = await this.consultaCausa(caso);
-                const result = await this.consultaCausaGeneral(caso,type);
+                await this.consultaCausaGeneral(caso,type);
                 // if(counter > 3){
                 //     return true;
                 // }

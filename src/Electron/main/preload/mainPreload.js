@@ -6,7 +6,7 @@ console.log("preload loaded succefully");
 contextBridge.exposeInMainWorld('api', {
   // Funcion de test principal para realizar pruebas unicas de funcionamientos especificos.
   testEconomico : async (args) => {
-    const results = await ipcRenderer.invoke('testEconomico', args)
+    await ipcRenderer.invoke('testEconomico', args)
   },
   // Funcion para abrir un dialogo de seleccion de archivos locales
   // Pensado para seleccionar un archivo pdf que se procesara

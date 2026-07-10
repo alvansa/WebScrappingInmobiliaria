@@ -1,14 +1,9 @@
-const puppeteer = require('puppeteer-core');
 const fs = require('fs');
 
 const Caso = require('#models/caso/caso.js');
 const {delay, fakeDelay} = require('#utils/delay.js');
 
 const logger = require('#utils/logger.js');
-
-const EXITO = 1;
-const ERROR = 0;
-
 class Pjud {
     constructor(browser,page,startDate,endDate) {
         this.browser = browser;
@@ -178,7 +173,6 @@ class Pjud {
 
         // Obtener los datos de la tabla
         const rowsData = await this.page.evaluate(() => {
-            const hoy = new Date();
             const rows = Array.from(document.querySelectorAll('#dtaTableDetalleRemate tbody tr')); // Obtener todas las filas en tbody
 
             // Extraer los datos de las filas
@@ -285,103 +279,73 @@ class Pjud {
     }
 
 
-    async getDatosTablaRemate(page) {
-        try {
-            await page.waitForSelector("#historiaCiv", { timeout: 10000 });
+    // async getDatosTablaRemate(page) {
+    //     try {
+    //         await page.waitForSelector("#historiaCiv", { timeout: 10000 });
 
-            // Get all rows from the table
-            const rows = await page.$$('#historiaCiv .table tbody tr');
-            console.log(rows.length);
-            for (const row of rows) {
-                // Track if the row is processed successfull
-                try {
-                    success = await procesarFila(page, row);
-                } catch (error) {
-                    console.error(`Error processing row on attempt : ${error.message}`);
-                    success = ERROR;
-                }
-            }
+    //         // Get all rows from the table
+    //         const rows = await page.$$('#historiaCiv .table tbody tr');
+    //         console.log(rows.length);
+    //         for (const row of rows) {
+    //             // Track if the row is processed successfull
+    //             try {
+    //                 success = await procesarFila(page, row);
+    //             } catch (error) {
+    //                 console.error(`Error processing row on attempt : ${error.message}`);
+    //                 success = ERROR;
+    //             }
+    //         }
 
-        } catch (error) {
-            console.error('Error en la función getDatosTablaRemate:', error);
-            return [];
-        }
+    //     } catch (error) {
+    //         console.error('Error en la función getDatosTablaRemate:', error);
+    //         return [];
+    //     }
 
-    }
+    // }
 
-    async procesarFila(page, row) {
-        const [etapa, tramite, descripcion, fecha] = await Promise.all([
-            row.$eval('td:nth-child(4)', el => el.textContent.trim()),
-            row.$eval('td:nth-child(5)', el => el.textContent.trim()),
-            row.$eval('td:nth-child(6)', el => el.textContent.trim()),
-            row.$eval('td:nth-child(7)', el => el.textContent.trim()),
-        ]);
-        // console.log(descripcion);
-        if (descripcion === 'Cumple lo ordenado') {
-            button = await row.$('td:nth-child(3) a');
-            if (!button) {
-                console.log('No se encontró el botón');
-                return ERROR;
-            }
-            await page.waitForSelector('td:nth-child(3) a', { visible: true });
-            console.log('Botón encontrado');
-            await button.click();
-            await page.waitForSelector('.modal-body table');
-            const rows = await page.$$('.modal-body table tbody tr');
-            for (let tableRow of rows) {
-                await obtenerPDF(page, tableRow);
-            }
-            // await delay(5000);
-            return EXITO;
-        }
-        return ERROR;
-    }
+    // async procesarFila(page, row) {
+    //     const [etapa, tramite, descripcion, fecha] = await Promise.all([
+    //         row.$eval('td:nth-child(4)', el => el.textContent.trim()),
+    //         row.$eval('td:nth-child(5)', el => el.textContent.trim()),
+    //         row.$eval('td:nth-child(6)', el => el.textContent.trim()),
+    //         row.$eval('td:nth-child(7)', el => el.textContent.trim()),
+    //     ]);
+    //     // console.log(descripcion);
+    //     if (descripcion === 'Cumple lo ordenado') {
+    //         button = await row.$('td:nth-child(3) a');
+    //         if (!button) {
+    //             console.log('No se encontró el botón');
+    //             return ERROR;
+    //         }
+    //         await page.waitForSelector('td:nth-child(3) a', { visible: true });
+    //         console.log('Botón encontrado');
+    //         await button.click();
+    //         await page.waitForSelector('.modal-body table');
+    //         const rows = await page.$$('.modal-body table tbody tr');
+    //         for (let tableRow of rows) {
+    //             await obtenerPDF(page, tableRow);
+    //         }
+    //         // await delay(5000);
+    //         return EXITO;
+    //     }
+    //     return ERROR;
+    // }
 
-    async obtenerPDF(page, row) {
-        const [fecha, referencia] = await Promise.all([
-            row.$eval('td:nth-child(1)', el => el.textContent.trim()),
-            row.$eval('td:nth-child(2)', el => el.textContent.trim()),
-        ]);
-        button = await row.$('a');
-        if (!button) {
-            console.log('No se encontró el botón para descargar el PDF de ', referencia);
-            return ERROR;
-        }
-        await page.waitForSelector('a', { visible: true });
-        await button.click();
-        console.log('Descargando PDF de ', referencia);
-    }
-
-
-
-    async datosFromPjud() {
-        const datos = await this.getPJUD();
-        // console.log('Datos conseguidos del pj', datos.length);
-        // const causa = new ConsultaCausaPjud(datos);
-        // const casos = await causa.getConsultaCausaPjud();
-        return datos;
-    }
+    // async obtenerPDF(page, row) {
+    //     const [fecha, referencia] = await Promise.all([
+    //         row.$eval('td:nth-child(1)', el => el.textContent.trim()),
+    //         row.$eval('td:nth-child(2)', el => el.textContent.trim()),
+    //     ]);
+    //     button = await row.$('a');
+    //     if (!button) {
+    //         console.log('No se encontró el botón para descargar el PDF de ', referencia);
+    //         return ERROR;
+    //     }
+    //     await page.waitForSelector('a', { visible: true });
+    //     await button.click();
+    //     console.log('Descargando PDF de ', referencia);
+    // }
 }
 
-async function datosFromPjud(fechaInicio,fechaFin){
-    const datos = await getPJUD(fechaInicio,fechaFin);
-    console.log('Datos conseguidos del pjud', datos.length);
-    // const causa = new ConsultaCausaPjud(datos);
-    // const casos = await causa.getConsultaCausaPjud();
-    return datos;
-}
-
-async function main() {
-    try {
-        const fechaDesde = '11/11/2024';
-        const fechaHasta = '12/11/2024';
-        const datos = await getPJUD(fechaDesde, fechaHasta);
-        console.log("datos conseguidos");
-        // console.log(datos);
-        writeData(datos);
-    } catch (error) {
-        console.error('Error en la funcion main:', error);
-    }
-}
 // main();
 module.exports = Pjud;

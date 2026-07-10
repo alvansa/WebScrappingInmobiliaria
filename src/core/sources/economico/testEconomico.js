@@ -1,27 +1,8 @@
-const {testUnico, procesarDatosRemate} = require('./datosRemateEmol.js');
+const {procesarDatosRemate} = require('./datosRemateEmol.js');
 const Caso = require('#models/caso/caso.js');
 const process = require('process');
 const Causas = require('#models/Causas.js');
 
-async function testLink(){
-    try {
-        const link ="https://www.economicos.cl/remates/clasificados-remates-cod7468887.html";
-        const fechaHoy = new Date();
-        const caso = await testUnico(fechaHoy,link);
-
-    }catch (error) {
-        console.error('Error al obtener resultados:', error);
-    }
-}
-async function testLinkArgs(link){
-    try {
-        const fechaHoy = new Date();
-        const caso = await testUnico(fechaHoy,link);
-
-    }catch (error) {
-        console.error('Error al obtener resultados:', error);
-    }
-}
 
 
 function testTexto(){
@@ -45,7 +26,6 @@ function testTextoArgs(texto){
         testCaso.texto = texto;
         procesarDatosRemate(testCaso); 
         const casoObjt = testCaso.toObject();
-        console.log("Caso: ",casoObjt);
         return casoObjt;
     }catch(error){
         console.error('Error al obtener resultados:', error);
@@ -90,12 +70,8 @@ async function main(){
     }
     if(args[0] === "-h"){
         use();
-    }else if(args[0] === "-l"){
-        await testLink();
     }else if(args[0] === "-t"){
         testTexto();
-    }else if(args[0] === "-L"){
-        testLinkArgs(args[1]);
     }else if(args[0] === "-all"){
         obtainCausasFromDB();
     }else if(args[0] === "-borrar"){
@@ -117,7 +93,6 @@ async function main(){
         const causa = new Causas();
         console.log(causa.searchByCausa(args[1]));
     }else if(args[0] === "-testMacal"){
-        logger.info("Iniciando test de MacalService");
         console.log("Iniciando test de MacalService");
         // const result = await MacalService.searchPropertiesWithFilters({
         //     page: 1,
@@ -130,8 +105,6 @@ async function main(){
 
 // main()
 module.exports = {
-    testLink,
-    testLinkArgs,
     testTexto,
     obtainCausasFromDB,
     testTextoArgs,

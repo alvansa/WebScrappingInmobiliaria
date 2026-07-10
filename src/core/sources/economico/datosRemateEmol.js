@@ -3,7 +3,7 @@ const extractor = require('./extractors/index.js');
 
 //Funcion que procesa los datos de un remate y obtiene la informacion necesaria
 function procesarDatosRemate(caso, isDebug = false) {
-    texto = caso.texto;
+    let texto = caso.texto;
     if(isDebug) console.log(texto);
     caso.causa = extractor.causa(texto) ? extractor.causa(texto) : extractor.causaVoluntaria(texto);
     caso.juzgado = extractor.partitionJudge(texto) ? "Juez Partidor" : extractor.court(texto);
@@ -68,18 +68,6 @@ function getTipoPropiedad(data) {
     return propertyType;
 }
 
-// Funcion para probar un solo remate
-async function testUnico(fecha, link) {
-    const caso = new Caso(fecha, fecha, link, 0);
-    const maxRetries = 2;
-    description = await getRemates(link, maxRetries, caso);
-    const normalizedDescription = normalizeDescription(description);
-    caso.texto = normalizedDescription;
-    procesarDatosRemate(caso);
-    console.log(caso.toObject());
-    return caso;
-}
-
 function emptyCaseEconomico() {
     const caso = new Caso("", "", "", 0);
     return [caso];
@@ -90,14 +78,14 @@ function normalizeDescription(description) {
         return null;
     }
     description = description
-        .replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, ' ')
+        .replace(/[\r\n\v\f\u0085\u2028\u2029]/g, ' ')
         .replace(/\s+/g,' ')
         .trim();
     return description
 }
 
 module.exports = {
-    testUnico, procesarDatosRemate,
+    procesarDatosRemate,
     getFoja,
     getNumero,
     getTipoPropiedad,

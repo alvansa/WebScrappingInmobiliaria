@@ -8,6 +8,7 @@ function extractDistrict(data, isPjud = false, isDebug = false) {
     if(isDebug){
         console.log("Data normalizada en el extract district", dataNormalizada)
         console.log("Esta activo el debug ", isDebug)
+        console.log(`Esta activado el modo pjud = ${isPjud}`);
     }
     // if(isDebug) console.log("Data normalizada en getComuna: ",dataNormalizada);
     const listaPreFrases = [

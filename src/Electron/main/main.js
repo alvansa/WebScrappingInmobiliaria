@@ -12,14 +12,13 @@ const logger = require('#utils/logger.js');
 // Importar el nuevo WindowManager
 const WindowManager = require('./windows/WindowManager.js');
 
-// const scrapeAuction = require('./prod/scrapeAuctions.js');
 const CompleteExcelInfo = require('./prod/CompleteExcelInfo.js');
 const ProcesarBoletin = require('#sources/liquidaciones/procesarBoletin.js');
 const {createExcel} = require('#exporters/excel/createExcel.js');
 const Caso = require('#models/caso/caso.js')
 const config = require('#config');
 const ConsultaCausaPjud = require('#sources/pjud/consultaCausaPjudRefactored.js');
-const { fakeDelay, delay } = require('#utils/delay.js');
+const {delay } = require('#utils/delay.js');
 const {tribunalesPorCorte} = require('#utils/corteJuzgado.js');
 const testUnitarios = require('../dev/testUnitarios.js');
 const checkFPMG = require('#sources/pjud/checkFPMG.js');
@@ -153,6 +152,7 @@ class MainApp{
                 case 'main':
                     this.mainWindow = this.windowManager.createMainWindow();
                     console.log("Main window created", this.mainWindow);
+                    break;
                     // return 1;
                 case 'search':
                     return this.windowManager.createSearchWindow(options);
@@ -160,14 +160,15 @@ class MainApp{
                     return this.windowManager.createSingleCaseWindow();
                 case 'excel':
                     return this.windowManager.createExcelWindow();
-                    return 1;
                 case 'ladrillero':
                     return this.windowManager.createLadrilleroWindow();
                 case 'deuda':
                     return this.windowManager.createDeudaWindow();
                 case 'settings':
                     // return this.windowManager.createSettingsWindow();
+                    //TODO: Agregar una ventana de configuraciones basicas.
                     this.logToRenderer('Creando ventana de settings')
+                    break;
                 default:
                     console.error(`Tipo de ventana desconocido: ${windowType}`);
                     return null;
@@ -196,22 +197,6 @@ class MainApp{
             return result.canceled ? null : result.filePaths[0];
         });
 
-        // Funcion para iniciar el proceso principal de busqueda
-        // ipcMain.handle("start-proccess2", async (event,startDate,endDate,saveFile, checkedBoxes) => {
-        //     console.log("handle start-proccess starDate: ", startDate, " endDate: ", endDate, " saveFile: ", saveFile, " checkedBoxes: ", checkedBoxes);
-        //     try{
-        //         console.time("scrapeAuction");
-        //         const mainProcess = new scrapeAuction(startDate,endDate,saveFile, checkedBoxes,event,isEmptyMode,this.mainWindow,isTestMode)
-        //         const filePath = await mainProcess.startSearch();
-        //         console.timeEnd("scrapeAuction");
-        //         console.log(new Date());
-        //         return filePath;
-
-        //     }catch(error){
-        //         console.error('Ocurrió un error:', error);
-        //         this.logToRenderer(`Ocurrio un error: ${error.mesagge}`)
-        //     };
-        // });
 
         ipcMain.handle('start-proccess' , async (event, startDate, endDate, saveFile, checkedBoxes) => {
             

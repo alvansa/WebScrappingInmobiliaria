@@ -7,12 +7,13 @@ const { writeFile, readFile } = require('fs').promises;
 const { readFileSync } = require('fs');
 const os = require('os');
 
+const logger = require('#utils/logger.js');
+
 require('dotenv').config();
 
-const config = require('#config');
+
 const EnvLoader = require('#utils/EnvLoader.js');
 
-// const isDev = process.argv.includes('--dev');
 
 // The scope for reading spreadsheets.
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
@@ -21,11 +22,9 @@ const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
 class SpreadSheetManager {
 
     static async processData(isDev=false) {
-        let data = null;
-        // const credentials = this.createCredentials();
         try {
+            let data = null;
             if(!isDev){
-
                 data = await this.obtainOnlineData();
             }else{
                 const filePath = path.join(__dirname, 'data.json');
@@ -37,14 +36,15 @@ class SpreadSheetManager {
                 }
                 data = readFileSync(filePath, 'utf8');
                 data = JSON.parse(data); 
+                return {
+                    result: true,
+                    data: data
+                }
             }
-
         } catch (error) {
             console.error("Error: ", error.message);
             return {result : false, data: error.message};
         }
-
-        return {result: true, data : data};
     }
 
     static async obtainOnlineDataOld() {
@@ -101,7 +101,7 @@ class SpreadSheetManager {
                 auth = null;
             }
         } catch (error) {
-            console.log('No se encontró token válido, autenticando...');
+            console.log(`No se encontró token válido, autenticando... ${error.message}`);
         }
 
         // Si no hay token válido, autenticar

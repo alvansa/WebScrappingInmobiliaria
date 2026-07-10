@@ -22,6 +22,7 @@ selectFileBtn.addEventListener('click', async () => {
 completeInfoBtn.addEventListener('click', async()  =>{
     try{
         const result = await window.completeInfoAPI.completeInfoFromExcel(filePath);
+        console.log(`Resultado de completar informacion del excel: ${result}`)
     }catch(error){
         console.log('Error al buscar los datos: ', error.message);
         alert('Error al completar el excel');

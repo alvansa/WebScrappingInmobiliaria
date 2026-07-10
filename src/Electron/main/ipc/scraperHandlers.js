@@ -1,9 +1,9 @@
 
-class scrapeHandlers{
-    constructor(){
+// class scrapeHandlers{
+//     constructor(){
 
-    }
-}
+//     }
+// }
 
 
-module.exports = scrapeHandlers;
+// module.exports = scrapeHandlers;

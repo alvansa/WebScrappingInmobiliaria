@@ -2,9 +2,9 @@
 const config = require('#config');
 
 const PJUD = config.PJUD;
-const EMOL = config.EMOL;
-const LIQUIDACIONES = config.LIQUIDACIONES;
-const PREREMATES = config.PREREMATES;
+// const EMOL = config.EMOL;
+// const LIQUIDACIONES = config.LIQUIDACIONES;
+// const PREREMATES = config.PREREMATES;
 
 class StringHelper{
     static formatoEntrega(formatoEntrega){
@@ -28,7 +28,7 @@ class StringHelper{
         if(juzgado == "N/A" || juzgado == null){
             return null;
         }
-        return juzgado.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim().toLowerCase()
+        return juzgado.replace(/[\r\n\v\f\u0085\u2028\u2029]/g, '').trim().toLowerCase()
     }
 
     static direccion(direccion){
@@ -36,7 +36,7 @@ class StringHelper{
             return null;
         }
         const direccionNormalizada = direccion
-        .replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, ' ')
+        .replace(/[\r\n\v\f\u0085\u2028\u2029]/g, ' ')
         .replace(/\s+/g, ' ')
         .replace(/Remate\s*/g,'')
         .trim();
@@ -49,7 +49,7 @@ class StringHelper{
         }else if(origen == PJUD){
             return partes;
         }
-        let partesNormalizadas = partes.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '').trim();
+        let partesNormalizadas = partes.replace(/[\r\n\v\f\u0085\u2028\u2029]/g, '').trim();
         partesNormalizadas = partesNormalizadas
             .replace(/caratulad[oa]s?:?/gi,'')
             .replace(/causa/gi,'')
@@ -96,7 +96,7 @@ class StringHelper{
         // Limpieza
         let normalized = comuna
             // .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Remover tildes
-            .replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]/g, '')
+            .replace(/[\r\n\v\f\u0085\u2028\u2029]/g, '')
             .trim()
             .toLowerCase();
 

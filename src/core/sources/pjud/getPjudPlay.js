@@ -1,4 +1,3 @@
-const { webkit, chromium, firefox } = require('playwright'); // No es necesario si recibes browser por parámetro
 const fs = require('fs');
 
 const Caso = require('#models/caso/caso.js');
@@ -225,11 +224,8 @@ class PjudPlaywright {
     }
 
     async procesarFila(page, row) {
-        const [etapa, tramite, descripcion, fecha] = await Promise.all([
-            row.$eval('td:nth-child(4)', el => el.textContent.trim()),
-            row.$eval('td:nth-child(5)', el => el.textContent.trim()),
+        const [descripcion] = await Promise.all([
             row.$eval('td:nth-child(6)', el => el.textContent.trim()),
-            row.$eval('td:nth-child(7)', el => el.textContent.trim()),
         ]);
         if (descripcion === 'Cumple lo ordenado') {
             const button = await row.$('td:nth-child(3) a');
@@ -249,8 +245,7 @@ class PjudPlaywright {
     }
 
     async obtenerPDF(page, row) {
-        const [fecha, referencia] = await Promise.all([
-            row.$eval('td:nth-child(1)', el => el.textContent.trim()),
+        const [referencia] = await Promise.all([
             row.$eval('td:nth-child(2)', el => el.textContent.trim()),
         ]);
         const button = await row.$('a');
@@ -270,26 +265,26 @@ class PjudPlaywright {
 }
 
 // Función auxiliar que está fuera de la clase (no usada en el original realmente)
-async function datosFromPjud(fechaInicio, fechaFin) {
-    // Esto no está implementado porque getPJUD no es global. Se deja como estaba.
-    console.warn("Esta función no está implementada correctamente en el original");
-    return [];
-}
+// async function datosFromPjud(fechaInicio, fechaFin) {
+//     // Esto no está implementado porque getPJUD no es global. Se deja como estaba.
+//     console.warn("Esta función no está implementada correctamente en el original");
+//     return [];
+// }
 
-async function main() {
-    // Ejemplo de uso con Playwright (lanzando webkit/Safari o chromium)
-    const { webkit } = require('playwright');
-    const browser = await webkit.launch({ headless: false }); // Para ver lo que pasa
-    const page = await browser.newPage();
-    await page.goto('URL_DEL_SITIO'); // Reemplazar con la URL real
+// async function main() {
+//     // Ejemplo de uso con Playwright (lanzando webkit/Safari o chromium)
+//     const { webkit } = require('playwright');
+//     const browser = await webkit.launch({ headless: false }); // Para ver lo que pasa
+//     const page = await browser.newPage();
+//     await page.goto('URL_DEL_SITIO'); // Reemplazar con la URL real
 
-    const pjud = new Pjud(browser, page, '11/11/2024', '12/11/2024');
-    const datos = await pjud.datosFromPjud();
-    console.log("datos conseguidos", datos.length);
-    pjud.writeData(datos);
+//     const pjud = new Pjud(browser, page, '11/11/2024', '12/11/2024');
+//     const datos = await pjud.datosFromPjud();
+//     console.log("datos conseguidos", datos.length);
+//     pjud.writeData(datos);
 
-    await browser.close();
-}
+//     await browser.close();
+// }
 
 // Si quieres ejecutar main, descomenta:
 // main();

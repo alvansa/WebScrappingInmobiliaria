@@ -5,7 +5,6 @@ const fileBtn = document.getElementById('select-folder-btn');
 checkDeuda.addEventListener('click', async () => {
   try {
     // const filePath = await window.ladrilleroAPI.openFileLocal();
-      let filePath = null
       let fechaLimite = null;
     
     // if (filePath) {
@@ -13,7 +12,7 @@ checkDeuda.addEventListener('click', async () => {
       
       showWaitingProcess(true);
       // Llama a tu función que procesa el archivo
-      const result = await window.api.checkDEUDA(filePath, fechaLimite);
+      const result = await window.api.checkDEUDA(fechaLimite);
       if(result){
         alert('Proceso de deuda finalizado con éxito');
       }else{
@@ -22,8 +21,7 @@ checkDeuda.addEventListener('click', async () => {
 
     // }
   } catch (error) {
-    console.error('Error al seleccionar archivo:', error);
-    fileInfo.textContent = 'Error al seleccionar archivo';
+    console.error('Error al buscar deuda:', error);
   }finally{
     showWaitingProcess(false)
   }

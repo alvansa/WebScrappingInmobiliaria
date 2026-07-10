@@ -1,5 +1,5 @@
 const fs = require('fs');
-const {app, BrowserWindow, ipcMain, dialog,electron} = require('electron');
+const {BrowserWindow} = require('electron');
 const path = require('path');
 const pie = require('puppeteer-in-electron');
 const logger = require('#utils/logger.js');
@@ -142,8 +142,8 @@ class MapasSII {
         const divError = "span.modal-title.ng-binding";
         const botonCerrar = "div.modal-footer.ng-scope button.btn.btn-warning";
         const baseLink = 'https://www.google.com/maps/place/';
-        let coordenadas = null;
         try {
+            let coordenadas = null;
             // busca el elemento de resultado o error
             await this.page.waitForSelector(`${divResultado},${divError}`);
             // Verificar si el mensaje de error está presente
@@ -155,9 +155,7 @@ class MapasSII {
                     const cerrarButton = await this.page.$(botonCerrar);
                     if (cerrarButton) {
                         await cerrarButton.click();
-                    } else {
-                    }
-                    // caso.avaluoPropiedad = null; // O puedes asignar un valor por defecto
+                    }                    // caso.avaluoPropiedad = null; // O puedes asignar un valor por defecto
                     delay(500);
                     return; // Salir de la función si hay un error
                 }

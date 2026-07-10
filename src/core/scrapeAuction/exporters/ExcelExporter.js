@@ -1,4 +1,3 @@
-const { fixStringDate } = require("#utils/cleanStrings.js");
 const {createExcel} = require("#exporters/excel/createExcel.js");
 const logger = require('#utils/logger.js')
 

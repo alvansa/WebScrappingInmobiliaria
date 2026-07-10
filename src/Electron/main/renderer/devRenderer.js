@@ -13,7 +13,7 @@ let countdownInterval = null;
 
 document.getElementById('uploadedText').addEventListener('click', () => {
     const text = document.getElementById('textInput').value;
-    const result = window.api.testEconomico(["uploadedText", text]);
+    window.api.testEconomico(["uploadedText", text]);
 });
 
 document.getElementById('readPdf').addEventListener('click', async () => {
@@ -61,12 +61,12 @@ document.getElementById('compararExcel').addEventListener('click', async ()=>{
 });
 
 document.getElementById('testUserAgents').addEventListener('click', async ()=>{
-  const result = window.api.testEconomico(["testUserAgents"]);
+  window.api.testEconomico(["testUserAgents"]);
 
 });
 
 document.getElementById('testEconomicoPuppeteer').addEventListener('click', ()=>{
-  const result = window.api.testEconomico(["testEconomicoPuppeteer"]);
+  window.api.testEconomico(["testEconomicoPuppeteer"]);
 })
 
 selectFileBtn.addEventListener('click', async () => {
@@ -173,11 +173,11 @@ function showWaitingModal(show) {
 }
 
 document.getElementById('testMapas').addEventListener('click', ()=>{
-  const result = window.api.testEconomico(["testMapas"]);
+  window.api.testEconomico(["testMapas"]);
 });
 
 document.getElementById('testApiMacal').addEventListener('click', ()=>{
-  const result = window.api.testEconomico(["testMacal"]);
+  window.api.testEconomico(["testMacal"]);
 });
 // document.getElementById('getAllCausasDB').addEventListener('click', async () => {
 //   const filePath = await window.api.getAllCausas();

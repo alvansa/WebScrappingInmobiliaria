@@ -2,6 +2,9 @@ const MapasSII = require('#enrichers/mapasSII/MapasSII.js');
 
 const logger = require('#utils/logger.js');
 const {fakeDelay} = require('#utils/delay.js');
+const config = require('#config');
+
+const MACAL = config.MACAL
 
 class MapasSIIEnricher {
     constructor(manager) {
@@ -14,11 +17,11 @@ class MapasSIIEnricher {
 
     async enrich(causas) {
         let mapasSII = null;
-        let browser = null;
         // let window = null;
         try {
+            let browser = null;
             logger.info("Obteniendo datos de Mapas SII");
-            let page;
+            let page = null;
             browser = await this.manager.getBrowser();
             mapasSII = new MapasSII(page, browser);
             await mapasSII.init();
