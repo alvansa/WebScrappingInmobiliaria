@@ -13,6 +13,7 @@ const config = require('#config');
 const NORMAL = config.NORMAL;
 
 const { webkit } = require('playwright');
+const { NormalModuleReplacementPlugin } = require('webpack');
 
 class PjudPlaywrightSource{
     constructor(manager,config){
@@ -58,10 +59,11 @@ class PjudPlaywrightSource{
     async searchCasesByDay(startDate, endDate) {
         let window;
         let casos = [];
+        let page = null;
         try {
             const url = 'https://www.pjud.cl/';
 
-            const page = await this.context.newPage();
+            page = await this.context.newPage();
             await page.goto(url,{timeout: 160000}); // Página real
             const scraper = new PjudPlaywright(this.browser, page, startDate, endDate);
             casos = await scraper.getPJUD();

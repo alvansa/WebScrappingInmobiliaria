@@ -199,6 +199,7 @@ class MainApp{
 
 
         ipcMain.handle('start-proccess' , async (event, startDate, endDate, saveFile, checkedBoxes) => {
+            PlaywrightManager.createHumanContext();
             
             const sources = [
                 new EconomicosSource(PuppeteerManager,{'mode': config.NORMAL, 'show': true }, logger, isTestMode ),
@@ -228,8 +229,8 @@ class MainApp{
             }
 
             const orchestator = new auctionScraperOrchestator(sources, enrichers, exporter, configOrquester);
-            const filePath = await orchestator.run(startDate, endDate);
-            return filePath;
+            const result = await orchestator.run(startDate, endDate);
+            return result;
 
         });
 

@@ -1,4 +1,5 @@
-
+const EXITO = 0;
+const NOT_AUCTIONS_FOUND = 5;
 const searchButton = document.getElementById('logButton');
 
 searchButton.addEventListener('click', async () => {
@@ -22,8 +23,8 @@ searchButton.addEventListener('click', async () => {
       return;
     }
     console.log(`Valores startDate : ${startDate} endDate :${endDate} saveFile: ${saveFile} checked: ${checkedBoxes}`)
-    const filePath = await window.searchAPI.startProcess(startDate, endDate, saveFile, checkedBoxes);
-    handleResults(filePath);
+    const result = await window.searchAPI.startProcess(startDate, endDate, saveFile, checkedBoxes);
+    handleResults(result);
   } catch (error) {
     console.error('Ocurrió un error:', error);
   } finally {
@@ -98,7 +99,9 @@ function getFormValues() {
   return { startDate, endDate, saveFile };
 }
 
-function handleResults(filePath) {
+function handleResults(result) {
+  const filePath = result.filePath;
+  const status = result.status;
   const messages = {
     null: 'Ocurrió un error al obtener los datos. Por favor, intente nuevamente.',
     0: 'No se ingresó ninguna de las fechas.',
@@ -106,14 +109,18 @@ function handleResults(filePath) {
     2: 'No se ingresó la fecha de fin.',
     3: 'La fecha de inicio es mayor a la fecha de fin.',
     4: 'No se seleccionó ninguna opción.',
-    5: 'Error: No se encontró ningún caso en el rango de fechas seleccionado.',
+    NOT_AUCTIONS_FOUND : 'Error: No se encontró ningún caso en el rango de fechas seleccionado.',
     6: 'Error: No se obtuvieron todos los datos, se han registrado los datos obtenidos en un archivo Excel, revise el archivo para más detalles.',
     default: 'Error al registrar los datos.',
   };
 
-  if (filePath == null || typeof filePath === 'number') {
-    alert(messages[filePath] || messages.default);
-  } else {
+  if(status == EXITO){
     alert(`¡Éxito! Los datos se han registrado correctamente en el archivo: ${filePath}`);
+  }else{
+    alert(messages[filePath] || messages.default);
   }
+
+  // if (filePath == null || typeof filePath === 'number') {
+  // } else {
+  // }
 }

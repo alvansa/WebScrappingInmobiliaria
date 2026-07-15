@@ -11,6 +11,7 @@ class SpreadSheetEnricher {
 
     async obtain(){
         const response = await SpreadSheetManager.processData();
+        console.log(`Respuesta de obtener el spreadSheet ${response}`)
         if(response.result){
             this.data = response.data;
         }else{

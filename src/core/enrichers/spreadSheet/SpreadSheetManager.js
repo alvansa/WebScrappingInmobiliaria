@@ -26,6 +26,10 @@ class SpreadSheetManager {
             let data = null;
             if(!isDev){
                 data = await this.obtainOnlineData();
+                return {
+                    result: true,
+                    data: data
+                }
             }else{
                 const filePath = path.join(__dirname, 'data.json');
 
@@ -47,35 +51,6 @@ class SpreadSheetManager {
         }
     }
 
-    static async obtainOnlineDataOld() {
-        // Authenticate with Google and get an authorized client.
-        const auth = new google.auth.GoogleAuth({
-            credentials :{
-                type: "service_account",
-                client_id : process.env.GOOGLE_CLIENT_ID,
-                project_id : process.env.GOOGLE_PROJECT_ID,
-                auth_uri : process.env.GOOGLE_AUTH_URI,
-                token_uri: process.env.GOOGLE_TOKEN_URI,
-                auth_provider_x509_cert_url : process.env.GOOGLE_AUTH_PROVIDER,
-                client_secret : process.env.GOOGLE_CLIENT_SECRET,
-                redirect_uris : process.env.GOOGLE_REDIRECTS_URI 
-            },
-            scopes : SCOPES
-        });
-
-        // Create a new Sheets API client.
-        const sheets = google.sheets({ version: 'v4', auth });
-        // Get the values from the spreadsheet.
-        const result = await sheets.spreadsheets.values.get({
-            spreadsheetId: process.env.SPREADSHEET_ID || '',
-            range: 'search!A1:AT',
-        });
-
-        console.log(`Descargadas ${result.data.values?.length || 0} filas`);
-        const rawData = result.data.values || 0;
-
-        return rawData;
-    }
 
     static async obtainOnlineData() {
         let auth = null;
@@ -123,11 +98,12 @@ class SpreadSheetManager {
         // Obtener datos
         const result = await sheets.spreadsheets.values.get({
             spreadsheetId: spreadsheetId || '',
-            range: 'search!A1:AT',
+            range: 'search!A1:AZ',
         });
 
         console.log(`Descargadas ${result.data.values?.length || 0} filas`);
-        return result.data.values || [];
+        const values = result.data.values;
+        return values;
     }
 
     static obtainToken(){
@@ -148,13 +124,15 @@ class SpreadSheetManager {
     
     if (isDev) {
       // Modo desarrollo
-      return path.join(process.cwd(), 'componentes', 'spreadSheet', 'credentials.json');
+        console.log(`Buscando en: ${path.join(process.cwd(), 'src','core','enrichers', 'spreadSheet', 'credentials.json')}`)
+      return path.join(process.cwd(), 'src','core','enrichers', 'spreadSheet', 'credentials.json');
     } else {
       // Modo producción con electron-builder
       // electron-builder coloca extraResources en diferentes ubicaciones:
       
       if (process.platform === 'darwin') {
         // macOS: dentro del .app bundle
+        console.log(`Buscando en: ${path.join(process.resourcesPath, 'credentials.json')}`)
         return path.join(process.resourcesPath, 'credentials.json');
       } else if (process.platform === 'win32') {
         // Windows: en el directorio resources

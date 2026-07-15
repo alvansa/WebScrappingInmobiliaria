@@ -74,11 +74,14 @@ class PjudPlaywright {
     async goToRemates() {
         try {
             // await this.page.click('img[alt="Audiencia de Remates"]')
-            await this.page.click('a[href="https://oficinajudicialvirtual.pjud.cl/includes/sesion-consultaunificada.php"]');
+            // await this.page.click('a[href="https://oficinajudicialvirtual.pjud.cl/includes/sesion-consultaunificada.php"]');
+            // await this.page.locator('.tz-gallery .col-md-4.mb-1').nth(2).click();
+            // await this.page.locator('a[href*="remate.php"]').click();
             // this.page.waitForURL('**/indexN.php')
             // await this.page.click('img[alt="Audiencia de Remates"]')
             // await newPage.waitForLoadState();
 
+            await this.page.getByRole('link', { name: 'Audiencia de Remates' }).click({force: true});
             // return newPage;
             return this.page;
 

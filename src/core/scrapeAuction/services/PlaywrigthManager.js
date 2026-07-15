@@ -2,22 +2,32 @@ const { chromium, firefox, webkit  } = require('playwright-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 const { devices } = require('playwright');
 
-const browserType = webkit; // Puedes cambiar a chromium o webkit según tus necesidades
 // Aplicar el plugin stealth a Playwright
-webkit.use(StealthPlugin());
+// webkit.use(StealthPlugin());
 
 class PlaywrightManager {
-    constructor() {
+    // 1. Pasamos el tipo de navegador al constructor para saber cómo actuar
+    constructor(browserType) {
+        this.browserType = browserType; 
         this.browser = null;
         this.isConnecting = false;
-        // Lista de User-Agents reales (actualizados a 2025)
-        this.userAgents = [
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2.1 Safari/605.1.15',
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0',
-            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-        ];
-        // Resoluciones comunes
+
+        // Base de datos de User-Agents clasificados por motor
+        this.userAgentsDb = {
+            chromium: [
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            ],
+            webkit: [
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2.1 Safari/605.1.15',
+                'Mozilla/5.0 (iPad; CPU OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/605.1.15'
+            ],
+            firefox: [
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0',
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:122.0) Gecko/20100101 Firefox/122.0'
+            ]
+        };
+
         this.viewports = [
             { width: 1366, height: 768 },
             { width: 1920, height: 1080 },
@@ -27,15 +37,17 @@ class PlaywrightManager {
     }
 
     /**
-     * Obtiene una instancia del navegador (singleton con reconexión automática)
+     * Obtiene el nombre del motor actual (chromium, webkit, firefox)
      */
+    _getBrowserName() {
+        return this.browserType.name(); 
+    }
+
     async getBrowser() {
-        // Si ya existe y está conectado, lo devolvemos
         if (this.browser && this.browser.isConnected()) {
             return this.browser;
         }
 
-        // Si hay una conexión en curso, esperamos a que termine
         if (this.isConnecting) {
             await new Promise(resolve => {
                 const interval = setInterval(() => {
@@ -51,60 +63,39 @@ class PlaywrightManager {
         this.isConnecting = true;
 
         try {
-            // Configurar opciones del navegador anti-detección
+            const browserName = this._getBrowserName();
             const launchOptions = {
-                headless: false,          // Recomendado: false evita muchas detecciones
-                args: [
+                headless: false,
+                timeout: 60000,
+                args: []
+            };
+
+            // 2. Aplicar argumentos de evasión SOLO si el navegador es Chromium
+            if (browserName === 'chromium') {
+                launchOptions.args = [
                     '--disable-blink-features=AutomationControlled',
                     '--disable-dev-shm-usage',
                     '--no-sandbox',
                     '--disable-web-security',
                     '--disable-features=IsolateOrigins,site-per-process',
                     '--disable-site-isolation-trials',
-                    '--disable-features=BlockInsecurePrivateNetworkRequests',
-                    '--disable-features=OutOfBlinkCors',
                     '--disable-gpu',
-                    '--disable-software-rasterizer',
-                    '--disable-extensions',
-                    '--disable-setuid-sandbox',
-                    '--disable-infobars',
-                    '--window-position=0,0',
-                    '--ignore-certificate-errors',
-                    '--ignore-certificate-errors-spki-list',
-                    '--disable-background-timer-throttling',
-                    '--disable-backgrounding-occluded-windows',
-                    '--disable-renderer-backgrounding'
-                ],
-                ignoreDefaultArgs: ['--enable-automation'],
-                timeout: 60000
-            };
-
-            // Lanzar el navegador con Playwright + Stealth
-            this.browser = await browserType.launch(launchOptions);
-
-            // Limpiar banderas de automatización visibles
-            const contextOptions = await this._getHumanContextOptions();
-            const defaultContext = await this.browser.newContext(contextOptions);
-            
-            // Reemplazar el contexto por defecto (el que se crea automáticamente)
-            // Nota: Playwright crea un contexto predeterminado al lanzar el navegador.
-            // Cerramos ese y usamos el nuestro con todas las opciones.
-            const oldContexts = this.browser.contexts();
-            for (const ctx of oldContexts) {
-                await ctx.close();
+                    '--disable-extensions'
+                ];
+                launchOptions.ignoreDefaultArgs = ['--enable-automation'];
             }
-            // El nuevo contexto se usará para todas las páginas nuevas por defecto
-            await this.browser.newContext(contextOptions);
-            
+
+            this.browser = await this.browserType.launch(launchOptions);
+
             this.browser.on('disconnected', () => {
-                console.log('Playwright browser desconectado');
+                console.log(`Navegador [${browserName}] desconectado`);
                 this.browser = null;
             });
 
-            console.log('Navegador Playwright lanzado con protecciones anti-detección.');
+            console.log(`Navegador [${browserName}] lanzado con éxito.`);
             return this.browser;
         } catch (error) {
-            console.error('Error lanzando Playwright con stealth:', error);
+            console.error('Error lanzando Playwright:', error);
             throw error;
         } finally {
             this.isConnecting = false;
@@ -112,7 +103,7 @@ class PlaywrightManager {
     }
 
     /**
-     * Crea un nuevo contexto de página con opciones humanizadas
+     * Crea un nuevo contexto asegurándose de heredar las opciones stealth
      */
     async createHumanContext() {
         const browser = await this.getBrowser();
@@ -121,16 +112,19 @@ class PlaywrightManager {
     }
 
     /**
-     * Configura opciones del contexto para imitar un usuario real
+     * Configura opciones adaptadas al tipo de navegador activo
      */
     async _getHumanContextOptions() {
-        const randomUA = this.userAgents[Math.floor(Math.random() * this.userAgents.length)];
-        const randomViewport = this.viewports[Math.floor(Math.random() * this.viewports.length)];
+        const browserName = this._getBrowserName();
         
-        // Lista de idiomas (prioriza español de Chile)
+        // 3. Selecciona un User Agent que COINCIDA con el motor de renderizado
+        const uas = this.userAgentsDb[browserName] || this.userAgentsDb['chromium'];
+        const randomUA = uas[Math.floor(Math.random() * uas.length)];
+        
+        const randomViewport = this.viewports[Math.floor(Math.random() * this.viewports.length)];
         const languages = ['es-CL', 'es-ES', 'es', 'en-US', 'en'];
         const randomLanguage = languages[Math.floor(Math.random() * languages.length)];
-        
+
         return {
             userAgent: randomUA,
             viewport: randomViewport,
@@ -140,55 +134,27 @@ class PlaywrightManager {
             locale: 'es-CL',
             timezoneId: 'America/Santiago',
             permissions: ['geolocation', 'notifications'],
-            colorScheme: 'light',
-            reducedMotion: 'no-preference',
             extraHTTPHeaders: {
                 'Accept-Language': `${randomLanguage},${randomLanguage.split('-')[0]};q=0.9,en;q=0.8`,
                 'Accept-Encoding': 'gzip, deflate, br',
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
                 'Referer': 'https://www.google.com/',
-                'Sec-Fetch-Dest': 'document',
-                'Sec-Fetch-Mode': 'navigate',
-                'Sec-Fetch-Site': 'none',
                 'Upgrade-Insecure-Requests': '1'
             },
-            // Ocultar el hecho de que usamos Playwright
             bypassCSP: true,
             javaScriptEnabled: true,
             ignoreHTTPSErrors: true
         };
     }
 
-    /**
-     * Cierra el navegador actual si está abierto
-     */
     async closeBrowser() {
         if (this.browser && this.browser.isConnected()) {
             await this.browser.close();
             this.browser = null;
-            console.log('Navegador Playwright cerrado correctamente.');
+            console.log('Navegador cerrado correctamente.');
         }
-    }
-
-    /**
-     * Verifica si el navegador está disponible y conectado
-     */
-    isBrowserAvailable() {
-        return this.browser !== null && this.browser.isConnected();
-    }
-
-    /**
-     * Renueva el User-Agent y viewport en un contexto existente (útil para rotar)
-     */
-    async randomizeContext(context) {
-        const newUA = this.userAgents[Math.floor(Math.random() * this.userAgents.length)];
-        const newViewport = this.viewports[Math.floor(Math.random() * this.viewports.length)];
-        await context.setExtraHTTPHeaders({
-            'User-Agent': newUA
-        });
-        await context.setViewportSize(newViewport);
     }
 }
 
 // Exportamos una única instancia (singleton)
-module.exports = new PlaywrightManager();
+module.exports = new PlaywrightManager(webkit);
