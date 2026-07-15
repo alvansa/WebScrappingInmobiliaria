@@ -148,7 +148,8 @@ class SpreadSheetManager {
     
     if (isDev) {
       // Modo desarrollo
-      return path.join(process.cwd(), 'componentes', 'spreadSheet', 'credentials.json');
+      return path.join(process.cwd(),'src','core','enrichers','spreadSheet','credentials.json');
+    //   return path.join(process.cwd(), 'componentes', 'spreadSheet', 'credentials.json');
     } else {
       // Modo producción con electron-builder
       // electron-builder coloca extraResources en diferentes ubicaciones:

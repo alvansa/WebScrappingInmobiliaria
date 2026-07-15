@@ -457,6 +457,19 @@ class MainApp{
             console.log("Buscando si hay un resultado en especifico: ",dbcausa.searchCausa('C-746-2024',9))
             return resultados;
         });
+
+        ipcMain.handle('countLadrillos', async (event, filePath) => {
+            console.log(`Count Ladrillos en el main archivo recibido ${filePath}`);
+                const data = await SpreadSheetManager.processData();
+                // const data = true;
+                if(data){
+                    let parsedData = data.data;
+                    // let parsedData = true;
+                    const check = new checkFPMG(event, this.mainWindow, filePath, parsedData);
+                    check.obtainNumberOfLadrillosFromExcel(filePath);
+                }
+            
+        })
     }
 
     logToRenderer(msg){
