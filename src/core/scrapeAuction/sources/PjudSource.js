@@ -58,13 +58,14 @@ class PjudSource{
         let casos = [];
         try {
             window = new BrowserWindow({ show: true }); 
-            // const url = 'https://oficinajudicialvirtual.pjud.cl/indexN.php';
-            const url = 'https://oficinajudicialvirtual.pjud.cl/home/index.php'
+            const url = 'https://oficinajudicialvirtual.pjud.cl';
+            // const url = 'https://oficinajudicialvirtual.pjud.cl/home/index.php'
+            // const url = 'https://oficinajudicialvirtual.pjud.cl/remate.php'
             await window.loadURL(url);
             const page = await pie.getPage(this.browser, window);
             await page.setViewport({ width: 1366, height: 768 });
             const pjud = new Pjud(this.browser, page, startDate, endDate);
-            casos = await pjud.datosFromPjud();
+            casos = await pjud.getPJUD();
             obtainCorteJuzgadoNumbers(casos);
             window.destroy();
             return casos;

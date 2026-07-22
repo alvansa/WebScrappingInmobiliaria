@@ -1,19 +1,17 @@
 // playwright
-const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const https = require('https');
 require('dotenv').config();
 
-const { delay, fakeDelay, fakeDelayms } = require("#utils/delay.js");
+const { delay, fakeDelay } = require("#utils/delay.js");
 const ProcesarBoletin = require("#sources/liquidaciones/procesarBoletin.js");
 const PjudPdfData = require("./PjudPdfData.js");
-const listUserAgents = require("#utils/userAgents.json");
 const logger = require("#utils/logger.js");
 const { stringToDate } = require('#utils/cleanStrings.js');
 const config = require('#config');
-const { logToRenderer } = require("#utils/utilsRenderer.js");
+const { PlaywrightManager, chromium, firefox } = require('#src/core/scrapeAuction/services/PlaywrigthManager.js');
 
 const ERROR = 0;
 const EXITO = 1;
@@ -23,18 +21,17 @@ const NORMAL = config.NORMAL;
 const LADRILLERO = config.LADRILLERO;
 const DEUDA = config.DEUDA;
 
-const defaultUserAgents = [
-    { userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36" },
-    { userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36" },
-];
+
+const MAX_RETRIES = 6;
 
 class ConsultaCausaPjud {
     // El constructor ahora recibe solo el objeto browser de Playwright y la página inicial
     constructor(browser, caso, mainWindow, type) {
         this.browser = browser;
+        this.context = null;
         this.caso = caso;
-        // this.link = "https://oficinajudicialvirtual.pjud.cl/includes/sesion-consultaunificada.php";
-        this.link = 'https://www.pjud.cl/';
+        this.link = "https://oficinajudicialvirtual.pjud.cl/indexN.php";
+        // this.link = 'https://www.pjud.cl/';
         this.page = null;          // se asignará después
         this.downloadPath = path.join(os.homedir(), "Documents", "infoRemates/pdfDownload");
         this.dirPath = "";
@@ -44,93 +41,163 @@ class ConsultaCausaPjud {
     }
 
     async getConsulta() {
-        logger.warn(`Iniciando la consulta con el archivo de refactorización (Playwright)`);
-        let lineaAnterior = "";
-        let result = false;
+        let lastError = null;
+        logger.warn(`Iniciando la consulta con Playwright (Máx 6 reintentos: 3 Chromium + 3 Firefox)`);
+
+        const chromiumManager = new PlaywrightManager(chromium);
+        const firefoxManager = new PlaywrightManager(firefox);
 
         try {
-            logger.info("Iniciando la consulta de causa en Pjud...");
+            for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+                const isFirefox = attempt > 3;
+                const activeManager = isFirefox ? firefoxManager : chromiumManager;
+                const engineName = isFirefox ? 'Firefox' : 'Chromium';
 
-            await this.loadConfig();
-            await this.loadPageWithRetries();
+                logger.info(`[ConsultaCausaPjudPlay] Intento ${attempt}/${MAX_RETRIES} usando motor: ${engineName}`);
 
-            await this.clickConsultaCausa();
+                try {
+                    this.context = await activeManager.createHumanContext();
+                    this.page = await this.context.newPage();
 
-            result = await this.procesarCaso(lineaAnterior);
-            if (result) {
-                logger.info("Caso procesado correctamente");
-            } else {
-                logger.info("No se pudo procesar el caso");
+                    const result = await this._scrape();
+                    if (result) {
+                        return true;
+                    }
+                } catch (error) {
+                    lastError = error;
+                    logger.warn(`[ConsultaCausaPjudPlay] Intento ${attempt} (${engineName}) falló: ${error.message}`);
+
+                    if (attempt === MAX_RETRIES) {
+                        logger.error(`[ConsultaCausaPjudPlay] Todos los reintentos fallaron (3 Chromium + 3 Firefox). Último error: ${lastError.message}`);
+                        throw lastError;
+                    }
+
+                    await delay(1000 * attempt);
+                } finally {
+                    if (this.context) {
+                        await this.context.close().catch(() => {});
+                        this.context = null;
+                        this.page = null;
+                    }
+                }
             }
-        } catch (error) {
-            logger.error(`Error en la función getConsulta: ${error.message}`);
-            return false;
         } finally {
-            if (this.page && !this.page.isClosed()) {
-                logger.info("Cerrando página del pjud");
-                await this.page.close();
-            }
+            await chromiumManager.closeBrowser().catch(() => {});
+            await firefoxManager.closeBrowser().catch(() => {});
         }
-        return true;
+    }
+
+    async _scrape() {
+        let lineaAnterior = "";
+        // if (!this.browser || !this.browser.isConnected()) {
+        //     this.browser = await PlayWrightManager.getBrowser();
+        //     this.context = await PlayWrightManager.createHumanContext();
+        // }
+        logger.info("Iniciando la consulta de causa en Pjud...");
+
+        // await this.page.evaluate(() => {
+        //     verRemates(); // Asegúrate de que esta función existe en el contexto de la página
+        // });
+        // await this.loadConfig();
+        await this.loadPageWithRetries();
+
+        // await this.page.pause();
+        await this.closePopupsIfExist();
+
+        await this.clickConsultaCausa();
+
+        const result = await this.procesarCaso(lineaAnterior);
+        if (result) {
+            logger.info("Caso procesado correctamente");
+            return true;
+        } else {
+            logger.info("No se pudo procesar el caso");
+            return false;
+        }
+    }
+    async closePopupsIfExist() {
+        try {
+            // En Playwright se puede usar el locator nativo con selector XPath o por texto
+            // const closeBtnLocator = this.page.locator('xpath=(//button[text()="Cerrar"])[3]');
+            // const closeBtnLocator = this.page.getByRole('button', { name: 'Cerrar' }).nth(2);
+            await this.page.locator('#no-disponible').getByText('Cerrar').click();
+
+
+            logger.debug('Cartel/Popup detectado y cerrado con éxito.');
+
+            // Esperar a que la animación del modal termine de desaparecer
+            await this.page.waitForTimeout(500);
+
+        } catch (error) {
+            // Si el popup no aparece en 3 segundos, no es un error crítico; el scraping continúa normalmente
+            logger.warn(`No se detectó ningún cartel emergente. Continuando con el flujo... ${error.message}`);
+        }
     }
 
     async clickConsultaCausa(){
-        await this.page.click('div.gallery-item-info');
+        const consultaCausaBtn = this.page.getByRole('button', { name: 'Consulta causas' });
+        // Intentar esperar y hacer clic (timeout corto de 3 segundos para no ralentizar el flujo si no existe)
+        await consultaCausaBtn.waitFor({ state: 'visible', timeout: 30000 });
+        await consultaCausaBtn.click();
     }
 
     async loadConfig(maxRetries = 3) {
-        let userAgents;
-        try {
-            userAgents = listUserAgents ? listUserAgents : defaultUserAgents;
-        } catch (error) {
-            logger.error(`Error cargando user-agents, usando defaults: ${error.message}`);
-            userAgents = defaultUserAgents;
-        }
-        const randomIndex = Math.floor(Math.random() * userAgents.length);
+        // let userAgents;
+        // try {
+        //     userAgents = listUserAgents ? listUserAgents : defaultUserAgents;
+        // } catch (error) {
+        //     logger.error(`Error cargando user-agents, usando defaults: ${error.message}`);
+        //     userAgents = defaultUserAgents;
+        // }
+        // const randomIndex = Math.floor(Math.random() * userAgents.length);
 
-        for (let attempt = 1; attempt <= maxRetries; attempt++) {
             try {
-                // Si aún no tenemos página, la creamos (contexto por defecto del browser)
                 if (!this.page || this.page.isClosed()) {
-                    const context = this.browser.contexts()[0] || await this.browser.newContext();
-                    this.page = await context.newPage();
+                    this.page = await this.context.newPage();
                 }
                 // await this.page.setUserAgent(userAgents[randomIndex].userAgent);
-                await this.page.goto(this.link);
-                return; // éxito
+                await this.page.goto(this.link, {timeout: 160000});
+                return true; // éxito
             } catch (error) {
-                logger.error(`Error en loadConfig (intento ${attempt}): ${error.message}`);
-                if (attempt === maxRetries) throw error;
+                logger.error(`Error en loadConfig: ${error.message}`);
+                // if (attempt === maxRetries) throw error;
                 await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
             }
-        }
     }
 
     async loadPageWithRetries(maxRetries = 3) {
-        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        // for (let attempt = 1; attempt <= maxRetries; attempt++) {
             try {
-                logger.debug(`Intento ${attempt} de carga de página...`);
-                await this.page.goto(this.link, { waitUntil: "networkidle" });
-                await this.page.waitForSelector("#competencia");
+                // logger.debug(`Intento ${attempt} de carga de página...`);
+                await this.page.goto(this.link, { 
+                    waitUntil: "domcontentloaded",
+                    timeout: 60000 
+                });
                 return;
             } catch (error) {
-                logger.error(`Error al cargar la página (intento ${attempt}): ${error.message}`);
-                if (attempt === maxRetries) {
-                    throw new Error(`No se pudo cargar la página después de ${maxRetries} intentos`);
-                }
+                logger.error(`Error al cargar la página (intento ): ${error.message}`);
+                // if (attempt === maxRetries) {
+                //     throw new Error(`No se pudo cargar la página después de ${maxRetries} intentos`);
+                // }
             }
             await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
-        }
+        // }
     }
 
     async procesarCaso(lineaAnterior) {
         let cambioPagina = false;
+
+        await this.page.waitForSelector("#competencia", {
+            state: 'visible',
+            timeout: 30000
+        });
 
         const valorInicial = await this.setValoresIncialesBusquedaCausa();
         if (!valorInicial) {
             logger.warn("No se pudieron setear los valores iniciales");
             return false;
         }
+        await this.page.pause();
 
         try {
             cambioPagina = await this.revisarPrimeraLinea(lineaAnterior);

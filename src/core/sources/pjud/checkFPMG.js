@@ -9,7 +9,7 @@ const pie = require('puppeteer-in-electron');
 const puppeteer = require('puppeteer-core');
 
 const { fakeDelay, delay } = require('#utils/delay.js');
-const ConsultaCausaPjud = require("./consultaCausaPjudRefactored");
+const ConsultaCausaPjud = require("./consultaCausaPlay");
 const CasoBuilder = require('#models/caso/casoBuilder.js');
 const config = require('#config');
 const { obtainCorteJuzgadoNumbers } = require('#utils/corteJuzgado.js');
@@ -57,28 +57,37 @@ class checkFPMG {
     }
 
     async process() {
-        this.obtainListSpreadSheet();
-        obtainCorteJuzgadoNumbers(this.casos);
+        const startTime = new Date();
+        const startTimeStr = startTime.toLocaleString('es-CL');
+        logger.info(`[checkFPMG] Tiempo inicial: ${startTimeStr}`);
 
-        console.log("casos revisados : ",this.casos.length);
+        try {
+            this.obtainListSpreadSheet();
+            obtainCorteJuzgadoNumbers(this.casos);
 
-        console.log('enviando el mensaje de progreso al renderer')
-        this.sender.send('checkFPMG-progress', { type: 'status', message: `Obteniendo información de ${this.casos.length} casos...` });
+            console.log("casos revisados : ", this.casos.length);
 
-        //TODO : agregar parte de consultaCausaPjid
+            console.log('enviando el mensaje de progreso al renderer');
+            this.sender.send('checkFPMG-progress', { type: 'status', message: `Obteniendo información de ${this.casos.length} casos...` });
 
-        // const webScrapper = new ConsultaCausaPjud()
+            await this.processListDeuda(LADRILLERO);
 
+            // //Write each cause that had changes in the last week
+            this.writeChangesDeuda();
 
-        await this.processListDeuda(LADRILLERO);
-        // Search and process each cause
-        // await this.processList();
+            return true;
+        } finally {
+            const endTime = new Date();
+            const endTimeStr = endTime.toLocaleString('es-CL');
+            const durationMs = endTime - startTime;
+            const minutes = Math.floor(durationMs / 60000);
+            const seconds = Math.floor((durationMs % 60000) / 1000);
+            const durationFormatted = `${minutes} min ${seconds} seg (${(durationMs / 1000).toFixed(2)}s)`;
 
-        // //Write each cause that had changes in the last week
-        this.writeChangesDeuda();
-
-        console.log("Proceso Finalizado")
-        return true;
+            logger.info(`[checkFPMG] Tiempo final: ${endTimeStr}`);
+            logger.info(`[checkFPMG] Tiempo transcurrido: ${durationFormatted}`);
+            logger.indo("Proceso Finalizado");
+        }
     }
 
     obtainListOfCauses() {
@@ -1265,9 +1274,9 @@ class checkFPMG {
                 }
                 // const result = await this.consultaCausa(caso);
                 await this.consultaCausaGeneral(caso,type);
-                // if(counter > 3){
-                //     return true;
-                // }
+                if(counter > 1){
+                    return true;
+                }
 
                 if ((counter + 1) < this.casos.length) {
                     const awaitTime = Math.random() * (90 - 30) + 30; // Genera un número aleatorio entre 30 y 90
@@ -1281,10 +1290,11 @@ class checkFPMG {
         }
     }
     async consultaCausaGeneral(caso,type){
-        const browser = await pie.connect(app, puppeteer);
-        let window;
-        window = this.openWindow(window, false);
-        const consultaCausa = new ConsultaCausaPjud(browser, window, caso, this.mainWindow, type);
+        // const browser = await pie.connect(app, puppeteer);
+        const browser = null;
+        // let window;
+        // window = this.openWindow(window, false);
+        const consultaCausa = new ConsultaCausaPjud(browser,caso, this.mainWindow, type);
         const result = await consultaCausa.getConsulta()
 
         return result;

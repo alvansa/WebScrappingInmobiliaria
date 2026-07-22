@@ -23,7 +23,7 @@ class PjudPlaywright {
             // await this.page.evaluate(() => {
             //     verRemates(); // Asegúrate de que esta función existe en el contexto de la página
             // });
-            this.page = await this.goToRemates();
+            // this.page = await this.goToRemates();
             await this.setValoresInciales();
             console.log("Valores fecha :", this.startDate, this.endDate);
             await this.setDates('#desde', this.startDate);

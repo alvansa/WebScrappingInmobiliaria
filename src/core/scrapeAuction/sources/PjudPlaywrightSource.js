@@ -13,7 +13,10 @@ const config = require('#config');
 const NORMAL = config.NORMAL;
 
 const { webkit } = require('playwright');
+const MAX_RETRIES = 20;
 const { NormalModuleReplacementPlugin } = require('webpack');
+
+require('dotenv').config();
 
 class PjudPlaywrightSource{
     constructor(manager,config){
@@ -38,20 +41,21 @@ class PjudPlaywrightSource{
 
         this.browser = await this.manager.getBrowser();
         this.context = await this.manager.createHumanContext();
+        for(let attempt = 1; attempt < MAX_RETRIES; attempt++){
+            try{
+                casos = await this.searchCasesByDay(startDate, endDate);
+                casos.reverse(); // Invertir el orden de los casos para que aparezcan del mas reciente al mas antiguo
 
-        try{
-            casos = await this.searchCasesByDay(startDate, endDate);
-            casos.reverse(); // Invertir el orden de los casos para que aparezcan del mas reciente al mas antiguo
-            // const gestorRemates = new GestorRematesPjud(casos, event, mainWindow, NORMAL);
-            // const result = await gestorRemates.getInfoFromAuctions();
+                logger.info("Cantidad de casos obtenidos de pjud: ", casos.length);
+            }catch(error){
 
-            logger.info("Cantidad de casos obtenidos de pjud: ", casos.length);
-            return casos;
-        }catch(error){
-
-            logger.warn(`Error: ${error.message}`)
-            return casos;
+                logger.warn(`Error: ${error.message}`)
+                return casos;
+            }
         }
+        const gestorRemates = new GestorRematesPjud(casos, event, mainWindow, NORMAL);
+        await gestorRemates.getInfoFromAuctions();
+        return casos;
 
     }
 
@@ -61,7 +65,8 @@ class PjudPlaywrightSource{
         let casos = [];
         let page = null;
         try {
-            const url = 'https://www.pjud.cl/';
+            // const url = 'https://www.pjud.cl/';
+            const url = 'https://oficinajudicialvirtual.pjud.cl/remate.php'
 
             page = await this.context.newPage();
             await page.goto(url,{timeout: 160000}); // Página real

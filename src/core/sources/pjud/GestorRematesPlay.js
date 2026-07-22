@@ -3,8 +3,10 @@ const { chromium } = require('playwright');
 const { fakeDelay, delay } = require('#utils/delay.js');
 const config = require('#config');
 const ConsultaCausaPjud = require('./consultaCausaPlay.js'); // Versión Playwright
+const { logger } = require('#utils/logger.js');
 
 const NORMAL = config.NORMAL;
+const MAX_RETRIES = 10;
 
 class GestorRematesPjud {
     constructor(casos, event, mainWindow, type) {
@@ -19,6 +21,7 @@ class GestorRematesPjud {
         const { skipIfHasPartes = false } = options;
         const secondLapMsg = skipIfHasPartes ? 'en segunda vuelta' : '';
         let counter = 0;
+        let lastError = null;
 
         try {
             // 1. Lanzar el navegador Playwright una sola vez
@@ -39,9 +42,19 @@ class GestorRematesPjud {
                     continue;
                 }
 
-                const result = await this.consultaCausa(caso);
-                if (result) {
-                    console.log("Resultado del caso:", caso.toObject());
+                for(let attempt = 1; attempt < MAX_RETRIES; attempt++){
+                    try{
+                    const result = await this.consultaCausa(caso);
+                    if (result) {
+                        console.log("Resultado del caso:", caso.toObject());
+                    }
+                        
+                    }catch(error){
+                        lastError = error;
+                        
+                        console.error(`Error en el scraper: ${error.message}`);
+
+                    }
                 }
 
                 // Control de esperas entre casos

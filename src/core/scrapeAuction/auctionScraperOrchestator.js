@@ -64,19 +64,11 @@ class auctionScraperOrchestator{
 
 
         if (pjudNeedsSecondSearch) {
-            // logger.debug(`Se realizará una segunda búsqueda en Pjud`);
-            // await delay(60000 * 5); // Espera 5 minutos antes de la segunda búsqueda
-            // const pjudSource = this.sources.find(source => source.getName() === "pjud");
-            // const cases = await pjudSource.fetch(startDate, endDate, { event : this.event, mainWindow : this.mainWindow, emptyMode : this.isEmptyMode, testMode : this.isTestMode });
-            // if(cases && cases.length > 0){
-            //     allCases.push(...cases);
-            // }else{
             logger.info(`Realizando 3era busqueda de Pjud ahora con playwright`);
             const pjudPlaywrightSource = this.sources.find(source => source.getName() === "pjudPlaywright");
             const casesPjud = await pjudPlaywrightSource.fetch(startDate, endDate, { event: this.event, mainWindow: this.mainWindow, emptyMode: this.isEmptyMode, testMode: this.isTestMode });
             if (casesPjud && casesPjud.length > 0) {
                 allCases.push(...casesPjud);
-                // }
             }
         }
 
