@@ -36,20 +36,20 @@ class auctionScraperOrchestator{
                 const sourceName = source.getName();
                 if (this.checkedBoxes.includes(sourceName)) {
                     logger.info(`Obteniendo casos de la fuente: ${sourceName}`);
-                    // if(sourceName === "pjud" ){
-                    //     await delay(60000 * 90); // Espera 5 minutos antes de la búsqueda en Pjud    
-                    // }
-                    // const cases = await source.fetch(startDate, endDate, { event: this.event, mainWindow: this.mainWindow, emptyMode: this.isEmptyMode, testMode: this.isTestMode });
+                    if(sourceName === "pjud" ){
+                        await delay(60000 * 90); // Espera 5 minutos antes de la búsqueda en Pjud    
+                    }
+                    const cases = await source.fetch(startDate, endDate, { event: this.event, mainWindow: this.mainWindow, emptyMode: this.isEmptyMode, testMode: this.isTestMode });
                     // if(sourceName === "pjud") {
                     //     pjudNeedsSecondSearch = this.shouldFetchAgainPjud(cases);
                     // }
-                    // if (cases && cases.length > 0) {
-                    //     allCases.push(...cases);
-                    //     //Agregarar que si es pjud, busque el porcentaje de casos que no tienen partes y si es mayor a 20% vuelva a buscar en pjud
-                    // }
-                    // if (cases && cases.length === 0 && sourceName === "emol") {
-                    //     emolHasCases = false;
-                    // }
+                    if (cases && cases.length > 0) {
+                        allCases.push(...cases);
+                        //Agregarar que si es pjud, busque el porcentaje de casos que no tienen partes y si es mayor a 20% vuelva a buscar en pjud
+                    }
+                    if (cases && cases.length === 0 && sourceName === "emol") {
+                        emolHasCases = false;
+                    }
                 }
             } catch (error) {
                 logger.error(`Error al obtener source en ${source.getName()}, error: ${error.message}`);

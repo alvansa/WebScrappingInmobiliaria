@@ -46,7 +46,7 @@ class SpreadSheetManager {
                 }
             }
         } catch (error) {
-            console.error("Error: ", error.message);
+            console.error("Error en spreedSheetManager processData: ", error.message);
             return {result : false, data: error.message};
         }
     }

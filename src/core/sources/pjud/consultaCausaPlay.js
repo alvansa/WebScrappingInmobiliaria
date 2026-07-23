@@ -30,8 +30,8 @@ class ConsultaCausaPjud {
         this.browser = browser;
         this.context = null;
         this.caso = caso;
-        this.link = "https://oficinajudicialvirtual.pjud.cl/indexN.php";
-        // this.link = 'https://www.pjud.cl/';
+        // this.link = "https://oficinajudicialvirtual.pjud.cl/indexN.php";
+        this.link = 'https://www.pjud.cl/';
         this.page = null;          // se asignará después
         this.downloadPath = path.join(os.homedir(), "Documents", "infoRemates/pdfDownload");
         this.dirPath = "";
@@ -102,9 +102,12 @@ class ConsultaCausaPjud {
         await this.loadPageWithRetries();
 
         // await this.page.pause();
-        await this.closePopupsIfExist();
 
-        await this.clickConsultaCausa();
+        // await this.closePopupsIfExist();
+
+        await this.goToRemates();
+
+        // await this.clickConsultaCausa();
 
         const result = await this.procesarCaso(lineaAnterior);
         if (result) {
@@ -132,6 +135,23 @@ class ConsultaCausaPjud {
             // Si el popup no aparece en 3 segundos, no es un error crítico; el scraping continúa normalmente
             logger.warn(`No se detectó ningún cartel emergente. Continuando con el flujo... ${error.message}`);
         }
+    }
+
+    async goToRemates() {
+        // 1. Escuchar el evento popup ANTES de hacer clic para evitar condiciones de carrera
+        const page1Promise = this.page.waitForEvent('popup',{timeout: 40000});
+        await this.page.getByRole('link', { name: 'Consulta causas' }).click();
+        const page1 = await page1Promise;
+
+        // 2. Verificar si la página cargó; si da timeout, reintentar un reload
+        try {
+            await page1.waitForLoadState('domcontentloaded', { timeout: 20000 });
+        } catch (error) {
+            logger.warn(`El popup no cargó a tiempo (${error.message}). Intentando recargar...`);
+            await page1.reload({ waitUntil: 'domcontentloaded', timeout: 20000 });
+        }
+
+        this.page = page1;
     }
 
     async clickConsultaCausa(){
@@ -197,7 +217,7 @@ class ConsultaCausaPjud {
             logger.warn("No se pudieron setear los valores iniciales");
             return false;
         }
-        await this.page.pause();
+        // await this.page.pause();
 
         try {
             cambioPagina = await this.revisarPrimeraLinea(lineaAnterior);
@@ -410,6 +430,8 @@ class ConsultaCausaPjud {
 
     async searchButtonAuction() {
         try {
+            // await this.page.pause();
+
             await this.page.waitForSelector("#verDetalle a");
             const link = await this.page.$("#verDetalle a");
             if (!link) return false;
@@ -464,23 +486,35 @@ class ConsultaCausaPjud {
         }
     }
 
-    async searchInMainTable(table = 'main') {
-        const selector = table === 'main' ? '#historiaCiv' : '#escritosCiv';
-        await this.page.waitForSelector(selector, { timeout: 10000 });
-        const rows = await this.page.$$(`${selector} .table tbody tr`);
-        for (const row of rows) {
-            try {
-                if (table === 'main') {
-                    await this.searchDataInRow(row);
-                } else {
-                    logger.info('Procesando fila de no resueltos');
-                    await this.searchForDirectoryNotResolved(row);
-                }
-            } catch (error) {
-                logger.error(`Error procesando fila: ${error.message}`);
+async searchInMainTable(table = 'main') {
+    await this.page.pause();
+    const tabName = table === 'main' ? 'Historia' : 'Escritos por Resolver';
+    await this.page.getByRole('link', { name: tabName }).click();
+
+    // 1. Crear el locator del contenedor
+    const container = this.page.locator(table === 'main' ? '#historiaCiv' : '#escritosCiv');
+    
+    // 💡 CAMBIO MÍNIMO: Esperar a que el contenedor del tab sea visible
+    await container.waitFor({ state: 'visible', timeout: 30000 });
+
+    // 2. Obtener las filas de la tabla
+    const rowsLocator = container.locator('tbody tr');
+    // await rowsLocator.first().waitFor({ state: 'visible', timeout: 30000 });
+    const rows = await rowsLocator.elementHandles();
+
+    for (const row of rows) {
+        try {
+            if (table === 'main') {
+                await this.searchDataInRow(row);
+            } else {
+                logger.info('Procesando fila de no resueltos');
+                await this.searchForDirectoryNotResolved(row);
             }
+        } catch (error) {
+            logger.error(`Error procesando fila: ${error.message}`);
         }
     }
+}
 
     async searchDataInRow(row) {
         let dateToday = null;
