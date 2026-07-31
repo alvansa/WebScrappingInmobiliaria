@@ -114,6 +114,7 @@ class dataInmobiliaria {
             return null;
         }
     }
+
     static getCodeComuna(comuna) {
         const comunaNormalized = this.normalizeComuna(comuna);
         return comunas[comunaNormalized];

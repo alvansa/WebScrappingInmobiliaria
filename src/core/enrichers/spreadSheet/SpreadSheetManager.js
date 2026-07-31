@@ -53,58 +53,59 @@ class SpreadSheetManager {
 
 
     static async obtainOnlineData() {
-        let auth = null;
-        const TOKEN_PATH = this.obtainToken();
-        let credentialsPath = this.getCredentialsPath();
         EnvLoader.load();
 
-        // Ahora puedes acceder a las variables
         const spreadsheetId = EnvLoader.get('SPREADSHEET_ID');
-
-        // Intentar cargar token existente
-        try {
-            const tokenContent = await readFile(TOKEN_PATH, 'utf8');
-            const credentials = JSON.parse(tokenContent);
-            // console.log(`Credenciales leídas: ${JSON.stringify(credentials)} y token path es ${TOKEN_PATH}`);
-            auth = new google.auth.OAuth2();
-            // console.log('Token cargado desde', TOKEN_PATH, ' y autorizado con ', auth);
-            auth.setCredentials(credentials);
-
-            // Verificar si el token sigue válido
-            if (credentials.expiry_date && Date.now() > credentials.expiry_date) {
-                // console.log('Token expirado, renovando...');
-                auth = null;
-            }
-        } catch (error) {
-            console.log(`No se encontró token válido, autenticando... ${error.message}`);
+        if (!spreadsheetId) {
+            throw new Error("❌ SPREADSHEET_ID no está definido en las variables de entorno.");
         }
 
-        // Si no hay token válido, autenticar
-        if (!auth) {
+        const TOKEN_PATH = this.obtainToken();
+        const credentialsPath = this.getCredentialsPath();
+
+        // 1. Leer el archivo de credenciales de cliente para instanciar OAuth2 correctamente
+        const credentialsFile = await readFile(credentialsPath, 'utf8');
+        const keys = JSON.parse(credentialsFile);
+        const { client_secret, client_id, redirect_uris } = keys.installed || keys.web;
+
+        let auth = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
+
+        // 2. Intentar usar el token guardado
+        let isTokenValid = false;
+        try {
+            const tokenContent = await readFile(TOKEN_PATH, 'utf8');
+            const token = JSON.parse(tokenContent);
+            auth.setCredentials(token);
+
+            // Verificar si caducó
+            if (!token.expiry_date || Date.now() < token.expiry_date) {
+                isTokenValid = true;
+            }
+        } catch (error) {
+            console.log("No se pudo leer el token guardado, se solicitará uno nuevo.");
+        }
+
+        // 3. Si no hay token o caducó, volver a autenticar mediante la ventana/flujo OAuth
+        if (!isTokenValid) {
             auth = await authenticate({
                 keyfilePath: credentialsPath,
                 scopes: SCOPES
             });
-
-            // console.log('Autenticado con éxito escribiendo en el token');
-            // Guardar token para uso futuro
+            // Guardar las nuevas credenciales obtenidas
             await writeFile(TOKEN_PATH, JSON.stringify(auth.credentials));
         }
 
-        // Crear cliente de Sheets
+        // 4. Consultar la API de Sheets
         const sheets = google.sheets({ version: 'v4', auth });
-        
 
-        // Obtener datos
         const result = await sheets.spreadsheets.values.get({
-            spreadsheetId: spreadsheetId || '',
+            spreadsheetId,
             range: 'search!A1:AZ',
         });
 
         console.log(`Descargadas ${result.data.values?.length || 0} filas`);
-        const values = result.data.values;
-        return values;
-    }
+        return result.data.values || [];
+}
 
     static obtainToken(){
         const homeDir = os.homedir();

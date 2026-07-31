@@ -21,7 +21,7 @@ class PjudSource{
         this.mode = config.mode
     }
 
-    getName(){ return 'pjud'; }
+    getName(){ return 'pjudOld'; }
 
 
     async fetch(startDateOrigin, endDateOrigin, { event, mainWindow, emptyMode, testMode }) {

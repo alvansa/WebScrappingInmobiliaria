@@ -12,9 +12,11 @@ const {stringToDate} = require('#utils/cleanStrings.js');
 const config = require('#config');
 const NORMAL = config.NORMAL;
 
+const PlaywrigthManager = require('#src/core/scrapeAuction/services/PlaywrigthManager.js')
+
 const { webkit } = require('playwright');
-const MAX_RETRIES = 20;
-const { NormalModuleReplacementPlugin } = require('webpack');
+const { PlaywrightManager } = require('../services/PlaywrigthManager');
+const MAX_RETRIES = 10;
 
 require('dotenv').config();
 
@@ -26,11 +28,8 @@ class PjudPlaywrightSource{
         this.mode = config.mode
     }
 
-    getName(){ return 'pjudPlaywright'; }
+    getName(){ return 'pjud'; }
 
-
-    //TODO: el problema es como se llega a la pagian principal de consultar, antes como era con verRemates() lo detectaba como bot, 
-    // Lo que hay que hacer es fingir mas desde la pagina principal del pjud y de ahi llegar a donde queremos.
     async fetch(startDateOrigin, endDateOrigin, { event, mainWindow, emptyMode, testMode }){
         const endDateModified = stringToDate(endDateOrigin, 'YMD');
         endDateModified.setDate(endDateModified.getDate() + 1); // Aumentar un dia para incluir el ultimo dia
@@ -47,14 +46,17 @@ class PjudPlaywrightSource{
                 casos.reverse(); // Invertir el orden de los casos para que aparezcan del mas reciente al mas antiguo
 
                 logger.info("Cantidad de casos obtenidos de pjud: ", casos.length);
+                const gestorRemates = new GestorRematesPjud(casos, event, mainWindow, NORMAL);
+                await gestorRemates.getInfoFromAuctions();
+                if(casos.length > 0){
+                    return casos;
+                }
             }catch(error){
 
                 logger.warn(`Error: ${error.message}`)
                 return casos;
             }
         }
-        const gestorRemates = new GestorRematesPjud(casos, event, mainWindow, NORMAL);
-        await gestorRemates.getInfoFromAuctions();
         return casos;
 
     }
@@ -68,6 +70,7 @@ class PjudPlaywrightSource{
             // const url = 'https://www.pjud.cl/';
             const url = 'https://oficinajudicialvirtual.pjud.cl/remate.php'
 
+            this.context = await PlaywrigthManager.createHumanContext();
             page = await this.context.newPage();
             await page.goto(url,{timeout: 160000}); // Página real
             const scraper = new PjudPlaywright(this.browser, page, startDate, endDate);
@@ -82,11 +85,18 @@ class PjudPlaywrightSource{
             }
 
         }finally{
-            if(page && !page.isClosed()){
-                page.close();
+            if (this.context) {
+                await this.context.close().catch(() => { });
+                this.context = null;
+                page = null;
             }
         }
         return casos;
+    }
+
+    async completeInfo(cases){
+        const gestorRemates = new GestorRematesPjud(cases, this.event, this.mainWindow);
+        await gestorRemates.getInfoFromAuctions({ skipIfHasPartes: true });
     }
 }
 

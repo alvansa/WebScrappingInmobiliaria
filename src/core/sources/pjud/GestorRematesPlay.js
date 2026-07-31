@@ -1,11 +1,9 @@
 const { chromium } = require('playwright');
 
-const { fakeDelay, delay } = require('#utils/delay.js');
-const config = require('#config');
+const { delay } = require('#utils/delay.js');
 const ConsultaCausaPjud = require('./consultaCausaPlay.js'); // Versión Playwright
 const { logger } = require('#utils/logger.js');
 
-const NORMAL = config.NORMAL;
 const MAX_RETRIES = 10;
 
 class GestorRematesPjud {
@@ -21,63 +19,55 @@ class GestorRematesPjud {
         const { skipIfHasPartes = false } = options;
         const secondLapMsg = skipIfHasPartes ? 'en segunda vuelta' : '';
         let counter = 0;
-        let lastError = null;
 
         try {
             // 1. Lanzar el navegador Playwright una sola vez
-            console.log('Lanzando navegador Playwright para las consultas...');
+            logger.debug(`Lanzando navegador Playwright para las consultas...`);
             this.browser = await chromium.launch({ headless: false }); // Cambiar a true si se desea sin interfaz
 
             for (let caso of this.casos) {
                 counter++;
-                console.log(`Caso a investigar: ${caso.causa} - ${caso.juzgado} (${counter} de ${this.casos.length})`);
+                logger.debug(`Caso a investigar: ${caso.causa} - ${caso.juzgado} - ${caso.partes} (${counter} de ${this.casos.length})`);
 
                 if (skipIfHasPartes && caso.partes) {
-                    console.log(`Caso ${caso.causa} ya tiene partes, se omite`);
+                    logger.debug(`Caso ${caso.causa} ya tiene partes, se omite`);
                     continue;
                 }
 
                 if (!caso.numeroJuzgado || !caso.corte) {
-                    console.log(`Caso ${caso.causa} no tiene número de juzgado ni corte, se omite`);
+                    logger.debug(`Caso ${caso.causa} no tiene número de juzgado ni corte, se omite`);
                     continue;
                 }
 
-                for(let attempt = 1; attempt < MAX_RETRIES; attempt++){
-                    try{
-                    const result = await this.consultaCausa(caso);
-                    if (result) {
-                        console.log("Resultado del caso:", caso.toObject());
-                    }
-                        
-                    }catch(error){
-                        lastError = error;
-                        
-                        console.error(`Error en el scraper: ${error.message}`);
-
+                for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+                    try {
+                        const result = await this.consultaCausa(caso);
+                        if (result) {
+                            logger.debug(`Caso obtenido correctamente, pasando al siguient: ${caso.causa}`);
+                            break;
+                        }
+                    } catch (error) {
+                        logger.error(`Error en el scraper: ${error.message}`);
                     }
                 }
 
                 // Control de esperas entre casos
-                if ((counter + 1) % 5 === 0) {
-                    const awaitTime = Math.random() * (180 - 45) + 45;
-                    console.log(`Esperando ${awaitTime.toFixed(2)} segundos antes del caso ${counter + 1} de ${this.casos.length} ${secondLapMsg}`);
-                    await delay(awaitTime * 1000);
-                } else if ((counter + 1) < this.casos.length) {
+                if ((counter + 1) < this.casos.length) {
                     const awaitTime = Math.random() * (60 - 30) + 30;
-                    console.log(`Esperando ${awaitTime.toFixed(2)} segundos antes del caso ${counter + 1} de ${this.casos.length} ${secondLapMsg}`);
+                    logger.info(`Esperando ${awaitTime.toFixed(2)} segundos antes del caso ${counter + 1} de ${this.casos.length} ${secondLapMsg}`);
                     await delay(awaitTime * 1000);
                 }
 
                 // Límite de prueba (opcional, original tenía counter > 3)
-                if (counter > 3) break;
+                // if (counter > 3) break;
             }
         } catch (error) {
-            console.error("Error al obtener datos de los casos:", error.message);
+            logger.error(`Error al obtener datos de los casos gestorRematesPlay:  ${error.message}`);
         } finally {
             // Cerrar el navegador al terminar
             if (this.browser) {
                 await this.browser.close();
-                console.log('Navegador cerrado.');
+                logger.debug('Navegador cerrado.');
             }
         }
     }

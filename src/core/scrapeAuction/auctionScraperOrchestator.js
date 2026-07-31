@@ -28,27 +28,26 @@ class auctionScraperOrchestator{
         await spreadSheet.obtain();
 
         logger.info(`Checked Boxes ${this.checkedBoxes}`);
+        let pjudNeedCompleteSearch = false;
         let pjudNeedsSecondSearch = false;
-        let emolHasCases = true;
+        let emolNeedsSecondSearch = false;
 
         for (const source of this.sources) {
             try {
                 const sourceName = source.getName();
                 if (this.checkedBoxes.includes(sourceName)) {
                     logger.info(`Obteniendo casos de la fuente: ${sourceName}`);
-                    if(sourceName === "pjud" ){
-                        await delay(60000 * 90); // Espera 5 minutos antes de la búsqueda en Pjud    
-                    }
                     const cases = await source.fetch(startDate, endDate, { event: this.event, mainWindow: this.mainWindow, emptyMode: this.isEmptyMode, testMode: this.isTestMode });
-                    // if(sourceName === "pjud") {
-                    //     pjudNeedsSecondSearch = this.shouldFetchAgainPjud(cases);
-                    // }
+                    if(sourceName === "pjud") {
+                        pjudNeedsSecondSearch = this.shouldFetchAgainPjud(cases);
+                        pjudNeedCompleteSearch = this.pjudNeedSearchAgain(cases);
+                    }
                     if (cases && cases.length > 0) {
                         allCases.push(...cases);
                         //Agregarar que si es pjud, busque el porcentaje de casos que no tienen partes y si es mayor a 20% vuelva a buscar en pjud
                     }
-                    if (cases && cases.length === 0 && sourceName === "emol") {
-                        emolHasCases = false;
+                    if (sourceName === "emol") {
+                        emolNeedsSecondSearch = this.shouldFetchEmolAgain(cases);
                     }
                 }
             } catch (error) {
@@ -60,24 +59,32 @@ class auctionScraperOrchestator{
             return this.exporter.export(allCases, { saveFile: this.saveFile, startDate, endDate });
         }
 
-        pjudNeedsSecondSearch = true;
-
-
-        if (pjudNeedsSecondSearch) {
-            logger.info(`Realizando 3era busqueda de Pjud ahora con playwright`);
-            const pjudPlaywrightSource = this.sources.find(source => source.getName() === "pjudPlaywright");
+        if(pjudNeedCompleteSearch){
+            logger.info(`No se pudieron obtener los casos del pjud, se buscaran de 0 nuevamente`);
+            const pjudPlaywrightSource = this.sources.find(source => source.getName() === "pjud");
             const casesPjud = await pjudPlaywrightSource.fetch(startDate, endDate, { event: this.event, mainWindow: this.mainWindow, emptyMode: this.isEmptyMode, testMode: this.isTestMode });
             if (casesPjud && casesPjud.length > 0) {
                 allCases.push(...casesPjud);
             }
+
         }
 
-        if (!emolHasCases) {
+
+        if (pjudNeedsSecondSearch) {
+            logger.info(`Se encontraron los casos de pjud pero hay muchos casos sin partes, se raliza segunda busqueda`);
+            const pjudPlaywrightSource = this.sources.find(source => source.getName() === "pjud");
+            logger.info(`Realizando segunda busqueda`);
+            await pjudPlaywrightSource.completeInfo(allCases);
+        }
+
+
+        if (emolNeedsSecondSearch) {
             await delay(60000 * 5); // Espera 5 minutos antes de la segunda búsqueda
             const emolSource = this.sources.find(source => source.getName() === "emol");
             const cases = await emolSource.fetch(startDate, endDate, { event: this.event, mainWindow: this.mainWindow, emptyMode: this.isEmptyMode, testMode: this.isTestMode });
             allCases.push(...cases);
         }
+
         const endTime = new Date();
         const duration = (endTime - startTime) / 1000;
         logger.info(`Tiempo total de ejecución: ${duration} segundos`);
@@ -114,11 +121,14 @@ class auctionScraperOrchestator{
         }
     }
 
-    shouldFetchAgainPjud(cases) {
-        let countEmptyParts = 0;
+    pjudNeedSearchAgain(cases){
         if(!cases || cases.length === 0){
             return true;
         }
+        return false;
+    }
+    shouldFetchAgainPjud(cases) {
+        let countEmptyParts = 0;
         for (let caso of cases) {
             // caso.partes = null;
             if (!caso.partes) {
@@ -132,6 +142,13 @@ class auctionScraperOrchestator{
         }else{
             return true;
         }
+    }
+
+    shouldFetchEmolAgain(cases){
+        if(!cases || cases.length === 0){
+            return true;
+        }
+        return false;
     }
 }
 

@@ -244,7 +244,7 @@ class MainApp{
                 return true;
 
             }catch(error){
-                console.error('Error al completar la informacion del excel:', error);
+                console.error('Error al completar la informacion del excel completInfoExcel:', error);
                 return null;
             }
         });
@@ -270,7 +270,7 @@ class MainApp{
                 return true;
 
             }catch(error){
-                console.error('Error al completar la informacion del excel:', error);
+                console.error('Error al completar la informacion del excel processFPMG:', error);
                 return null;
             }
         });

@@ -1,23 +1,7 @@
 const { chromium, firefox, webkit } = require('playwright-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 
-// Aplicar el plugin stealth a Playwright con configuraciones específicas por motor
-// const stealthChromium = StealthPlugin();
-
-// const stealthFirefox = StealthPlugin();
-// // Eliminar evasiones de Puppeteer/Chromium que chocan con Firefox
-// stealthFirefox.enabledEvasions.delete('user-agent-override');
-// stealthFirefox.enabledEvasions.delete('chrome.app');
-// stealthFirefox.enabledEvasions.delete('chrome.csi');
-// stealthFirefox.enabledEvasions.delete('chrome.loadTimes');
-// stealthFirefox.enabledEvasions.delete('chrome.runtime');
-
-// const stealthWebkit = StealthPlugin();
-// stealthWebkit.enabledEvasions.delete('user-agent-override');
-
-// chromium.use(stealthChromium);
-// firefox.use(stealthFirefox);
-// webkit.use(stealthWebkit);
+const HEADLESS_MODE = true;
 
 class PlaywrightManager {
     constructor(browserType = chromium) {
@@ -104,7 +88,7 @@ class PlaywrightManager {
             try {
                 const browserName = this._getBrowserName();
                 const launchOptions = {
-                    headless: false,
+                    headless: HEADLESS_MODE,
                     timeout: 60000,
                     args: []
                 };

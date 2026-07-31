@@ -22,7 +22,7 @@ const LADRILLERO = config.LADRILLERO;
 const DEUDA = config.DEUDA;
 
 
-const MAX_RETRIES = 6;
+const MAX_RETRIES = 3;
 
 class ConsultaCausaPjud {
     // El constructor ahora recibe solo el objeto browser de Playwright y la página inicial
@@ -65,14 +65,15 @@ class ConsultaCausaPjud {
                     }
                 } catch (error) {
                     lastError = error;
-                    logger.warn(`[ConsultaCausaPjudPlay] Intento ${attempt} (${engineName}) falló: ${error.message}`);
-
                     if (attempt === MAX_RETRIES) {
                         logger.error(`[ConsultaCausaPjudPlay] Todos los reintentos fallaron (3 Chromium + 3 Firefox). Último error: ${lastError.message}`);
                         throw lastError;
                     }
+                    logger.warn(`[ConsultaCausaPjudPlay] Intento ${attempt} (${engineName}) falló: ${error.message}`);
 
                     await delay(1000 * attempt);
+
+
                 } finally {
                     if (this.context) {
                         await this.context.close().catch(() => {});
@@ -111,6 +112,7 @@ class ConsultaCausaPjud {
 
         const result = await this.procesarCaso(lineaAnterior);
         if (result) {
+            this.caso.hasChanged = true;
             logger.info("Caso procesado correctamente");
             return true;
         } else {
@@ -138,19 +140,30 @@ class ConsultaCausaPjud {
     }
 
     async goToRemates() {
-        // 1. Escuchar el evento popup ANTES de hacer clic para evitar condiciones de carrera
-        const page1Promise = this.page.waitForEvent('popup',{timeout: 40000});
-        await this.page.getByRole('link', { name: 'Consulta causas' }).click();
-        const page1 = await page1Promise;
-
-        // 2. Verificar si la página cargó; si da timeout, reintentar un reload
+        let page1 = null;
+        const popupPromise = this.page.waitForEvent('popup', { timeout: 40000 });
         try {
+            await this.page.getByRole('link', { name: 'Consulta causas' }).click();
+            page1 = await popupPromise;
             await page1.waitForLoadState('domcontentloaded', { timeout: 20000 });
         } catch (error) {
-            logger.warn(`El popup no cargó a tiempo (${error.message}). Intentando recargar...`);
-            await page1.reload({ waitUntil: 'domcontentloaded', timeout: 20000 });
+            logger.warn(`Error al abrir el popup: ${error.message}. Intentando recargar si existe...`);
+            if (page1) {
+                try {
+                    await page1.reload({ waitUntil: 'domcontentloaded', timeout: 20000 });
+                    logger.info('Popup recargado exitosamente.');
+                    this.page = page1;
+                    return; // éxito
+                } catch (reloadError) {
+                    logger.error(`No se pudo recargar: ${reloadError.message}`);
+                    throw reloadError; // falla definitiva
+                }
+            } else {
+                // El popup ni siquiera se abrió
+                logger.error('El popup no se abrió.');
+                throw error;
+            }
         }
-
         this.page = page1;
     }
 
@@ -209,7 +222,7 @@ class ConsultaCausaPjud {
 
         await this.page.waitForSelector("#competencia", {
             state: 'visible',
-            timeout: 30000
+            timeout: 60000
         });
 
         const valorInicial = await this.setValoresIncialesBusquedaCausa();
@@ -486,37 +499,43 @@ class ConsultaCausaPjud {
         }
     }
 
-async searchInMainTable(table = 'main') {
-    await this.page.pause();
-    const tabName = table === 'main' ? 'Historia' : 'Escritos por Resolver';
-    await this.page.getByRole('link', { name: tabName }).click();
-
-    // 1. Crear el locator del contenedor
-    const container = this.page.locator(table === 'main' ? '#historiaCiv' : '#escritosCiv');
-    
-    // 💡 CAMBIO MÍNIMO: Esperar a que el contenedor del tab sea visible
-    await container.waitFor({ state: 'visible', timeout: 30000 });
-
-    // 2. Obtener las filas de la tabla
-    const rowsLocator = container.locator('tbody tr');
-    // await rowsLocator.first().waitFor({ state: 'visible', timeout: 30000 });
-    const rows = await rowsLocator.elementHandles();
-
-    for (const row of rows) {
+    async searchInMainTable(table = 'main') {
         try {
-            if (table === 'main') {
-                await this.searchDataInRow(row);
-            } else {
-                logger.info('Procesando fila de no resueltos');
-                await this.searchForDirectoryNotResolved(row);
+            const tabName = table === 'main' ? 'Historia' : 'Escritos por Resolver';
+            await this.page.getByRole('link', { name: tabName }).click();
+
+            // await this.page.pause();
+
+            // 1. Crear el locator del contenedor
+            const container = this.page.locator(table === 'main' ? '#historiaCiv' : '#escritosCiv');
+
+
+            // 💡 CAMBIO MÍNIMO: Esperar a que el contenedor del tab sea visible
+            await container.waitFor({ state: 'visible', timeout: 60000 });
+
+            // 2. Obtener las filas de la tabla
+            const rowsLocator = container.locator('tbody tr');
+            // await rowsLocator.first().waitFor({ state: 'visible', timeout: 30000 });
+            await rowsLocator.first().waitFor({ state: 'visible', timeout: 10000 });
+            const rows = await rowsLocator.all();
+
+            for (const row of rows) {
+                if (table === 'main') {
+                    await this.searchDataInRow(row);
+                } else {
+                    logger.info('Procesando fila de no resueltos');
+                    await this.searchForDirectoryNotResolved(row);
+                }
             }
-        } catch (error) {
-            logger.error(`Error procesando fila: ${error.message}`);
+        } catch (e) {
+            logger.warn(`La tabla no contiene filas o tardó demasiado en cargar. ${e.message}`);
+            return; // Salimos si no hay datos que procesar
         }
-    }
+
+        // 5. Obtener el array de Locators (Reemplazo moderno de elementHandles)
 }
 
-    async searchDataInRow(row) {
+    async searchDataInRow2(row) {
         let dateToday = null;
         if (this.type === DEUDA) {
             dateToday = this.caso.fechaRemate;
@@ -565,6 +584,65 @@ async searchInMainTable(table = 'main') {
             logger.error(`Error en searchDataInRow: ${error.message}`);
         }
     }
+    async searchDataInRow(row) {
+    // 1. Prevenir mutación accidental de this.caso.fechaRemate creando una nueva instancia de Date
+    let dateToday = this.type === DEUDA 
+        ? new Date(this.caso.fechaRemate) 
+        : new Date();
+    dateToday.setDate(dateToday.getDate() - 7);
+
+    try {
+        // 2. Extraer el texto de todas las celdas en una sola llamada (Mucho más rápido que 8 $eval)
+        const cellTexts = await row.locator('td').allTextContents();
+        
+        const number      = cellTexts[0]?.trim() || '';
+        const uselessFile = cellTexts[1]?.trim() || '';
+        const directory   = cellTexts[2]?.trim() || '';
+        const stage       = cellTexts[3]?.trim() || '';
+        const tramite     = cellTexts[4]?.trim() || '';
+        const descripcion = cellTexts[5]?.trim() || '';
+        const fecha       = cellTexts[6]?.trim() || '';
+
+        // 3. Locator para el enlace dentro de la 3ra columna
+        const linkToDir = row.locator('td:nth-child(3) a');
+        const dirHasLink = (await linkToDir.count()) > 0;
+
+        // 4. Procesamiento según el tipo
+        if (this.type === NORMAL) {
+            if (this.isTPDocument(descripcion)) {
+                this.caso.tp = `TP Folio ${number}`;
+            }
+
+            if (dirHasLink) {
+                await linkToDir.click();
+                await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
+                await this.downloadPdfFile();
+
+                // Localizador simplificado y verificación de visibilidad directa
+                const xButton = this.page.locator('#modalAnexoSolicitudCivil .modal-header button');
+                if (await xButton.isVisible()) {
+                    await xButton.click();
+                }
+            }
+
+            this.checkDescription(descripcion);
+
+        } else if (this.type === LADRILLERO) {
+            logger.debug(`Descripcion ${descripcion} y fecha ${fecha}`)
+            if (stringToDate(fecha, 'YMD') >= dateToday) {
+                this.caso.hasChanged = true;
+            }
+
+        } else if (this.type === DEUDA) {
+            if (descripcion.toLowerCase().includes("acta")) {
+                this.caso.hasChanged = true;
+            }
+        }
+
+    } catch (error) {
+        logger.error(`Error en searchDataInRow: ${error.message}`);
+    }
+}
 
     async searchForDirectoryNotResolved(row) {
         const dateToday = new Date();
