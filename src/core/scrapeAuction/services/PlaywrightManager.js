@@ -1,5 +1,4 @@
 const { chromium, firefox, webkit } = require('playwright-extra');
-const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 
 const HEADLESS_MODE = true;
 

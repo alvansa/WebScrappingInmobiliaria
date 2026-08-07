@@ -32,7 +32,8 @@ contextBridge.exposeInMainWorld('searchAPI', {
     },
     // Selecciona la carpeta donde se guardara el archivo de resultados.
     selectFolder: async () => ipcRenderer.invoke('select-folder-btn'),
-
+    // Detiene el proceso del orquestador y guarda los datos recolectados hasta el momento en un archivo Excel.
+    stopProcess: async () => ipcRenderer.invoke('stop-proccess'),
 })
 
 

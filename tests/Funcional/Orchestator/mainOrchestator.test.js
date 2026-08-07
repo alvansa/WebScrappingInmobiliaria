@@ -129,130 +129,132 @@ describe('auctionScraperOrchestator', () => {
             expect(mockExporter.export).toHaveBeenCalledTimes(1);
             expect(result).toEqual({
                 filePath: '/path/to/exported/file.xlsx',
-                status: 0 // EXITO
+                status: 0, // EXITO
+                isStopped: false
             });
         });
 
-//         test('debe retornar temprano si isEmptyMode es true', async () => {
-//             orchestrator.isEmptyMode = true;
+        test('debe retornar temprano si isEmptyMode es true', async () => {
+            orchestrator.isEmptyMode = true;
 
-//             const result = await orchestrator.run(startDate, endDate);
+            const result = await orchestrator.run(startDate, endDate);
 
-//             expect(mockExporter.export).toHaveBeenCalledWith(
-//                 expect.any(Array),
-//                 { saveFile: true, startDate, endDate }
-//             );
-//             // No debe llegar a la etapa de enrichers en isEmptyMode
-//             expect(mockEnricher.enrich).not.toHaveBeenCalled();
-//             expect(result).toBe('/path/to/exported/file.xlsx');
-//         });
+            expect(mockExporter.export).toHaveBeenCalledWith(
+                expect.any(Array),
+                { saveFile: true, startDate, endDate }
+            );
+            // No debe llegar a la etapa de enrichers en isEmptyMode
+            expect(mockEnricher.enrich).not.toHaveBeenCalled();
+            expect(result).toBe('/path/to/exported/file.xlsx');
+        });
 
-//         test('debe reintentar la búsqueda completa de PJUD si pjudNeedCompleteSearch es true (0 casos obtenidos)', async () => {
-//             // Hacemos que la 1ra llamada devuelva [] y la 2da devuelva casos
-//             mockSourcePjud.fetch
-//                 .mockResolvedValueOnce([])
-//                 .mockResolvedValueOnce([{ id: 10, partes: 'Nuevos Casos' }]);
+        test('debe reintentar la búsqueda completa de PJUD si pjudNeedCompleteSearch es true (0 casos obtenidos)', async () => {
+            // Hacemos que la 1ra llamada devuelva [] y la 2da devuelva casos
+            mockSourcePjud.fetch
+                .mockResolvedValueOnce([])
+                .mockResolvedValueOnce([{ id: 10, partes: 'Nuevos Casos' }]);
 
-//             await orchestrator.run(startDate, endDate);
+            await orchestrator.run(startDate, endDate);
 
-//             // Fetch de PJUD debió llamarse 2 veces
-//             expect(mockSourcePjud.fetch).toHaveBeenCalledTimes(2);
-//         });
+            // Fetch de PJUD debió llamarse 2 veces
+            expect(mockSourcePjud.fetch).toHaveBeenCalledTimes(2);
+        });
 
-//         test('debe ejecutar la segunda búsqueda (completeInfo) de PJUD si pjudNeedsSecondSearch es true', async () => {
-//             // Creamos 10 casos donde 5 no tienen partes (> 5% de vacíos)
-//             const pjudCases = [
-//                 { id: 1, partes: 'OK' },
-//                 { id: 2, partes: null },
-//                 { id: 3, partes: null },
-//                 { id: 4, partes: null },
-//                 { id: 5, partes: null }
-//             ];
-//             mockSourcePjud.fetch.mockResolvedValueOnce(pjudCases);
+        test('debe ejecutar la segunda búsqueda (completeInfo) de PJUD si pjudNeedsSecondSearch es true', async () => {
+            // Creamos 10 casos donde 5 no tienen partes (> 5% de vacíos)
+            const pjudCases = [
+                { id: 1, partes: 'Estado/Ortega' },
+                { id: 2, partes: null },
+                { id: 3, partes: null },
+                { id: 4, partes: null },
+                { id: 5, partes: null }
+            ];
+            mockSourcePjud.fetch.mockResolvedValueOnce(pjudCases);
 
-//             await orchestrator.run(startDate, endDate);
+            await orchestrator.run(startDate, endDate);
 
-//             expect(mockSourcePjud.completeInfo).toHaveBeenCalledTimes(1);
-//             expect(mockSourcePjud.completeInfo).toHaveBeenCalledWith(expect.arrayContaining(pjudCases));
-//         });
+            expect(mockSourcePjud.completeInfo).toHaveBeenCalledTimes(1);
+            expect(mockSourcePjud.completeInfo).toHaveBeenCalledWith(expect.arrayContaining(pjudCases));
+        });
 
-//         test('debe esperar 5 minutos (delay) y reintentar EMOL si emolHasCases es false', async () => {
-//             // Emol no devuelve nada en la primera pasada
-//             mockSourceEmol.fetch.mockResolvedValueOnce([]);
+        test('debe esperar 5 minutos (delay) y reintentar EMOL si emolHasCases es false', async () => {
+            // Emol no devuelve nada en la primera pasada
+            mockSourceEmol.fetch.mockResolvedValueOnce([]);
 
-//             await orchestrator.run(startDate, endDate);
+            await orchestrator.run(startDate, endDate);
 
-//             // Verifica que la función delay de 5 min (300,000ms) fue invocada
-//             expect(delay).toHaveBeenCalledWith(300000);
-//             // EMOL se llamó 2 veces: en el for principal y en el retry de emol
-//             expect(mockSourceEmol.fetch).toHaveBeenCalledTimes(2);
-//         });
+            // Verifica que la función delay de 5 min (300,000ms) fue invocada
+            expect(delay).toHaveBeenCalledWith(300000);
+            // EMOL se llamó 2 veces: en el for principal y en el retry de emol
+            expect(mockSourceEmol.fetch).toHaveBeenCalledTimes(2);
+        });
 
-//         test('debe filtrar las fuentes según this.checkedBoxes', async () => {
-//             // Solo 'pjud' está seleccionado en los checkboxes
-//             orchestrator.checkedBoxes = ['pjud'];
+        test('debe filtrar las fuentes según this.checkedBoxes', async () => {
+            // Solo 'pjud' está seleccionado en los checkboxes
+            orchestrator.checkedBoxes = ['pjud'];
 
-//             await orchestrator.run(startDate, endDate);
+            await orchestrator.run(startDate, endDate);
 
-//             expect(mockSourcePjud.fetch).toHaveBeenCalledTimes(1);
-//             expect(mockSourceEmol.fetch).not.toHaveBeenCalled();
-//         });
+            expect(mockSourcePjud.fetch).toHaveBeenCalledTimes(1);
+            expect(mockSourceEmol.fetch).not.toHaveBeenCalled();
+        });
 
-//         test('debe retornar estado NOT_AUCTIONS_FOUND (5) si no se obtuvieron casos de ninguna fuente', async () => {
-//             mockSourcePjud.fetch.mockResolvedValue([]);
-//             mockSourceEmol.fetch.mockResolvedValue([]);
+        test('debe retornar estado NOT_AUCTIONS_FOUND (5) si no se obtuvieron casos de ninguna fuente', async () => {
+            mockSourcePjud.fetch.mockResolvedValue([]);
+            mockSourceEmol.fetch.mockResolvedValue([]);
 
-//             const result = await orchestrator.run(startDate, endDate);
+            const result = await orchestrator.run(startDate, endDate);
 
-//             expect(logger.warn).toHaveBeenCalledWith("No se obtuvieron casos de ninguna fuente. El proceso se detendrá.");
-//             expect(result).toEqual({
-//                 filePath: null,
-//                 status: 5 // NOT_AUCTIONS_FOUND
-//             });
-//             expect(mockExporter.export).not.toHaveBeenCalled();
-//         });
-//     });
+            expect(logger.warn).toHaveBeenCalledWith("No se obtuvieron casos de ninguna fuente. El proceso se detendrá.");
+            expect(result).toEqual({
+                filePath: null,
+                status: 5 // NOT_AUCTIONS_FOUND
+            });
+            expect(mockExporter.export).not.toHaveBeenCalled();
+        });
 
-//     describe('Manejo de Excepciones y Resiliencia', () => {
-//         const startDate = '2026-01-01';
-//         const endDate = '2026-01-31';
+    });
 
-//         test('debe continuar con las demás fuentes si una fuente arroja una excepción', async () => {
-//             mockSourcePjud.fetch.mockRejectedValue(new Error('PJUD fallo de conexión'));
+    describe('Manejo de Excepciones y Resiliencia', () => {
+        const startDate = '2026-01-01';
+        const endDate = '2026-01-31';
 
-//             const result = await orchestrator.run(startDate, endDate);
+        test('debe continuar con las demás fuentes si una fuente arroja una excepción', async () => {
+            mockSourcePjud.fetch.mockRejectedValue(new Error('PJUD fallo de conexión'));
 
-//             expect(logger.error).toHaveBeenCalledWith(
-//                 expect.stringContaining('Error al obtener source en pjud, error: PJUD fallo de conexión')
-//             );
-//             // La otra fuente (EMOL) debió continuar y completarse
-//             expect(mockSourceEmol.fetch).toHaveBeenCalledTimes(1);
-//             expect(result.status).toBe(0);
-//         });
+            const result = await orchestrator.run(startDate, endDate);
 
-//         test('debe capturar errores en los enrichers y continuar con la exportación', async () => {
-//             mockEnricher.enrich.mockRejectedValue(new Error('Fallo al enriquecer con Excel'));
+            expect(logger.error).toHaveBeenCalledWith(
+                expect.stringContaining('Error al obtener source en pjud, error: PJUD fallo de conexión')
+            );
+            // La otra fuente (EMOL) debió continuar y completarse
+            expect(mockSourceEmol.fetch).toHaveBeenCalledTimes(1);
+            expect(result.status).toBe(0);
+        });
 
-//             const result = await orchestrator.run(startDate, endDate);
+        test('debe capturar errores en los enrichers y continuar con la exportación', async () => {
+            mockEnricher.enrich.mockRejectedValue(new Error('Fallo al enriquecer con Excel'));
 
-//             expect(logger.error).toHaveBeenCalledWith(
-//                 expect.stringContaining('Error al enriquecer la informacion con SpreadsheetEnricher Fallo al enriquecer con Excel')
-//             );
-//             // Pese al error en el enricher, se debe invocar al exporter
-//             expect(mockExporter.export).toHaveBeenCalledTimes(1);
-//             expect(result.status).toBe(0);
-//         });
+            const result = await orchestrator.run(startDate, endDate);
 
-//         test('debe capturar el error si el exporter falla y retornar undefined', async () => {
-//             mockExporter.export.mockRejectedValue(new Error('No se pudo escribir el archivo'));
+            expect(logger.error).toHaveBeenCalledWith(
+                expect.stringContaining('Error al enriquecer la informacion con SpreadsheetEnricher Fallo al enriquecer con Excel')
+            );
+            // Pese al error en el enricher, se debe invocar al exporter
+            expect(mockExporter.export).toHaveBeenCalledTimes(1);
+            expect(result.status).toBe(0);
+        });
 
-//             const result = await orchestrator.run(startDate, endDate);
+        test('debe capturar el error si el exporter falla y retornar undefined', async () => {
+            mockExporter.export.mockRejectedValue(new Error('No se pudo escribir el archivo'));
 
-//             expect(logger.error).toHaveBeenCalledWith(
-//                 expect.stringContaining('Error al escribir la informacion en excel error: No se pudo escribir el archivo')
-//             );
-//             expect(result).toBeUndefined();
-//         });
+            const result = await orchestrator.run(startDate, endDate);
+
+            expect(logger.error).toHaveBeenCalledWith(
+                expect.stringContaining('Error al escribir la informacion en excel error: No se pudo escribir el archivo')
+            );
+            expect(result).toBeUndefined();
+        });
     });
 
     // describe('Pruebas de llamada a los Sources', ()=>{
@@ -263,5 +265,5 @@ describe('auctionScraperOrchestator', () => {
 
     //         expect(mockSourcePjud.fetch).toHaveBeenCalledTimes(1);
     //     })
-    // });
-});
+    });
+// });

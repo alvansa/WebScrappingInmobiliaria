@@ -12,10 +12,10 @@ const {stringToDate} = require('#utils/cleanStrings.js');
 const config = require('#config');
 const NORMAL = config.NORMAL;
 
-const PlaywrigthManager = require('#src/core/scrapeAuction/services/PlaywrigthManager.js')
+const PlaywrigthManager = require('#core/scrapeAuction/services/PlaywrightManager.js')
 
 const { webkit } = require('playwright');
-const { PlaywrightManager } = require('../services/PlaywrigthManager');
+const { PlaywrightManager } = require('../services/PlaywrightManager');
 const MAX_RETRIES = 10;
 
 require('dotenv').config();
@@ -31,67 +31,84 @@ class PjudPlaywrightSource{
     getName(){ return 'pjud'; }
 
     async fetch(startDateOrigin, endDateOrigin, { event, mainWindow, emptyMode, testMode }){
+        if(emptyMode){
+            return [];
+        }
         const endDateModified = stringToDate(endDateOrigin, 'YMD');
-        endDateModified.setDate(endDateModified.getDate() + 1); // Aumentar un dia para incluir el ultimo dia
+        endDateModified.setDate(endDateModified.getDate());
+
         const startDate = dateToPjud(stringToDate(startDateOrigin, 'YMD'));
         const endDate = dateToPjud(endDateModified);
         let casos = [];
+        let lastPage = 0;
 
 
-        this.browser = await this.manager.getBrowser();
-        this.context = await this.manager.createHumanContext();
+        // this.browser = await this.manager.getBrowser();
+        // this.context = await this.manager.createHumanContext();
         for(let attempt = 1; attempt < MAX_RETRIES; attempt++){
             try{
-                casos = await this.searchCasesByDay(startDate, endDate);
-                casos.reverse(); // Invertir el orden de los casos para que aparezcan del mas reciente al mas antiguo
-
-                logger.info("Cantidad de casos obtenidos de pjud: ", casos.length);
-                const gestorRemates = new GestorRematesPjud(casos, event, mainWindow, NORMAL);
-                await gestorRemates.getInfoFromAuctions();
-                if(casos.length > 0){
-                    return casos;
+                const {casos: casosTemp, pageNumber: newPage} = await this.searchCasesByDay(startDate, endDate);
+                if(newPage > lastPage  && casosTemp.length > 0){
+                    lastPage = newPage;
+                    casos = casosTemp;
                 }
             }catch(error){
-
                 logger.warn(`Error: ${error.message}`)
+            }
+        }
+        casos.reverse(); // Invertir el orden de los casos para que aparezcan del mas reciente al mas antiguo
+        logger.info("Cantidad de casos obtenidos de pjud: ", casos.length);
+
+        if(testMode){
+            if(casos.length > 0){
+                logger.info(`Modo test activado, se detiene la ejecucion despues de obtener los casos de pjud. Cantidad de casos obtenidos: ${casos.length}`);
                 return casos;
             }
         }
-        return casos;
 
+        try {
+            const gestorRemates = new GestorRematesPjud(casos, event, mainWindow, NORMAL);
+            await gestorRemates.getInfoFromAuctions();
+            if (casos.length > 0) {
+                return casos;
+            }
+        } catch (error) {
+            logger.warn(`Error: ${error.message}`);
+            return casos;
+        }
     }
 
 
     async searchCasesByDay(startDate, endDate) {
-        let window;
-        let casos = [];
         let page = null;
+        let context = null;
         try {
-            // const url = 'https://www.pjud.cl/';
             const url = 'https://oficinajudicialvirtual.pjud.cl/remate.php'
 
-            this.context = await PlaywrigthManager.createHumanContext();
-            page = await this.context.newPage();
+            context = await PlaywrigthManager.createHumanContext();
+            page = await context.newPage();
             await page.goto(url,{timeout: 160000}); // Página real
             const scraper = new PjudPlaywright(this.browser, page, startDate, endDate);
-            casos = await scraper.getPJUD();
+            const {casos, pageNumber} = await scraper.getPJUD();
             obtainCorteJuzgadoNumbers(casos);
             logger.info(`Cantidad de resultados obtenidos: ${casos.length}`);
-            return casos;
+            return {'casos': casos, 'pageNumber': pageNumber};
         } catch (error) {
-            console.error("Error al buscar casos por dia en Pjud: ", error.message);
-            if (window && !window.isDestroyed()) {
-                window.destroy();
+            logger.error(`Error al buscar casos por dia en Pjud: ${error.message}`);
+            if (context) {
+                await context.close().catch(() => { });
             }
+            return {'casos': [], 'pageNumber': 0};
 
         }finally{
-            if (this.context) {
-                await this.context.close().catch(() => { });
-                this.context = null;
-                page = null;
+            if(page){
+                await page.close().catch(() => { });
+            }
+
+            if (context) {
+                await context.close().catch(() => { });
             }
         }
-        return casos;
     }
 
     async completeInfo(cases){

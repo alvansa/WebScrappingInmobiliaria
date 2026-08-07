@@ -18,6 +18,7 @@ const logger = require('#utils/logger.js')
 const { logToRenderer } = require('#utils/utilsRenderer.js');
 const {fixStringDate } = require('#utils/cleanStrings.js');
 const listUserAgents = require('#utils/userAgents.json');
+const PlaywrightManager = require('#core/scrapeAuction/services/PlaywrightManager.js');
 
 const DELAY_RANGE = {"min": 2, "max" : 5}
 let DEUDA_SEARCH = false;
@@ -561,7 +562,7 @@ class checkFPMG {
     async consultaCausaGeneral(caso,type){
         try{
             const browser = null;
-            const consultaCausa = new ConsultaCausaPjud(browser, caso, this.mainWindow, type);
+            const consultaCausa = new ConsultaCausaPjud(PlaywrightManager, caso, this.mainWindow, type);
             const result = await consultaCausa.getConsulta()
             return result;
         }catch(error){

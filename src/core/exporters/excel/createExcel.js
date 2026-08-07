@@ -9,6 +9,8 @@ const {fixStringDate} = require(`#utils/cleanStrings.js`);
 const excelRowWriter = require(`./excelRowWriter.js`);
 const excelTemplateBuilder = require(`./excelTemplateBuilder.js`);
 
+const logger = require('#utils/logger.js');
+
 const PRELIMINAR = 3;
 
 const RANGO_EXCEL = `${config.INICIO}5:${config.COMENTARIOS3}`;
@@ -132,6 +134,7 @@ class createExcel {
 
         // Se escriben todos los casos revisados en la hoja, para eso primero se transforman a
         // objetos para verificar la normalizacion
+        logger.debug(`Cantidad de casos a escribir en excel: ${remates.size}`);
         for (let caso of remates) {
             const casoObj = caso[1].toObject()
             // await insertarCasoIntoWorksheet(casoObj, ws, currentRow);
@@ -166,24 +169,27 @@ class createExcel {
                 if(actualCase){
                     Caso.fillMissingData(actualCase,currentCase);
                 }
+                logger.debug(`Caso ${currentCase.causa} ya esta en el listado por lo que quedo fuera`)
                 return false;
             }
         }
         // Si la fecha de remate es menor a la fecha de inicio, o mayor a la final
         if (currentCase.fechaRemate && (currentCase.fechaRemate < this.fixedStartDate || currentCase.fechaRemate > this.fixedEndDate )) {
+            logger.debug(`Caso ${currentCase.causa} del juzgado ${currentCase.juzgado} con fecha de remate ${currentCase.fechaRemate} fuera del rango de fechas`);
         // if (currentCase.fechaRemate && (currentCase.fechaRemate < fechaInicioTest || currentCase.fechaRemate > fechaInicioTest )) {
             return false;
         }
         // No se escriben casos de juez partidor
         if (currentCase.juzgado === "Juez Partidor") {
+            logger.debug(`Caso ${currentCase.causa} del juzgado ${currentCase.juzgado} es de juez partidor`);
             return false;
         }
 
         // Agregar la busqueda de casos en DB y union si existe ya en la DB
-        const caseDB = this.isCaseInDB(currentCase);
-        if(caseDB){
-            Caso.bindCaseWithDB(currentCase,caseDB);
-        }
+        // const caseDB = this.isCaseInDB(currentCase);
+        // if(caseDB){
+        //     Caso.bindCaseWithDB(currentCase,caseDB);
+        // }
         return true;
     }
 

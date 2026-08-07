@@ -1,8 +1,8 @@
-const { chromium } = require('playwright');
 
 const { delay } = require('#utils/delay.js');
 const ConsultaCausaPjud = require('./consultaCausaPlay.js'); // Versión Playwright
 const { logger } = require('#utils/logger.js');
+const PlaywrightManager = require('#core/scrapeAuction/services/PlaywrightManager.js');
 
 const MAX_RETRIES = 10;
 
@@ -23,7 +23,7 @@ class GestorRematesPjud {
         try {
             // 1. Lanzar el navegador Playwright una sola vez
             logger.debug(`Lanzando navegador Playwright para las consultas...`);
-            this.browser = await chromium.launch({ headless: false }); // Cambiar a true si se desea sin interfaz
+            // await PlaywrightManager.getBrowser(); // Cambiar a true si se desea sin interfaz
 
             for (let caso of this.casos) {
                 counter++;
@@ -53,31 +53,34 @@ class GestorRematesPjud {
 
                 // Control de esperas entre casos
                 if ((counter + 1) < this.casos.length) {
-                    const awaitTime = Math.random() * (60 - 30) + 30;
+                    const awaitTime = Math.random() * (30 - 10) + 10;
                     logger.info(`Esperando ${awaitTime.toFixed(2)} segundos antes del caso ${counter + 1} de ${this.casos.length} ${secondLapMsg}`);
                     await delay(awaitTime * 1000);
                 }
 
                 // Límite de prueba (opcional, original tenía counter > 3)
-                // if (counter > 3) break;
+                // if (counter > 2) {
+                //     logger.info(`Límite de prueba alcanzado, se detiene la ejecución ${secondLapMsg}`);
+                //     break;
+                // }
             }
         } catch (error) {
             logger.error(`Error al obtener datos de los casos gestorRematesPlay:  ${error.message}`);
         } finally {
-            // Cerrar el navegador al terminar
-            if (this.browser) {
-                await this.browser.close();
-                logger.debug('Navegador cerrado.');
+            if(this.browser) {
+                this.browser.closeBrowser().catch(() => { });
             }
         }
     }
 
+    
+
     async consultaCausa(caso) {
         // Usar el navegador ya lanzado (this.browser debe existir)
-        if (!this.browser) {
-            throw new Error('El navegador no ha sido inicializado. Llama a getInfoFromAuctions primero.');
-        }
-        const consultaCausa = new ConsultaCausaPjud(this.browser, caso, this.mainWindow, this.type);
+        // if (!this.browser) {
+        //     throw new Error('El navegador no ha sido inicializado. Llama a getInfoFromAuctions primero.');
+        // }
+        const consultaCausa = new ConsultaCausaPjud(PlaywrightManager, caso, this.mainWindow, this.type);
         const result = await consultaCausa.getConsulta();
         return result;
     }

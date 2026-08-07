@@ -102,6 +102,7 @@ class Pjud {
     async clickSearchButton() {
         try {
             const buttonSelector = 'button[onclick="accesoConsultaCausas();"]';
+
             await this.page.waitForSelector(buttonSelector, { visible: true });
 
             // Hacemos focus y presionamos Enter

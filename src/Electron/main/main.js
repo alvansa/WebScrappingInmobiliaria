@@ -1,4 +1,4 @@
-const {app, BrowserWindow, ipcMain, dialog,electron} = require('electron');
+const {app, BrowserWindow, ipcMain, dialog} = require('electron');
 const path = require('node:path');
 const puppeteer = require('puppeteer-core');
 const pie = require('puppeteer-in-electron');
@@ -17,7 +17,7 @@ const ProcesarBoletin = require('#sources/liquidaciones/procesarBoletin.js');
 const {createExcel} = require('#exporters/excel/createExcel.js');
 const Caso = require('#models/caso/caso.js')
 const config = require('#config');
-const ConsultaCausaPjud = require('#sources/pjud/consultaCausaPjudRefactored.js');
+const ConsultaCausaPjud = require('#sources/pjud/consultaCausaPlay.js'); // Versión Playwright
 const {delay } = require('#utils/delay.js');
 const {tribunalesPorCorte} = require('#utils/corteJuzgado.js');
 const testUnitarios = require('../dev/testUnitarios.js');
@@ -26,7 +26,7 @@ const obtainLinkMapa = require('../dev/obtainLinkMapa.js');
 const SpreadSheetManager = require('#enrichers/spreadSheet/SpreadSheetManager.js');
 
 const PuppeteerManager = require('#core/scrapeAuction/services/PuppeteerManager.js');
-const PlaywrightManager = require('#core/scrapeAuction/services/PlaywrigthManager.js');
+const PlaywrightManager = require('#core/scrapeAuction/services/PlaywrightManager.js');
 
 const EconomicosSource = require('#core/scrapeAuction/sources/EconomicosSource.js');
 const PjudSource = require('#core/scrapeAuction/sources/PjudSource.js');
@@ -228,10 +228,22 @@ class MainApp{
                 event : event,
             }
 
-            const orchestator = new auctionScraperOrchestator(sources, enrichers, exporter, configOrquester);
-            const result = await orchestator.run(startDate, endDate);
-            return result;
+            this.currentOrchestator = new auctionScraperOrchestator(sources, enrichers, exporter, configOrquester);
+            try {
+                const result = await this.currentOrchestator.run(startDate, endDate);
+                return result;
+            } finally {
+                this.currentOrchestator = null;
+            }
+        });
 
+        ipcMain.handle('stop-proccess', async () => {
+            if (this.currentOrchestator) {
+                logger.info('Solicitud de detención recibida vía IPC stop-proccess');
+                this.currentOrchestator.stop();
+                return true;
+            }
+            return false;
         });
 
 
@@ -551,12 +563,15 @@ class MainApp{
 }
 
 async function consultaCausa(caso){
-    const browser = await pie.connect(app, puppeteer);
-    let window;
-    window = openWindow(window,false);
-    const consultaCausa = new ConsultaCausaPjud(browser,window,caso,null, 0);
-    const result = await consultaCausa.getConsulta()
+    // const browser = await pie.connect(app, puppeteer);
+    // let window;
+    // window = openWindow(window,false);
+    // const consultaCausa = new ConsultaCausaPjud(browser,window,caso,null, 0);
+    // const result = await consultaCausa.getConsulta()
 
+    // return result;
+    const consultaCausa = new ConsultaCausaPjud(PlaywrightManager, caso, this.mainWindow, this.type);
+    const result = await consultaCausa.getConsulta();
     return result;
 }
 

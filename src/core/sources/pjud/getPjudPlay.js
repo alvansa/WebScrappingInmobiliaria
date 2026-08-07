@@ -2,6 +2,7 @@ const fs = require('fs');
 
 const Caso = require('#models/caso/caso.js');
 const { delay, fakeDelay } = require('#utils/delay.js');
+const logger = require('#utils/logger.js');
 
 const EXITO = 1;
 const ERROR = 0;
@@ -19,6 +20,7 @@ class PjudPlaywright {
         let tableData = [];
         let tienePaginaSiguiente = true;
         let originalPage = this.page;
+        let paginaActual = 1;
         try {
             // await this.page.evaluate(() => {
             //     verRemates(); // Asegúrate de que esta función existe en el contexto de la página
@@ -44,21 +46,36 @@ class PjudPlaywright {
 
             while (tienePaginaSiguiente) {
                 try {
+                    const iframeSoporte = this.page.frameLocator('iframe[id^="TSBrPFrame_"]');
+
+                    // 2. Buscamos el texto DENTRO de ese iframe
+                    const avisoSoporte = iframeSoporte.getByText(/Su numero de soporte es\s*:/i);
+
+                    // 3. Verificamos si el texto dentro del iframe es visible
+                    const hayAvisoError = await avisoSoporte.isVisible();
+
+                    if (hayAvisoError) {
+                        console.warn("⚠️ Se detectó el mensaje de soporte dentro del iframe. Saliendo del bucle...");
+                        break; // Sale inmediatamente del while
+                    }
                     let firstRowContent = await this.getPrimeraLinea();
-                    let datosTabla = await this.getDatosTabla();
+                    let datosTabla = await this.getDatosTabla(tableData);
                     tableData.push(...datosTabla);
                     tienePaginaSiguiente = await this.manejarPaginaSiguiente(firstRowContent);
-                    await fakeDelay(2, 4);
+                    paginaActual++;
+                    await fakeDelay(5, 10);
                 } catch (error) {
                     console.error('Error en el while de getPJUD:', error);
                     break;
                 }
             }
+            this.writeData(tableData);
             this.page.close();
             // this.page = originalPage;
             // this.page.bringToFront();
             // this.page.close();
-            return tableData;
+            logger.info(`Ultima pagina procesada: ${paginaActual}, cantidad de casos obtenidos: ${tableData.length}`);
+            return { 'casos': tableData, 'pageNumber': paginaActual };
         } catch (error) {
             console.error('Error en la función getPJUD:', error.message);
             if(this.page && !this.page.isClosed()){
@@ -124,7 +141,7 @@ class PjudPlaywright {
         return primeraLinea;
     }
 
-    async getDatosTabla() {
+    async getDatosTabla(existingList = []) {
         let casos = [];
         const rowsData = await this.page.evaluate(() => {
             const rows = Array.from(document.querySelectorAll('#dtaTableDetalleRemate tbody tr'));
@@ -140,14 +157,25 @@ class PjudPlaywright {
             });
         });
 
+        if (rowsData.length > 0) {
+            rowsData.pop();
+        }
+
         rowsData.forEach(data => {
-            const caso = new Caso(new Date(), "N/A", "Lgr", 2);
-            caso.juzgado = data.tribunal;
-            caso.causa = data.causa;
-            caso.fechaRemate = data.fechaHora;
-            casos.push(caso);
+            if (!data.causa || !data.tribunal) return;
+
+            const yaExisteEnLocal = casos.some(c => c.causa === data.causa && c.juzgado === data.tribunal);
+            const yaExisteEnAcumulado = existingList.some(c => c.causa === data.causa && c.juzgado === data.tribunal);
+
+            if (!yaExisteEnLocal && !yaExisteEnAcumulado) {
+                const caso = new Caso(new Date(), "N/A", "Lgr", 2);
+                caso.juzgado = data.tribunal;
+                caso.causa = data.causa;
+                caso.fechaRemate = data.fechaHora;
+                casos.push(caso);
+            }
         });
-        casos.pop(); // ¿Por qué pop? Lo dejo igual que en original
+
         return casos;
     }
 
@@ -180,13 +208,18 @@ class PjudPlaywright {
     }
 
     writeData(datos) {
-        const rutaArchivo = './datos.json';
-        const datosJson = JSON.stringify(datos, null, 2);
-        fs.writeFile(rutaArchivo, datosJson, (err) => {
+        const rutaArchivo = './datos.txt';
+
+        // Transformamos cada elemento de la lista en una línea formateada
+        const contenido = datos
+            .map(dato => `${dato.causa}, ${dato.juzgado}, ${dato.fechaRemate}`)
+            .join('\n');
+
+        fs.writeFile(rutaArchivo, contenido, (err) => {
             if (err) {
                 console.error('Error al escribir en el archivo:', err);
             } else {
-                console.log('Datos escritos correctamente en el archivo JSON');
+                console.log('Datos escritos correctamente en el archivo de texto.');
             }
         });
     }

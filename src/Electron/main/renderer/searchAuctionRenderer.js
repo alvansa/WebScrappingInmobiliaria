@@ -1,10 +1,28 @@
 const EXITO = 0;
 const NOT_AUCTIONS_FOUND = 5;
 const searchButton = document.getElementById('logButton');
+const stopButton = document.getElementById('stopButton');
+
+stopButton?.addEventListener('click', async () => {
+  if (window.searchAPI?.stopProcess) {
+    stopButton.disabled = true;
+    stopButton.textContent = 'Deteniendo...';
+    const textNode = document.getElementById('workingDialogText');
+    if (textNode) {
+      textNode.textContent = 'Deteniendo el proceso y guardando datos en Excel...';
+    }
+    await window.searchAPI.stopProcess();
+  }
+});
 
 searchButton.addEventListener('click', async () => {
 
   searchButton.disabled = true; // Deshabilita el botón al hacer clic
+  if (stopButton) {
+    stopButton.classList.remove('hidden');
+    stopButton.disabled = false;
+    stopButton.textContent = 'Detener y Guardar Excel';
+  }
 
   const workingDialog = createDialog();
 
@@ -29,8 +47,13 @@ searchButton.addEventListener('click', async () => {
     console.error('Ocurrió un error:', error);
   } finally {
     // Elimina el diálogo al finalizar
-    document.body.removeChild(workingDialog);
+    if (workingDialog && workingDialog.parentNode) {
+      document.body.removeChild(workingDialog);
+    }
     searchButton.disabled = false; // Habilita el botón nuevamente
+    if (stopButton) {
+      stopButton.classList.add('hidden');
+    }
   }
 });
 
@@ -86,11 +109,35 @@ function createDialog() {
   workingDialog.style.color = 'white';
   workingDialog.style.borderRadius = '10px';
   workingDialog.style.textAlign = 'center';
-  workingDialog.textContent = 'Trabajando, por favor espere...';
+  workingDialog.style.zIndex = '9999';
+
+  const textNode = document.createElement('p');
+  textNode.id = 'workingDialogText';
+  textNode.textContent = 'Trabajando, por favor espere...';
+  textNode.style.marginBottom = '15px';
+  workingDialog.appendChild(textNode);
+
+  const dialogStopBtn = document.createElement('button');
+  dialogStopBtn.textContent = 'Detener y Guardar Excel';
+  dialogStopBtn.className = 'bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded cursor-pointer';
+  dialogStopBtn.onclick = async () => {
+    dialogStopBtn.disabled = true;
+    dialogStopBtn.textContent = 'Deteniendo y guardando...';
+    textNode.textContent = 'Deteniendo el proceso y guardando datos en Excel...';
+    if (stopButton) {
+      stopButton.disabled = true;
+      stopButton.textContent = 'Deteniendo...';
+    }
+    if (window.searchAPI?.stopProcess) {
+      await window.searchAPI.stopProcess();
+    }
+  };
+  workingDialog.appendChild(dialogStopBtn);
+
   document.body.appendChild(workingDialog);
   return workingDialog;
-
 }
+
 function getFormValues() {
   const startDate = document.getElementById('startDate').value;
   const endDate = document.getElementById('endDate').value;
@@ -100,8 +147,14 @@ function getFormValues() {
 }
 
 function handleResults(result) {
+  if (!result) {
+    alert('Ocurrió un error al obtener los datos. Por favor, intente nuevamente.');
+    return;
+  }
   const filePath = result.filePath;
   const status = result.status;
+  const isStopped = result.isStopped;
+
   const messages = {
     null: 'Ocurrió un error al obtener los datos. Por favor, intente nuevamente.',
     0: 'No se ingresó ninguna de las fechas.',
@@ -114,13 +167,13 @@ function handleResults(result) {
     default: 'Error al registrar los datos.',
   };
 
-  if(status == EXITO){
-    alert(`¡Éxito! Los datos se han registrado correctamente en el archivo: ${filePath}`);
-  }else{
-    alert(messages[filePath] || messages.default);
+  if (status === EXITO) {
+    if (isStopped) {
+      alert(`¡Proceso detenido! Se guardaron los datos obtenidos hasta el momento en el archivo Excel:\n${filePath}`);
+    } else {
+      alert(`¡Éxito! Los datos se han registrado correctamente en el archivo: ${filePath}`);
+    }
+  } else {
+    alert(messages[status] || messages[filePath] || messages.default);
   }
-
-  // if (filePath == null || typeof filePath === 'number') {
-  // } else {
-  // }
 }

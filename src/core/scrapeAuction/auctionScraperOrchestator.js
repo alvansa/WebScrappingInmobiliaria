@@ -114,7 +114,8 @@ class auctionScraperOrchestator{
             logger.info(`Proceso completado. Archivo guardado en: ${filePath}`);
             return {
                 filePath: filePath,
-                status: EXITO
+                status: EXITO,
+                isStopped: false
             };
         } catch (error) {
             logger.error(`Error al escribir la informacion en excel error: ${error.message}`);

@@ -1,15 +1,36 @@
 const GestorRematesPjud = require('#src/core/sources/pjud/GestorRematesPlay.js');
-const {delay} = require('#utils/delay.js');
+// const {delay} = require('#utils/delay.js');
 const CasoBuilder = require('#models/caso/casoBuilder.js');
+// const { defaultInstance } = require('#core/scrapeAuction/services/PlaywrightManager.js');
 
 // 1. Mock de Playwright para evitar abrir el navegador
-jest.mock('playwright', () => ({
-    chromium: {
-        launch: jest.fn().mockResolvedValue({
+// jest.mock('playwright', () => ({
+//     chromium: {
+//         launch: jest.fn().mockResolvedValue({
+//             close: jest.fn().mockResolvedValue(true)
+//         })
+//     }
+// }));
+
+
+jest.mock('#src/core/scrapeAuction/services/PlaywrightManager.js', () => {
+    const mockBrowserInstance = {
+        closeBrowser: jest.fn().mockResolvedValue(true),
+        createHumanContext: jest.fn().mockResolvedValue({
+            newPage: jest.fn().mockResolvedValue({
+                goto: jest.fn().mockResolvedValue(true),
+                close: jest.fn().mockResolvedValue(true)
+            }),
             close: jest.fn().mockResolvedValue(true)
         })
-    }
-}));
+    };
+
+    return {
+        PlaywrightManager: {
+            getBrowser: jest.fn().mockResolvedValue(mockBrowserInstance)
+        }
+    };
+});
 
 jest.mock('#utils/delay.js', () =>({
     ...jest.requireActual('#utils/delay.js'),
