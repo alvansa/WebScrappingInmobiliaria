@@ -1,0 +1,72 @@
+name: Build Desktop App
+
+# Se dispara a mano desde la pestaña "Actions" de GitHub (botón "Run workflow"),
+# o automáticamente al crear un tag que empiece con "v" (ej: v1.0.1).
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            script: makeMac
+            artifact-name: InfoRemates-mac
+            artifact-path: |
+              out/*.dmg
+              out/*.dmg.blockmap
+          - os: windows-latest
+            script: makeWindows
+            artifact-name: InfoRemates-windows
+            artifact-path: |
+              out/*.exe
+              out/*.exe.blockmap
+
+    runs-on: ${{ matrix.os }}
+
+    # Evita que electron-builder intente firmar el .dmg con un certificado
+    # de Apple que no existe en este runner.
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: false
+
+    steps:
+      - name: Checkout del repo
+        uses: actions/checkout@v4
+
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # credentials.json y .env están en .gitignore (no viven en el repo).
+      # Se reconstruyen acá a partir de GitHub Secrets antes de instalar deps,
+      # porque "npm ci" -> postinstall -> electron-rebuild y el build de
+      # electron-builder los necesitan presentes en disco.
+      - name: Restaurar archivos locales (gitignored)
+        shell: bash
+        run: |
+          mkdir -p src/core/enrichers/spreadSheet
+          printf '%s' "$CREDENTIALS_JSON" > src/core/enrichers/spreadSheet/credentials.json
+          printf '%s' "$ENV_FILE" > .env
+        env:
+          CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
+          ENV_FILE: ${{ secrets.DOTENV_CONTENTS }}
+
+      - name: Instalar dependencias (recompila módulos nativos para este SO)
+        run: npm ci
+
+      - name: Generar instalador
+        run: npm run ${{ matrix.script }}
+
+      - name: Subir instalador como artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact-name }}
+          path: ${{ matrix.artifact-path }}
+          retention-days: 14
+          if-no-files-found: error

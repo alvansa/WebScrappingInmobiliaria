@@ -396,13 +396,14 @@ class ConsultaCausaPjud {
             return false;
         }
 
+        await this.searchInMainTable();
+
         if (this.type === LADRILLERO) {
             logger.info(`Buscando en no resueltos`);
             await this.searchInMainTable('notResolved');
             await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
         }
 
-        await this.searchInMainTable();
         if (this.type === NORMAL) {
             logger.debug("Descargando demanda");
             await this.downloadDemanda();
@@ -499,126 +500,62 @@ class ConsultaCausaPjud {
         }
 }
 
-    async searchDataInRow2(row) {
-        let dateToday = null;
-        if (this.type === DEUDA) {
-            dateToday = this.caso.fechaRemate;
-        } else {
-            dateToday = new Date();
-        }
+    async searchDataInRow(row) {
+        // 1. Prevenir mutación accidental de this.caso.fechaRemate creando una nueva instancia de Date
+        let dateToday = this.type === DEUDA
+            ? new Date(this.caso.fechaRemate)
+            : new Date();
         dateToday.setDate(dateToday.getDate() - 7);
+        console.log(`Fecha de corte para comparación: ${dateToday.toISOString().split('T')[0]} y tipo ${this.type}`);
 
         try {
-            // const [number, uselessFile, directory, dirHasLink, stage, tramite, descripcion, fecha, linkToDir] = await Promise.all([
-            //     row.$eval("td:nth-child(1)", el => el.textContent.trim()),
-            //     row.$eval("td:nth-child(2)", el => el.textContent.trim()),
-            //     row.$eval("td:nth-child(3)", el => el.textContent.trim()),
-            //     row.$eval("td:nth-child(3)", el => el.querySelector("a") !== null),
-            //     row.$eval("td:nth-child(4)", el => el.textContent.trim()),
-            //     row.$eval("td:nth-child(5)", el => el.textContent.trim()),
-            //     row.$eval("td:nth-child(6)", el => el.textContent.trim()),
-            //     row.$eval("td:nth-child(7)", el => el.textContent.trim()),
-            //     row.$("td:nth-child(3) a")
-            // ]);
-            const [number,dirHasLink, descripcion, fecha, linkToDir] = await Promise.all([
-                row.$eval("td:nth-child(1)", el => el.textContent.trim()),
-                // row.$eval("td:nth-child(2)", el => el.textContent.trim()),
-                // row.$eval("td:nth-child(3)", el => el.textContent.trim()),
-                row.$eval("td:nth-child(3)", el => el.querySelector("a") !== null),
-                // row.$eval("td:nth-child(4)", el => el.textContent.trim()),
-                // row.$eval("td:nth-child(5)", el => el.textContent.trim()),
-                row.$eval("td:nth-child(6)", el => el.textContent.trim()),
-                row.$eval("td:nth-child(7)", el => el.textContent.trim()),
-                row.$("td:nth-child(3) a")
-            ]);
+            // 2. Extraer el texto de todas las celdas en una sola llamada (Mucho más rápido que 8 $eval)
+            const cellTexts = await row.locator('td').allTextContents();
 
+            const number = cellTexts[0]?.trim() || '';
+            const descripcion = cellTexts[5]?.trim() || '';
+            const fecha = cellTexts[6]?.trim() || '';
+
+            // 3. Locator para el enlace dentro de la 3ra columna
+            const linkToDir = row.locator('td:nth-child(3) a');
+            const dirHasLink = (await linkToDir.count()) > 0;
+
+            // 4. Procesamiento según el tipo
             if (this.type === NORMAL) {
                 if (this.isTPDocument(descripcion)) {
                     this.caso.tp = `TP Folio ${number}`;
                 }
-                if (dirHasLink && linkToDir) {
+
+                if (dirHasLink) {
                     await linkToDir.click();
                     await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
                     await this.downloadPdfFile();
-                    const xButton = await this.page.$("#modalAnexoSolicitudCivil > div > div > div.modal-header > button");
-                    if (xButton) {
-                        await this.page.click("#modalAnexoSolicitudCivil > div > div > div.modal-header > button");
+
+                    // Localizador simplificado y verificación de visibilidad directa
+                    const xButton = this.page.locator('#modalAnexoSolicitudCivil .modal-header button');
+                    if (await xButton.isVisible()) {
+                        await xButton.click();
                     }
                 }
+
                 this.checkDescription(descripcion);
+
             } else if (this.type === LADRILLERO) {
-                if (stringToDate(fecha, 'YMD') >= dateToday) {
+                logger.debug(`Descripcion ${descripcion} y fecha ${fecha}`);
+                if (stringToDate(fecha) >= dateToday) {
                     this.caso.hasChanged = true;
                 }
+
             } else if (this.type === DEUDA) {
                 if (descripcion.toLowerCase().includes("acta")) {
                     this.caso.hasChanged = true;
                 }
             }
+
         } catch (error) {
             logger.error(`Error en searchDataInRow: ${error.message}`);
         }
     }
-
-    async searchDataInRow(row) {
-    // 1. Prevenir mutación accidental de this.caso.fechaRemate creando una nueva instancia de Date
-    let dateToday = this.type === DEUDA 
-        ? new Date(this.caso.fechaRemate) 
-        : new Date();
-    dateToday.setDate(dateToday.getDate() - 7);
-
-    try {
-        // 2. Extraer el texto de todas las celdas en una sola llamada (Mucho más rápido que 8 $eval)
-        const cellTexts = await row.locator('td').allTextContents();
-        
-        const number      = cellTexts[0]?.trim() || '';
-        // const uselessFile = cellTexts[1]?.trim() || '';
-        // const directory   = cellTexts[2]?.trim() || '';
-        // const stage       = cellTexts[3]?.trim() || '';
-        // const tramite     = cellTexts[4]?.trim() || '';
-        const descripcion = cellTexts[5]?.trim() || '';
-        const fecha       = cellTexts[6]?.trim() || '';
-
-        // 3. Locator para el enlace dentro de la 3ra columna
-        const linkToDir = row.locator('td:nth-child(3) a');
-        const dirHasLink = (await linkToDir.count()) > 0;
-
-        // 4. Procesamiento según el tipo
-        if (this.type === NORMAL) {
-            if (this.isTPDocument(descripcion)) {
-                this.caso.tp = `TP Folio ${number}`;
-            }
-
-            if (dirHasLink) {
-                await linkToDir.click();
-                await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
-                await this.downloadPdfFile();
-
-                // Localizador simplificado y verificación de visibilidad directa
-                const xButton = this.page.locator('#modalAnexoSolicitudCivil .modal-header button');
-                if (await xButton.isVisible()) {
-                    await xButton.click();
-                }
-            }
-
-            this.checkDescription(descripcion);
-
-        } else if (this.type === LADRILLERO) {
-            logger.debug(`Descripcion ${descripcion} y fecha ${fecha}`)
-            if (stringToDate(fecha, 'YMD') >= dateToday) {
-                this.caso.hasChanged = true;
-            }
-
-        } else if (this.type === DEUDA) {
-            if (descripcion.toLowerCase().includes("acta")) {
-                this.caso.hasChanged = true;
-            }
-        }
-
-    } catch (error) {
-        logger.error(`Error en searchDataInRow: ${error.message}`);
-    }
-}
 
     async searchForDirectoryNotResolved(row) {
         const dateToday = new Date();

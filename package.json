@@ -7,9 +7,10 @@
     "start": "electron .",
     "start:test": "electron . --test",
     "rebuild": "electron-rebuild -f -w better-sqlite3",
-    "make": "electron-builder",
-    "makeMac": "electron-builder --mac",
-    "makeWindows": "electron-builder --win --x64",
+    "check:case": "node scripts/check-case-sensitivity.js",
+    "make": "npm run check:case && electron-builder",
+    "makeMac": "npm run check:case && electron-builder --mac",
+    "makeWindows": "npm run check:case && electron-builder --win --x64",
     "postinstall": "electron-rebuild",
     "dev": "electron . --dev",
     "empty": "electron . --empty",
@@ -75,7 +76,17 @@
     "directories": {
       "output": "out"
     },
-    "target": "NSIS",
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico"
+    },
     "nsis": {
       "oneClick": false,
       "perMachine": false,
@@ -91,11 +102,12 @@
           ]
         }
       ],
-      "icon": "componentes/Electron/icon.icns"
+      "icon": "build/icon.png",
+      "identity": null
     },
     "extraResources": [
       {
-        "from": "./componentes/spreadSheet/credentials.json",
+        "from": "./src/core/enrichers/spreadSheet/credentials.json",
         "to": "credentials.json",
         "filter": [
           "**/*"

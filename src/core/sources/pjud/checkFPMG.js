@@ -205,24 +205,23 @@ class checkFPMG {
             }
             //  1. Ladrillos
             if(this.isLadrillo(dataLine)){
-                const casoExcel = new CasoBuilder(new Date(dataLine.fechaRem), "PJUD", config.PJUD)
+                const casoExcel = new CasoBuilder(stringToDate(dataLine.fechaRem), "PJUD", config.PJUD)
                     .conCausa(causaNormalizada)
                     .conJuzgado(dataLine.juzgado)
+                    .conFechaRemate(stringToDate(dataLine.fechaRem))
                     .construir();
                 this.casos.push(casoExcel);
-                // if(cont >= 5){
-                //     return;
-                // }
                 // cont++;
 
             //  2. Propios
-            }else if(this.isPropio(dataLine)){
-                const casoExcel = new CasoBuilder(new Date(dataLine.fechaRem), "PJUD", config.PJUD)
-                    .conCausa(causaNormalizada)
-                    .conJuzgado(dataLine.juzgado)
-                    .conPropio(true)
-                    .construir();
-                this.casos.push(casoExcel);
+            // }else if(this.isPropio(dataLine)){
+            //     const casoExcel = new CasoBuilder(stringToDate(dataLine.fechaRem), "PJUD", config.PJUD)
+            //         .conCausa(causaNormalizada)
+            //         .conJuzgado(dataLine.juzgado)
+            //         .conPropio(true)
+            //         .construir();
+            //     this.casos.push(casoExcel);
+            // 
             }else{
                 continue;
             }
@@ -248,8 +247,7 @@ class checkFPMG {
         // console.log(dataLine)
         // 2. revisar que la fecha de remate sea mayor a la fecha actual
         const dateToday = new Date();
-        const fechaRemateDate = convertDate(dataLine.fechaRem);
-        // console.log(dataLine.fechaRem, fechaRemateDate , dateToday);
+        const fechaRemateDate = stringToDate(dataLine.fechaRem);
         if (fechaRemateDate <= dateToday) {
             return false;
         }
@@ -465,8 +463,8 @@ class checkFPMG {
             }
             // Busqueda de deuda
             if(this.isDeuda(dataLine)){
-                const fechaRemateDate = convertDate(dataLine.fechaRem);
-                const casoExcel = new CasoBuilder(new Date(dataLine.fechaRem), "PJUD", config.PJUD)
+                const fechaRemateDate = stringToDate(dataLine.fechaRem);
+                const casoExcel = new CasoBuilder(stringToDate(dataLine.fechaRem), "PJUD", config.PJUD)
                     .conCausa(causaNormalizada)
                     .conJuzgado(dataLine.juzgado)
                     .conFechaRemate(fechaRemateDate)
@@ -494,8 +492,8 @@ class checkFPMG {
         }
         // 2. revisar que la fecha de remate sea mayor a la fecha actual
         //FECHA limite de deuda
-        const fechaLimite = new Date('2026/04/28');
-        const fechaRemateDate = new Date(convertDate(fixStringDate(dataLine.fechaRem)));
+        const fechaLimite = new Date('2026/06/28');
+        const fechaRemateDate = stringToDate(dataLine.fechaRem);
 
         if(fechaRemateDate < fechaLimite  ){
             return false;
@@ -537,6 +535,7 @@ class checkFPMG {
         for (let caso of this.casos) {
             counter++;
             logger.info(`Revisando caso ${counter} de ${this.casos.length}`);
+            logger.debug(`Causa: ${caso.causa}, Juzgado: ${caso.juzgado}, Fecha Remate: ${caso.fechaRemate}`);
             logToRenderer(this.mainWindow, `Revisando caso ${counter} de ${this.casos.length} ${caso.causa} y ${caso.juzgado}`);
             const percentage = Math.floor((counter / this.casos.length) * 100);
             if (!caso.numeroJuzgado || !caso.corte) {
@@ -546,7 +545,7 @@ class checkFPMG {
             // if(counter > 2){
             //     throw Error;
             // }
-            // if (counter > 10) {
+            // if (counter > 8) {
             //     logger.info(`Terminadno el ladrillero por ser mayor de 10`)
             //     return true;
             // }
@@ -561,7 +560,6 @@ class checkFPMG {
     }
     async consultaCausaGeneral(caso,type){
         try{
-            const browser = null;
             const consultaCausa = new ConsultaCausaPjud(PlaywrightManager, caso, this.mainWindow, type);
             const result = await consultaCausa.getConsulta()
             return result;

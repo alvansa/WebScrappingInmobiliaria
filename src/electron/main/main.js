@@ -55,6 +55,7 @@ let pieInitialized = pie.initialize(app);
 const EMOL = 1;
 const PJUD = 2;
 const LIQUIDACIONES = 3;
+const SHOW_MODE = false;
 
 console.log('Main loaded succefully')
 class MainApp{
@@ -202,7 +203,7 @@ class MainApp{
             PlaywrightManager.createHumanContext();
             
             const sources = [
-                new EconomicosSource(PuppeteerManager,{'mode': config.NORMAL, 'show': true }, logger, isTestMode ),
+                new EconomicosSource(PuppeteerManager,{'mode': config.NORMAL, 'show': SHOW_MODE }, logger, isTestMode ),
                 new PjudSource(PuppeteerManager,{'mode': config.NORMAL} ),
                 new LiquidacionesSource(PuppeteerManager, {mode: 0, logger: logger, isTestMode: isTestMode }),
                 new MacalSource(),

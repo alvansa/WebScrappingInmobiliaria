@@ -69,7 +69,7 @@ class PjudPlaywright {
                     break;
                 }
             }
-            this.writeData(tableData);
+            // this.writeData(tableData);
             this.page.close();
             // this.page = originalPage;
             // this.page.bringToFront();
