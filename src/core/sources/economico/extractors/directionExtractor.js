@@ -1,5 +1,4 @@
 const convertWordToNumbers = require('#utils/convertWordToNumbers.js');
-const {normalizeText} = require('#utils/textNormalizers.js');
 const logger = require('#utils/logger.js');
 const { isNumber } = require('puppeteer-core');
 
@@ -187,10 +186,11 @@ function changeWordsToNumbers(phrase,isDevLog = false) {
             }
             //Si encuentra numero empieza a buscar hasta enonctrar una palabra que no sea numero para delimitar el numero
             // if(isDev) logger.info(`Pre ${spacedPhrase}`)
-            let isNumber = isWordANumber(spacedPhrase[j], isDev);
+            let {isNumber, normalized} = isWordANumber(spacedPhrase[j], isDev);
+            // spacedPhrase[j] = replacePattern();
             // if(isDev) logger.info(`Post ${spacedPhrase}`)
 
-            if (spacedPhrase[j].includes(',')) {
+            if (normalized.includes(',')) {
                 isNumber = false;
                 j++;
             }
@@ -220,19 +220,17 @@ function changeFloorNumber(phrase){
         'piso\\s+([a-zA-Záéíóú]+[\\s]?){2}'
     ]
 
-    let cont = 1;
     for(let posible of posibleRegex){
         const regex = new RegExp(posible, 'i');
         const match = phrase.match(regex);
         if(!match) continue;
         const floorToChange = match[1].toLowerCase();
 
-        const FloorNumber = replaceFloorNumber(match[1]);
+        const FloorNumber = replaceFloorNumber(floorToChange);
         if(FloorNumber){
             phrase = phrase.replace(match[0],FloorNumber);
             break
         }
-        cont++;
     }
     return phrase;
 }
@@ -322,7 +320,9 @@ function processAndChangeNumberPhrase(phrase, spacedPhrase, i, j){
     const phraseInNumber = convertWordToNumbers(phraseWithoutRegex, isDev);
     if(isNumber(phraseInNumber) && phraseInNumber != 0){
         phrase = phrase.replace(regexPhrase, `${phraseInNumber}`);
-        if (isDev) console.log("Frase a cambiar: ", phrase, "|", i + 1, j);
+        if (isDev) {
+            logger.debug("Frase a cambiar: ", phrase, "|", i + 1, j)
+        }
     }
     return phrase;
 }
@@ -338,21 +338,30 @@ function isaNumber(word){
     return !isNaN(word);
 }
 
-function isWordANumber(word, isDevLog){
+function isWordANumber(word){
     let normalized = normalize(word);
 
     if(NUMBER_CONFIG.specialWords.has(normalized)) {
-        return true;
+        return {
+            isNumber: true,
+            normalized: normalized
+        }
     }
 
     for(const pattern of NUMBER_CONFIG.patterns){
         if(normalized.includes(pattern)) {
             const regex = new RegExp(`(${pattern})`);
             normalized = normalized.replace(regex, " $1 ");
-            return true;
+            return {
+                isNumber: true,
+                normalized: normalized
+            }
         }
     }
 
-    return false;
+    return {
+        isNumber: false,
+        normalized: normalized
+    };
 }
 module.exports = {extractDirection,changeWordsToNumbers, adaptDirectionToExcel}

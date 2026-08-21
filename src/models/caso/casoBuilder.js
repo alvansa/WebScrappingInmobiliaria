@@ -1,4 +1,3 @@
-const { getCausaVoluntaria } = require('#sources/economico/datosRemateEmol.js');
 const Caso = require('./caso');
 
 class CasoBuilder{

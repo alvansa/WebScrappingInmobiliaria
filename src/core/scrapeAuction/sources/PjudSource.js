@@ -21,16 +21,18 @@ class PjudSource{
         this.mode = config.mode
     }
 
-    getName(){ return 'pjud'; }
+    getName(){ return 'pjudOld'; }
 
 
     async fetch(startDateOrigin, endDateOrigin, { event, mainWindow, emptyMode, testMode }) {
         if (emptyMode) return [];
 
-        const endDateModified = stringToDate(endDateOrigin);
+        const endDateModified = stringToDate(endDateOrigin, 'YMD');
         endDateModified.setDate(endDateModified.getDate() + 1); // Aumentar un dia para incluir el ultimo dia
-        const startDate = dateToPjud(stringToDate(startDateOrigin));
+        const startDate = dateToPjud(stringToDate(startDateOrigin, 'YMD'));
         const endDate = dateToPjud(endDateModified);
+
+        logger.debug(`Fetching data from Pjud with end date: ${endDateOrigin}`);
 
         this.browser = await this.manager.getBrowser();
         let casos = [];
@@ -56,13 +58,14 @@ class PjudSource{
         let casos = [];
         try {
             window = new BrowserWindow({ show: true }); 
-            // const url = 'https://oficinajudicialvirtual.pjud.cl/indexN.php';
-            const url = 'https://oficinajudicialvirtual.pjud.cl/home/index.php'
+            const url = 'https://oficinajudicialvirtual.pjud.cl';
+            // const url = 'https://oficinajudicialvirtual.pjud.cl/home/index.php'
+            // const url = 'https://oficinajudicialvirtual.pjud.cl/remate.php'
             await window.loadURL(url);
             const page = await pie.getPage(this.browser, window);
             await page.setViewport({ width: 1366, height: 768 });
             const pjud = new Pjud(this.browser, page, startDate, endDate);
-            casos = await pjud.datosFromPjud();
+            casos = await pjud.getPJUD();
             obtainCorteJuzgadoNumbers(casos);
             window.destroy();
             return casos;

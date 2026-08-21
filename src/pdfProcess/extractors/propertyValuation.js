@@ -4,7 +4,6 @@ const { obtainType } = require('./utilsPdf.js');
 const PROPIEDAD = config.PROPIEDAD;
 const ESTACIONAMIENTO = config.ESTACIONAMIENTO;
 const BODEGA = config.BODEGA;
-const TODOS = config.TODOS;
 
 function processPropertyValuation(text, type){
     const roles = obtainPropertyValuation(text)

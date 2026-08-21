@@ -6,16 +6,16 @@ const config = require('#config');
 
 async function main(){
     
-    const casoTestCausa = new CasoBuilder(new Date(), "PJUD", config.PJUD)
-        .conCausa('C-14045-2024')
-        .conJuzgado('27° SANTIAGO')
-        .conMontoMinimo(999999)
-        .construir();
+    // const casoTestCausa = new CasoBuilder(new Date(), "PJUD", config.PJUD)
+    //     .conCausa('C-14045-2024')
+    //     .conJuzgado('27° SANTIAGO')
+    //     .conMontoMinimo(999999)
+    //     .construir();
 
-    const casoTestRol = new CasoBuilder(new Date(), "PJUD", config.PJUD)
-        .conComuna('Osorno')
-        .conRol('481-34-43')
-        .construir();
+    // const casoTestRol = new CasoBuilder(new Date(), "PJUD", config.PJUD)
+    //     .conComuna('Osorno')
+    //     .conRol('481-34-43')
+    //     .construir();
 
     const caso1 = new CasoBuilder(new Date(), 'PJUD', config.PJUD)
         .conCausa('C-4835-2024')

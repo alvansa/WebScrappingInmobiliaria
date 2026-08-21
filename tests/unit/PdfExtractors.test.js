@@ -9,7 +9,8 @@ const GP = require('../textos/GP');
 const AR = require('../textos/ActaRemate');
 const DV = require('../textos/DV');
 const EX = require('../textos/Extracto');
-const DM = require('../textos/DM');
+//TODO: Agregar test de Demandas
+// const DM = require('../textos/DM');
 
 
 const PROPIEDAD = config.PROPIEDAD;
@@ -211,18 +212,19 @@ describe('Test de banco hipoteca', ()=>{
     })
 })
 
-describe('Pruebas para derechos', ()=>{
-    //TODO: Es un estatuto y el usufructo solo aparece como peticion de revision
-    test('Test para explicacion de usufructo',()=>{
-        const text = `CONSTITUCION DE GARANTIAS Constituir toda clase de garantías, hipotecas,
-prendas, fianzas simples y/o solidarias, avales en letras de cambio o pagarés, constituirse en
-codeudor solidario, warrant, gravar los bienes sociales con derechos de uso, usufructo,
-habitación, etcétera; constituir servidumbres activas o pasivas; posponerlas`;
-        const norm = normalizeText(text);
-        const tipoDerecho = extractor.rightType(norm);
-        // expect(tipoDerecho).toBeNull();
-    })
-})
+//TODO: Arreglar este tipo de derecho
+// describe('Pruebas para derechos', ()=>{
+//     //TODO: Es un estatuto y el usufructo solo aparece como peticion de revision
+//     test('Test para explicacion de usufructo',()=>{
+//         const text = `CONSTITUCION DE GARANTIAS Constituir toda clase de garantías, hipotecas,
+// prendas, fianzas simples y/o solidarias, avales en letras de cambio o pagarés, constituirse en
+// codeudor solidario, warrant, gravar los bienes sociales con derechos de uso, usufructo,
+// habitación, etcétera; constituir servidumbres activas o pasivas; posponerlas`;
+//         const norm = normalizeText(text);
+//         const tipoDerecho = extractor.rightType(norm);
+//         expect(tipoDerecho).toBeNull();
+//     })
+// })
 
 describe('Test para obtener la deuda de la demanda, sea hipoteca o pagare', ()=>{
     beforeAll(async()=>{

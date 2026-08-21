@@ -83,7 +83,7 @@ class Property {
         if(this.property_dimensions == null){
             return null;
         }
-        const match = this.property_dimensions.match(/([\d\.]+)\s*(m2|ha)/);
+        const match = this.property_dimensions.match(/([\d]+)\s*(m2|ha)/);
         if (!match) return null;
 
         const value = parseFloat(match[1]);

@@ -2,9 +2,9 @@
 const config = require('#config');
 
 const PJUD = config.PJUD;
-const EMOL = config.EMOL;
+// const EMOL = config.EMOL;
 const LIQUIDACIONES = config.LIQUIDACIONES;
-const PREREMATES = config.PREREMATES;
+// const PREREMATES = config.PREREMATES;
 
 class DateHelper{
     // Normalización principal

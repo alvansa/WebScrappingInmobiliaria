@@ -1,4 +1,3 @@
-const PjudPdfData = require('#sources/pjud/PjudPdfData.js');
 const Caso = require('#models/caso/caso');
 const config = require('#config')
 
@@ -21,21 +20,8 @@ const textosDV = require('../textos/DV');
 const AR = require('../textos/ActaRemate');
 const {ex1666, ex800, ex2240, ex2226} = require('../textos/Extracto'); 
 const BF = require('../textos/BF');
-const {dm1056, dm1138} = require('../textos/DM');
 const {obtainCorteJuzgadoNumbers} = require('#utils/corteJuzgado');
 const {normalizeText, normalizeTextSpanish} = require('#utils/textNormalizers');
-const PdfParse = require('pdf-parse');
-
-
-// const excelConstructor = new createExcel("","","","",false,1);
-const testCaso = createCase("1111-2024", '1º Juzgado de Letras de Buin');
-const caso2484 = createCase("C-2484-2023","3º Juzgado de Letras de Iquique");
-const casoBase = Caso.createMockCase();
-const testPjudPdf = new PjudPdfData(testCaso)
-const pjudPdf2484 = new PjudPdfData(caso2484);
-// const causaDB = new Causas();
-
-const devMode = true;
 
 describe('obtainRolPropiedad', () => {
 
@@ -82,6 +68,12 @@ describe('obtainRolPropiedad', () => {
 
     test('Deberia ser null ya que es un diario y no se lee de ahi', ()=>{
        const textoNormalizado = normalizeText(diario3354_1);
+       const res = extractor.propertyId(textoNormalizado); 
+       expect(res).toBeNull();
+    });
+
+    test('Deberia ser null ya que es un diario y no se lee de ahi', ()=>{
+       const textoNormalizado = normalizeText(diario1341);
        const res = extractor.propertyId(textoNormalizado); 
        expect(res).toBeNull();
     });
@@ -504,17 +496,17 @@ describe('ObtainMontoMinimo', () => {
 
 });
 
-// describe('checkIfValidDoc',()=>{
-//     test('Test de diario que deberia ser false', ()=>{
-//        const res = PdfProccess.validate(diario3354_1);
-//        expect(res).toEqual(false);
-//     });
+describe('checkIfValidDoc',()=>{
+    test('Test de diario que deberia ser false', ()=>{
+       const res = PdfProccess.validate(diario3354_1,null,true);
+       expect(res).toEqual(false);
+    });
 
-//     test('Test de diario que deberia ser false', ()=>{
-//        const res = PdfProccess.validate(diario3354_2);
-//        expect(res).toEqual(false);
-//     });
-// });
+    test('Test de diario que deberia ser false', ()=>{
+       const res = PdfProccess.validate(diario3354_2,null,true);
+       expect(res).toEqual(false);
+    });
+});
 
 describe('ObtainMontoCompra', () => {
     test('Caso donde no puede obtener el monto de compra',()=>{
@@ -618,76 +610,6 @@ describe('obtainCorteJuzgadoNumbers', ()=>{
         expect(casos[0].numeroJuzgado).toEqual('25');
     });
 });
-
-// describe('bindCaseWithDB',()=>{
-//     test('Caso vacio con DB', ()=>{
-//         const casoDB = excelConstructor.isCaseInDB(casoBase);
-//         let emptyCase = createCase(null,null);
-//         emptyCase = Caso.bindCaseWithDB(emptyCase,casoDB); 
-//         expect(emptyCase.direccion).toEqual("Calle Principal 123, Santiago");
-//         expect(emptyCase.rol).toEqual('1342-209-220');
-//         expect(emptyCase.estadoCivil).toEqual('casado sociedad conyugal');
-//         expect(emptyCase.fechaRemate).toEqual(new Date(casoDB.fechaRemate));
-//         expect(emptyCase.isPaid).toEqual(false);
-//     });
-
-//     test('Caso que ya estaba con fecha de remate anterior', ()=>{
-//         const casoDB = excelConstructor.isCaseInDB(casoBase);
-//         let cCase = createCase(null,null);
-//         cCase.fechaRemate = new Date('2025/05/19');
-//         cCase = Caso.bindCaseWithDB(cCase,casoDB); 
-//         expect(cCase.fechaRemate).toEqual(new Date('2025/05/19'));
-//         expect(cCase.alreadyAppear).toEqual(new Date('2024/12/25'));
-//         expect(cCase.isPaid).toEqual(false);
-//     });
-
-//     test('Caso que ya estaba con fecha de remate posterior', ()=>{
-//         let casoBaseFechaModificada = Caso.createMockCase();
-//         casoBaseFechaModificada.fechaRemate = new Date("2023/12/25");
-//         const casoDB = excelConstructor.isCaseInDB(casoBaseFechaModificada);
-//         casoBaseFechaModificada = Caso.bindCaseWithDB(casoBaseFechaModificada,casoDB); 
-//         expect(casoBaseFechaModificada instanceof Caso).toEqual(true);
-//         expect(casoBaseFechaModificada.causa).toEqual('C-746-2024');
-//         expect(casoBaseFechaModificada.fechaRemate).toEqual(new Date("2023/12/25"));
-//         expect(casoBaseFechaModificada.isPaid).toEqual(false);
-//     });
-
-//     test('Caso que esta en DB pero el isPaid es nulo, deberia quedar nulo', ()=>{
-//         let casoforDB = createCase("C-6950-2019","1° Juzgado de Letras de San Bernardo");
-//         casoforDB.numeroJuzgado = 267;
-//         const casoDB = excelConstructor.isCaseInDB(casoforDB);
-//         expect(casoforDB.isPaid).toEqual(false);
-        
-
-//         casoforDB = Caso.bindCaseWithDB(casoforDB,casoDB); 
-//         expect(casoforDB.isPaid).toEqual(false);
-//         expect(casoDB.isPaid).toBeNull();
-//     });
-// });
-
-// describe('inCaseInDB', ()=>{
-//     test('Caso null', ()=>{
-//         const casoVacio = createCase(null,null)
-//         const casoDB = excelConstructor.isCaseInDB(casoVacio);
-//         expect(casoDB).toBeNull();
-//     });
-    
-//     test('Caso que no esta en DB',()=>{
-//         const casoVacio = createCase('C-123-1111',null)
-//         const casoDB = excelConstructor.isCaseInDB(casoVacio);
-//         expect(casoDB).toBeNull();
-//     });
-
-//     test('Caso que ya estaba con fecha de remate anterior', ()=>{
-//         const casoDB = excelConstructor.isCaseInDB(casoBase);
-//         expect(casoDB.causa).toEqual(casoBase.causa);
-//         expect(casoDB).not.toBeNull();
-//     });
-
-// });
-
-
-
 
 describe('obtainFormatoEntrega',()=>{
     test('Obtener el formato de entrega de un acta de remate',()=>{

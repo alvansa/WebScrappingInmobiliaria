@@ -1,7 +1,19 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
-const { HttpsProxyAgent } = require('https-proxy-agent');
 const { HttpProxyAgent } = require('http-proxy-agent');
+
+const {delay} = require('#utils/delay.js');
+const listUserAgents = require('#utils/userAgents.json');
+
+
+const SELECTORS =
+{
+    'NEXT_PAGE_SELECTOR': 'span.pag_bt_result_left.pag_bt_resul_green.pag_bt_pad_r.pag_color_bt_green',
+    'CASO_BLOQUE_SELECTOR': 'div.result.row-fluid',
+    // 'CASO_BLOQUE_SELECTOR': 'div.result.row-fluid',
+    'ELEMENTO_TEXTO': 'div.col2.span6 > a > h3',
+    'ELEMENTO_LINK' : 'div.col2.span6 a',
+}
 
 class EconomicoAxios {
     constructor() {
@@ -59,8 +71,6 @@ class EconomicoAxios {
     }
     async getPageDescription(url, maxRetries = 3) {
         let attempt = 0;
-        let proxy = 'a@1';
-        let agent = null;
         
         while(attempt < maxRetries) {
             // proxy = this.getNextProxy();

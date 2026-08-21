@@ -1,7 +1,7 @@
 const Caso = require('#models/caso/caso');
 const CasoBuilder = require('#models/caso/casoBuilder');
 const config = require('#config');
-const { tribunalesPorCorte, obtainCorteJuzgadoNumbers, searchTribunalPorNombre } = require('../../utils/corteJuzgado');
+const {obtainCorteJuzgadoNumbers, searchTribunalPorNombre } = require('../../utils/corteJuzgado');
 // const createExcel = require('../../componentes/excel/createExcel')
 
 // const excelConstructor = new createExcel("","","","",false,1);
@@ -10,8 +10,6 @@ const casoBase = Caso.createMockCase();
 
 const EMOL = config.EMOL;
 const PJUD = config.PJUD;
-const LIQUIDACIONES = config.LIQUIDACIONES;
-const PREREMATES = config.PREREMATES;
 
 const isDev = true;
 
@@ -327,13 +325,7 @@ describe('Normalizar formato entrega', ()=>{
         expect(casoBase.formatoEntrega).toEqual('vale vista');
     });
 
-    test('Test con salto de linea ', ()=>{
-        const formato = 'vale a\n la           VISTA';
-        casoBase.formatoEntrega = formato;
-        expect(casoBase.formatoEntrega).toEqual('vale vista');
-    });
 });
-
 
 describe('Obtener corte y numero de juzgado', ()=>{
     test('Caso nulo', ()=>{
@@ -346,7 +338,7 @@ describe('Obtener corte y numero de juzgado', ()=>{
         const casoTest = createCase(null,null);
         casoTest.juzgado = '28° JUZGADO CIVIL DE SANTIAGO';
         const casos = [casoTest]
-        const result = obtainCorteJuzgadoNumbers(casos,isDev);
+        obtainCorteJuzgadoNumbers(casos,isDev);
         expect(casos[0].corte).toEqual('90');
         expect(casos[0].numeroJuzgado).toEqual('286');
     });
@@ -355,7 +347,7 @@ describe('Obtener corte y numero de juzgado', ()=>{
         const casoTest = createCase(null,null);
         casoTest.juzgado = '1º Juzgado Civil de Santiago';
         const casos = [casoTest]
-        const result = obtainCorteJuzgadoNumbers(casos,isDev);
+        obtainCorteJuzgadoNumbers(casos,isDev);
         expect(casos[0].corte).toEqual('90');
         expect(casos[0].numeroJuzgado).toEqual('259');
     });

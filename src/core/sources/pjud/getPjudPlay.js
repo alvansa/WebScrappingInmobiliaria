@@ -1,8 +1,8 @@
-const { webkit, chromium, firefox } = require('playwright'); // No es necesario si recibes browser por parámetro
 const fs = require('fs');
 
 const Caso = require('#models/caso/caso.js');
 const { delay, fakeDelay } = require('#utils/delay.js');
+const logger = require('#utils/logger.js');
 
 const EXITO = 1;
 const ERROR = 0;
@@ -20,11 +20,12 @@ class PjudPlaywright {
         let tableData = [];
         let tienePaginaSiguiente = true;
         let originalPage = this.page;
+        let paginaActual = 1;
         try {
             // await this.page.evaluate(() => {
             //     verRemates(); // Asegúrate de que esta función existe en el contexto de la página
             // });
-            this.page = await this.goToRemates();
+            // this.page = await this.goToRemates();
             await this.setValoresInciales();
             console.log("Valores fecha :", this.startDate, this.endDate);
             await this.setDates('#desde', this.startDate);
@@ -45,21 +46,36 @@ class PjudPlaywright {
 
             while (tienePaginaSiguiente) {
                 try {
+                    const iframeSoporte = this.page.frameLocator('iframe[id^="TSBrPFrame_"]');
+
+                    // 2. Buscamos el texto DENTRO de ese iframe
+                    const avisoSoporte = iframeSoporte.getByText(/Su numero de soporte es\s*:/i);
+
+                    // 3. Verificamos si el texto dentro del iframe es visible
+                    const hayAvisoError = await avisoSoporte.isVisible();
+
+                    if (hayAvisoError) {
+                        console.warn("⚠️ Se detectó el mensaje de soporte dentro del iframe. Saliendo del bucle...");
+                        break; // Sale inmediatamente del while
+                    }
                     let firstRowContent = await this.getPrimeraLinea();
-                    let datosTabla = await this.getDatosTabla();
+                    let datosTabla = await this.getDatosTabla(tableData);
                     tableData.push(...datosTabla);
                     tienePaginaSiguiente = await this.manejarPaginaSiguiente(firstRowContent);
-                    await fakeDelay(2, 4);
+                    paginaActual++;
+                    await fakeDelay(5, 10);
                 } catch (error) {
                     console.error('Error en el while de getPJUD:', error);
                     break;
                 }
             }
+            // this.writeData(tableData);
             this.page.close();
             // this.page = originalPage;
             // this.page.bringToFront();
             // this.page.close();
-            return tableData;
+            logger.info(`Ultima pagina procesada: ${paginaActual}, cantidad de casos obtenidos: ${tableData.length}`);
+            return { 'casos': tableData, 'pageNumber': paginaActual };
         } catch (error) {
             console.error('Error en la función getPJUD:', error.message);
             if(this.page && !this.page.isClosed()){
@@ -75,11 +91,14 @@ class PjudPlaywright {
     async goToRemates() {
         try {
             // await this.page.click('img[alt="Audiencia de Remates"]')
-            await this.page.click('a[href="https://oficinajudicialvirtual.pjud.cl/includes/sesion-consultaunificada.php"]');
+            // await this.page.click('a[href="https://oficinajudicialvirtual.pjud.cl/includes/sesion-consultaunificada.php"]');
+            // await this.page.locator('.tz-gallery .col-md-4.mb-1').nth(2).click();
+            // await this.page.locator('a[href*="remate.php"]').click();
             // this.page.waitForURL('**/indexN.php')
             // await this.page.click('img[alt="Audiencia de Remates"]')
             // await newPage.waitForLoadState();
 
+            await this.page.getByRole('link', { name: 'Audiencia de Remates' }).click({force: true});
             // return newPage;
             return this.page;
 
@@ -122,7 +141,7 @@ class PjudPlaywright {
         return primeraLinea;
     }
 
-    async getDatosTabla() {
+    async getDatosTabla(existingList = []) {
         let casos = [];
         const rowsData = await this.page.evaluate(() => {
             const rows = Array.from(document.querySelectorAll('#dtaTableDetalleRemate tbody tr'));
@@ -138,14 +157,25 @@ class PjudPlaywright {
             });
         });
 
+        if (rowsData.length > 0) {
+            rowsData.pop();
+        }
+
         rowsData.forEach(data => {
-            const caso = new Caso(new Date(), "N/A", "Lgr", 2);
-            caso.juzgado = data.tribunal;
-            caso.causa = data.causa;
-            caso.fechaRemate = data.fechaHora;
-            casos.push(caso);
+            if (!data.causa || !data.tribunal) return;
+
+            const yaExisteEnLocal = casos.some(c => c.causa === data.causa && c.juzgado === data.tribunal);
+            const yaExisteEnAcumulado = existingList.some(c => c.causa === data.causa && c.juzgado === data.tribunal);
+
+            if (!yaExisteEnLocal && !yaExisteEnAcumulado) {
+                const caso = new Caso(new Date(), "N/A", "Lgr", 2);
+                caso.juzgado = data.tribunal;
+                caso.causa = data.causa;
+                caso.fechaRemate = data.fechaHora;
+                casos.push(caso);
+            }
         });
-        casos.pop(); // ¿Por qué pop? Lo dejo igual que en original
+
         return casos;
     }
 
@@ -178,13 +208,18 @@ class PjudPlaywright {
     }
 
     writeData(datos) {
-        const rutaArchivo = './datos.json';
-        const datosJson = JSON.stringify(datos, null, 2);
-        fs.writeFile(rutaArchivo, datosJson, (err) => {
+        const rutaArchivo = './datos.txt';
+
+        // Transformamos cada elemento de la lista en una línea formateada
+        const contenido = datos
+            .map(dato => `${dato.causa}, ${dato.juzgado}, ${dato.fechaRemate}`)
+            .join('\n');
+
+        fs.writeFile(rutaArchivo, contenido, (err) => {
             if (err) {
                 console.error('Error al escribir en el archivo:', err);
             } else {
-                console.log('Datos escritos correctamente en el archivo JSON');
+                console.log('Datos escritos correctamente en el archivo de texto.');
             }
         });
     }
@@ -225,11 +260,8 @@ class PjudPlaywright {
     }
 
     async procesarFila(page, row) {
-        const [etapa, tramite, descripcion, fecha] = await Promise.all([
-            row.$eval('td:nth-child(4)', el => el.textContent.trim()),
-            row.$eval('td:nth-child(5)', el => el.textContent.trim()),
+        const [descripcion] = await Promise.all([
             row.$eval('td:nth-child(6)', el => el.textContent.trim()),
-            row.$eval('td:nth-child(7)', el => el.textContent.trim()),
         ]);
         if (descripcion === 'Cumple lo ordenado') {
             const button = await row.$('td:nth-child(3) a');
@@ -249,8 +281,7 @@ class PjudPlaywright {
     }
 
     async obtenerPDF(page, row) {
-        const [fecha, referencia] = await Promise.all([
-            row.$eval('td:nth-child(1)', el => el.textContent.trim()),
+        const [referencia] = await Promise.all([
             row.$eval('td:nth-child(2)', el => el.textContent.trim()),
         ]);
         const button = await row.$('a');
@@ -270,26 +301,26 @@ class PjudPlaywright {
 }
 
 // Función auxiliar que está fuera de la clase (no usada en el original realmente)
-async function datosFromPjud(fechaInicio, fechaFin) {
-    // Esto no está implementado porque getPJUD no es global. Se deja como estaba.
-    console.warn("Esta función no está implementada correctamente en el original");
-    return [];
-}
+// async function datosFromPjud(fechaInicio, fechaFin) {
+//     // Esto no está implementado porque getPJUD no es global. Se deja como estaba.
+//     console.warn("Esta función no está implementada correctamente en el original");
+//     return [];
+// }
 
-async function main() {
-    // Ejemplo de uso con Playwright (lanzando webkit/Safari o chromium)
-    const { webkit } = require('playwright');
-    const browser = await webkit.launch({ headless: false }); // Para ver lo que pasa
-    const page = await browser.newPage();
-    await page.goto('URL_DEL_SITIO'); // Reemplazar con la URL real
+// async function main() {
+//     // Ejemplo de uso con Playwright (lanzando webkit/Safari o chromium)
+//     const { webkit } = require('playwright');
+//     const browser = await webkit.launch({ headless: false }); // Para ver lo que pasa
+//     const page = await browser.newPage();
+//     await page.goto('URL_DEL_SITIO'); // Reemplazar con la URL real
 
-    const pjud = new Pjud(browser, page, '11/11/2024', '12/11/2024');
-    const datos = await pjud.datosFromPjud();
-    console.log("datos conseguidos", datos.length);
-    pjud.writeData(datos);
+//     const pjud = new Pjud(browser, page, '11/11/2024', '12/11/2024');
+//     const datos = await pjud.datosFromPjud();
+//     console.log("datos conseguidos", datos.length);
+//     pjud.writeData(datos);
 
-    await browser.close();
-}
+//     await browser.close();
+// }
 
 // Si quieres ejecutar main, descomenta:
 // main();

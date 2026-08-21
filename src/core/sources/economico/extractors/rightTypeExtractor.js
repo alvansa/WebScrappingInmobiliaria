@@ -1,5 +1,5 @@
 
-function extractRightType(data, isDebug = false) {
+function extractRightType(data) {
     const normalizedData = data.toLowerCase();
     // Primero revisa si hay una propiedad con derecho de usufructo, nuda propiedad o bien familiar
     // de manera mas simple.
@@ -7,21 +7,24 @@ function extractRightType(data, isDebug = false) {
     if(derechoMatch){
         
         switch(derechoMatch){
-            case 'bien_familiar':
+            case 'bien_familiar':{
+
                 const bienFamiliarStatus = checkBienFamiliar(normalizedData)
                 if(bienFamiliarStatus){
                     return 'bien familiar';
                 }
                 break
-            case 'usufructo':
+            }
+            case 'usufructo': {
+
                 const usufructoStatus = checkUsufructo(normalizedData)
                 if(usufructoStatus){
                     return 'usufructo';
                 }
                 break
+            }
             default:
                 return derechoMatch.replace("_",' ');
-                break
         }
     }
     const derechoConPorcentaje = findDerechoWithPercentage(normalizedData);

@@ -1,9 +1,3 @@
-<<<<<<< HEAD:src/core/sources/preremates/obtenerPublicaciones.js
-const config =  require("#config");
-=======
-const config =  require("../../config/config.js");
->>>>>>> main:componentes/preremates/obtenerPublicaciones.js
-const puppeteer = require('puppeteer-core');
 const Caso = require('#models/caso/caso.js');
 const {procesarDatosRemate} = require('#sources/economico/datosRemateEmol.js');
 const {delay} = require('#utils/delay.js')
@@ -37,9 +31,10 @@ class PreRemates{
             }
 
             try{
-                await this.page.evaluate(() => {
-                    ktkObj('doLogin').click()
-                });
+                // await this.page.evaluate(() => {
+                //     Obj('doLogin').click()
+                // });
+
             }catch(error){
                 console.error('Error al hacer clic en el botón de consulta:', error);
                 await this.browser.close();
@@ -51,9 +46,9 @@ class PreRemates{
             let tieneSiguiente = true;
             while(tieneSiguiente){
                 await this.obtenerPublicacionesIndividuales();
-                await this.page.evaluate((pageIndex) => {
-                    ListView_ChangePage(pageIndex);
-                },i);
+                // await this.page.evaluate((pageIndex) => {
+                //     ListView_ChangePage(pageIndex);
+                // },i);
                 await delay(2000);
                 i++;
                 tieneSiguiente = await this.revisarPaginaSiguiente(i);
@@ -79,6 +74,7 @@ class PreRemates{
             await this.page.$eval('#u', (el,value) => el.value = value ,this.email);
             console.log("Se lleno el email");
         }catch(error){
+            console.error(`Error en fill form ${error.message}`)
             return new Error('Error al llenar el email');
         }
 
@@ -87,6 +83,7 @@ class PreRemates{
             await this.page.$eval('#p', (el,value) => el.value = value ,this.password);
             console.log("Se lleno el password");
         }catch(error){
+            console.error(`Error en fill form 2 ${error.message}`)
             return new Error('Error al llenar el password');
         }
 

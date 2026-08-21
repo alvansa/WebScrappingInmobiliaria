@@ -871,7 +871,7 @@ Certificado Nro 123456807858.- Verifique validez en  www.fojas.cl .-
 t
 Ernesto Mirunda
 Córdova
-\.
+
 NOTARIO Y
 CONSERi'ADOR
 C
@@ -1004,7 +1004,7 @@ Ea;t¡g¡r¡p-t->C
 )
 t^{S-
 c{¿"fC
-\<3
+3
 rra
 ,
 *oi
@@ -1088,7 +1088,7 @@ t
 s etecientos
 novecientos
 {-l^ 7)1
-\
+
 i
 v.
 ¡4 /
@@ -1098,8 +1098,8 @@ mr
 guron
 U1V L I,
 rd-d c
-114ñ\
-I ñ^i \l-
+114ñ
+I ñ^i -
 '
 i
 .-^
@@ -1107,7 +1107,7 @@ i
 *,
 :^^
 ^l ^-^
-LlUl::d \
+LlUl::d 
 L_CJ
 ¡L:U1j
 5_e_e
@@ -1159,8 +1159,8 @@ cuatro
 nueve
 casado,
 corresponde
-lr\ r'!a I ¡
-\'/ t
+lr r'!a I ¡
+'/ t
 Dos
 (2)
 ,
@@ -1178,7 +1178,7 @@ mil
 cuatr
 tcienros
 cai-orce
-11 AQA A1\_A,
+11 AQA A1_A,
 -
 -,t
 Incen.ero

@@ -1,7 +1,6 @@
 const extractors = require('./extractors/index.js');
 const config = require('#config');
 const {normalizeText, normalizeTextSpanish} = require('#utils/textNormalizers.js');
-const { extractRightType } = require('#sources/economico/extractors/rightTypeExtractor.js');
 const logger = require('#utils/logger.js');
 
 const PROPIEDAD = config.PROPIEDAD;

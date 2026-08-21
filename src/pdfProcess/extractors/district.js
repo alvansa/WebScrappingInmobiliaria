@@ -41,7 +41,7 @@ function normalizeInfoForComuna(info) {
         const endIndex = matchSpanish.index;
         info = info.substring(0, endIndex);
     }
-    const regexCasoComprador = /Lo\s+adquiri[oó]\s+(.*?)(?=\.\s*\-|\.[\s]*$|$)/i;
+    const regexCasoComprador = /Lo\s+adquiri[oó]\s+(.*?)(?=\.\s*-|\.[\s]*$|$)/i;
     const matchedText = info.match(regexCasoComprador);
     if (matchedText) {
         info = info.replace(matchedText[0], '');

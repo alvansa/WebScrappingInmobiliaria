@@ -2,7 +2,7 @@ const {BANCOS} = require('#models/caso/datosLocales.js');
 
 function processMortageBank(text,demandPart = null, logData = false){
     let banco;
-    let alterText, startText;
+    let startText;
     let normalizeText = text
         // .replace(/\.(?!\n|-)/g, '')
         .replace(/\d\.\d/g,'')

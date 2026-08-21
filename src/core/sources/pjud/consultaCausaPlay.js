@@ -1,39 +1,35 @@
 // playwright
-const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const https = require('https');
 require('dotenv').config();
 
-const { delay, fakeDelay, fakeDelayms } = require("#utils/delay.js");
+const { delay, fakeDelay } = require("#utils/delay.js");
 const ProcesarBoletin = require("#sources/liquidaciones/procesarBoletin.js");
 const PjudPdfData = require("./PjudPdfData.js");
-const listUserAgents = require("#utils/userAgents.json");
 const logger = require("#utils/logger.js");
 const { stringToDate } = require('#utils/cleanStrings.js');
 const config = require('#config');
-const { logToRenderer } = require("#utils/utilsRenderer.js");
+// const { PlaywrightManager, chromium, firefox } = require('#core/scrapeAuction/services/PlaywrightManager.js');
 
-const ERROR = 0;
-const EXITO = 1;
+// const ERROR = 0;
+// const EXITO = 1;
 const DELAY_RANGE = { min: 2, max: 5 };
 
 const NORMAL = config.NORMAL;
 const LADRILLERO = config.LADRILLERO;
 const DEUDA = config.DEUDA;
 
-const defaultUserAgents = [
-    { userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36" },
-    { userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36" },
-];
+
+const MAX_RETRIES = 6;
 
 class ConsultaCausaPjud {
     // El constructor ahora recibe solo el objeto browser de Playwright y la página inicial
-    constructor(browser, caso, mainWindow, type) {
-        this.browser = browser;
+    constructor(manager, caso, mainWindow, type) {
+        this.manager = manager;
+        this.context = null;
         this.caso = caso;
-        // this.link = "https://oficinajudicialvirtual.pjud.cl/includes/sesion-consultaunificada.php";
         this.link = 'https://www.pjud.cl/';
         this.page = null;          // se asignará después
         this.downloadPath = path.join(os.homedir(), "Documents", "infoRemates/pdfDownload");
@@ -44,93 +40,165 @@ class ConsultaCausaPjud {
     }
 
     async getConsulta() {
-        logger.warn(`Iniciando la consulta con el archivo de refactorización (Playwright)`);
-        let lineaAnterior = "";
+        logger.warn(`Iniciando la consulta con Playwright (Máx 6 reintentos: 3 Chromium)`);
+
         let result = false;
 
         try {
-            logger.info("Iniciando la consulta de causa en Pjud...");
+            for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+                // const isFirefox = attempt > 3;
+                // const activeManager = isFirefox ? firefoxManager : chromiumManager;
+                const activeManager = this.manager;
+                const engineName = 'Chromium';
 
-            await this.loadConfig();
-            await this.loadPageWithRetries();
+                logger.info(`[ConsultaCausaPjudPlay] Intento ${attempt}/${MAX_RETRIES} usando motor: ${engineName}`);
 
-            await this.clickConsultaCausa();
+                try {
+                    if(result == false){
+                        this.context = await activeManager.createHumanContext();
+                        this.page = await this.context.newPage();
+                    }
 
-            result = await this.procesarCaso(lineaAnterior);
-            if (result) {
-                logger.info("Caso procesado correctamente");
-            } else {
-                logger.info("No se pudo procesar el caso");
+                    result = await this._scrape();
+                    if (result) {
+                        return true;
+                    }
+                } catch (error) {
+                    const lastError = error;
+                    if (attempt === MAX_RETRIES) {
+                        logger.error(`[ConsultaCausaPjudPlay] Todos los reintentos fallaron (3 Chromium + 3 Firefox). Último error: ${lastError.message}`);
+                        throw lastError;
+                    }
+                    logger.warn(`[ConsultaCausaPjudPlay] Intento ${attempt} (${engineName}) falló: ${error.message}`);
+
+                    await delay(1000 * attempt);
+
+
+                } finally {
+                    await this.cleanFilesDownloaded();
+                    if (this.context) {
+                        await this.context.close().catch(() => {});
+                        this.context = null;
+                        this.page = null;
+                    }
+                }
             }
-        } catch (error) {
-            logger.error(`Error en la función getConsulta: ${error.message}`);
-            return false;
         } finally {
-            if (this.page && !this.page.isClosed()) {
-                logger.info("Cerrando página del pjud");
-                await this.page.close();
-            }
+            // await chromiumManager.closeBrowser().catch(() => {});
+            // await firefoxManager.closeBrowser().catch(() => {});
         }
-        return true;
+    }
+
+    async _scrape() {
+        let lineaAnterior = "";
+        logger.info("Iniciando la consulta de causa en Pjud...");
+
+        await this.loadPageWithRetries();
+
+        await this.goToRemates();
+
+        const result = await this.procesarCaso(lineaAnterior);
+        if (result) {
+            // this.caso.hasChanged = true;
+            logger.info("Caso procesado correctamente");
+            return true;
+        } else {
+            logger.info("No se pudo procesar el caso");
+            return false;
+        }
+    }
+
+    async goToRemates() {
+        const directUrl = 'https://oficinajudicialvirtual.pjud.cl/includes/sesion-consultaunificada.php';
+
+        try {
+            logger.info("Intentando acceder a la Consulta de Causas vía popup...");
+
+            // 1. Ejecutamos la espera del popup y el clic en paralelo
+            const [popup] = await Promise.all([
+                this.context.waitForEvent('page', { timeout: 15000 }).catch(() => null),
+                this.page.getByRole('link', { name: 'Consulta causas' }).click({ force: true }).catch(() => null)
+            ]);
+
+            if (popup) {
+                await popup.waitForLoadState('domcontentloaded', { timeout: 20000 });
+                this.page = popup;
+                logger.info("Popup de Consulta causas abierto correctamente.");
+                return;
+            }
+
+            // 2. Si no se abrió un popup (o navegó en la misma página), verificar si cambió la URL
+            if (this.page.url().includes('oficinajudicialvirtual')) {
+                await this.page.waitForLoadState('domcontentloaded');
+                return;
+            }
+
+            // 3. Fallback: Navegación directa si el clic o el popup fallaron
+            logger.warn("El popup no se abrió. Navegando directamente a la URL del portal...");
+            await this.page.goto(directUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+
+        } catch (error) {
+            logger.error(`Error en goToRemates, intentando navegación directa final (goToRemates): ${error.message}`);
+            // Intentamos ir directo a la URL como último recurso
+            await this.page.goto(directUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+        }
     }
 
     async clickConsultaCausa(){
-        await this.page.click('div.gallery-item-info');
+        const consultaCausaBtn = this.page.getByRole('button', { name: 'Consulta causas' });
+        // Intentar esperar y hacer clic (timeout corto de 3 segundos para no ralentizar el flujo si no existe)
+        await consultaCausaBtn.waitFor({ state: 'visible', timeout: 30000 });
+        await consultaCausaBtn.click();
     }
 
-    async loadConfig(maxRetries = 3) {
-        let userAgents;
+    async loadConfig() {
         try {
-            userAgents = listUserAgents ? listUserAgents : defaultUserAgents;
+            if (!this.page || this.page.isClosed()) {
+                this.page = await this.context.newPage();
+            }
+            // await this.page.setUserAgent(userAgents[randomIndex].userAgent);
+            await this.page.goto(this.link, { timeout: 60000 });
+            return true; // éxito
         } catch (error) {
-            logger.error(`Error cargando user-agents, usando defaults: ${error.message}`);
-            userAgents = defaultUserAgents;
-        }
-        const randomIndex = Math.floor(Math.random() * userAgents.length);
-
-        for (let attempt = 1; attempt <= maxRetries; attempt++) {
-            try {
-                // Si aún no tenemos página, la creamos (contexto por defecto del browser)
-                if (!this.page || this.page.isClosed()) {
-                    const context = this.browser.contexts()[0] || await this.browser.newContext();
-                    this.page = await context.newPage();
-                }
-                // await this.page.setUserAgent(userAgents[randomIndex].userAgent);
-                await this.page.goto(this.link);
-                return; // éxito
-            } catch (error) {
-                logger.error(`Error en loadConfig (intento ${attempt}): ${error.message}`);
-                if (attempt === maxRetries) throw error;
-                await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
-            }
-        }
-    }
-
-    async loadPageWithRetries(maxRetries = 3) {
-        for (let attempt = 1; attempt <= maxRetries; attempt++) {
-            try {
-                logger.debug(`Intento ${attempt} de carga de página...`);
-                await this.page.goto(this.link, { waitUntil: "networkidle" });
-                await this.page.waitForSelector("#competencia");
-                return;
-            } catch (error) {
-                logger.error(`Error al cargar la página (intento ${attempt}): ${error.message}`);
-                if (attempt === maxRetries) {
-                    throw new Error(`No se pudo cargar la página después de ${maxRetries} intentos`);
-                }
-            }
+            logger.error(`Error en loadConfig: ${error.message}`);
+            // if (attempt === maxRetries) throw error;
             await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
         }
     }
 
+    async loadPageWithRetries() {
+        // for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                // logger.debug(`Intento ${attempt} de carga de página...`);
+                await this.page.goto(this.link, { 
+                    waitUntil: "domcontentloaded",
+                    timeout: 60000 
+                });
+                return;
+            } catch (error) {
+                logger.error(`Error al cargar la página : ${error.message}`);
+                // if (attempt === maxRetries) {
+                //     throw new Error(`No se pudo cargar la página después de ${maxRetries} intentos`);
+                // }
+            }
+            await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
+        // }
+    }
+
     async procesarCaso(lineaAnterior) {
         let cambioPagina = false;
+
+        await this.page.waitForSelector("#competencia", {
+            state: 'visible',
+            timeout: 60000
+        });
 
         const valorInicial = await this.setValoresIncialesBusquedaCausa();
         if (!valorInicial) {
             logger.warn("No se pudieron setear los valores iniciales");
             return false;
         }
+        // await this.page.pause();
 
         try {
             cambioPagina = await this.revisarPrimeraLinea(lineaAnterior);
@@ -147,7 +215,7 @@ class ConsultaCausaPjud {
         await this.getPartesCaso();
         const isValid = await this.searchAuctionInfo();
         if (isValid) {
-            logger.debug("Datos del caso obtenidos correctamente");
+            // logger.debug("Datos del caso obtenidos correctamente");
             return true;
         } else {
             logger.warn("Fallo al buscar la información");
@@ -195,15 +263,9 @@ class ConsultaCausaPjud {
             );
             return true;
         } catch (error) {
+            logger.error(`Error al revisar la primera línea: ${error.message}`);
             return false;
         }
-    }
-
-    async getPrimeraLinea() {
-        return await this.page.$eval("#dtaTableDetalle tbody tr:first-child", (row) => {
-            const cells = row.querySelectorAll("td");
-            return Array.from(cells).map(cell => cell.innerText.trim()).join(" ");
-        });
     }
 
     async setValoresIncialesBusquedaCausa() {
@@ -212,7 +274,6 @@ class ConsultaCausaPjud {
             logger.warn(`Error al precargar valores`);
             return false;
         }
-        logger.debug("Valores precargados : Listo");
 
         if (!(await this.configurateCompetencia())) return false;
         if (!(await this.configurateCorte(valores.corte))) return false;
@@ -314,7 +375,7 @@ class ConsultaCausaPjud {
     }
 
     async searchAuctionInfo() {
-        logger.debug("Buscando datos del cuaderno");
+        // logger.debug("Buscando datos del cuaderno");
         const findLink = await this.searchButtonAuction();
         if (!findLink) {
             logger.error("No se pudo encontrar el enlace del caso");
@@ -323,9 +384,11 @@ class ConsultaCausaPjud {
 
         const selectedCuaderno = await this.selectCuaderno();
         if (!selectedCuaderno) {
-            logger.debug("No se encontró el cuaderno");
+            // logger.debug("No se encontró el cuaderno");
             return false;
         }
+
+        await this.searchInMainTable();
 
         if (this.type === LADRILLERO) {
             logger.info(`Buscando en no resueltos`);
@@ -333,9 +396,8 @@ class ConsultaCausaPjud {
             await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
         }
 
-        await this.searchInMainTable();
         if (this.type === NORMAL) {
-            logger.debug("Descargando demanda");
+            // logger.debug("Descargando demanda");
             await this.downloadDemanda();
         }
         return true;
@@ -343,6 +405,8 @@ class ConsultaCausaPjud {
 
     async searchButtonAuction() {
         try {
+            // await this.page.pause();
+
             await this.page.waitForSelector("#verDetalle a");
             const link = await this.page.$("#verDetalle a");
             if (!link) return false;
@@ -373,7 +437,7 @@ class ConsultaCausaPjud {
                     secondOption = options.find(opt => opt.text.includes("Principal"));
                 }
                 if (secondOption) {
-                    logger.debug(`Seleccionando opción alternativa: ${secondOption.text}`);
+                    // logger.debug(`Seleccionando opción alternativa: ${secondOption.text}`);
                     await this.page.selectOption("#selCuaderno", secondOption.value);
                 } else {
                     return false;
@@ -398,68 +462,87 @@ class ConsultaCausaPjud {
     }
 
     async searchInMainTable(table = 'main') {
-        const selector = table === 'main' ? '#historiaCiv' : '#escritosCiv';
-        await this.page.waitForSelector(selector, { timeout: 10000 });
-        const rows = await this.page.$$(`${selector} .table tbody tr`);
-        for (const row of rows) {
-            try {
+        try {
+            const tabName = table === 'main' ? 'Historia' : 'Escritos por Resolver';
+            await this.page.getByRole('link', { name: tabName }).click();
+
+            // 1. Crear el locator del contenedor
+            const container = this.page.locator(table === 'main' ? '#historiaCiv' : '#escritosCiv');
+
+
+            await container.waitFor({ state: 'visible', timeout: 60000 });
+
+            // 2. Obtener las filas de la tabla
+            const rowsLocator = container.locator('tbody tr');
+            // await rowsLocator.first().waitFor({ state: 'visible', timeout: 30000 });
+            await rowsLocator.first().waitFor({ state: 'visible', timeout: 10000 });
+            const rows = await rowsLocator.all();
+
+            for (const row of rows) {
                 if (table === 'main') {
                     await this.searchDataInRow(row);
                 } else {
                     logger.info('Procesando fila de no resueltos');
                     await this.searchForDirectoryNotResolved(row);
                 }
-            } catch (error) {
-                logger.error(`Error procesando fila: ${error.message}`);
             }
+        } catch (e) {
+            logger.warn(`La tabla no contiene filas o tardó demasiado en cargar. ${e.message}`);
+            return; // Salimos si no hay datos que procesar
         }
-    }
+}
 
     async searchDataInRow(row) {
-        let dateToday = null;
-        if (this.type === DEUDA) {
-            dateToday = this.caso.fechaRemate;
-        } else {
-            dateToday = new Date();
-        }
+        // 1. Prevenir mutación accidental de this.caso.fechaRemate creando una nueva instancia de Date
+        let dateToday = this.type === DEUDA
+            ? new Date(this.caso.fechaRemate)
+            : new Date();
         dateToday.setDate(dateToday.getDate() - 7);
 
         try {
-            const [number, uselessFile, directory, dirHasLink, stage, tramite, descripcion, fecha, linkToDir] = await Promise.all([
-                row.$eval("td:nth-child(1)", el => el.textContent.trim()),
-                row.$eval("td:nth-child(2)", el => el.textContent.trim()),
-                row.$eval("td:nth-child(3)", el => el.textContent.trim()),
-                row.$eval("td:nth-child(3)", el => el.querySelector("a") !== null),
-                row.$eval("td:nth-child(4)", el => el.textContent.trim()),
-                row.$eval("td:nth-child(5)", el => el.textContent.trim()),
-                row.$eval("td:nth-child(6)", el => el.textContent.trim()),
-                row.$eval("td:nth-child(7)", el => el.textContent.trim()),
-                row.$("td:nth-child(3) a")
-            ]);
+            // 2. Extraer el texto de todas las celdas en una sola llamada (Mucho más rápido que 8 $eval)
+            const cellTexts = await row.locator('td').allTextContents();
 
+            const number = cellTexts[0]?.trim() || '';
+            const descripcion = cellTexts[5]?.trim() || '';
+            const fecha = cellTexts[6]?.trim() || '';
+
+            // 3. Locator para el enlace dentro de la 3ra columna
+            const linkToDir = row.locator('td:nth-child(3) a');
+            const dirHasLink = (await linkToDir.count()) > 0;
+
+            // 4. Procesamiento según el tipo
             if (this.type === NORMAL) {
                 if (this.isTPDocument(descripcion)) {
                     this.caso.tp = `TP Folio ${number}`;
                 }
-                if (dirHasLink && linkToDir) {
+
+                if (dirHasLink) {
                     await linkToDir.click();
                     await fakeDelay(DELAY_RANGE.min, DELAY_RANGE.max);
                     await this.downloadPdfFile();
-                    const xButton = await this.page.$("#modalAnexoSolicitudCivil > div > div > div.modal-header > button");
-                    if (xButton) {
-                        await this.page.click("#modalAnexoSolicitudCivil > div > div > div.modal-header > button");
+
+                    // Localizador simplificado y verificación de visibilidad directa
+                    const xButton = this.page.locator('#modalAnexoSolicitudCivil .modal-header button');
+                    if (await xButton.isVisible()) {
+                        await xButton.click();
                     }
                 }
+
                 this.checkDescription(descripcion);
+
             } else if (this.type === LADRILLERO) {
+                // logger.debug(`Descripcion ${descripcion} y fecha ${fecha}`);
                 if (stringToDate(fecha) >= dateToday) {
                     this.caso.hasChanged = true;
                 }
+
             } else if (this.type === DEUDA) {
                 if (descripcion.toLowerCase().includes("acta")) {
                     this.caso.hasChanged = true;
                 }
             }
+
         } catch (error) {
             logger.error(`Error en searchDataInRow: ${error.message}`);
         }
@@ -469,14 +552,11 @@ class ConsultaCausaPjud {
         const dateToday = new Date();
         dateToday.setDate(dateToday.getDate() - 7);
         try {
-            const [number, uselessFile, date, type, lawyer] = await Promise.all([
-                row.$eval('td:nth-child(1)', el => el.textContent.trim()),
-                row.$eval('td:nth-child(2)', el => el.textContent.trim()),
+            const [date] = await Promise.all([
                 row.$eval('td:nth-child(3)', el => el.textContent.trim()),
-                row.$eval('td:nth-child(4)', el => el.textContent.trim()),
-                row.$eval('td:nth-child(5)', el => el.textContent.trim()),
             ]);
-            if (stringToDate(date) >= dateToday) {
+
+            if (stringToDate(date, 'YMD') >= dateToday) {
                 this.caso.hasChanged = true;
             }
         } catch (error) {
@@ -497,9 +577,7 @@ class ConsultaCausaPjud {
         try {
             const rows = await this.page.$$("#modalAnexoSolicitudCivil > div > div > div.modal-body > div > div > div > table > tbody tr");
             for (let row of rows) {
-                const [doc, fecha, reference, valuePdf] = await Promise.all([
-                    row.$eval("td:nth-child(1)", el => el.textContent.trim()),
-                    row.$eval("td:nth-child(2)", el => el.textContent.trim()),
+                const [reference, valuePdf] = await Promise.all([
                     row.$eval("td:nth-child(3)", el => el.textContent.trim()),
                     row.$eval('td:nth-child(1) form input[name="dtaDoc"]', input => input.value).catch(() => null)
                 ]);
@@ -572,7 +650,6 @@ class ConsultaCausaPjud {
             });
 
             fs.writeFileSync(this.pdfPath, response);
-            logger.debug(`PDF guardado en ${this.pdfPath}`);
 
             // Procesar el PDF con la utilidad existente
             const resultado = await ProcesarBoletin.convertPdfToText(this.pdfPath);
@@ -611,7 +688,6 @@ class ConsultaCausaPjud {
                     await fs.promises.unlink(path.join(this.dirPath, file));
                 }
                 await fs.promises.rmdir(this.dirPath);
-                logger.debug(`Directorio eliminado: ${this.dirPath}`);
             }
         } catch (error) {
             logger.error(`Error limpiando archivos: ${error.message}`);

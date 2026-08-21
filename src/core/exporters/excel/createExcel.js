@@ -2,22 +2,14 @@
 const XLSX = require(`xlsx`);
 const fs = require(`fs`);
 const path = require(`path`);
-const Causas = require(`#models/Causas.js`);
 const config = require("#config");
 const Caso = require(`#models/caso/caso.js`);
-const {fixStringDate, transformDateString} = require(`#utils/cleanStrings.js`);
+const {fixStringDate} = require(`#utils/cleanStrings.js`);
 const excelRowWriter = require(`./excelRowWriter.js`);
 const excelTemplateBuilder = require(`./excelTemplateBuilder.js`);
 
-const PJUD = config.PJUD;
-const EMOL = config.EMOL;
-const LIQUIDACIONES = config.LIQUIDACIONES;
-const PREREMATES = config.PREREMATES;
-// const config = config.LETRAS;
+const logger = require('#utils/logger.js');
 
-const MACAL = 0
-const ONEDAY = 1
-const ONE = 2
 const PRELIMINAR = 3;
 
 const RANGO_EXCEL = `${config.INICIO}5:${config.COMENTARIOS3}`;
@@ -31,8 +23,6 @@ class createExcel {
         this.type = type;
         this.fixedStartDate = new Date(fixStringDate(startDate));
         this.fixedEndDate = new Date(fixStringDate(endDate));
-        this.causaDB = new Causas();
-        this.comunas = this.causaDB.obtainComunasFromDB();
         this.isTestMode = isTestMode; // Indica si se está en modo desarrollo
 
     }
@@ -46,7 +36,6 @@ class createExcel {
         let filePathExcel = filePath;
         try {
             if (this.type === "one") {
-                lastRow = this.fillWithOne(ws, casos);
                 filePathExcel = path.join(this.saveFile, `Caso_` + casos.causa + casos.juzgado + '.xlsx');
             } else if (this.type === "oneDay") {
                 lastRow = await this.insertCasos(casos, ws) - 1;
@@ -56,6 +45,7 @@ class createExcel {
                 const dateToday = `1-1-25`
                 filePathExcel = path.join(this.saveFile, `Remates_macal_` + dateToday + '.xlsx');
             }else if(this.type == PRELIMINAR){
+                //TODO: Agregar que esta funcion guarde los casos en caso de que falle
 
             }
             else {
@@ -103,19 +93,6 @@ class createExcel {
         return currentRow;
     }
 
-    fillWithOne(ws, casos) {
-        // Agregar la busqueda de casos en DB y union si existe ya en la DB
-        const caseDB = this.isCaseInDB(casos);
-        if(caseDB){
-            casos = Caso.bindCaseWithDB(casos,caseDB);
-        }
-        this.causaDB.insertCase(casos,this.comunas); 
-        const caso = casos.toObject();
-        let currentRow = 6;
-        excelRowWriter.writeCasoRow(ws, currentRow, caso);
-        currentRow = currentRow + 1;
-        return currentRow
-    }
 
     async insertarCasosExcel(casos, ws) {
         //TODO: Cambiar esto para que quede claro que es un map
@@ -140,15 +117,12 @@ class createExcel {
 
         // Se escriben todos los casos revisados en la hoja, para eso primero se transforman a
         // objetos para verificar la normalizacion
+        logger.debug(`Cantidad de casos a escribir en excel: ${remates.size}`);
         for (let caso of remates) {
             const casoObj = caso[1].toObject()
             // await insertarCasoIntoWorksheet(casoObj, ws, currentRow);
             await excelRowWriter.writeRow(ws, currentRow, casoObj);  
             currentRow++;
-        }
-        // Agrega los remates a la base de datos
-        if (!this.emptyMode) {
-            this.causaDB.insertMultipleCases(remates,this.comunas);
         }
         return currentRow;
     }
@@ -172,33 +146,24 @@ class createExcel {
                 const key = `${auction[1].causa}|${auction[1].juzgado}`;
                 let actualCase = cacheAuctions.get(key);
                 if(actualCase){
-                    actualCase = Caso.fillMissingData(actualCase,currentCase);
+                    Caso.fillMissingData(actualCase,currentCase);
                 }
+                logger.debug(`Caso ${currentCase.causa} ya esta en el listado por lo que quedo fuera`)
                 return false;
             }
         }
-        const fechaInicioTest = new Date(`2025/09/02`);
         // Si la fecha de remate es menor a la fecha de inicio, o mayor a la final
         if (currentCase.fechaRemate && (currentCase.fechaRemate < this.fixedStartDate || currentCase.fechaRemate > this.fixedEndDate )) {
+            logger.debug(`Caso ${currentCase.causa} del juzgado ${currentCase.juzgado} con fecha de remate ${currentCase.fechaRemate} fuera del rango de fechas`);
         // if (currentCase.fechaRemate && (currentCase.fechaRemate < fechaInicioTest || currentCase.fechaRemate > fechaInicioTest )) {
             return false;
         }
         // No se escriben casos de juez partidor
-        if (currentCase.juzgado === "Juez Partidor") {
+        if (currentCase.juzgado?.toLowerCase() === "juez partidor") {
+            logger.debug(`Caso ${currentCase.causa} del juzgado ${currentCase.juzgado} es de juez partidor`);
             return false;
         }
-
-        // Agregar la busqueda de casos en DB y union si existe ya en la DB
-        const caseDB = this.isCaseInDB(currentCase);
-        if(caseDB){
-            currentCase = Caso.bindCaseWithDB(currentCase,caseDB);
-        }
         return true;
-    }
-
-    isCaseInDB(currentCase){
-       const inDB = this.causaDB.searchCausa(currentCase.causa, currentCase.numeroJuzgado); 
-       return inDB;
     }
 
 }
@@ -210,26 +175,6 @@ function cambiarFormatoFecha(fecha) {
     return `${día}-${mes}-${año}`;  // Construimos el nuevo formato
 }
 
-// Dado un string con el formato yyyy-mm-dd, devuelve un objeto Date
-function stringToDate(fecha) {
-    const partes = fecha.split("-"); // Dividimos la fecha en partes [año, mes, día]
-    const [año, mes, día] = partes; // Desestructuramos las partes
-    return new Date(`${año}/${mes}/${día}`);
-}
-function formatDateToSQLite(date) {
-    // Asegúrate de que el parámetro sea un objeto Date válido
-    if (!(date instanceof Date) || isNaN(date)) {
-        throw new Error("El parámetro debe ser un objeto Date válido.");
-    }
-
-    // Obtener el año, mes y día
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, `0`); // Los meses van de 0 a 11
-    const day = String(date.getDate()).padStart(2, `0`);
-
-    // Formatear como YYYY-MM-DD
-    return `${year}-${month}-${day}`;
-}
 
 function fechaMenosUno(fecha) {
     const nuevaFecha = new Date(fecha);

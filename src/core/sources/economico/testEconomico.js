@@ -1,27 +1,6 @@
-const {testUnico, procesarDatosRemate} = require('./datosRemateEmol.js');
+const {procesarDatosRemate} = require('./datosRemateEmol.js');
 const Caso = require('#models/caso/caso.js');
 const process = require('process');
-const Causas = require('#models/Causas.js');
-
-async function testLink(){
-    try {
-        const link ="https://www.economicos.cl/remates/clasificados-remates-cod7468887.html";
-        const fechaHoy = new Date();
-        const caso = await testUnico(fechaHoy,link);
-
-    }catch (error) {
-        console.error('Error al obtener resultados:', error);
-    }
-}
-async function testLinkArgs(link){
-    try {
-        const fechaHoy = new Date();
-        const caso = await testUnico(fechaHoy,link);
-
-    }catch (error) {
-        console.error('Error al obtener resultados:', error);
-    }
-}
 
 
 function testTexto(){
@@ -45,23 +24,12 @@ function testTextoArgs(texto){
         testCaso.texto = texto;
         procesarDatosRemate(testCaso); 
         const casoObjt = testCaso.toObject();
-        console.log("Caso: ",casoObjt);
         return casoObjt;
     }catch(error){
         console.error('Error al obtener resultados:', error);
         return null;
     }
 
-}
-
-function obtainCausasFromDB(){
-    try {
-        const causa = new Causas();
-        const causas = causa.getAllCausas();
-        console.log("Causas: ",causas);
-    }catch (error) {
-        console.error('Error al obtener resultados:', error);
-    }
 }
 
 function use(){
@@ -90,34 +58,9 @@ async function main(){
     }
     if(args[0] === "-h"){
         use();
-    }else if(args[0] === "-l"){
-        await testLink();
     }else if(args[0] === "-t"){
         testTexto();
-    }else if(args[0] === "-L"){
-        testLinkArgs(args[1]);
-    }else if(args[0] === "-all"){
-        obtainCausasFromDB();
-    }else if(args[0] === "-borrar"){
-        const causa = new Causas();
-        causa.DeleteAll();
-    }else if(args[0] === "-drop"){
-        const causa = new Causas();
-        causa.DropCausa();
-    }else if(args[0] === "-tables"){
-        const causa = new Causas();
-        console.log(causa.getTables());
-    }else if(args[0] === "-create"){
-        const causa = new Causas();
-        causa.createDB();
-    }else if(args[0] === "-getFecha"){
-        const causa = new Causas();
-        console.log(causa.getCausas("2025-02-13"));
-    }else if(args[0] === "-searchCausa"){
-        const causa = new Causas();
-        console.log(causa.searchByCausa(args[1]));
     }else if(args[0] === "-testMacal"){
-        logger.info("Iniciando test de MacalService");
         console.log("Iniciando test de MacalService");
         // const result = await MacalService.searchPropertiesWithFilters({
         //     page: 1,
@@ -130,10 +73,7 @@ async function main(){
 
 // main()
 module.exports = {
-    testLink,
-    testLinkArgs,
     testTexto,
-    obtainCausasFromDB,
     testTextoArgs,
 }
 

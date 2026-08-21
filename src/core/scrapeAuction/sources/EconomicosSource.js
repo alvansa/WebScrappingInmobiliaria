@@ -15,14 +15,14 @@ class EconomicosSource {
 
     async fetch(startDate, endDate, options) {
         if (this.emptyMode) {
-            return emptyCaseEconomico();
+            return [];
         }
 
         console.log(`Fetching data from Economicos with start date: ${startDate} and end date: ${endDate}`);
         this.browser = await this.puppeteerManager.getBrowser();
 
-        const fixStartDate = stringToDate(startDate)
-        const fixEndDate = stringToDate(endDate);
+        const fixStartDate = stringToDate(startDate, 'YMD');
+        const fixEndDate = stringToDate(endDate, 'YMD');
 
         let fechaInicio = new Date();
         let fechaFin = new Date();
@@ -31,11 +31,12 @@ class EconomicosSource {
 
 
         if (this.isTestMode) {
-            fechaInicio = stringToDate(startDate);
-            fechaFin = stringToDate(endDate);
+            fechaInicio = stringToDate(startDate, 'YMD');
+            fechaFin = stringToDate(endDate, 'YMD');
         }
 
         this.logger.info(`Fechas para Economicos - Fecha Inicio: ${fechaInicio}, Fecha Fin: ${fechaFin} is test mode: ${this.isTestMode}`);
+
 
         // return [];
         let casos = [];

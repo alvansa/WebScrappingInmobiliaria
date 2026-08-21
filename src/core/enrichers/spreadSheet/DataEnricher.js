@@ -1,6 +1,3 @@
-const SpreadSheetManager = require('./SpreadSheetManager.js');
-const CasoBuilder = require('#models/caso/casoBuilder.js');
-
 const config = require('#config');
 const {searchInList} = require('#utils/corteJuzgado.js');
 
@@ -40,7 +37,7 @@ class DataEnricher{
         this.indexes.set('causa_juzgado', indexEstado);
         this.indexes.set('comuna_rol', indexEstado);
 
-        const listAuctions = this.obtainKeys(spreadSheetData);
+        this.obtainKeys(spreadSheetData);
 
         this.searchAndEnrich(casos, spreadSheetData);
     }

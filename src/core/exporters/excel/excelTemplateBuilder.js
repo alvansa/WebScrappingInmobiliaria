@@ -57,7 +57,7 @@ class excelTemplateBuilder {
         this.cambiarAnchoColumnas(ws);
 
         // Define el rango de la hoja para asegurar que incluya todas las celdas especificadas
-        ws[`!ref`] = `${columnMapping.INICIO}5:${config.COMENTARIOS3}5`;
+        ws[`!ref`] = `${columnMapping.INICIO}5:${columnMapping.COMENTARIOS3}5`;
 
         // Crea un nuevo libro y agrega la hoja
         const wb = XLSX.utils.book_new();

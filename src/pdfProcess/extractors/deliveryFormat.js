@@ -1,6 +1,6 @@
 const extractors = require('#sources/economico/extractors/index.js');
 
-function processDeliveryFormat(info, logData = false) {
+function processDeliveryFormat(info) {
     return extractors.deliveryFormat(info);
 }
 

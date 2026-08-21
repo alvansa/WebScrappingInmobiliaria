@@ -26,7 +26,7 @@ function extractParties(data) {
     if (partesNombreBanco != null) {
         return partesNombreBanco;
     }
-    const regexPartes = /(?:caratulado?a?s?|expediente|antecedentes?|autos|causa),?\s*[:]?(?:(?:Rol\s)?N?º?\s*C\s*-?\s*(\d{1,5}|\d{1,3}\.\d{1,3})\s*-\s*(\d{1,5}|\d{1,3}\.\d{1,3}),?)?(\s*[\.,a-zA-ZáéíóúñÑ-]+){1,12}\s*(con\s+|\/|-)(\s*[a-zA-ZáéíóúñÑ\/\.]+){1,4}/ig;
+    const regexPartes = /(?:caratulado?a?s?|expediente|antecedentes?|autos|causa),?\s*[:]?(?:(?:Rol\s)?N?º?\s*C\s*-?\s*(\d{1,5}|\d{1,3}\.\d{1,3})\s*-\s*(\d{1,5}|\d{1,3}\.\d{1,3}),?)?(\s*[.,a-zA-ZáéíóúñÑ-]+){1,12}\s*(con\s+|\/|-)(\s*[a-zA-ZáéíóúñÑ/.]+){1,4}/ig;
     // const regexPartes = /(?:caratulado?a?s?|expediente|antecedentes?)\s*[:]?(?:(?:Rol\s)?\s*C\s*-\s*\d{1,5}\s*-\s*\d{1,5},?)?(\s*[,a-zA-ZáéíóúñÑ-]+){1,10}\s*(S\.A\.G\.R\.|S\.A\.G\.R\.|S\.A\.?\/?|con|\/|-)(\s*[a-zA-ZáéíóúñÑ\/\.]+){1,4}/i;
     let partes = dataNormalized.match(regexPartes);
     if (partes != null) {
@@ -73,7 +73,7 @@ function buscarPartesNombreBanco(data) {
         if (endOfPartiesWithPeriod == -1) {
             continue;
         }
-        parties = bankData.substring(0, endOfPartiesWithPeriod);
+        const parties = bankData.substring(0, endOfPartiesWithPeriod);
         if (incluyeParte(parties)) {
             return parties;
         }

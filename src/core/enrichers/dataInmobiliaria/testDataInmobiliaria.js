@@ -1,4 +1,5 @@
 const DataInmobiliaria = require('./obtainDataInmobilaria');
+const logger = require('#utils/logger.js');
 
 async function main(){
     const comuna = 'Curacaví';

@@ -1,7 +1,5 @@
 
 require('dotenv').config();
-const DESARROLLO = true;
-const TESTPJUD = true;
 
 const LETRAS = {
     INICIO : 'A',

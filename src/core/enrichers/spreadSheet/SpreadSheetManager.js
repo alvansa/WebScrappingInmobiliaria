@@ -7,12 +7,13 @@ const { writeFile, readFile } = require('fs').promises;
 const { readFileSync } = require('fs');
 const os = require('os');
 
+const logger = require('#utils/logger.js');
+
 require('dotenv').config();
 
-const config = require('#config');
+
 const EnvLoader = require('#utils/EnvLoader.js');
 
-// const isDev = process.argv.includes('--dev');
 
 // The scope for reading spreadsheets.
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
@@ -21,12 +22,14 @@ const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
 class SpreadSheetManager {
 
     static async processData(isDev=false) {
-        let data = null;
-        // const credentials = this.createCredentials();
         try {
+            let data = null;
             if(!isDev){
-
                 data = await this.obtainOnlineData();
+                return {
+                    result: true,
+                    data: data
+                }
             }else{
                 const filePath = path.join(__dirname, 'data.json');
 
@@ -37,98 +40,72 @@ class SpreadSheetManager {
                 }
                 data = readFileSync(filePath, 'utf8');
                 data = JSON.parse(data); 
+                return {
+                    result: true,
+                    data: data
+                }
             }
-
         } catch (error) {
-            console.error("Error: ", error.message);
+            console.error("Error en spreedSheetManager processData: ", error.message);
             return {result : false, data: error.message};
         }
-
-        return {result: true, data : data};
     }
 
-    static async obtainOnlineDataOld() {
-        // Authenticate with Google and get an authorized client.
-        const auth = new google.auth.GoogleAuth({
-            credentials :{
-                type: "service_account",
-                client_id : process.env.GOOGLE_CLIENT_ID,
-                project_id : process.env.GOOGLE_PROJECT_ID,
-                auth_uri : process.env.GOOGLE_AUTH_URI,
-                token_uri: process.env.GOOGLE_TOKEN_URI,
-                auth_provider_x509_cert_url : process.env.GOOGLE_AUTH_PROVIDER,
-                client_secret : process.env.GOOGLE_CLIENT_SECRET,
-                redirect_uris : process.env.GOOGLE_REDIRECTS_URI 
-            },
-            scopes : SCOPES
-        });
-
-        // Create a new Sheets API client.
-        const sheets = google.sheets({ version: 'v4', auth });
-        // Get the values from the spreadsheet.
-        const result = await sheets.spreadsheets.values.get({
-            spreadsheetId: process.env.SPREADSHEET_ID || '',
-            range: 'search!A1:AT',
-        });
-
-        console.log(`Descargadas ${result.data.values?.length || 0} filas`);
-        const rawData = result.data.values || 0;
-
-        return rawData;
-    }
 
     static async obtainOnlineData() {
-        let auth = null;
-        const TOKEN_PATH = this.obtainToken();
-        let credentialsPath = this.getCredentialsPath();
         EnvLoader.load();
 
-        // Ahora puedes acceder a las variables
         const spreadsheetId = EnvLoader.get('SPREADSHEET_ID');
-
-        // Intentar cargar token existente
-        try {
-            const tokenContent = await readFile(TOKEN_PATH, 'utf8');
-            const credentials = JSON.parse(tokenContent);
-            // console.log(`Credenciales leídas: ${JSON.stringify(credentials)} y token path es ${TOKEN_PATH}`);
-            auth = new google.auth.OAuth2();
-            // console.log('Token cargado desde', TOKEN_PATH, ' y autorizado con ', auth);
-            auth.setCredentials(credentials);
-
-            // Verificar si el token sigue válido
-            if (credentials.expiry_date && Date.now() > credentials.expiry_date) {
-                // console.log('Token expirado, renovando...');
-                auth = null;
-            }
-        } catch (error) {
-            console.log('No se encontró token válido, autenticando...');
+        if (!spreadsheetId) {
+            throw new Error("❌ SPREADSHEET_ID no está definido en las variables de entorno.");
         }
 
-        // Si no hay token válido, autenticar
-        if (!auth) {
+        const TOKEN_PATH = this.obtainToken();
+        const credentialsPath = this.getCredentialsPath();
+
+        // 1. Leer el archivo de credenciales de cliente para instanciar OAuth2 correctamente
+        const credentialsFile = await readFile(credentialsPath, 'utf8');
+        const keys = JSON.parse(credentialsFile);
+        const { client_secret, client_id, redirect_uris } = keys.installed || keys.web;
+
+        let auth = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
+
+        // 2. Intentar usar el token guardado
+        let isTokenValid = false;
+        try {
+            const tokenContent = await readFile(TOKEN_PATH, 'utf8');
+            const token = JSON.parse(tokenContent);
+            auth.setCredentials(token);
+
+            // Verificar si caducó
+            if (!token.expiry_date || Date.now() < token.expiry_date) {
+                isTokenValid = true;
+            }
+        } catch (error) {
+            console.log("No se pudo leer el token guardado, se solicitará uno nuevo.");
+        }
+
+        // 3. Si no hay token o caducó, volver a autenticar mediante la ventana/flujo OAuth
+        if (!isTokenValid) {
             auth = await authenticate({
                 keyfilePath: credentialsPath,
                 scopes: SCOPES
             });
-
-            // console.log('Autenticado con éxito escribiendo en el token');
-            // Guardar token para uso futuro
+            // Guardar las nuevas credenciales obtenidas
             await writeFile(TOKEN_PATH, JSON.stringify(auth.credentials));
         }
 
-        // Crear cliente de Sheets
+        // 4. Consultar la API de Sheets
         const sheets = google.sheets({ version: 'v4', auth });
-        
 
-        // Obtener datos
         const result = await sheets.spreadsheets.values.get({
-            spreadsheetId: spreadsheetId || '',
-            range: 'search!A1:AT',
+            spreadsheetId,
+            range: 'search!A1:AZ',
         });
 
         console.log(`Descargadas ${result.data.values?.length || 0} filas`);
         return result.data.values || [];
-    }
+}
 
     static obtainToken(){
         const homeDir = os.homedir();
@@ -156,6 +133,7 @@ class SpreadSheetManager {
       
       if (process.platform === 'darwin') {
         // macOS: dentro del .app bundle
+        console.log(`Buscando en: ${path.join(process.resourcesPath, 'credentials.json')}`)
         return path.join(process.resourcesPath, 'credentials.json');
       } else if (process.platform === 'win32') {
         // Windows: en el directorio resources

@@ -1,7 +1,4 @@
 
-const pie = require('puppeteer-in-electron')
-const {BrowserWindow} =  require('electron')
-
 const PjudPlaywright = require('#sources/pjud/getPjudPlay.js')
 const GestorRematesPjud = require('#sources/pjud/GestorRematesPlay.js');
 
@@ -12,7 +9,11 @@ const {stringToDate} = require('#utils/cleanStrings.js');
 const config = require('#config');
 const NORMAL = config.NORMAL;
 
-const { webkit } = require('playwright');
+const PlaywrigthManager = require('#core/scrapeAuction/services/PlaywrightManager.js')
+
+const MAX_RETRIES = 10;
+
+require('dotenv').config();
 
 class PjudPlaywrightSource{
     constructor(manager,config){
@@ -22,63 +23,92 @@ class PjudPlaywrightSource{
         this.mode = config.mode
     }
 
-    getName(){ return 'pjudPlaywright'; }
+    getName(){ return 'pjud'; }
 
-
-    //TODO: el problema es como se llega a la pagian principal de consultar, antes como era con verRemates() lo detectaba como bot, 
-    // Lo que hay que hacer es fingir mas desde la pagina principal del pjud y de ahi llegar a donde queremos.
     async fetch(startDateOrigin, endDateOrigin, { event, mainWindow, emptyMode, testMode }){
-        const endDateModified = stringToDate(endDateOrigin);
-        endDateModified.setDate(endDateModified.getDate() + 1); // Aumentar un dia para incluir el ultimo dia
-        const startDate = dateToPjud(stringToDate(startDateOrigin));
+        if(emptyMode){
+            return [];
+        }
+        const endDateModified = stringToDate(endDateOrigin, 'YMD');
+        endDateModified.setDate(endDateModified.getDate());
+
+        const startDate = dateToPjud(stringToDate(startDateOrigin, 'YMD'));
         const endDate = dateToPjud(endDateModified);
         let casos = [];
+        let lastPage = 0;
 
-        this.browser = await this.manager.getBrowser();
-        this.context = await this.manager.createHumanContext();
 
-        try{
-            casos = await this.searchCasesByDay(startDate, endDate);
-            casos.reverse(); // Invertir el orden de los casos para que aparezcan del mas reciente al mas antiguo
-            // const gestorRemates = new GestorRematesPjud(casos, event, mainWindow, NORMAL);
-            // const result = await gestorRemates.getInfoFromAuctions();
+        // this.browser = await this.manager.getBrowser();
+        // this.context = await this.manager.createHumanContext();
+        for(let attempt = 1; attempt < MAX_RETRIES; attempt++){
+            try{
+                const {casos: casosTemp, pageNumber: newPage} = await this.searchCasesByDay(startDate, endDate);
+                if(newPage > lastPage  && casosTemp.length > 0){
+                    lastPage = newPage;
+                    casos = casosTemp;
+                }
+            }catch(error){
+                logger.warn(`Error: ${error.message}`)
+            }
+        }
+        casos.reverse(); // Invertir el orden de los casos para que aparezcan del mas reciente al mas antiguo
+        logger.info("Cantidad de casos obtenidos de pjud: ", casos.length);
 
-            logger.info("Cantidad de casos obtenidos de pjud: ", casos.length);
-            return casos;
-        }catch(error){
-
-            logger.warn(`Error: ${error.message}`)
-            return casos;
+        if(testMode){
+            if(casos.length > 0){
+                logger.info(`Modo test activado, se detiene la ejecucion despues de obtener los casos de pjud. Cantidad de casos obtenidos: ${casos.length}`);
+                return casos;
+            }
         }
 
+        try {
+            const gestorRemates = new GestorRematesPjud(casos, event, mainWindow, NORMAL);
+            await gestorRemates.getInfoFromAuctions();
+            if (casos.length > 0) {
+                return casos;
+            }
+        } catch (error) {
+            logger.warn(`Error: ${error.message}`);
+            return casos;
+        }
     }
 
 
     async searchCasesByDay(startDate, endDate) {
-        let window;
-        let casos = [];
+        let page = null;
+        let context = null;
         try {
-            const url = 'https://www.pjud.cl/';
+            const url = 'https://oficinajudicialvirtual.pjud.cl/remate.php'
 
-            const page = await this.context.newPage();
+            context = await PlaywrigthManager.createHumanContext();
+            page = await context.newPage();
             await page.goto(url,{timeout: 160000}); // Página real
             const scraper = new PjudPlaywright(this.browser, page, startDate, endDate);
-            casos = await scraper.getPJUD();
+            const {casos, pageNumber} = await scraper.getPJUD();
             obtainCorteJuzgadoNumbers(casos);
             logger.info(`Cantidad de resultados obtenidos: ${casos.length}`);
-            return casos;
+            return {'casos': casos, 'pageNumber': pageNumber};
         } catch (error) {
-            console.error("Error al buscar casos por dia en Pjud: ", error.message);
-            if (window && !window.isDestroyed()) {
-                window.destroy();
+            logger.error(`Error al buscar casos por dia en Pjud: ${error.message}`);
+            if (context) {
+                await context.close().catch(() => { });
             }
+            return {'casos': [], 'pageNumber': 0};
 
         }finally{
-            if(page && !page.isClosed()){
-                page.close();
+            if(page){
+                await page.close().catch(() => { });
+            }
+
+            if (context) {
+                await context.close().catch(() => { });
             }
         }
-        return casos;
+    }
+
+    async completeInfo(cases){
+        const gestorRemates = new GestorRematesPjud(cases, this.event, this.mainWindow);
+        await gestorRemates.getInfoFromAuctions({ skipIfHasPartes: true });
     }
 }
 

@@ -53,7 +53,7 @@ function buscarMontosFinal(regexList, regexMontoMinimo) {
         for (let { regex, moneda } of regexBuscarMontos) {
             const montoMinimo = posibleMonto.match(regex);
             if (montoMinimo) {
-                montoFinal = { monto: montoMinimo[1], moneda: moneda };
+                const montoFinal = { monto: montoMinimo[1], moneda: moneda };
                 return montoFinal;
             }
         }

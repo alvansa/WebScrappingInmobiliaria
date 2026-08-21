@@ -1,6 +1,5 @@
 const SpreadSheetManager = require('#enrichers/spreadSheet/SpreadSheetManager.js');
 const DataEnricher = require('#enrichers/spreadSheet/DataEnricher.js');
-const { tribunales2 } = require('#models/caso/datosLocales.js');
 
 class SpreadSheetEnricher {
     constructor() {
@@ -12,6 +11,7 @@ class SpreadSheetEnricher {
 
     async obtain(){
         const response = await SpreadSheetManager.processData();
+        console.log(`Respuesta de obtener el spreadSheet ${response}`)
         if(response.result){
             this.data = response.data;
         }else{
