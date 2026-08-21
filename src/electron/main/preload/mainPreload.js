@@ -66,6 +66,11 @@ contextBridge.exposeInMainWorld('api', {
   },
 
   onMessage : (callback)=>{ ipcRenderer.on('message-renderer',(_event,msg)=>{ callback(msg) })},
+
+  countLadrillos : async (filePath) => {  
+    console.log(`llamando a la funcion countLadrillos en preload ${filePath}`);
+    ipcRenderer.invoke('countLadrillos',filePath) 
+  },
 });
 
 contextBridge.exposeInMainWorld('ladrilleroAPI', {

@@ -7,6 +7,7 @@ const excelBase = document.getElementById('fileExcelBase');
 const excelNuevo = document.getElementById('fileExcelNuevo');
 const inputAutoComplete = document.getElementById('autoCompleteText');
 const divAutoComplete = document.getElementById('autocomplete'); 
+const countLadrillosBtn = document.getElementById('countLadrillosBtn');
 
 let pathExcelBase, pathExcelNuevo;
 let countdownInterval = null;
@@ -112,6 +113,18 @@ checkFPMG.addEventListener('click', async () => {
     showWaitingProcess(false)
   }
 
+});
+
+countLadrillosBtn.addEventListener('click', async () => {
+  try{
+    const filePath = await window.api.openFileLocal();
+    if(filePath){
+      console.log(`FilePath en renderer : ${filePath}`);
+      await window.api.countLadrillos(filePath);
+    }
+  }catch(error){
+    console.log(`Ocurrio un error: ${error.message}`)
+  }
 });
 
 function showWaitingProcess(show){
