@@ -1,4 +1,14 @@
 const {app, BrowserWindow, ipcMain, dialog} = require('electron');
+
+// Tiene que ser lo primero que corre: PlaywrightManager y otros módulos leen
+// process.env (proxy, etc.) apenas se hace require() de ellos más abajo, así
+// que el .env tiene que estar cargado antes de esa línea. EnvLoader ya sabe
+// buscar el .env empaquetado en process.resourcesPath cuando la app corre
+// como build (a diferencia de dotenv.config() a secas, que busca en
+// process.cwd() y no lo encuentra en el .exe/.dmg instalado).
+const EnvLoader = require('#utils/EnvLoader.js');
+EnvLoader.load();
+
 const path = require('node:path');
 const puppeteer = require('puppeteer-core');
 const pie = require('puppeteer-in-electron');
@@ -43,7 +53,6 @@ const ExcelExporter = require('#core/scrapeAuction/exporters/ExcelExporter.js');
 
 const auctionScraperOrchestator = require('#core/scrapeAuction/auctionScraperOrchestator.js');
 
-const Causas = require('#models/Causas.js');
 
 const isDevMode = process.argv.includes('--dev');
 const isEmptyMode = process.argv.includes('--empty');

@@ -7,12 +7,9 @@ const PropertyParser = require('./parser.js');
 const {delay} = require('#utils/delay.js');
 const {stringToDate} = require('#utils/cleanStrings.js');
 const CasoBuilder = require('#models/caso/casoBuilder.js');
-const { all } = require('axios');
 
 
 const config = require('#config');
-const Caso = require('#models/caso/caso.js');
-const { NormalModuleReplacementPlugin } = require('webpack');
 
 const MACAL = config.MACAL;
 

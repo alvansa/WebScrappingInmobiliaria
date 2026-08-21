@@ -1,21 +1,24 @@
 const XLSX = require('xlsx');
-const fs = require('fs');
-const path = require('path');
+// const fs = requre('fs');
+// const path = require('path');
 
-const Caso = require('#models/caso/caso.js');
+// const Caso = require('#models/caso/caso.js');
 const CasoBuilder = require('#models/caso/casoBuilder.js');
-const GestorRematesPjud = require('#sources/pjud/GestorRematesPjud.js');
+const GestorRematesPjud = require('#sources/pjud/GestorRematesPlay.js');
 const SpreadSheetManager = require('#enrichers/spreadSheet/SpreadSheetManager.js')
-const {createExcel} = require('#exporters/excel/createExcel.js')
+// const {createExcel} = require('#exporters/excel/createExcel.js')
 const excelRowWriter = require('#exporters/excel/excelRowWriter.js');
-const {tribunalesPorCorte, obtainCorteJuzgadoNumbers} = require('#utils/corteJuzgado.js');
+const {obtainCorteJuzgadoNumbers} = require('#utils/corteJuzgado.js');
 const {stringToDate,formatDateToDDMMAA} = require('#utils/cleanStrings.js');   
 const {matchJuzgado, matchRol} = require('#utils/compareText.js');
 const config = require('#config');
+const logger = require('#utils/logger.js');
 
 const PJUD = config.PJUD;
 const EMOL = config.EMOL;
 const LIQUIDACIONES = config.LIQUIDACIONES;
+
+const NORMAL = config.NORMAL;
 
 const COLUMNAS_EXCEL = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z','AA', 'AB', 'AC', 'AD', 'AE', 'AF', 'AG', 'AH', 'AI', 'AJ', 'AK', 'AL', 'AM', 'AN', 'AO', 'AP', 'AQ','AR'];
 
@@ -45,6 +48,7 @@ class CompleteExcelInfo{
         const ws = wb.Sheets[wb.SheetNames[0]];
         let lastRow = 6;
 
+        const startTime = new Date();
         // Obtain de auctions
         lastRow = this.getCausasFromExcel(ws,lastRow);
         console.log(`Ultima fila obtenida desde Excel: ${lastRow}`);
@@ -63,6 +67,12 @@ class CompleteExcelInfo{
         // console.log(this.casos.map(obj => obj.toObject()));
 
         CompleteExcelInfo.saveNewExcel(wb,ws,lastRow,this.filePath);
+
+        const endTime = new Date();
+        const duration = (endTime - startTime) / 1000;
+        logger.info(`Tiempo total de ejecución: ${duration} segundos`);
+        logger.info(`Hora de cominenzo: ${startTime.toLocaleString()}`);
+        logger.info(`Hora de finalización: ${endTime.toLocaleString()}`);
 
         return this.filePath;
     }
@@ -127,8 +137,8 @@ class CompleteExcelInfo{
     async obtainNewData(){
         try{
             obtainCorteJuzgadoNumbers(this.casos);
-            const gestorRemates = new GestorRematesPjud(this.casos, this.event, this.mainWindow);
-            const result = await gestorRemates.getInfoFromAuctions();
+            const gestorRemates = new GestorRematesPjud(this.casos, this.event, this.mainWindow, NORMAL);
+            await gestorRemates.getInfoFromAuctions();
             return true;
         }catch(error){
             console.error('Error al obtener nueva información:', error);
@@ -140,13 +150,14 @@ class CompleteExcelInfo{
         for (let caso of this.casos) {
             const actualCausa = caso.causa;
             let lastRow = 6;
+            //TODO: Revisar este while porque si hay una causa vacia ya no escribe nada
             while (ws[`${config.CAUSA}${lastRow}`]) {
                 const celda = ws[`${config.CAUSA}${lastRow}`];
                 const causaExcel = celda.v;
                 if(actualCausa == causaExcel){
                     // console.log(`Actualizando caso: ${actualCausa} en la fila ${lastRow}`);
                     // insertarCasoIntoWorksheet(caso,ws,lastRow)
-                    await excelRowWriter.writeCasoRow(ws, lastRow, caso);
+                    await excelRowWriter.writeRow(ws, lastRow, caso);
                 }
                 lastRow++;
             }

@@ -215,7 +215,7 @@ class ConsultaCausaPjud {
         await this.getPartesCaso();
         const isValid = await this.searchAuctionInfo();
         if (isValid) {
-            logger.debug("Datos del caso obtenidos correctamente");
+            // logger.debug("Datos del caso obtenidos correctamente");
             return true;
         } else {
             logger.warn("Fallo al buscar la información");
@@ -268,20 +268,12 @@ class ConsultaCausaPjud {
         }
     }
 
-    // async getPrimeraLinea() {
-    //     return await this.page.$eval("#dtaTableDetalle tbody tr:first-child", (row) => {
-    //         const cells = row.querySelectorAll("td");
-    //         return Array.from(cells).map(cell => cell.innerText.trim()).join(" ");
-    //     });
-    // }
-
     async setValoresIncialesBusquedaCausa() {
         const valores = this.validateInitialValues();
         if (!valores) {
             logger.warn(`Error al precargar valores`);
             return false;
         }
-        logger.debug("Valores precargados : Listo");
 
         if (!(await this.configurateCompetencia())) return false;
         if (!(await this.configurateCorte(valores.corte))) return false;
@@ -383,7 +375,7 @@ class ConsultaCausaPjud {
     }
 
     async searchAuctionInfo() {
-        logger.debug("Buscando datos del cuaderno");
+        // logger.debug("Buscando datos del cuaderno");
         const findLink = await this.searchButtonAuction();
         if (!findLink) {
             logger.error("No se pudo encontrar el enlace del caso");
@@ -392,7 +384,7 @@ class ConsultaCausaPjud {
 
         const selectedCuaderno = await this.selectCuaderno();
         if (!selectedCuaderno) {
-            logger.debug("No se encontró el cuaderno");
+            // logger.debug("No se encontró el cuaderno");
             return false;
         }
 
@@ -405,7 +397,7 @@ class ConsultaCausaPjud {
         }
 
         if (this.type === NORMAL) {
-            logger.debug("Descargando demanda");
+            // logger.debug("Descargando demanda");
             await this.downloadDemanda();
         }
         return true;
@@ -445,7 +437,7 @@ class ConsultaCausaPjud {
                     secondOption = options.find(opt => opt.text.includes("Principal"));
                 }
                 if (secondOption) {
-                    logger.debug(`Seleccionando opción alternativa: ${secondOption.text}`);
+                    // logger.debug(`Seleccionando opción alternativa: ${secondOption.text}`);
                     await this.page.selectOption("#selCuaderno", secondOption.value);
                 } else {
                     return false;
@@ -506,7 +498,6 @@ class ConsultaCausaPjud {
             ? new Date(this.caso.fechaRemate)
             : new Date();
         dateToday.setDate(dateToday.getDate() - 7);
-        console.log(`Fecha de corte para comparación: ${dateToday.toISOString().split('T')[0]} y tipo ${this.type}`);
 
         try {
             // 2. Extraer el texto de todas las celdas en una sola llamada (Mucho más rápido que 8 $eval)
@@ -541,7 +532,7 @@ class ConsultaCausaPjud {
                 this.checkDescription(descripcion);
 
             } else if (this.type === LADRILLERO) {
-                logger.debug(`Descripcion ${descripcion} y fecha ${fecha}`);
+                // logger.debug(`Descripcion ${descripcion} y fecha ${fecha}`);
                 if (stringToDate(fecha) >= dateToday) {
                     this.caso.hasChanged = true;
                 }
@@ -561,19 +552,8 @@ class ConsultaCausaPjud {
         const dateToday = new Date();
         dateToday.setDate(dateToday.getDate() - 7);
         try {
-            // const [number, uselessFile, date, type, lawyer] = await Promise.all([
-            //     row.$eval('td:nth-child(1)', el => el.textContent.trim()),
-            //     row.$eval('td:nth-child(2)', el => el.textContent.trim()),
-            //     row.$eval('td:nth-child(3)', el => el.textContent.trim()),
-            //     row.$eval('td:nth-child(4)', el => el.textContent.trim()),
-            //     row.$eval('td:nth-child(5)', el => el.textContent.trim()),
-            // ]);
             const [date] = await Promise.all([
-                // row.$eval('td:nth-child(1)', el => el.textContent.trim()),
-                // row.$eval('td:nth-child(2)', el => el.textContent.trim()),
                 row.$eval('td:nth-child(3)', el => el.textContent.trim()),
-                // row.$eval('td:nth-child(4)', el => el.textContent.trim()),
-                // row.$eval('td:nth-child(5)', el => el.textContent.trim()),
             ]);
 
             if (stringToDate(date, 'YMD') >= dateToday) {
@@ -597,12 +577,6 @@ class ConsultaCausaPjud {
         try {
             const rows = await this.page.$$("#modalAnexoSolicitudCivil > div > div > div.modal-body > div > div > div > table > tbody tr");
             for (let row of rows) {
-                // const [doc, fecha, reference, valuePdf] = await Promise.all([
-                //     row.$eval("td:nth-child(1)", el => el.textContent.trim()),
-                //     row.$eval("td:nth-child(2)", el => el.textContent.trim()),
-                //     row.$eval("td:nth-child(3)", el => el.textContent.trim()),
-                //     row.$eval('td:nth-child(1) form input[name="dtaDoc"]', input => input.value).catch(() => null)
-                // ]);
                 const [reference, valuePdf] = await Promise.all([
                     row.$eval("td:nth-child(3)", el => el.textContent.trim()),
                     row.$eval('td:nth-child(1) form input[name="dtaDoc"]', input => input.value).catch(() => null)
@@ -676,7 +650,6 @@ class ConsultaCausaPjud {
             });
 
             fs.writeFileSync(this.pdfPath, response);
-            logger.debug(`PDF guardado en ${this.pdfPath}`);
 
             // Procesar el PDF con la utilidad existente
             const resultado = await ProcesarBoletin.convertPdfToText(this.pdfPath);
@@ -715,7 +688,6 @@ class ConsultaCausaPjud {
                     await fs.promises.unlink(path.join(this.dirPath, file));
                 }
                 await fs.promises.rmdir(this.dirPath);
-                logger.debug(`Directorio eliminado: ${this.dirPath}`);
             }
         } catch (error) {
             logger.error(`Error limpiando archivos: ${error.message}`);

@@ -4,7 +4,7 @@ const ConsultaCausaPjud = require('./consultaCausaPlay.js'); // Versión Playwri
 const { logger } = require('#utils/logger.js');
 const PlaywrightManager = require('#core/scrapeAuction/services/PlaywrightManager.js');
 
-const MAX_RETRIES = 10;
+// const MAX_RETRIES = 10;
 
 class GestorRematesPjud {
     constructor(casos, event, mainWindow, type) {
@@ -39,16 +39,14 @@ class GestorRematesPjud {
                     continue;
                 }
 
-                for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-                    try {
-                        const result = await this.consultaCausa(caso);
-                        if (result) {
-                            logger.debug(`Caso obtenido correctamente, pasando al siguient: ${caso.causa}`);
-                            break;
-                        }
-                    } catch (error) {
-                        logger.error(`Error en el scraper: ${error.message}`);
+                try {
+                    const result = await this.consultaCausa(caso);
+                    if (result) {
+                        logger.debug(`Caso obtenido correctamente, pasando al siguient: ${caso.causa}`);
+                        // break;
                     }
+                } catch (error) {
+                    logger.error(`Error en el scraper: ${error.message}`);
                 }
 
                 // Control de esperas entre casos
@@ -59,10 +57,10 @@ class GestorRematesPjud {
                 }
 
                 // Límite de prueba (opcional, original tenía counter > 3)
-                // if (counter > 2) {
-                //     logger.info(`Límite de prueba alcanzado, se detiene la ejecución ${secondLapMsg}`);
-                //     break;
-                // }
+                if (counter > 10) {
+                    logger.info(`Límite de prueba alcanzado, se detiene la ejecución ${secondLapMsg}`);
+                    break;
+                }
             }
         } catch (error) {
             logger.error(`Error al obtener datos de los casos gestorRematesPlay:  ${error.message}`);
@@ -76,10 +74,6 @@ class GestorRematesPjud {
     
 
     async consultaCausa(caso) {
-        // Usar el navegador ya lanzado (this.browser debe existir)
-        // if (!this.browser) {
-        //     throw new Error('El navegador no ha sido inicializado. Llama a getInfoFromAuctions primero.');
-        // }
         const consultaCausa = new ConsultaCausaPjud(PlaywrightManager, caso, this.mainWindow, this.type);
         const result = await consultaCausa.getConsulta();
         return result;

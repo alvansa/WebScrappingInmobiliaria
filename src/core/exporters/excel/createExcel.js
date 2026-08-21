@@ -2,7 +2,6 @@
 const XLSX = require(`xlsx`);
 const fs = require(`fs`);
 const path = require(`path`);
-const Causas = require(`#models/Causas.js`);
 const config = require("#config");
 const Caso = require(`#models/caso/caso.js`);
 const {fixStringDate} = require(`#utils/cleanStrings.js`);
@@ -24,8 +23,6 @@ class createExcel {
         this.type = type;
         this.fixedStartDate = new Date(fixStringDate(startDate));
         this.fixedEndDate = new Date(fixStringDate(endDate));
-        this.causaDB = new Causas();
-        this.comunas = this.causaDB.obtainComunasFromDB();
         this.isTestMode = isTestMode; // Indica si se está en modo desarrollo
 
     }
@@ -39,7 +36,6 @@ class createExcel {
         let filePathExcel = filePath;
         try {
             if (this.type === "one") {
-                lastRow = this.fillWithOne(ws, casos);
                 filePathExcel = path.join(this.saveFile, `Caso_` + casos.causa + casos.juzgado + '.xlsx');
             } else if (this.type === "oneDay") {
                 lastRow = await this.insertCasos(casos, ws) - 1;
@@ -97,19 +93,6 @@ class createExcel {
         return currentRow;
     }
 
-    fillWithOne(ws, casos) {
-        // Agregar la busqueda de casos en DB y union si existe ya en la DB
-        const caseDB = this.isCaseInDB(casos);
-        if(caseDB){
-            casos = Caso.bindCaseWithDB(casos,caseDB);
-        }
-        this.causaDB.insertCase(casos,this.comunas); 
-        const caso = casos.toObject();
-        let currentRow = 6;
-        excelRowWriter.writeCasoRow(ws, currentRow, caso);
-        currentRow = currentRow + 1;
-        return currentRow
-    }
 
     async insertarCasosExcel(casos, ws) {
         //TODO: Cambiar esto para que quede claro que es un map
@@ -140,10 +123,6 @@ class createExcel {
             // await insertarCasoIntoWorksheet(casoObj, ws, currentRow);
             await excelRowWriter.writeRow(ws, currentRow, casoObj);  
             currentRow++;
-        }
-        // Agrega los remates a la base de datos
-        if (!this.emptyMode) {
-            this.causaDB.insertMultipleCases(remates,this.comunas);
         }
         return currentRow;
     }
@@ -180,22 +159,11 @@ class createExcel {
             return false;
         }
         // No se escriben casos de juez partidor
-        if (currentCase.juzgado === "Juez Partidor") {
+        if (currentCase.juzgado?.toLowerCase() === "juez partidor") {
             logger.debug(`Caso ${currentCase.causa} del juzgado ${currentCase.juzgado} es de juez partidor`);
             return false;
         }
-
-        // Agregar la busqueda de casos en DB y union si existe ya en la DB
-        // const caseDB = this.isCaseInDB(currentCase);
-        // if(caseDB){
-        //     Caso.bindCaseWithDB(currentCase,caseDB);
-        // }
         return true;
-    }
-
-    isCaseInDB(currentCase){
-       const inDB = this.causaDB.searchCausa(currentCase.causa, currentCase.numeroJuzgado); 
-       return inDB;
     }
 
 }

@@ -259,19 +259,15 @@ class checkFPMG {
     }
 
     isPropio(dataLine){
-        // 1. revisar que ni causa ni juzgado sean nulos
         if (!dataLine.causa || !dataLine.juzgado) {
             return false;
         }
         if (dataLine.estado) {
             if (dataLine.estado.toLowerCase() === 'propio') {
-                // console.log(`causa : ${dataLine.causa} juzgado: ${dataLine.juzgado} `);
                 return true;
             }
         }
-
         return false;
-
     }
 
     processNewRow(line){
@@ -498,12 +494,7 @@ class checkFPMG {
         if(fechaRemateDate < fechaLimite  ){
             return false;
         }
-        // console.log('Causa: ', dataLine.causa, 'Fecha de remate:', fechaRemateDate, 'Fecha límite:', fechaLimite);
-
-        //TODO: agregar que revise columna de Ocupacion (H) y VV(E)
-        // console.log(dataLine)
         if(this.searchDeudaInColumn(dataLine)){
-        // if (!dataLine.martillero || !dataLine.martillero.toLowerCase().includes('deuda')) {
             return true;
         }
         return false;
@@ -525,9 +516,6 @@ class checkFPMG {
         }
         return false;
     }
-
-    
-    
 
     async processListDeuda(type) {
         const mainWindow = BrowserWindow.fromWebContents(this.event.sender);

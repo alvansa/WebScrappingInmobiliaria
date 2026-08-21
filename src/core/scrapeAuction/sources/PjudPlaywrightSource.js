@@ -1,7 +1,4 @@
 
-const pie = require('puppeteer-in-electron')
-const {BrowserWindow} =  require('electron')
-
 const PjudPlaywright = require('#sources/pjud/getPjudPlay.js')
 const GestorRematesPjud = require('#sources/pjud/GestorRematesPlay.js');
 
@@ -14,8 +11,6 @@ const NORMAL = config.NORMAL;
 
 const PlaywrigthManager = require('#core/scrapeAuction/services/PlaywrightManager.js')
 
-const { webkit } = require('playwright');
-const { PlaywrightManager } = require('../services/PlaywrightManager');
 const MAX_RETRIES = 10;
 
 require('dotenv').config();

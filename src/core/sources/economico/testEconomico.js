@@ -1,8 +1,6 @@
 const {procesarDatosRemate} = require('./datosRemateEmol.js');
 const Caso = require('#models/caso/caso.js');
 const process = require('process');
-const Causas = require('#models/Causas.js');
-
 
 
 function testTexto(){
@@ -34,16 +32,6 @@ function testTextoArgs(texto){
 
 }
 
-function obtainCausasFromDB(){
-    try {
-        const causa = new Causas();
-        const causas = causa.getAllCausas();
-        console.log("Causas: ",causas);
-    }catch (error) {
-        console.error('Error al obtener resultados:', error);
-    }
-}
-
 function use(){
     console.log(`
        Uso : node testEconomico.js
@@ -72,26 +60,6 @@ async function main(){
         use();
     }else if(args[0] === "-t"){
         testTexto();
-    }else if(args[0] === "-all"){
-        obtainCausasFromDB();
-    }else if(args[0] === "-borrar"){
-        const causa = new Causas();
-        causa.DeleteAll();
-    }else if(args[0] === "-drop"){
-        const causa = new Causas();
-        causa.DropCausa();
-    }else if(args[0] === "-tables"){
-        const causa = new Causas();
-        console.log(causa.getTables());
-    }else if(args[0] === "-create"){
-        const causa = new Causas();
-        causa.createDB();
-    }else if(args[0] === "-getFecha"){
-        const causa = new Causas();
-        console.log(causa.getCausas("2025-02-13"));
-    }else if(args[0] === "-searchCausa"){
-        const causa = new Causas();
-        console.log(causa.searchByCausa(args[1]));
     }else if(args[0] === "-testMacal"){
         console.log("Iniciando test de MacalService");
         // const result = await MacalService.searchPropertiesWithFilters({
@@ -106,7 +74,6 @@ async function main(){
 // main()
 module.exports = {
     testTexto,
-    obtainCausasFromDB,
     testTextoArgs,
 }
 
