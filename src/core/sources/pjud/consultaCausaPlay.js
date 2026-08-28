@@ -615,12 +615,17 @@ class ConsultaCausaPjud {
 
     async downloadDemanda() {
         const linkBase = "https://oficinajudicialvirtual.pjud.cl/ADIR_871/civil/documentos/docu.php?valorEncTxtDmda=";
+
         try {
-            await this.page.waitForSelector('#modalDetalleCivil > div > div > div.modal-body > div > div:nth-child(1) > table:nth-child(2) > tbody > tr > td:nth-child(1) > form > input[type="hidden"]');
-            const value = await this.page.$eval(
-                '#modalDetalleCivil > div > div > div.modal-body > div > div:nth-child(1) > table:nth-child(2) > tbody > tr > td:nth-child(1) > form > input[type="hidden"]',
-                input => input.value
-            );
+            // Se ancla al atributo name="valorEncTxtDmda" en vez de la posicion en
+            // el DOM (nth-child): es el parametro que el propio PJUD usa para armar
+            // la URL de descarga, asi que un rediseño visual del modal (agregar/mover
+            // divs, reordenar tablas) no lo puede tocar sin romper su propio boton de
+            // descarga. Se escopa a #modalDetalleCivil por prolijidad, no porque haga
+            // falta para desambiguar (el name ya es especifico de este formulario).
+            const value = await this.page
+                .locator('#modalDetalleCivil input[name="valorEncTxtDmda"]')
+                .inputValue({ timeout: 30000 });
             const linkToDownload = linkBase + value;
             await this.downloadPdfFromUrl(linkToDownload);
         } catch (error) {

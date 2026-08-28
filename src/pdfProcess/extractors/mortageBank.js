@@ -41,6 +41,18 @@ function processMortageBank(text,demandPart = null, logData = false){
     }
     if (!indexHipoteca) {
         if (logData) console.log("no se encontro texto inicial")
+        const regex = new RegExp('registro\\s*de\\s*hipotecas\\s*y\\s*gravamenes','i');
+        if(!regex.test(normalizeText)){
+            if(logData) console.log("no se encontro registro de hipotecas y gravamenes")
+            return null;
+        }
+        const indexRegistro = normalizeText.search(regex);
+        startText = normalizeText.substring(indexRegistro);
+        const sinAnotaciones = searchAnotaciones(startText);
+        if (sinAnotaciones) {
+            return "Sin banco hipotecario";
+        }
+        
         return null;
     }
 
@@ -64,6 +76,8 @@ function processMortageBank(text,demandPart = null, logData = false){
     if(banco){
         return banco
     }
+
+
     return null;
 }
 
@@ -90,6 +104,14 @@ function findBankWithAcreedor(text, BANCOS){
     const alterText = text.substring(0,endIndex);
     const banco = searchBank(alterText, BANCOS);
     return banco;
+}
+
+function searchAnotaciones(text){
+    const anotacionesRegex = new RegExp('no\\s*registra\\s*(anotaciones|inscripciones)\\s*vigentes','i');
+    if(anotacionesRegex.test(text)){
+        return true;
+    }
+    return false;
 }
 
 function searchBank(text,BANCOS){

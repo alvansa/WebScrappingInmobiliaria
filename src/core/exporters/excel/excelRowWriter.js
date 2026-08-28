@@ -142,8 +142,12 @@ class ExcelRowWriter {
     }
     static writeLine(ws, row, col, value, type) {
         if (value != null) {
-            if(row === columnMapping.DEUDA_HIPOTECA){
-                ws[row + col] = { v:`Tod ${value}`, t: type };
+            if(row === columnMapping.DEUDA_BANCO){
+                if(value.toLowerCase().includes('sin banco hipotecario')){
+                    ws[row + col] = { v:`${value}`, t: type };
+                }else{
+                    ws[row + col] = { v:`Tod ${value}`, t: type };
+                }
             }else{
                 ws[row + col] = { v: value, t: type };
             }

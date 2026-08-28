@@ -1,15 +1,13 @@
 const pie = require('puppeteer-in-electron');
 const {app, session} = require('electron');
+const logger = require('#utils/logger.js');
 
 // 1. Importamos puppeteer-extra en lugar del core directamente
 const puppeteer = require('puppeteer-extra');
-const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 
 // 2. Vinculamos puppeteer-core como el lanzador base para evitar conflictos en Electron
 puppeteer.vanillaLauncher = require('puppeteer-core');
 
-// 3. Ahora sí, registramos el plugin de camuflaje
-puppeteer.use(StealthPlugin());
 
 class PupperteerManager{
     constructor(proxyOptions){
@@ -50,18 +48,18 @@ class PupperteerManager{
         try {
             if (this.proxyOptions) {
                 await session.defaultSession.setProxy(this.proxyOptions);
-                console.log('Proxy configurado:', this.proxyOptions);
+                logger.debug('Proxy configurado:', this.proxyOptions);
             }
             // Conectar Puppeteer con la aplicación Electron
             this.browser = await pie.connect(app, puppeteer);
             // Opcional: escuchar evento cuando el browser se cierre para limpiar referencia
             this.browser.on('disconnected', () => {
-                console.log('Puppeteer browser disconnected');
+                logger.debug('Puppeteer browser disconnected');
                 this.browser = null;
             });
             return this.browser;
         } catch (error) {
-            console.error('Error conectando Puppeteer con Electron:', error);
+            logger.error(`Error conectando Puppeteer con Electron: ${error.message}`);
             throw error;
         } finally {
             this.isConnecting = false;

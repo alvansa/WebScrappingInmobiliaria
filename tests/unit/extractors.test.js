@@ -264,7 +264,12 @@ describe('test para extraer el banco que tiene la hipoteca del GP', ()=>{
         const text = txGP.GP6782;
         const banco = processMortageBank(text,null);
         expect(banco).toBeNull();
+    });
 
+    test('Test para obtener que no registra anotaciones', ()=>{
+        const text = txGP.gp_sin_anotaciones;
+        const banco = processMortageBank(text,null);
+        expect(banco).toBe('Sin banco hipotecario');
     });
 });
 

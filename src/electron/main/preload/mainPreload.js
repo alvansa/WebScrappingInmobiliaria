@@ -20,8 +20,8 @@ contextBridge.exposeInMainWorld('api', {
   
   fillMapa: (filePath) => ipcRenderer.invoke('process-Mapa', filePath),
 
-  checkDEUDA : async ()=> {
-    const result = await ipcRenderer.invoke('process-DEUDA')
+  checkDEUDA : async (filePath, fechaLimite)=> {
+    const result = await ipcRenderer.invoke('process-DEUDA', filePath, fechaLimite)
     return result;
   },
   

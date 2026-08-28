@@ -16,14 +16,18 @@ require('dotenv').config();
 
 const SELECTORS =
 {
-    'NEXT_PAGE_SELECTOR': 'span.pag_bt_result_left.pag_bt_resul_green.pag_bt_pad_r.pag_color_bt_green',
+    // El sitio movió todo bajo /search/ (ago-2026). La paginación ahora es el
+    // enlace "step-forward" del paginador: /search/remates/el-mercurio/{N}
+    'NEXT_PAGE_SELECTOR': '.paginador a i.icon-step-forward',
     'CASO_BLOQUE_SELECTOR': 'div.result.row-fluid',
-    // 'CASO_BLOQUE_SELECTOR': 'div.result.row-fluid',
-    'ELEMENTO_TEXTO': 'div.col2.span6 > a > h3',
-    'ELEMENTO_LINK' : 'div.col2.span6 a',
+    'ELEMENTO_TEXTO': 'div.col2 a h3',
+    'ELEMENTO_LINK' : 'div.col2 a',
+    // La fecha de publicación ya no viene en <time.timeago>, ahora es texto
+    // dentro de <ul.meta> => "Publicado el: 2026-08-28"
+    'META_SELECTOR': 'ul.meta li',
 }
 const EMOL = 1;
-const MAIN_URL = 'https://www.economicos.cl/todo_chile/remates_de_propiedades_el_mercurio';
+const MAIN_URL = 'https://www.economicos.cl/search/remates/el-mercurio/0';
 
 class Economico {
     constructor(browser, fechaInicio, fechaFin, originStartDate, originEndDate, isTestMode,show) {
@@ -45,7 +49,7 @@ class Economico {
     async getCases() {
         const curlEcomomico = new EconomicoAxios();
         try {
-            console.log("Iniciando la búsqueda de casos en Economicos.cl desde ", this.fechaInicio, " hasta ", this.fechaFin);
+            logger.debug("Iniciando la búsqueda de casos en Economicos.cl desde ", this.fechaInicio, " hasta ", this.fechaFin);
             logger.info(`Se mostrara la ventana? ${this.show}`);
             await this.createWindow(MAIN_URL);
 
@@ -53,7 +57,7 @@ class Economico {
 
             //Con puppeter obtiene los casos de economico buscando pagina por pagina
             await this.extractInfoPage();
-            console.log(`Casos a revisar : ${this.casosARevisar.length}`)
+            logger.info(`Casos a revisar : ${this.casosARevisar.length}`)
             await delay(2000);
 
             let counter = 0;
@@ -68,7 +72,7 @@ class Economico {
                     logger.info(`Descripcion de caso ${counter} obtenida`);
                     caso.texto = description;
                 } else {
-                    console.log("No se pudo obtener la descripción para el caso: ", caso);
+                    logger.debug(`No se pudo obtener la descripción para el caso: ${JSON.stringify(caso)}`);
                 }
                 if (counter % 2 == 0) {
                     await fakeDelay(15, 45, true);
@@ -77,22 +81,22 @@ class Economico {
             }
 
             for (let caso of this.casosARevisar) {
-                console.log("Procesando caso: ", caso.link);
+                logger.debug(`Procesando caso:  ${caso.link}`);
                 procesarDatosRemate(caso);
             }
 
 
-        } catch (e) {
+        } catch (error) {
             if (this.window && !this.window.isDestroyed()) this.window.destroy();
-            console.log("Error en getCases: ", e);
+            logger.error(`Error en getCases: ${error.message}`);
             return [];
         } finally {
-            console.log("Cerrando la ventana de Economicos.cl");
+            logger.info("Cerrando la ventana de Economicos.cl");
             if (!this.window.isDestroyed()) {
                 this.window.destroy();
             }
         }
-        console.log(`Econtrado ${this.casosARevisar.length} casos en Economicos.cl`);
+        logger.debug(`Encontrado ${this.casosARevisar.length} casos en Economicos.cl`);
 
         return this.casosARevisar;
     }
@@ -104,7 +108,7 @@ class Economico {
             logger.info(`User agent elegido ${customUA}`);
             await this.page.setUserAgent(customUA);
         } catch (error) {
-            console.error('Error cambiando el userAgent', error.message);
+            logger.error(`Error cambiando el userAgent ${error.message}`);
         }
 
     }
@@ -128,7 +132,7 @@ class Economico {
         let customUA;
         let attempt = 0;
         let stopFlag = false;
-        let url = 'https://www.economicos.cl/todo_chile/remates_de_propiedades_el_mercurio';
+        let url = MAIN_URL;
         const fechaHoy = new Date();
         let paginasVisitadas = 0;
 
@@ -143,10 +147,11 @@ class Economico {
                 if (await this.check503()) {
                     throw new Error('Error 503: Service Unavailable');
                 }
-                // Obtener enlace a la siguiente página
+                // Obtener enlace a la siguiente página (paginador nuevo /search/)
                 const urlNextPage = await this.page.evaluate((NEXT_PAGE_SELECTOR) => {
-                    const nextPage = document.querySelector(NEXT_PAGE_SELECTOR);
-                    return nextPage ? nextPage.parentElement.getAttribute('href') : null;
+                    const nextIcon = document.querySelector(NEXT_PAGE_SELECTOR);
+                    const anchor = nextIcon ? nextIcon.closest('a') : null;
+                    return anchor ? anchor.getAttribute('href') : null;
                 }, SELECTORS.NEXT_PAGE_SELECTOR);
 
                 const processCases = await this.processPage(this.fechaInicio, this.fechaFin, SELECTORS);
@@ -161,13 +166,12 @@ class Economico {
                 paginasVisitadas++;
 
                 if (processCases.stop) {
-                    console.log("Ya se superó la fecha límite");
                     stopFlag = true;
-                    console.log(`Se visitaron ${paginasVisitadas} páginas y se encontraron ${this.casosARevisar.length} casos en total.`);
+                    logger.debug(`Se visitaron ${paginasVisitadas} páginas y se encontraron ${this.casosARevisar.length} casos en total.`);
                     return;
                 }
                 if (stopFlag || !urlNextPage) {
-                    console.log("No se encontró un enlace a la siguiente página. Deteniendo la extracción.");
+                    logger.debug("No se encontró un enlace a la siguiente página. Deteniendo la extracción.");
                     break;
                 }
                 // Preparar siguiente página
@@ -179,14 +183,14 @@ class Economico {
                 attempt++;
                 logger.error(`Error en extractInfoPage, intento ${attempt} de ${this.maxRetries}: ${error.message}`);
                 const delayTime = 2 ** attempt * 1000;
-                console.log(`Esperando ${delayTime / 1000} segundos antes de reintentar...`);
+                logger.debug(`Esperando ${delayTime / 1000} segundos antes de reintentar...`);
                 await delay(delayTime);
 
                 if (error.message.includes('503') || error.message.includes('Service Unavailable')) {
-                    console.error('Error 503:', error.message);
+                    logger.error(`Error 503: ${error.message}`);
                 }                 
                 if(attempt >= this.maxRetries) {
-                    console.error('Error en el modelo:', error.message);
+                    logger.error(`Error en el modelo: ${error.message}`);
                     throw error; // Relanzar error para manejarlo fuera
 
                 }
@@ -227,13 +231,13 @@ class Economico {
                 return description;
             } catch (error) {
                 if (error.response && error.response.status === 503) {
-                    console.error('Error 503:', error.message);
+                    logger.error(`Error 503: ${error.message}`);
                     const delayTime = 2 ** attemp * 1000; // Backoff exponencial
-                    console.log(`Esperando ${delayTime / 1000} segundos antes de reintentar...`);
+                    logger.error(`Esperando ${delayTime / 1000} segundos antes de reintentar...`);
                     await delay(delayTime);
                     attemp++; // Incrementar el contador de intentos
                 } else {
-                    console.error('Error al obtener información de la página:', error.message);
+                    logger.error('Error al obtener información de la página:', error.message);
                     return null;
                 }
             }
@@ -246,7 +250,7 @@ class Economico {
             await this.page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
             await this.page.waitForSelector(SELECTORS.CASO_BLOQUE_SELECTOR, { timeout: 60000 });
         } catch (error) {
-            console.error('Error al navegar a la página:', error.message);
+            logger.error('Error al navegar a la página:', error.message);
             // return;
             throw new Error('Error al navegar a la página: ' + error.message);
         }
@@ -269,8 +273,16 @@ class Economico {
             const bloqueCasos = document.querySelectorAll(SELECTORS.CASO_BLOQUE_SELECTOR)
 
             for (let element of bloqueCasos) {
-                const timeElement = element.querySelector('time.timeago');
-                let dateTimeStr = timeElement ? timeElement.getAttribute('datetime') : null;
+                // La fecha de publicación ahora es texto dentro de <ul.meta>:
+                // "Publicado el: 2026-08-28"
+                let dateTimeStr = null;
+                const metaItems = element.querySelectorAll(SELECTORS.META_SELECTOR);
+                for (const li of metaItems) {
+                    if (/public/i.test(li.textContent)) {
+                        const match = li.textContent.match(/(\d{4}-\d{2}-\d{2})/);
+                        if (match) dateTimeStr = match[1];
+                    }
+                }
                 let auctionDate = null;
                 //El tiempo en Emol aparece con formato => "YYYY-MM-DD"
 
@@ -362,45 +374,6 @@ class Economico {
                 document.querySelector('[class*="captcha"], [id*="captcha"]') !== null;
         });
     }
-
-    async testPage(){
-        const curlEcomomico = new EconomicoAxios();
-        let attempt = 0;
-        let stopFlag = false;
-        let url = 'https://www.economicos.cl/todo_chile/remates_de_propiedades_el_mercurio';
-        const fechaHoy = new Date();
-        let paginasVisitadas = 0;
-
-        await this.createWindow(MAIN_URL);
-        await this.setRealisticHeaders()
-
-        console.log("Iniciando test de user agents en Economicos.cl");
-        for (let i = 0; i < listUserAgents.length; i++) {
-
-            const customUA = listUserAgents[i];
-            await this.page.setUserAgent(customUA);
-
-            try {
-                await this.page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
-                await this.page.waitForSelector(SELECTORS.CASO_BLOQUE_SELECTOR, { timeout: 30000 });
-                //write the user agent in a file
-                fs.writeFileSync(`test_user_agent_${i}.txt`, `User Agent: ${customUA}\n`);
-                console.log(`User Agent numero ${i} logrado`);
-                // if(i > 10){
-                //     return;
-                // }
-            }catch(error) {
-                console.error('Error al navegar a la página con user agent:', customUA, 'Error:', error.message);
-                console.log(`User Agent numero ${i} fallo`);
-            }
-
-            await fakeDelay(2, 10);
-        }
-
-    }
-
-
-
 }
 
 module.exports = Economico;

@@ -35,7 +35,7 @@ function processPropertyValuation(text, type){
 
 function obtainPropertyValuation(info) {
     let avaluoType = obtainType(info) ? obtainType(info) : '';
-    const regexAvaluo = /avaluo\stotal\s*:\$(\d{1,3}.?)*/g;
+    const regexAvaluo = /avaluo\stotal\s*:\s*\$(\s*\d{1,3}.?)*/g;
     const avaluoMatch = info.match(regexAvaluo);
     if (avaluoMatch) {
         const avaluo = avaluoMatch[0].match(/(\d{1,3}.?)+/);

@@ -36,7 +36,7 @@ class SpreadSheetManager {
                 if (!fs.existsSync(filePath)) {
                     logger.error(`❌ Archivo data.json no encontrado en: ${filePath}`);
                 }else{
-                    console.log("El archivo si existe")
+                    logger.debug("El archivo si existe")
                 }
                 data = readFileSync(filePath, 'utf8');
                 data = JSON.parse(data); 
@@ -46,7 +46,7 @@ class SpreadSheetManager {
                 }
             }
         } catch (error) {
-            console.error("Error en spreedSheetManager processData: ", error.message);
+            logger.error(`Error en spreedSheetManager processData:  ${error.message}`);
             return {result : false, data: error.message};
         }
     }
@@ -82,16 +82,14 @@ class SpreadSheetManager {
                 isTokenValid = true;
             }
         } catch (error) {
-            console.log("No se pudo leer el token guardado, se solicitará uno nuevo.");
+            logger.warn(`No se pudo leer el token guardado, se solicitará uno nuevo. ${error.message}`);
         }
 
-        // 3. Si no hay token o caducó, volver a autenticar mediante la ventana/flujo OAuth
         if (!isTokenValid) {
             auth = await authenticate({
                 keyfilePath: credentialsPath,
                 scopes: SCOPES
             });
-            // Guardar las nuevas credenciales obtenidas
             await writeFile(TOKEN_PATH, JSON.stringify(auth.credentials));
         }
 
@@ -103,7 +101,7 @@ class SpreadSheetManager {
             range: 'search!A1:AZ',
         });
 
-        console.log(`Descargadas ${result.data.values?.length || 0} filas`);
+        logger.debug(`Descargadas ${result.data.values?.length || 0} filas`);
         return result.data.values || [];
 }
 
@@ -133,7 +131,7 @@ class SpreadSheetManager {
       
       if (process.platform === 'darwin') {
         // macOS: dentro del .app bundle
-        console.log(`Buscando en: ${path.join(process.resourcesPath, 'credentials.json')}`)
+        logger.debug(`Buscando en: ${path.join(process.resourcesPath, 'credentials.json')}`)
         return path.join(process.resourcesPath, 'credentials.json');
       } else if (process.platform === 'win32') {
         // Windows: en el directorio resources
@@ -148,32 +146,3 @@ class SpreadSheetManager {
 
 
 module.exports = SpreadSheetManager;
-// async function main(){
-//     const data = await SpreadSheetManager.processData(false);
-//     for (let row of data) {
-//         console.log(row);
-//     }
-//     console.log("Data length ", data.length);
-// }
-// main();
-
-// async function obtainRepeatedData(data) {
-//     if (!data) {
-//         const readedData = readFileSync('data2.json', 'utf8');
-//         data = JSON.parse(readedData);
-//     }
-//     const headers = data[0];
-//     const realData = data.slice(1);
-//     console.log("Header ", headers)
-//     let count = 0;
-//     findRepeteadCause(realData);
-// }
-
-// function findRepeteadCause(data) {
-//     const findedCauses = [];
-//     for (let line of data) {
-//         const { causa, juzgado, comuna, rol } = processNewRow(line);
-//         // console.log(causa, juzgado, comuna, rol);
-//         // processNewRow(line);
-//     }
-// }

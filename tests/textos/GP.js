@@ -1216,6 +1216,51 @@ Verifique validez en
 http://www.fojas.cl
 Pag: 5/5`;
 
+const gp_sin_anotaciones = `CERTIFICADO DE HIPOTECAS Y GRAVAMENES
+INTERDICCIONES Y PROHIBICIONES DE ENAJENAR, LITIGIOS
+Y BIEN FAMILIAR
+Folio Nro: 7257.- Car·tula Nro:162374.-
+I.- Singularización del inmueble :
+Ubicación:
+sitio y vivienda ubicado en Pasaje Peñi, antiguamente Pasaje Cuatro N°
+2129, que corresponde al Lote 83, etapa Uno guión siete A del plano de
+loteo Villa Parque La Posada
+Comuna:
+CORONEL
+II.- Individualización Inscripción vigente: (1)
+1.- RIQUELME VALDES LEONARDO ENRIQUE Rut: 13.311.539-0
+Inscripción: Fs.5866 Nro 2621 de 2014 , Registro de Propiedad
+Fecha Inscripción: 01/10/2014
+III.-Limitaciones al dominio durante los ultimos 30 años, revisados los índices desde
+03/06/1996 hasta 03/06/2026:
+Registro de Hipotecas y Gravamenes:
+No registra Inscripciones Vigentes.-
+Registro de Interdicciones y Prohibiciones: (1)
+1.- Clase inscripción: EMBARGO
+Deudor: RIQUELME VALDES LEONARDO ENRIQUE.
+Acreedor: SCOTIABANK-CHILE S.A. Por mandamiento de fecha diez (10) de Octubre del año
+Conservador de Bienes Raíces de Coronel , 03 Junio de 2026
+Cantidad p·ginas documento: 2
+Emito con firma electrónica avanzada (ley No19.799, de 2002) AA de
+13/10/2006 de la Excma. Corte Suprema.-
+Certificado Nro 614572.- Verifique validez en www.fojas.cl .-
+Pag: 1/2
+dos mil veinticinco (2025), recaído en Causa Rol C-5385-2025, del Segundo
+Juzgado Civil de Concepción, caratulado “SCOTIABANK CHILE S.A. / RIQUELME”
+SEGUNDO JUZGADO CIVIL DE CONCEPCION . Rol: C-5385-2025
+Inscripción: Fs.5983 Nro 1647 de 2025 Fecha Inscripción: 26/12/2025
+IV.- Litigios.:
+No registra Anotaciones o Inscripciones.-
+V.- Bien Familiar (Ley 19335):
+No registra anotaciones.-
+Coronel, tres de Junio del año dos mil veintiséis.- N.P.S.
+Conservador de Bienes Raíces de Coronel , 03 Junio de 2026
+Cantidad p·ginas documento: 2
+Emito con firma electrónica avanzada (ley No19.799, de 2002) AA de
+13/10/2006 de la Excma. Corte Suprema.-
+Certificado Nro 614572.- Verifique validez en www.fojas.cl .-
+Pag: 2/2l`;
+
 module.exports = {
     textoGP1, 
     textoGP2, 
@@ -1239,5 +1284,6 @@ module.exports = {
     GP5051,
     GP6782,
     GP5424,
-    DVGP1082
+    DVGP1082,
+    gp_sin_anotaciones
 };

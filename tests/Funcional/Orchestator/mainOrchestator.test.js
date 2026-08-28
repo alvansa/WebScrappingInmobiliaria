@@ -7,7 +7,9 @@ const CasoBuilder = require('#models/caso/casoBuilder.js');
 jest.mock('#utils/logger.js', () => ({
     info: jest.fn(),
     error: jest.fn(),
-    warn: jest.fn()
+    warn: jest.fn(),
+    debug: jest.fn(),
+    http: jest.fn()
 }));
 
 // Mock del delay para que las esperas de 5 minutos (300,000 ms) tomen 0ms

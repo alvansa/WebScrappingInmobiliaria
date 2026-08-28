@@ -1,4 +1,5 @@
 const { chromium, firefox, webkit } = require('playwright-extra');
+const logger = require('#utils/logger.js');
 
 const HEADLESS_MODE = true;
 
@@ -49,7 +50,7 @@ class PlaywrightManager {
             try {
                 return JSON.parse(proxyListEnv);
             } catch (error) {
-                console.warn(`Error parseando PROXY_LIST como JSON, se usará el formato alternativo. ${error.message}`);
+                logger.warn(`Error parseando PROXY_LIST como JSON, se usará el formato alternativo. ${error.message}`);
             }
         }
 
@@ -69,7 +70,7 @@ class PlaywrightManager {
             return null;
         }
         const choice = Math.floor(Math.random() * this.proxies.length);
-        console.log(`Proxy elegida índice: ${choice}`);
+        logger.debug(`Proxy elegida índice: ${choice}`);
         return this.proxies[choice];
     }
 
@@ -120,14 +121,14 @@ class PlaywrightManager {
                 this.browser = await this.browserType.launch(launchOptions);
 
                 this.browser.on('disconnected', () => {
-                    console.log(`Navegador [${browserName}] desconectado`);
+                    logger.debug(`Navegador [${browserName}] desconectado`);
                     this.browser = null;
                 });
 
-                console.log(`Navegador [${browserName}] lanzado con éxito.`);
+                logger.debug(`Navegador [${browserName}] lanzado con éxito.`);
                 return this.browser;
             } catch (error) {
-                console.error('Error lanzando Playwright:', error);
+                logger.error(`Error lanzando Playwright: ${error.message}`);
                 throw error;
             } finally {
                 this.launchPromise = null;
@@ -192,7 +193,7 @@ class PlaywrightManager {
         if (this.browser && this.browser.isConnected()) {
             await this.browser.close();
             this.browser = null;
-            console.log('Navegador cerrado correctamente.');
+            logger.debug('Navegador cerrado correctamente.');
         }
     }
 }

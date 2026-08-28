@@ -5,6 +5,9 @@ const {obtainType} = require('./utilsPdf');
 const PROPIEDAD = config.PROPIEDAD;
 const ESTACIONAMIENTO = config.ESTACIONAMIENTO;
 
+const DIRECCION_ESPECIFICA_REGEX = /direccion\s+o\s+nombre\s+del\s+bien\s+raiz\s*:\s*([\s\S]*?)\s*destino\s+del\s+bien\s+raiz\s*:/;
+const DIRECCION_GENERICA_REGEX = /direccion\s*:\s*([\s\S]*?)\s*destino\s+del\s+bien\s+raiz\s*:/;
+
 function processAddress(text, type) {
     const direccion = obtainDireccion(text);
     // console.log(direccion)
@@ -23,28 +26,24 @@ function processAddress(text, type) {
 
     return null;
 }
+
 function obtainDireccion(info) {
     if (info.includes('bases generales de remate')) {
         return obtainDireccionActaRemate(info);
     }
-    let avaluoType = obtainType(info) ? obtainType(info) : '';
-    let startText = "direccion o nombre del bien raiz:";
-    let startIndex = info.indexOf(startText);
-    if (startIndex === -1) {
-        startText = "direccion:";
-        startIndex = info.indexOf(startText);
-    }
-    const endText = "destino del bien raiz:";
-    const endIndex = info.indexOf(endText);
-    if (startIndex === -1 || endIndex === -1) {
+
+    const avaluoType = obtainType(info) ?? '';
+
+    const match = info.match(DIRECCION_ESPECIFICA_REGEX) || info.match(DIRECCION_GENERICA_REGEX);
+    if (!match) {
         return null;
     }
-    startIndex += startText.length;
-    const direccion = info.substring(startIndex, endIndex).trim();
+
+    const direccion = match[1].trim();
     return {
-        "direccion": direccion,
-        "type": avaluoType
-    }
+        direccion,
+        type: avaluoType
+    };
 }
 function obtainDireccionActaRemate(info) {
     let startText = "ubicados en:";

@@ -1,6 +1,6 @@
 
 function obtainType(info) {
-    const regexTipo = /destino\sdel\sbien\sraiz:\s(\w{1,20})/g;
+    const regexTipo = /destino\sdel\sbien\sraiz\s*:\s(\w{1,20})/g;
 
     let tipoBien = info.match(regexTipo);
     if (tipoBien) {
