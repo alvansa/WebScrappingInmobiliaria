@@ -126,7 +126,6 @@ describe('auctionScraperOrchestator', () => {
             expect(mockEnricher.obtain).toHaveBeenCalledTimes(1);
             expect(mockSourcePjud.fetch).toHaveBeenCalledWith(startDate, endDate, expect.any(Object));
             expect(mockSourceEmol.fetch).toHaveBeenCalledWith(startDate, endDate, expect.any(Object));
-            // expect(mockSourceEmol.fetch).toHaveBeenCalledTimes(2);
             expect(mockEnricher.enrich).toHaveBeenCalledTimes(1);
             expect(mockExporter.export).toHaveBeenCalledTimes(1);
             expect(result).toEqual({

@@ -42,7 +42,7 @@ class testUnitarios{
 
         }else if(arg === 'uploadedText'){
             result = testTextoArgs(this.args[1]);
-            console.log(`Resultado de caso test texto args: ${result}`);
+            console.log(`Resultado de caso test texto args: ${JSON.stringify(result,null,2)}`);
 
         }else if(arg === 'downloadPDF'){
             logger.info("Descargando PDF ubicado en: ",this.args[1]);

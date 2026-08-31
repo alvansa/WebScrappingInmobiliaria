@@ -3,11 +3,11 @@ const comunas = require("./comunas");
 const { normalizeText } = require("#utils/textNormalizers.js");
 const logger = require("#utils/logger.js");
 const { ProxyAgent } = require("undici");
-const { delay } = require("#utils/delay.js");
+// const { delay } = require("#utils/delay.js");
 
-const DEFAULT_UA =
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 " +
-    "(KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36";
+// const DEFAULT_UA =
+//     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 " +
+//     "(KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36";
 
 class dataInmobiliaria {
     /*
@@ -88,65 +88,80 @@ class dataInmobiliaria {
         return null;
     }
 
+    static async fetchApi(codComuna, manzana, predio) {
+        const url = `https://datainmobiliaria.cl/reports/detalle_propiedad_data_mongo?cod_com=${codComuna}&cod_mz=${manzana}&cod_pr=${predio}`;
+        try {
+            const response = await fetch(url);
+            const dataBase = await response.json();
+            console.log(JSON.stringify(dataBase,null,2))
+            if (dataBase && dataBase.data) {
+                return dataBase.data;
+            }
+        } catch (error) {
+            console.error(`Error al obtener metros para rol ${manzana}${predio}:`, error);
+            console.log('Retornando nulo')
+            return null;
+        }
+    }
     /*
      * Cabeceras para autenticar la request como un usuario logueado.
      * DATAINMOBILIARIA_COOKIE en .env debe contener el/los cookie(s) de sesión,
      * como mínimo `remember_user_token=...` (token "remember me" de larga duración).
      * Se copia tal cual del DevTools -> Network -> Request Headers -> cookie.
      */
-    static _buildHeaders(codComuna, manzana, predio) {
-        const headers = {
-            accept: "application/json",
-            "user-agent": process.env.DATAINMOBILIARIA_UA || DEFAULT_UA,
-            referer: `https://datainmobiliaria.cl/reports/detalle_propiedad?cod_com=${codComuna}&cod_mz=${manzana}&cod_pr=${predio}`,
-        };
-        const cookie = process.env.DATAINMOBILIARIA_COOKIE;
-        if (cookie) {
-            headers.cookie = cookie.trim();
-        } else {
-            logger.warn("DataInmobiliaria: falta DATAINMOBILIARIA_COOKIE en .env; la API responderá 402 (cuota de invitado).");
-        }
-        return headers;
-    }
+    // static _buildHeaders(codComuna, manzana, predio) {
+    //     const headers = {
+    //         accept: "application/json",
+    //         "user-agent": process.env.DATAINMOBILIARIA_UA || DEFAULT_UA,
+    //         referer: `https://datainmobiliaria.cl/reports/detalle_propiedad?cod_com=${codComuna}&cod_mz=${manzana}&cod_pr=${predio}`,
+    //     };
+    //     const cookie = process.env.DATAINMOBILIARIA_COOKIE;
+    //     if (cookie) {
+    //         headers.cookie = cookie.trim();
+    //     } else {
+    //         logger.warn("DataInmobiliaria: falta DATAINMOBILIARIA_COOKIE en .env; la API responderá 402 (cuota de invitado).");
+    //     }
+    //     return headers;
+    // }
 
-    static async fetchApi(codComuna, manzana, predio) {
-        const url = `https://datainmobiliaria.cl/reports/detalle_propiedad_data_mongo?cod_com=${codComuna}&cod_mz=${manzana}&cod_pr=${predio}`;
-        const headers = this._buildHeaders(codComuna, manzana, predio);
-        // const intentos = Math.max(this._loadProxies().length, 1);
-        const intentos = 3; // limitar a 3 intentos para no demorar demasiado
+    // static async fetchApi(codComuna, manzana, predio) {
+    //     const url = `https://datainmobiliaria.cl/reports/detalle_propiedad_data_mongo?cod_com=${codComuna}&cod_mz=${manzana}&cod_pr=${predio}`;
+    //     const headers = this._buildHeaders(codComuna, manzana, predio);
+    //     // const intentos = Math.max(this._loadProxies().length, 1);
+    //     const intentos = 3; // limitar a 3 intentos para no demorar demasiado
 
-        for (let i = 0; i < intentos; i++) {
-            const dispatcher = this._nextProxyAgent();
-            try {
-                const response = await fetch(url, {
-                    headers,
-                    redirect: "manual",
-                    signal: AbortSignal.timeout(20000),
-                    ...(dispatcher ? { dispatcher } : {}),
-                });
+    //     for (let i = 0; i < intentos; i++) {
+    //         const dispatcher = this._nextProxyAgent();
+    //         try {
+    //             const response = await fetch(url, {
+    //                 headers,
+    //                 redirect: "manual",
+    //                 signal: AbortSignal.timeout(20000),
+    //                 ...(dispatcher ? { dispatcher } : {}),
+    //             });
 
-                // 401/402/redirección a login => problema de credenciales, no de proxy: no reintentar
-                if (response.status === 401 || response.status === 402 || (response.status >= 300 && response.status < 400)) {
-                    logger.error(`DataInmobiliaria: sesión inválida o cuota agotada (HTTP ${response.status}) rol ${manzana}-${predio}. Renueva DATAINMOBILIARIA_COOKIE.`);
-                    return null;
-                }
+    //             // 401/402/redirección a login => problema de credenciales, no de proxy: no reintentar
+    //             if (response.status === 401 || response.status === 402 || (response.status >= 300 && response.status < 400)) {
+    //                 logger.error(`DataInmobiliaria: sesión inválida o cuota agotada (HTTP ${response.status}) rol ${manzana}-${predio}. Renueva DATAINMOBILIARIA_COOKIE.`);
+    //                 return null;
+    //             }
 
-                const ct = response.headers.get("content-type") || "";
-                if (!response.ok || !ct.includes("json")) {
-                    logger.warn(`DataInmobiliaria: respuesta inesperada (HTTP ${response.status}, ${ct}) intento ${i + 1}/${intentos} rol ${manzana}-${predio}`);
-                    await delay(1000);
-                    continue; // 5xx / bloqueo del proxy => rota al siguiente
-                }
+    //             const ct = response.headers.get("content-type") || "";
+    //             if (!response.ok || !ct.includes("json")) {
+    //                 logger.warn(`DataInmobiliaria: respuesta inesperada (HTTP ${response.status}, ${ct}) intento ${i + 1}/${intentos} rol ${manzana}-${predio}`);
+    //                 await delay(1000);
+    //                 continue; // 5xx / bloqueo del proxy => rota al siguiente
+    //             }
 
-                const dataBase = await response.json();
-                return dataBase && dataBase.data ? dataBase.data : null;
-            } catch (error) {
-                logger.warn(`DataInmobiliaria: intento ${i + 1}/${intentos} falló (rol ${manzana}-${predio}): ${error.message}`);
-                await delay(1000);
-            }
-        }
-        return null;
-    }
+    //             const dataBase = await response.json();
+    //             return dataBase && dataBase.data ? dataBase.data : null;
+    //         } catch (error) {
+    //             logger.warn(`DataInmobiliaria: intento ${i + 1}/${intentos} falló (rol ${manzana}-${predio}): ${error.message}`);
+    //             await delay(1000);
+    //         }
+    //     }
+    //     return null;
+    // }
 
     static getCodeComuna(comuna) {
         const comunaNormalized = this.normalizeComuna(comuna);
