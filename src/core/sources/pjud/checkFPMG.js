@@ -136,6 +136,9 @@ class checkFPMG {
         if (fechaRemateDate <= dateToday) {
             return false;
         }
+        // if(fechaRemateDate > new Date('2026/09/5')){
+        //     return false;
+        // }
         // 3. revisar que las notas contengan "fp"
         if (!dataLine.notas || !dataLine.notas.toLowerCase().includes('fp')) {
             return false;

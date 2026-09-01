@@ -11,7 +11,6 @@ class DataInmobiliariaEnricher {
     async enrich(causas) {
         logger.info(`Obtiendo informacion de data`);
         for (let caso of causas) {
-            // logger.info(`Obteniendo metros para caso ${caso.causa} con rol ${caso.rolPropiedad} y comuna ${caso.comuna}`);
             if (!caso.rolPropiedad || !caso.comuna) {
                 continue;
             }

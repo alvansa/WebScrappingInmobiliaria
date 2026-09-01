@@ -141,11 +141,15 @@ function isPrecededByExclusion(texto, currentIndex, indexLength) {
 }
 
 function adaptDirectionToExcel(direction){
-    let finalDirection = direction;
+    // Quita la palabra ancla redundante ("el inmueble Departamento..." -> "Departamento...")
+    let finalDirection = direction.replace(
+        /^\s*(?:el\s+|la\s+|los\s+|las\s+|un\s+|una\s+)?(?:inmueble|propiedad|bien\s+(?:ra[ií]z|inmueble))\s+(?=departamento|casa|parcela|local|oficina|sitio|predio|lote|estacionamiento|bodega|dep\b|dp\b)/i,
+        ''
+    );
     const regexEstacionamiento = /derecho\s+de\s+(?:uso\s*(?:,\s*|\s+y\s+)?goc[eé]|goc[eé])(?:\s*(?:,|\s+y\s+|\s*)\s*(?:exclusivo|perpetuo|gratuito|cubierto|accesorio))*(?:\s*(?:,|\s+y\s+))?\s+(?:del?\s+)?estacionamiento\s*/i;
-    const matchedEstacionamiento = direction.match(regexEstacionamiento);
+    const matchedEstacionamiento = finalDirection.match(regexEstacionamiento);
     if(matchedEstacionamiento){
-        finalDirection = direction.replace(matchedEstacionamiento[0],"Est ");
+        finalDirection = finalDirection.replace(matchedEstacionamiento[0],"Est ");
     }
     finalDirection = shorteningDirection(finalDirection);
 
@@ -155,8 +159,34 @@ function adaptDirectionToExcel(direction){
     //Normalizar numero de piso (septimo piso -> P7)
     finalDirection = changeFloorNumber(finalDirection)
 
+    //Mueve la calle/avenida al inicio de la direccion
+    finalDirection = moveStreetToFront(finalDirection);
 
     return finalDirection
+}
+
+// Reordena la direccion para que la calle/avenida quede primero.
+// "... con acceso principal por avd X n.º 123, de la comuna ..."
+//   -> "avd X n.º 123 ... con acceso principal por , de la comuna ..."
+function moveStreetToFront(direction){
+    if(!direction) return direction;
+
+    const CONNECTOR = String.raw`(?:con\s+)?(?:acceso|entrada|ingreso)\s+(?:principal\s+|peatonal\s+|vehicular\s+|com[uú]n\s+)?(?:por|desde)\s+`;
+    // Toma la calle hasta la coma / punto seguido; el "." de "n.º" no corta.
+    const regexCalle = new RegExp(`(${CONNECTOR})([^,;]+?)(?=\\s*[,;]|\\s*\\.\\s|\\s*\\.$|$)`, 'i');
+
+    const match = direction.match(regexCalle);
+    if(!match) return direction;
+
+    const calle = match[2].trim().replace(/\s+/g, ' ');
+    if(calle.length < 3 || calle.length > 100) return direction;
+
+    const resto = direction
+        .replace(match[0], match[1].replace(/\s+$/, ' ')) // conserva el conector, quita la calle
+        .replace(/\s{2,}/g, ' ')
+        .trim();
+
+    return `${calle} ${resto}`;
 }
 
 function changeWordsToNumbers(phrase,isDevLog = false) {

@@ -79,7 +79,7 @@ describe('procesarDatosRemate',()=>{
         expect(caso2240.porcentaje).toEqual(10);
         expect(caso2240.partes).toEqual('santander-chile con muñoz zepeda”');
         expect(caso2240.diaEntrega).toBeNull();
-        expect(caso2240.direccion).toEqual('inmueble consistente en el dp n° 1104, situado en la planta o piso 11, la bod n° 140, ubicada en la planta subterráneo, ambos del edificio ii, y el Est de superficie n° e - 381, ubicado en el área del terreno común destinado a estacionamientos, todos del condominio alto hacienda, etapa 2, con acceso principal por avd rené schneider n° 2031, de la comuna de coquimbo')
+        expect(caso2240.direccion).toEqual('avd rené schneider n° 2031 inmueble consistente en el dp n° 1104, situado en la planta o piso 11, la bod n° 140, ubicada en la planta subterráneo, ambos del edificio ii, y el Est de superficie n° e - 381, ubicado en el área del terreno común destinado a estacionamientos, todos del condominio alto hacienda, etapa 2, con acceso principal por , de la comuna de coquimbo')
     });
 
     test('Caso C-800-2025',()=>{
@@ -158,7 +158,7 @@ describe('procesarDatosRemate',()=>{
         expect(caso10926.moneda).toEqual('Pesos');
         expect(caso10926.partes).toEqual('banco itaú chile contra sanhueza mendoza');
         expect(caso10926.diaEntrega).toEqual('susceptible de ser endosado al momento de la subasta');
-        expect(caso10926.direccion).toEqual('dp n° 2406 (dos mil cuatrocientos seis) del P24, del edificio conexión, con acceso por calle san diego n° 255 (doscientos cincuenta y cinco), comuna de santiago');
+        expect(caso10926.direccion).toEqual('calle san diego n° 255 (doscientos cincuenta y cinco) dp n° 2406 (dos mil cuatrocientos seis) del P24, del edificio conexión, con acceso por , comuna de santiago');
     });
 
     test('Caso C-345-2019', () => {
@@ -222,7 +222,7 @@ describe('procesarDatosRemate',()=>{
         expect(caso11613.montoMinimo).toEqual(118639031);
         expect(caso11613.moneda).toEqual('Pesos');
         expect(caso11613.diaEntrega).toEqual('el día jueves inmediatamente anterior a la fecha de la subasta, entre las 10:00 y las 12:30 horas');
-        expect(caso11613.direccion).toEqual('dp 206, Est 33 y bod 31, todos del edificio tempo, con acceso por los aliaga 5500, comuna de');
+        expect(caso11613.direccion).toEqual('los aliaga 5500 dp 206, Est 33 y bod 31, todos del edificio tempo, con acceso por , comuna de');
     });
 
     test('Caso C-18187-2017', () => {
