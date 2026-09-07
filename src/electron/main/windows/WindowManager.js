@@ -214,7 +214,7 @@ class WindowManager {
                 nodeIntegration: false,
                 contextIsolation: true,
                 enableRemoteModule: false,
-                preload : path.join(__dirname, '../prod/preload.js'),
+                preload : path.join(__dirname, '../preload/mainPreload.js'),
             },
             show: false,
             parent: this.mainWindow

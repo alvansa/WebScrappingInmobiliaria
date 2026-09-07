@@ -37,7 +37,10 @@ jest.mock('#utils/delay.js', () =>({
     delay : jest.fn().mockResolvedValue()
 }));
 
+<<<<<<< HEAD
 const MAX_RETRIES = 10;
+=======
+>>>>>>> origin/main
 
 describe('getInfoFromAuctions - Filtro de partes', () => {
     let instance;
@@ -101,6 +104,10 @@ describe('getInfoFromAuctions - Filtro de partes', () => {
         await instance.getInfoFromAuctions({ skipIfHasPartes: true });
 
         // Debió procesar los 3 casos sin importar si tienen partes
+<<<<<<< HEAD
         expect(instance.consultaCausa).toHaveBeenCalledTimes(2 * MAX_RETRIES);
+=======
+        expect(instance.consultaCausa).toHaveBeenCalledTimes(2);
+>>>>>>> origin/main
     });
 });

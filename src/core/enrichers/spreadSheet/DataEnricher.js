@@ -134,8 +134,6 @@ class DataEnricher{
         caso.rolPropiedad = row[indexRol];
         caso.linkMap = row[indexLinkMapa]; 
 
-        // console.log(`Causa ${row[indexCausa]} - precioCompra: ${row[indexPrecioCompra]}`);
-        
         this.fillMartillero(caso, row);
         this.checkMontoMinimo(caso, row);
         this.fillMontoCompra(caso, row);

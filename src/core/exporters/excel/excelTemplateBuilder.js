@@ -52,6 +52,8 @@ class excelTemplateBuilder {
         ws[`${columnMapping.DEUDA_HIPOTECA}5`] = { v: 'Deuda Hipotecaria', t: 's' };
         ws[`${columnMapping.DEUDA_PAGARE}5`] = { v: 'Deuda pagare', t: 's' };
         ws[`${columnMapping.DEUDA_TGR}5`] = { v: 'Deuda tgr', t: 's' };
+        ws[`${columnMapping.LINK_MAP}5`] = { v: 'Link Map Google', t: 's' };
+        ws[`${columnMapping.LINK_DATA}5`] = { v: 'Link Data', t: 's' };
 
         // Ajusta el ancho de las columnas
         this.cambiarAnchoColumnas(ws);

@@ -7,7 +7,13 @@ const CasoBuilder = require('#models/caso/casoBuilder.js');
 jest.mock('#utils/logger.js', () => ({
     info: jest.fn(),
     error: jest.fn(),
+<<<<<<< HEAD
     warn: jest.fn()
+=======
+    warn: jest.fn(),
+    debug: jest.fn(),
+    http: jest.fn()
+>>>>>>> origin/main
 }));
 
 // Mock del delay para que las esperas de 5 minutos (300,000 ms) tomen 0ms
@@ -124,7 +130,10 @@ describe('auctionScraperOrchestator', () => {
             expect(mockEnricher.obtain).toHaveBeenCalledTimes(1);
             expect(mockSourcePjud.fetch).toHaveBeenCalledWith(startDate, endDate, expect.any(Object));
             expect(mockSourceEmol.fetch).toHaveBeenCalledWith(startDate, endDate, expect.any(Object));
+<<<<<<< HEAD
             // expect(mockSourceEmol.fetch).toHaveBeenCalledTimes(2);
+=======
+>>>>>>> origin/main
             expect(mockEnricher.enrich).toHaveBeenCalledTimes(1);
             expect(mockExporter.export).toHaveBeenCalledTimes(1);
             expect(result).toEqual({

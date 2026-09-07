@@ -4,23 +4,18 @@ El ladrillero
 const path = require('path');
 const os = require('os');
 const XLSX = require('xlsx');
-const { app, BrowserWindow} = require('electron');
-const pie = require('puppeteer-in-electron');
-const puppeteer = require('puppeteer-core');
+const { BrowserWindow} = require('electron');
 
-const { fakeDelay, delay } = require('#utils/delay.js');
+const { delay } = require('#utils/delay.js');
 const ConsultaCausaPjud = require("./consultaCausaPlay");
 const CasoBuilder = require('#models/caso/casoBuilder.js');
 const config = require('#config');
 const { obtainCorteJuzgadoNumbers } = require('#utils/corteJuzgado.js');
-const {stringToDate, convertDate,formatDateToDDMMAA} = require('#utils/cleanStrings.js')
+const {stringToDate, formatDateToDDMMAA} = require('#utils/cleanStrings.js')
 const logger = require('#utils/logger.js')
 const { logToRenderer } = require('#utils/utilsRenderer.js');
-const {fixStringDate } = require('#utils/cleanStrings.js');
-const listUserAgents = require('#utils/userAgents.json');
 const PlaywrightManager = require('#core/scrapeAuction/services/PlaywrightManager.js');
 
-const DELAY_RANGE = {"min": 2, "max" : 5}
 let DEUDA_SEARCH = false;
 const DEUDA = config.DEUDA;
 const LADRILLERO = config.LADRILLERO;
@@ -43,9 +38,6 @@ class checkFPMG {
         this.event = event;
         this.browser = null;
         this.link = 'https://oficinajudicialvirtual.pjud.cl/includes/sesion-consultaunificada.php';
-        // this.link = 'https://oficinajudicialvirtual.pjud.cl/indexN.php';
-        // this.link = 'https://oficinajudicialvirtual.pjud.cl/indexN.php#modalDetalleCivil';
-        // this.link = 'https://www.pjud.cl/';
         this.page = null;
         this.window = null;
         this.mainWindow = mainWindow;
@@ -68,12 +60,10 @@ class checkFPMG {
 
             console.log("casos revisados : ", this.casos.length);
 
-            console.log('enviando el mensaje de progreso al renderer');
             this.sender.send('checkFPMG-progress', { type: 'status', message: `Obteniendo información de ${this.casos.length} casos...` });
 
             await this.processListDeuda(LADRILLERO);
 
-            // //Write each cause that had changes in the last week
             this.writeChangesDeuda();
 
             return true;
@@ -90,197 +80,10 @@ class checkFPMG {
             logger.info("Proceso Finalizado");
         }
     }
-
-    obtainNumberOfLadrillosFromExcel(filePath){
-        console.log(`FilePaht en checkFPMG ${filePath}`)
-        const auctions = this.obtainListOfCauses(filePath);
-        console.log(auctions.length);
-
-        const casosFinales = this.checkLadrilloInSpreadSheet(auctions);
-        console.log(casosFinales.length);
-    }
-
-    obtainListOfCauses() {
-        this.wb = XLSX.readFile(this.filePath, { cellDates: true });
-        this.ws = this.wb.Sheets[this.wb.SheetNames[0]];
-        const lastWrittenRow = XLSX.utils.decode_range(this.ws['!ref']).e.r + 1;
-        let lastRow = 2;
-        let casos = new Map();
-        while (lastRow <= lastWrittenRow) {
-            const [causa, juzgado, fechaDesc,skipRowOutside] = this.obtainDataFromRow(lastRow);
-
-            if(skipRowOutside){
-                lastRow++;
-                continue;
-            }
-
-            const casoExcel = new CasoBuilder(new Date(fechaDesc), "PJUD", config.PJUD)
-                .conCausa(causa)
-                .conJuzgado(juzgado)
-                .construir();
-
-            // console.log(casoExcel.causa, casoExcel.juzgado);
-            casos.set(`${casoExcel.causa}|${casoExcel.juzgado}`,casoExcel);
-            lastRow++;
-        }
-        return casos;
-    }
-
-    obtainDataFromRow(lastRow) {
-        let skipRow = false;
-        let causaNormalizada;
-        const [estadoBusqueda, skip0] = this.obtainCellAndState(config.NOTAS, lastRow, skipRow);
-        
-        if (estadoBusqueda) {
-            if (!estadoBusqueda.toLowerCase().includes('fp')) {
-                skipRow = true;
-            }
-        } else {
-            skipRow = true;
-        }
-
-        const estadoRemate = this.ws[`${config.ESTADO}${lastRow}`] ? true : false;
-        if (estadoRemate) {
-            skipRow = true;
-        }
-
-        const [causa, skip1] = this.obtainCellAndState(config.CAUSA, lastRow, skipRow);
-        const [juzgado, skip2] = this.obtainCellAndState(config.TRIBUNAL, lastRow, skipRow)
-        const [fechaRem, skip3] = this.obtainCellAndState(config.FECHA_REM, lastRow, skipRow, false);
-        let [type, skip4] = this.obtainCellAndState(config.NOTAS, lastRow, skipRow);
-
-        skipRow = skip0 || skipRow || skip1 || skip2 || skip3 || skip4;
-
-        if(skipRow){
-            return [causa, juzgado, fechaRem, skipRow];
-        }
-        causaNormalizada = causa;
-
-        // Hacer que solo busque las causas que sean mayor a la fecha de hoy.
-        const dateToday = new Date();
-        if(fechaRem < dateToday){
-            skipRow = true;
-        }
-        if(skipRow){
-            return [causa, juzgado, fechaRem, skipRow];
-        }
-        console.log(`fecha remate ${typeof fechaRem} y fecha hoy ${dateToday}`)
-
-        type = type.toLowerCase();
-
-        if(!type.includes("fp")){
-            skipRow = true;
-            return [causaNormalizada, juzgado, fechaRem, skipRow];
-        }
-
-        //Normalizar el texto de la causa que puede venir modificado por alguien del excel.
-        if(causa){
-            causaNormalizada = causa.replace(/\(s\)/i, '').replace(/S\/I/ig, '').trim();
-        }
-
-        return [causaNormalizada, juzgado, fechaRem, skipRow];
-    }
-
-    obtainDataFromExcel(lastRow){
-        let skipRow = false;
-        let causaNormalizada;
-
-        const [causa, skip1] = this.obtainCellAndState(config.CAUSA, lastRow, skipRow);
-        const [juzgado, skip2] = this.obtainCellAndState(config.TRIBUNAL, lastRow, skipRow)
-        const [fechaRem, skip3] = this.obtainCellAndState(config.FECHA_REM, lastRow, skipRow, false);
-
-        skipRow = skipRow || skip1 || skip2 || skip3;
-
-        if(skipRow){
-            return [causa, juzgado, fechaRem, skipRow];
-        }
-        causaNormalizada = causa;
-
-        //Normalizar el texto de la causa que puede venir modificado por alguien del excel.
-        if(causa){
-            causaNormalizada = causa.replace(/\(s\)/i, '').replace(/S\/I/ig, '').trim();
-        }
-
-        return [causaNormalizada, juzgado, fechaRem, skipRow];
-
-    }
-
-    checkLadrilloInSpreadSheet(casos){
-        let cont = 0;
-        let casosExcel = []
-        
-        for (let line of this.data) {
-            let isInExcel = false;
-            // cont++;
-            // console.log(`Probando linea ${cont}`)
-            const dataLine = this.processNewRow(line);
-            let causaNormalizada = null;
-
-            //Ladrillero buscara 2 tipos de datos:
-            if(dataLine.causa){
-                causaNormalizada = dataLine.causa.replace(/\(s\)/i, '').replace(/S\/I/ig, '').trim();
-            }
-            const uniqueId = `${causaNormalizada}|${dataLine.juzgado}`;
-            if(casos.get(uniqueId)){
-                console.log(uniqueId)
-                isInExcel = true;
-                cont++;
-            }
-            // //  1. Ladrillos
-            if(this.isLadrillo(dataLine) && isInExcel){
-                const casoExcel = new CasoBuilder(new Date(dataLine.fechaRem), "PJUD", config.PJUD)
-                    .conCausa(causaNormalizada)
-                    .conJuzgado(dataLine.juzgado)
-                    .construir();
-                casosExcel.push(casoExcel);
-                // if(cont >= 5){
-                //     return;
-                // }
-
-            //  2. Propios
-            }
-            // else if(this.isPropio(dataLine)){
-            //     const casoExcel = new CasoBuilder(new Date(dataLine.fechaRem), "PJUD", config.PJUD)
-            //         .conCausa(causaNormalizada)
-            //         .conJuzgado(dataLine.juzgado)
-            //         .conPropio(true)
-            //         .construir();
-            //     this.casos.push(casoExcel);
-            // }else{
-            //     continue;
-            // }
-
-        }
-
-        console.log(`Casos Encontrados ${cont}`)
-        return casosExcel;
-    }
-
-    obtainCellAndState(cell,lastRow,skipRow,convertToString = true){
-        let skip = false;
-        let cellValue = this.ws[`${cell}${lastRow}`];
-
-        if(cellValue && cellValue.v) {
-            if(convertToString){
-                cellValue = cellValue.v.toString();
-            }else{
-                cellValue = cellValue.v;
-            }
-        }else{
-            skip = true;
-            cellValue = "";
-        }
-
-        skip = skip || skipRow;
-
-        return [cellValue, skip];
-    }
-
     obtainListSpreadSheet(){
         if(!this.data){
             return [];
         }
-        let cont = 0;
         for (let line of this.data) {
             const dataLine = this.processNewRow(line);
             let causaNormalizada = null;
@@ -313,9 +116,6 @@ class checkFPMG {
             }
 
         }
-        // for(let caso of this.casos){
-        //     console.log(caso.causa, caso.juzgado, caso.fechaRemate);
-        // }
     }
 
     isLadrillo(dataLine){
@@ -330,13 +130,15 @@ class checkFPMG {
         if (!dataLine.causa || !dataLine.juzgado) {
             return false;
         }
-        // console.log(dataLine)
         // 2. revisar que la fecha de remate sea mayor a la fecha actual
         const dateToday = new Date();
         const fechaRemateDate = stringToDate(dataLine.fechaRem);
         if (fechaRemateDate <= dateToday) {
             return false;
         }
+        // if(fechaRemateDate > new Date('2026/09/5')){
+        //     return false;
+        // }
         // 3. revisar que las notas contengan "fp"
         if (!dataLine.notas || !dataLine.notas.toLowerCase().includes('fp')) {
             return false;
@@ -503,21 +305,13 @@ class checkFPMG {
 
     //TODO: agregar que se ocupe efectivamente la fecha limite
     async proccesDeudaSeguir(fechaLimite){
-        // return true;
+        this.fechaLimite = fechaLimite;
         this.obtainListDeuda();
         if(this.casos.length == 0){
             console.log('No hay casos de deuda para procesar');
             return false;
         }
         console.log(`Se encontraron ${this.casos.length} casos de deuda para procesar`);
-        // let cont = 0;
-        // for(let caso of this.casos){
-        //     console.log(caso.causa, caso.juzgado, caso.fechaRemate);
-        //     cont++;
-        //     if(cont > 5){
-        //         break;
-        //     }
-        // }
 
         obtainCorteJuzgadoNumbers(this.casos)
 
@@ -556,11 +350,7 @@ class checkFPMG {
             }else{
                 continue;
             }
-
         }
-        // for(let caso of this.casos){
-        //     console.log(caso.causa, caso.juzgado, caso.fechaRemate);
-        // }
     }
 
     isDeuda(dataLine){
@@ -574,7 +364,7 @@ class checkFPMG {
         }
         // 2. revisar que la fecha de remate sea mayor a la fecha actual
         //FECHA limite de deuda
-        const fechaLimite = new Date('2026/06/28');
+        const fechaLimite = new Date('2026/07/28');
         const fechaRemateDate = stringToDate(dataLine.fechaRem);
 
         if(fechaRemateDate < fechaLimite  ){
@@ -616,13 +406,6 @@ class checkFPMG {
                 continue;
             }
             await this.consultaCausaGeneral(caso, type);
-            // if(counter > 2){
-            //     throw Error;
-            // }
-            // if (counter > 8) {
-            //     logger.info(`Terminadno el ladrillero por ser mayor de 10`)
-            //     return true;
-            // }
 
             if ((counter + 1) < this.casos.length) {
                 const awaitTime = Math.random() * (90 - 30) + 30; // Genera un número aleatorio entre 30 y 90
@@ -643,21 +426,7 @@ class checkFPMG {
     }
 }
 
-
-
-function copyRowBetweenFiles(sourceSheet, targetSheet, sourceRowIndex, targetRowIndex) {
-    const sourceData = XLSX.utils.sheet_to_json(sourceSheet, { header: 1 });
-    
-    const rowToCopy = sourceData[sourceRowIndex];
-    
-    for (let col = 0; col < rowToCopy.length; col++) {
-        const cellAddress = XLSX.utils.encode_cell({ r: targetRowIndex, c: col });
-        targetSheet[cellAddress] = { v: rowToCopy[col], t: typeof rowToCopy[col] };
-    }
-    
-    console.log(`✅ Fila ${sourceRowIndex + 1} copiada a fila ${targetRowIndex + 1}`);
-}
-
+//TODO: Esta funcion es inutil ahora mismo
 function getDesktopPath(){
     // Para diferentes sistemas operativos
     const homeDir = os.homedir();

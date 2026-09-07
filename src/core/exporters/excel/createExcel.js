@@ -29,7 +29,7 @@ class createExcel {
 
 
     async writeData(casos, name = "") {
-        console.log("=====================\nEscibiendo informacion en excel\n==============================");
+        logger.debug(`Escibiendo informacion en excel`);
         const {wb, ws, filePath} = this.loadFile();
         excelTemplateBuilder.cambiarAnchoColumnas(ws);
         let lastRow = 5; // Comienza después de la fila de encabezado
@@ -58,7 +58,7 @@ class createExcel {
             XLSX.writeFile(wb, filePathExcel, {cellDates: true});
             return filePathExcel;
         } catch (error) {
-            console.error(`Error al obtener resultados:`, error);
+            logger.error(`Error al obtener resultados: ${error.message}`);
             return null;
         }
     }
@@ -102,7 +102,7 @@ class createExcel {
         if (!Array.isArray(casos) || casos.length === 0) {
             return;
         }
-        console.log('Casos a procesar:', casos.length);
+        logger.debug(`Casos a procesar: ${casos.length}`);
 
         // Primero se leen todos los casos obtenidos y se verifican para agregarlos,
         // en caso de que ya hayan sido agregados se une la informacion 

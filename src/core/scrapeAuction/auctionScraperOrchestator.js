@@ -1,5 +1,5 @@
-const logger = require('#utils/logger.js');
 const {delay} = require('#utils/delay.js');
+const logger = require('#utils/logger.js');
 
 const NOT_AUCTIONS_FOUND = 5;
 const EXITO = 0
@@ -19,7 +19,7 @@ class auctionScraperOrchestator{
 
     async run(startDate, endDate) {
         const startTime = new Date();
-        console.log(`Ckecked Boxes en el orchestator : ${JSON.stringify(this.checkedBoxes, null, 2)}`);
+        logger.debug(`Ckecked Boxes en el orchestator : ${JSON.stringify(this.checkedBoxes, null, 2)}`);
 
         let allCases = [];
         const spreadSheet = this.enrichers[0];

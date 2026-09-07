@@ -6,8 +6,11 @@ console.log("preload loaded succefully");
 contextBridge.exposeInMainWorld('api', {
   // Funcion de test principal para realizar pruebas unicas de funcionamientos especificos.
   testEconomico : async (args) => {
-    await ipcRenderer.invoke('testEconomico', args)
+    return await ipcRenderer.invoke('testEconomico', args)
   },
+
+  // Devuelve el mapa { corte: [{ value, nombre }] } para el buscador de comunas
+  obtainTribunales : async () => ipcRenderer.invoke('obtainTribunalesJuzgado'),
   // Funcion para abrir un dialogo de seleccion de archivos locales
   // Pensado para seleccionar un archivo pdf que se procesara
   openFileLocal: () => ipcRenderer.invoke('open-dialog-local'),
@@ -20,8 +23,8 @@ contextBridge.exposeInMainWorld('api', {
   
   fillMapa: (filePath) => ipcRenderer.invoke('process-Mapa', filePath),
 
-  checkDEUDA : async ()=> {
-    const result = await ipcRenderer.invoke('process-DEUDA')
+  checkDEUDA : async (filePath, fechaLimite)=> {
+    const result = await ipcRenderer.invoke('process-DEUDA', filePath, fechaLimite)
     return result;
   },
   

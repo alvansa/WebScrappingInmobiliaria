@@ -29,18 +29,15 @@ searchButton.addEventListener('click', async () => {
   try {
     const { startDate, endDate, saveFile } = getFormValues();
     const checkedBoxes = getCheckedBoxes();
-    console.log(`Checked Boxes:  ${checkedBoxes} y tipo de checkedBoxes : ${typeof checkedBoxes}`);
 
     // Verifica que window.api exista antes de usarla
     if (!window.searchAPI?.startProcess) {
-      console.log('Ocurrio un error con la API');
       return;
     }
     if (saveFile == 'No se seleccionó ninguna carpeta.' || !saveFile) {
       alert('No se ha seleccionado una carpeta para guardar los datos');
       return;
     }
-    console.log(`Valores startDate : ${startDate} endDate :${endDate} saveFile: ${saveFile} checked: ${checkedBoxes}`)
     const result = await window.searchAPI.startProcess(startDate, endDate, saveFile, checkedBoxes);
     handleResults(result);
   } catch (error) {
@@ -77,21 +74,17 @@ function getCheckedBoxes() {
     return element ? element.checked : false;
   });
 
-  console.log(`Checkboxes marcados: ${JSON.stringify(checkedIds)}`);
   return checkedIds;
 }
 
 document.getElementById('select-folder-btn').addEventListener('click', async () => {
   // Llama al proceso principal para abrir el selector de carpetas
   const folderPath = await window.searchAPI.selectFolder();
-  console.log("Path escogido: ", folderPath);
   const folderInput = document.getElementById('folder-input'); // Obtén el input
 
   if (folderPath) {
-    console.log('Carpeta seleccionada:', folderPath);
     folderInput.value = folderPath;
   } else {
-    console.log('Selección cancelada.');
     folderInput.value = 'No se seleccionó ninguna carpeta.';
   }
 });

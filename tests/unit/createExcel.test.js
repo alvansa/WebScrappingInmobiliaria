@@ -141,6 +141,7 @@ describe('getValidAuctions', () => {
             expect(excel.getValidAuctions(caso, new Map())).toBe(true);
         });
 
+<<<<<<< HEAD
         // BUG conocido: getValidAuctions no valida que currentCase.juzgado exista
         // antes de llamar a .toLowerCase() en la verificación de "Juez Partidor"
         // (createExcel.js). Como insertarCasosExcel no envuelve esta llamada en
@@ -153,6 +154,17 @@ describe('getValidAuctions', () => {
             const caso = createCase('C-9999-2026', null, new Date('2026-01-20'));
 
             expect(() => excel.getValidAuctions(caso, new Map())).toThrow(TypeError);
+=======
+        // currentCase.juzgado?.toLowerCase() protege el caso de un juzgado
+        // nulo/no resuelto: no revienta la validación, y como no es "juez
+        // partidor" el caso se considera válido.
+        test('un caso sin juzgado no revienta la validacion', () => {
+            const excel = buildExcel('2026-01-01', '2026-01-31');
+            const caso = createCase('C-9999-2026', null, new Date('2026-01-20'));
+
+            expect(() => excel.getValidAuctions(caso, new Map())).not.toThrow();
+            expect(excel.getValidAuctions(caso, new Map())).toBe(true);
+>>>>>>> origin/main
         });
     });
 });

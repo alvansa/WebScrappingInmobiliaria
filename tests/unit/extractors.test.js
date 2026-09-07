@@ -159,6 +159,67 @@ describe('test para extraer fecha de remate',()=>{
         const res = extractAuctionDate(text);
         expect(res).toBe('21 de octubre de 2025')
     });
+
+    test('test para obtener fecha de remate que antes no encontraba', ()=>{
+        const text = ' tribunal que subasta: Segundo Juzgado de Letras de Curicó. Fecha del remate: 15/09/2026 hora del remate: 12:00 horas. Qué se remata: El Departamento número mil ciento dos, del';
+        const res = extractAuctionDate(text);
+        expect(res).toBe('15/09/2026')
+    });
+
+    test('test para obtener fecha de remate estilo "remate 28/8/2026"', ()=>{
+        const text = 'Remate 28/8/2026 vía zoom 16.15 horas';
+        const res = extractAuctionDate(text);
+        expect(res).toBe('28/8/2026')
+    });
+
+    test('test para obtener fecha de remate estilo "[DIA] 28/8/2026"', ()=>{
+        const text = 'Lunes 28/8/2026 vía zoom 16.15 horas';
+        const res = extractAuctionDate(text);
+        expect(res).toBe('28/8/2026')
+    });
+
+    test('test para obtener fecha de remate estilo "rematará 28/8/2026"', ()=>{
+        const text = 'piso 2, rematará 02/09/2026, 13:15 hrs., por plataforma Zoom, ID:';
+        const res = extractAuctionDate(text);
+        expect(res).toBe('02/09/2026')
+    });
+    
+    test('test para obtener fecha de remate estilo "rematara 28/8/2026"', ()=>{
+        const text = 'piso 2, rematara 02/09/2026, 13:15 hrs., por plataforma Zoom, ID:';
+        const res = extractAuctionDate(text);
+        expect(res).toBe('02/09/2026')
+    });
+
+    test('test para obtener fecha de remate estilo "subasta 28/8/2026"', ()=>{
+        const text = 'piso 2, subasta 02/09/2026, 13:15 hrs., por plataforma Zoom, ID:';
+        const res = extractAuctionDate(text);
+        expect(res).toBe('02/09/2026')
+    });
+
+    test('test para obtener fecha de remate estilo "subastara 28/8/2026"', ()=>{
+        const text = 'piso 2, subastara 02/09/2026, 13:15 hrs., por plataforma Zoom, ID:';
+        const res = extractAuctionDate(text);
+        expect(res).toBe('02/09/2026')
+    });
+
+    test('año con separador de miles "2.025"', () => {
+        const text = 'El Juzgado de Letras de Illapel, subastará día 29 de Agosto de 2.025, 12:00 horas, a través sistema videoconferencia';
+        expect(extractAuctionDate(text)).toBe('29 de Agosto de 2025');
+    });
+
+    test('captura "Fecha del remate: dd/mm/yyyy"', () => {
+        const text = 'tribunal que subasta: Segundo Juzgado de Letras de Curicó. Fecha del remate: 15/09/2026 hora del remate: 12:00 horas.';
+        expect(extractAuctionDate(text)).toBe('15/09/2026');
+    });
+
+    test('no confunde la hora con la fecha', () => {
+        expect(extractAuctionDate('hora del remate: 12:00 horas')).toBeNull();
+    });
+
+    test('descarta fechas numéricas inválidas', () => {
+        expect(extractAuctionDate('Fecha del remate: 45/99/2026')).toBeNull();
+    });
+
 });
 
 describe('test para extraer el banco que tiene la hipoteca del GP', ()=>{
@@ -264,7 +325,12 @@ describe('test para extraer el banco que tiene la hipoteca del GP', ()=>{
         const text = txGP.GP6782;
         const banco = processMortageBank(text,null);
         expect(banco).toBeNull();
+    });
 
+    test('Test para obtener que no registra anotaciones', ()=>{
+        const text = txGP.gp_sin_anotaciones;
+        const banco = processMortageBank(text,null);
+        expect(banco).toBe('Sin banco hipotecario');
     });
 });
 

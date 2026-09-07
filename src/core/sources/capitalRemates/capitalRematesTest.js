@@ -3,8 +3,6 @@ const logger = require('#utils/logger.js');
 
 async function main(){
     const argc = process.argv.slice(2);
-    // console.log(process.argv)
-    // console.log(argc);
 
     if(argc.length === 0){
         use();
@@ -45,21 +43,21 @@ async function testSingle(link){
     const remate = await CapitalRemates.fetchSingleLink(link);
     const fecha = "2026-04-24 15:00:00"
     const caso = CapitalRemates.parseDataFromRemate(remate, fecha);
-    console.log(`Caso obtenido: ${JSON.stringify(caso.toObject(),null, 2)}`)
+    logger.info(`Caso obtenido: ${JSON.stringify(caso.toObject(),null, 2)}`)
 }
 
 async function testObtainMultiple(){
     const startDate = '2026-04-22';
     const endDate = '2026-04-24';
     const remates = await CapitalRemates.getLinksToRemates(startDate, endDate);
-    console.log(remates);
+    logger.info(remates);
     logger.info(`Total remates obtenidos: ${remates.length}`);
 }
 
 async function mainTest(){
     const remates = await CapitalRemates.getRemates('2026-04-22', '2026-04-24');
-    console.log(remates);
-    console.log(`Total remates obtenidos: ${remates.length}`);
+    logger.info(`Remates obtenidos: ${remates}`);
+    logger.info(`Total remates obtenidos: ${remates.length}`);
 }
 
 

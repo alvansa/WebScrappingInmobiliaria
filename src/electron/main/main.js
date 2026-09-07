@@ -1,11 +1,5 @@
 const {app, BrowserWindow, ipcMain, dialog} = require('electron');
 
-// Tiene que ser lo primero que corre: PlaywrightManager y otros módulos leen
-// process.env (proxy, etc.) apenas se hace require() de ellos más abajo, así
-// que el .env tiene que estar cargado antes de esa línea. EnvLoader ya sabe
-// buscar el .env empaquetado en process.resourcesPath cuando la app corre
-// como build (a diferencia de dotenv.config() a secas, que busca en
-// process.cwd() y no lo encuentra en el .exe/.dmg instalado).
 const EnvLoader = require('#utils/EnvLoader.js');
 EnvLoader.load();
 
@@ -13,9 +7,6 @@ const path = require('node:path');
 const puppeteer = require('puppeteer-core');
 const pie = require('puppeteer-in-electron');
 const os = require('os');
-const axios = require('axios');
-const FormData = require('form-data');
-const fs = require('fs')
 
 const logger = require('#utils/logger.js');
 
@@ -28,8 +19,8 @@ const {createExcel} = require('#exporters/excel/createExcel.js');
 const Caso = require('#models/caso/caso.js')
 const config = require('#config');
 const ConsultaCausaPjud = require('#sources/pjud/consultaCausaPlay.js'); // Versión Playwright
-const {delay } = require('#utils/delay.js');
 const {tribunalesPorCorte} = require('#utils/corteJuzgado.js');
+const {fixStringDate} = require('#utils/cleanStrings.js');
 const testUnitarios = require('../dev/testUnitarios.js');
 const checkFPMG = require('#sources/pjud/checkFPMG.js');
 const obtainLinkMapa = require('../dev/obtainLinkMapa.js');
@@ -61,7 +52,6 @@ const isTestMode = process.argv.includes('--test');
 
 let pieInitialized = pie.initialize(app);
 
-const EMOL = 1;
 const PJUD = 2;
 const LIQUIDACIONES = 3;
 const SHOW_MODE = false;
@@ -88,14 +78,11 @@ class MainApp{
 
         app.whenReady().then(async ()=>{
             await pieInitialized;
-            // this.createMainWindow()
 
             if(isDevMode){
                 this.createMainWindow()
             }else{
-                // Crear ventana principal
                 this.mainWindow = this.windowManager.createMainWindow();
-
             }
 
             // Inicializar Puppeteer browser compartido
@@ -104,7 +91,6 @@ class MainApp{
 
             app.on('activate', () => {
                 if (BrowserWindow.getAllWindows().length === 0) {
-                    // this.createMainWindow()
                     this.windowManager.createMainWindow();
                 }
             })
@@ -197,12 +183,10 @@ class MainApp{
             return this.browser;
         });
 
-
         ipcMain.handle('select-folder-btn', async () => {
             const result = await dialog.showOpenDialog(this.mainWindow, {
                 properties: ['openDirectory'] // Permite seleccionar carpetas
             });
-
             // Retornar la ruta seleccionada o null si el usuario cancela
             return result.canceled ? null : result.filePaths[0];
         });
@@ -262,7 +246,6 @@ class MainApp{
                 const FillExcel = new CompleteExcelInfo(filePath,event,this.mainWindow);
                 await FillExcel.fillData();
                 this.mainWindow.send("electron-log","En la funcion de completar excel")
-
                 return true;
 
             }catch(error){
@@ -283,14 +266,10 @@ class MainApp{
                 }
                 let data  = result.data;
                 this.logToRenderer(`Cantidad de filas obtenidad ${data.length}`)
-                // this.logToRenderer(`Data : ${data}`);
                 const check = new checkFPMG(event, this.mainWindow, filePath, data);
                 await check.process();
-                // this.mainWindow.send("electron-log","En la funcion de completar excel")
-
                 this.logToRenderer(`Ladrillos obtenidos`)
                 return true;
-
             }catch(error){
                 console.error('Error al completar la informacion del excel processFPMG:', error);
                 return null;
@@ -299,7 +278,11 @@ class MainApp{
 
         ipcMain.handle('process-DEUDA', async (event, filePath, fechaLimite) => {
             try{
-                fechaLimite = null;
+                // fechaLimite llega como string "YYYY-MM-DD" desde el <input type="date">
+                // del renderer. fixStringDate la deja en "YYYY/MM/DD" para que new Date(...)
+                // la interprete en hora local (evita el corrimiento de un dia de parsear ISO
+                // con 'Z'). Si no llega fecha, se deja null y checkFPMG usa su default interno.
+                fechaLimite = fechaLimite ? new Date(fixStringDate(fechaLimite)) : null;
                 const data = await SpreadSheetManager.processData();
                 if(data){
                     let parsedData = data.data;
@@ -307,11 +290,7 @@ class MainApp{
                     const result = await check.proccesDeudaSeguir(fechaLimite);
                     return result;
                 }
-                // let data = null;
-                // this.mainWindow.send("electron-log","En la funcion de completar excel")
-
                 return true;
-
             }catch(error){
                 console.error('Error al completar la informacion del excel:', error);
                 return null;
@@ -336,9 +315,12 @@ class MainApp{
         ipcMain.handle('testEconomico', async (event,args) => {
             try{
                 const test = new testUnitarios(this.mainWindow,app,event,args);
-                await test.mainFunction();
+                const result = await test.mainFunction();
+                return { ok: true, result: result ?? null };
             }catch(error){
                 console.error('Error al obtener resultados:', error);
+                this.logToRenderer(`Error en test ${args?.[0]}: ${error.message}`);
+                return { ok: false, error: error.message };
             }
         });
 
@@ -355,7 +337,6 @@ class MainApp{
 
         // Funcion que abre la ventana que permite seleccionar varios archivos pdf para su procesamiento
         ipcMain.handle('open-dialog-local-multiple', async () => {
-
             const { canceled, filePaths } = await dialog.showOpenDialog({
                 properties: ['openFile', 'multiSelections'],
                 filters: [
@@ -363,7 +344,6 @@ class MainApp{
                     { name: 'All Files', extensions: ['*'] }
                 ]
             });
-
             return canceled ? [] : filePaths;
         });
 
@@ -372,11 +352,9 @@ class MainApp{
                 properties: ['openFile'],
                 filters: [
                   { name: 'Todos los archivos', extensions: ['xlsx']},
-                //   { name: 'Todos los archivos', extensions: ['*'] }
                 ]
             });
             return result.filePaths[0] || null;
-
         });
 
         // funcion que dado un archivo pdf lo procesa con la funcion del boletin.
@@ -384,7 +362,6 @@ class MainApp{
             try {
                 // Aquí puedes procesar el archivo seleccionado
                 console.log('Archivo seleccionado:', filePath);
-                // Llama a tu función que procesa el archivo
                 const caso = crearCasoPrueba();
                 caso.origen = LIQUIDACIONES;
                 caso.causa = null;
@@ -456,16 +433,6 @@ class MainApp{
            return resultado;
         });
 
-        //Obtener todos los casos de la tabla causa
-        ipcMain.handle('getAllCausas', async (event, args) => {
-            const dbcausa = new Causas();
-            const resultados = dbcausa.getAllCausas();
-            console.log('Resultados de las causas en la DB: ',resultados);
-            console.log("Cantidad de resultados: ", resultados.length);
-            console.log("Buscando si hay un resultado en especifico: ",dbcausa.searchCausa('C-746-2024',9))
-            return resultados;
-        });
-
         ipcMain.handle('countLadrillos', async (event, filePath) => {
             console.log(`Count Ladrillos en el main archivo recibido ${filePath}`);
                 const data = await SpreadSheetManager.processData();
@@ -476,7 +443,6 @@ class MainApp{
                     const check = new checkFPMG(event, this.mainWindow, filePath, parsedData);
                     check.obtainNumberOfLadrillosFromExcel(filePath);
                 }
-            
         })
     }
 
@@ -507,92 +473,9 @@ class MainApp{
             console.error('Error al limpiar antes de salir:', error);
         }
     }
-
-    //Funcion actualmente no utilizada ya que no se ocupa tesseract
-    async processTeseract(filePath) {
-        try{
-            console.log("Procesando archivo con Tesseract:", filePath[0]);
-            const form = new FormData();
-
-            form.append('file', fs.createReadStream(filePath[0]));
-
-            // configurate Headers
-            const headers = {
-                ...form.getHeaders(),
-            };
-
-            const respone = await axios.post('http://localhost:8000/processPDF', form, {
-                headers: headers,
-                responseType: 'json',
-            });
-
-            const normalizedData = this.normalizeData(respone.data);
-            return normalizedData;
-
-        }catch(error){
-            console.error('Error al procesar el archivo con Tesseract:', error);
-            return null;
-        }
-    }
-
-    normalizeData(data) {
-        let finalText = "";
-        for(let page of data['pages']){
-            const text = page.text
-            .replace(/(\r\n|\n|\r)/gm, " ")
-            .replace(/\s+/g, " ")
-            .trim();
-
-            finalText += text + " ";
-        }
-        return finalText.trim();
-    }
-
-    async testDB(causa){
-        const db = new Causas();
-        const resultados = await  db.getByCausa(causa);
-        console.log("Buscando: ",causa ,"\nResultados de la consulta a la base de datos: ",resultados);
-        const jsonString = JSON.stringify(resultados, null, 2);
-        return JSON.parse(JSON.stringify(resultados));;
-    }
-
-    async obtainDataFromCases(casos,event){
-        const mainWindow = BrowserWindow.fromWebContents(event.sender);
-        let counter = 0;
-        for(let caso of casos){
-            counter++;
-            console.log(`Caso a investigar ${caso.causa} ${caso.juzgado} caso numero ${counter} de ${casos.length}`);
-            const result = await consultaCausa(caso);
-            if(result){
-                console.log("Resultados del caso de prueba en pjud: ",caso.toObject());
-            }
-            
-            if((counter + 1)  < casos.length){
-                const awaitTime = Math.random() * (90 - 30) + 30; // Genera un número aleatorio entre 5 y 10
-                mainWindow.webContents.send('aviso-espera', [awaitTime,counter + 1,casos.length]);
-                console.log(`Esperando ${awaitTime} segundos para consulta numero ${counter + 1} de ${casos.length}`);
-                await delay(awaitTime * 1000); 
-            } 
-        }
-    }
-    
-    createCaso(causa,juzado){
-        const caso = new Caso("2025/11/30");
-        caso.juzgado = juzado;
-        caso.causa = causa;
-        caso.origen = 2;
-        return caso;
-    }
 }
 
 async function consultaCausa(caso){
-    // const browser = await pie.connect(app, puppeteer);
-    // let window;
-    // window = openWindow(window,false);
-    // const consultaCausa = new ConsultaCausaPjud(browser,window,caso,null, 0);
-    // const result = await consultaCausa.getConsulta()
-
-    // return result;
     const consultaCausa = new ConsultaCausaPjud(PlaywrightManager, caso, this.mainWindow, this.type);
     const result = await consultaCausa.getConsulta();
     return result;
@@ -607,30 +490,4 @@ function crearCasoPrueba(){
     return caso;
 }
 
-function openWindow(window, useProxy){
-    const proxyData = JSON.parse(process.env.PROXY_DATA);
-    const randomIndex = Math.floor(Math.random() * proxyData.length); 
-    const isVisible = true;
-    if(useProxy){
-        console.log("Se lanza el navegador con proxy");
-        window = new BrowserWindow({
-            show: isVisible,// Ocultar ventana para procesos en background
-            proxy :{
-                username: proxyData[randomIndex].username,
-                password: proxyData[randomIndex].password,
-                server: proxyData[randomIndex].server,
-            }
-        });
-    }else{
-        window = new BrowserWindow({
-            show: isVisible,// Ocultar ventana para procesos en background
-        });
-    }
-    return window;
-}
-
-
-
 new MainApp();
-
-

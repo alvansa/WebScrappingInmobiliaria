@@ -14,16 +14,22 @@
     <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
       <h1 class="text-2xl font-semibold text-center mb-6">Buscar remates descartados por deuda</h1>
     
-      <div class="mb-4 flex gap-2">
-        <input type="date" id="endDate" class="border p-2 rounded w-1/2">
-        <button id="buscarDeuda" class="w-1/2 bg-green-500 text-white p-2 rounded hover:bg-green-600">
-          Buscar Deuda
-        </button>
+      <div class="mb-4">
+        <label for="endDate" class="block text-sm font-medium text-gray-700 mb-1">
+          Fecha límite: se buscarán los remates desde esta fecha hasta hoy
+        </label>
+        <div class="flex gap-2">
+          <input type="date" id="endDate" class="border p-2 rounded w-1/2">
+          <button id="buscarDeuda" class="w-1/2 bg-green-500 text-white p-2 rounded hover:bg-green-600">
+            Buscar Deuda
+          </button>
+        </div>
       </div>
     
     </div>
   </div>
   
+  <script src="../renderer/shared/workingDialog.js"></script>
   <script src="../renderer/buscarDeudaRenderer.js"></script>
   <script>
     function switchView(viewId) {

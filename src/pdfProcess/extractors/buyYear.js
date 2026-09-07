@@ -6,6 +6,7 @@ const regexMutuoHipotecario = /mutuo\s*hipotecario/i;
 
 function processBuyYear(text, debug = false) {
     if (!text) return null;
+    consoleDebug(debug, `texto a procesar: ${text}`);
     if (!regexMutuoHipotecario.exec(text) && !isLawsuit(text)) {
         const GPnormalizedInfo = adaptTextIfGP(text);
         if (!GPnormalizedInfo) {
@@ -129,14 +130,18 @@ function obtainYearForm2(text) {
 
 
 function obtainFromRegistroPropiedad(texto) {
-
-    const registroRegex = /registro\s*(?:de)?\s*propiedad(?:es)?\s*(?:a\s*mi\s*cargo,?\s*)?(?:del?\s*)?(?:correspondiente\s*al\s*)?(?:a(?:n|ñ|fi)o\s*)?((\d{4}|\d{1,3}(\.\d{3})*)(\b|\s|,))/i;
+    // "propieda\w{0,4}" en vez de "propiedad(?:es)?": tolera terminaciones
+    // corrompidas por OCR de origen (ej. "propiedatl" en vez de "propiedad")
+    // sin dejar de exigir el ancla fuerte "propieda", que rara vez se ve afectada.
+    // "ono" se agrega como variante corrompida de "año"/"ano"/"afio" (o→a es una
+    // confusion tipica de OCR), sin dejar de ser opcional como el resto del grupo.
+    const registroRegex = /registro\s*(?:de)?\s*propieda\w{0,4}\s*(?:a\s*mi\s*cargo,?\s*)?(?:del?\s*)?(?:correspondiente\s*al\s*)?(?:(?:a(?:n|ñ|fi)o)|ono)?\s*((\d{4}|\d{1,3}(\.\d{3})*)(\b|\s|,))/i;
     let registro = texto.match(registroRegex);
 
     if (registro != null) {
         return registro[1];
     }
-    const regexAnnoParentesis = /registro\s*(?:de)?\s*propiedad(?:es)?\s*(?:del?\s*|a\s*mi\s*cargo,?\s*)?(?:correspondiente\s*al\s*)?(?:a(?:n|ñ|fi)o\s*)?.{1,30}\((\d{1,})\)/i;
+    const regexAnnoParentesis = /registro\s*(?:de)?\s*propieda\w{0,4}\s*(?:del?\s*|a\s*mi\s*cargo,?\s*)?(?:correspondiente\s*al\s*)?(?:(?:a(?:n|ñ|fi)o)|ono)?\s*.{1,30}\((\d{1,})\)/i;
     registro = texto.match(regexAnnoParentesis);
     if (registro != null) {
         return registro[1];

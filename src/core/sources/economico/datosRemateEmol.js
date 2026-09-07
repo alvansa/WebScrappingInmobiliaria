@@ -1,10 +1,11 @@
 const Caso = require('#models/caso/caso.js');
 const extractor = require('./extractors/index.js');
+const logger = require('#utils/logger.js');
 
 //Funcion que procesa los datos de un remate y obtiene la informacion necesaria
 function procesarDatosRemate(caso, isDebug = false) {
     let texto = caso.texto;
-    if(isDebug) console.log(texto);
+    if(isDebug) logger.debug(texto);
     caso.causa = extractor.causa(texto) ? extractor.causa(texto) : extractor.causaVoluntaria(texto);
     caso.juzgado = extractor.partitionJudge(texto) ? "Juez Partidor" : extractor.court(texto);
     caso.porcentaje = extractor.percent(texto);

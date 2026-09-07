@@ -183,18 +183,13 @@ class MapasSII {
             delay(500);
 
         } catch (error) {
-            console.error("Error al buscar el elemento:", error);
-            // caso.avaluoPropiedad = null;
-
+            logger.error(`Error al buscar el elemento: ${error.message}`);
         }
     }
 
     async clearInput(selector) {
         await this.page.evaluate((selector) => document.querySelector(selector).value = "", selector);
     }
-
 }
-
-
 
 module.exports = MapasSII;

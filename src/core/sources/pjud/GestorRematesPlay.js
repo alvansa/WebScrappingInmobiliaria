@@ -55,12 +55,6 @@ class GestorRematesPjud {
                     logger.info(`Esperando ${awaitTime.toFixed(2)} segundos antes del caso ${counter + 1} de ${this.casos.length} ${secondLapMsg}`);
                     await delay(awaitTime * 1000);
                 }
-
-                // Límite de prueba (opcional, original tenía counter > 3)
-                if (counter > 10) {
-                    logger.info(`Límite de prueba alcanzado, se detiene la ejecución ${secondLapMsg}`);
-                    break;
-                }
             }
         } catch (error) {
             logger.error(`Error al obtener datos de los casos gestorRematesPlay:  ${error.message}`);

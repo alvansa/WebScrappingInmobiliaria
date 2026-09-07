@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 const pdf = require('pdf-parse');
+const pdfjsLib = require('pdfjs-dist/legacy/build/pdf.js');
+
 const os = require('os');
 const logger = require('#utils/logger.js');
 
@@ -299,76 +301,55 @@ class ProcesarBoletin {
 
     }
 
-    //TODO: Funcion intento de leer pdf, no la borro solo por si es util en el futuro
-    // static async pdfToTextPdf2Json(filePath) {
-    //     return new Promise((resolve, reject) => {
-    //         const pdfParser = new PDFParser(this,1);
+    // static async pdfToTextPdfParse(filePath){
+    //     const originalConsoleLog = console.log;
+    //     try {
+    //         logger.debug("leyendo con simple pdf-parse");
 
-    //         pdfParser.on('pdfParser_dataError', errData => {
-    //             logger.error(`Error al procesar PDF: ${errData.parserError}`);
-    //             resolve(null); // Resolviendo con null en caso de error
+    //         const dataBuffer = fs.readFileSync(filePath);
+    //         console.log = (...args) => {
+    //             if (typeof args[0] === 'string' && args[0].startsWith('Warning:')) {
+    //                 return;
+    //             }
+    //             originalConsoleLog(...args);
+    //         };
+    //             const data = await pdf(dataBuffer);
+    //             return data.text;
+    //     } catch (error) {
+    //         logger.error(`Error al procesar PDF: ${error.message}`);
+    //         return null;
+    //     }finally{
+    //         console.log = originalConsoleLog;
+    //     }
 
-    //         });
-
-    //         pdfParser.on('pdfParser_dataReady', pdfData => {
-    //             logger.debug('PDF procesado exitosamente.');
-    //             resolve(pdfParser.getRawTextContent());
-    //         });
-
-    //         try {
-    //             pdfParser.loadPDF(filePath);
-    //         } catch (error) {
-    //             logger.error(`Error al cargar el archivo PDF: ${error}`);
-    //             reject(error);
-    //         }
-    //     });
     // }
 
-    static async pdfToTextPdfParse(filePath){
+    static async pdfToTextPdfParse(filePath) {
         try {
-            // if(origen == PJUD){
-            //     const tesseractText = await ProcesarBoletin.processWithTesseract(filePath);
-            //     console.log("procesado con tesseract :) :");
+            logger.debug("leyendo con pdfjs-dist");
+            const dataBuffer = fs.readFileSync(filePath);
 
-            //     return tesseractText;
-            // }else{
-                // originalWarn = console.warn;
-                // console.warn = function () {};
-                // console.error = function () {};
-                logger.debug("leyendo con simple pdf-parse");
+            const doc = await pdfjsLib.getDocument({
+                data: new Uint8Array(dataBuffer),
+                verbosity: 0, // silencia los warnings de recuperacion (hex string invalido, etc.)
+            }).promise;
 
-                const dataBuffer = fs.readFileSync(filePath);
-                const data = await pdf(dataBuffer);
-                return data.text;
-            // }
+            let text = '';
+            let lastY = null;
+            for (let i = 1; i <= doc.numPages; i++) {
+                const page = await doc.getPage(i);
+                const content = await page.getTextContent();
+                for (const item of content.items) {
+                    text += (lastY !== null && lastY !== item.transform[5] ? '\n' : '') + item.str;
+                    lastY = item.transform[5];
+                }
+            }
+            return text;
         } catch (error) {
             logger.error(`Error al procesar PDF: ${error.message}`);
             return null;
         }
     }
-
-    //Intento de lectura con tesseract, al final tampoco funciono 
-    // static async pdfToTextTesseract(filePath){
-    //     try{
-    //         const form = new FormData();
-    //         form.append("file", fs.createReadStream(filePath));
-
-    //         const headers = {
-    //             ...form.getHeaders(),
-    //         }
-
-    //         const response = await axios.post('http://localhost:8000/processPDF', form, {
-    //             headers: headers,
-    //             responseType: 'json',
-    //         });
-
-    //         const normalizedResponse = normalizeResponse(response.data);
-    //         return normalizedResponse;
-    //     }catch(error){
-    //         logger.error(`Ocurrio un error procesando el pdf con tesseract: ${error.message}`);
-    //         return null;
-    //     }
-    // }
 }
 
 module.exports = ProcesarBoletin

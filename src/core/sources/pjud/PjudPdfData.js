@@ -9,13 +9,9 @@ class PjudPdfData {
     }
 
     processInfo(data) {
-        this.functionA(data);
-        // this.functionB(data);
-    }
-
-    functionA(data){
         return PdfProccess.process(this.caso,data,this.isDev, this.mainWindow);
     }
+
 //     functionB(data){
 //         if(!data){
 //             return false;
