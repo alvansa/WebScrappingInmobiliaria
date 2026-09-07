@@ -10,7 +10,7 @@ const { procesarDatosRemate } = require('./datosRemateEmol');
 const listUserAgents = require('#utils/userAgents.json');
 const { simulateHumanBehavior } = require('#utils/stealth.js');
 const { extractAuctionDate } = require('./extractors/auctionDateExtractor');
-const EconomicoAxios = require('./EconomicoCurl');
+const EconomicoCurl = require('./EconomicoCurl');
 
 require('dotenv').config();
 
@@ -47,7 +47,7 @@ class Economico {
     }
 
     async getCases() {
-        const curlEcomomico = new EconomicoAxios();
+        const curlEcomomico = new EconomicoCurl();
         try {
             logger.debug("Iniciando la búsqueda de casos en Economicos.cl desde ", this.fechaInicio, " hasta ", this.fechaFin);
             logger.info(`Se mostrara la ventana? ${this.show}`);

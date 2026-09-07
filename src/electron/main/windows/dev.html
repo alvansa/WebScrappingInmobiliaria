@@ -1,104 +1,54 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../../../../css/devStyles.css">
     <title>Developer Mode</title>
-    
 </head>
 <body>
-
     <h1>Developer Mode</h1>
-    <h2>This is the developer mode for the Electron application.</h2>
-        <p>Use this mode to test and debug your application.</p>
-    <div class="paragraph-container">
-        
-        <p> 
-            <input type="text" id="textInput" placeholder="Enter auction description">
-            <button id="uploadedText"> Test code with uploaded text</button>
-        </p>
-        <p>
-            <button id="readPdf">Leer pdf con algoritmo pjud</button>
-            <label for="fileInput"><input id="createExcel" type="checkbox" > Crear excel </label>
-            <div id="fileInfoPjud"></div>
-        </p>
-        <p>
-           <button id="ExcelBase">Seleccionar excel base</button>
-                <label id="fileExcelBase"></label>
-           <button id="ExcelNuevo">Seleccionar excel nuevo</button>
-                <label id="fileExcelNuevo"></label>
-           <button id="compararExcel">Comparar excels</button>
-        </p>
+    <p class="dev-intro">
+        Panel de pruebas unitarias. Cada botón ejecuta un test; la salida aparece
+        en el registro de la derecha y en la consola del proceso main.
+    </p>
 
-        <p> 
-            <button id="checkFPMG">Revisar Deuda</button>
-            <div id="fileFPMG"></div>
-        </p>
+    <div id="devContainer">
+        <div id="testGrid"></div>
 
-        <p> 
-            <button id="fillMapa">Revisar Mapas</button>
-            <div id="fillMapa"></div>
-        </p>
-
-        <p> 
-            <button id="selectFileBtn">Seleccionar Archivo para prueba boletin</button>
-            <div id="fileInfo"></div>
-        </p>
-        
-        <p> 
-            <button id="countLadrillosBtn">Seleccionar Archivo excel para ver cantidad de ladrillos</button>
-            <div id="countLadrillos"></div>
-        </p>
-
-        <p>
-            <button id="testEconomicoPuppeteer">Test Economico Puppeteer</button>
-        </p>
-        <p>
-            <button id="testMapas">Test de mapas</button>
-        </p>
-        <p>
-            <button id="testApiMacal">Test de Macal</button>
-        </p>
-
-        <p>
-            <button id="testUserAgents">Test de User Agents</button>
-        </p>
-        
-        <p>
-            <form>
-                <div class="autocomplete" id="autocomplete">
-                    <input type="text" id="autoCompleteText" placeholder="Comuna para averiguar id">
+        <div id="devSidebar">
+            <div class="test-group">
+                <h3>Comuna / tribunal &rarr; id</h3>
+                <div class="autocomplete" id="comunaBox">
+                    <input type="text" id="comunaSearch" placeholder="Nombre de tribunal o comuna" autocomplete="off">
+                    <div id="comunaResults" class="autocomplete-items"></div>
                 </div>
-                <input type="submit">
-            </form>
-        </p>
-    </div>
+            </div>
 
+            <div id="devLog">
+                <div id="devLogHeader">
+                    <span>Registro</span>
+                    <button id="clearLogBtn" type="button">Limpiar</button>
+                </div>
+                <pre id="devLogBody"></pre>
+            </div>
+        </div>
+    </div>
 
     <div id="waitingModal" class="view">
         <div class="modal-container">
-          <h3 id="waitingMessage">Por favor espera...</h3>
-          <div class="spinner-container">
-            <div class="spinner"></div>
-          </div>
-          <p id="countdown"><span id="seconds"></span></p>
+            <h3 id="waitingMessage">Por favor espera...</h3>
+            <div class="spinner-container"><div class="spinner"></div></div>
         </div>
     </div>
 
     <div id="waitingModalProcess" class="view">
         <div class="modal-container">
-            <h3 id="waitingMessage">Por favor espera...</h3>
-            <div class="spinner-container">
-                <div class="spinner"></div>
-            </div>
+            <h3 id="waitingProcessMessage">Por favor espera...</h3>
+            <div class="spinner-container"><div class="spinner"></div></div>
         </div>
     </div>
 
-    <script>
-        console.log("Developer mode is active.");
-    </script>
-    
     <script src="../renderer/devRenderer.js"></script>
 </body>
 </html>

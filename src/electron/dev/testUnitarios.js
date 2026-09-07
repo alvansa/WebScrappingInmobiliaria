@@ -43,6 +43,7 @@ class testUnitarios{
         }else if(arg === 'uploadedText'){
             result = testTextoArgs(this.args[1]);
             console.log(`Resultado de caso test texto args: ${JSON.stringify(result,null,2)}`);
+            return result;
 
         }else if(arg === 'downloadPDF'){
             logger.info("Descargando PDF ubicado en: ",this.args[1]);
@@ -120,8 +121,9 @@ class testUnitarios{
                 }
             }
         }else if(arg === "testMacal"){
-            logger.info("Iniciando test de MacalService");
-            const result2 = await MacalService.getPropertiesUntilDate("2025/10/29",{});
+            const cutOffDate = this.args[1] || "2025/10/29";
+            logger.info("Iniciando test de MacalService hasta", cutOffDate);
+            const result2 = await MacalService.getPropertiesUntilDate(cutOffDate,{});
             logger.info("Resultado de MacalService: ", result2.totalPages);
             //Write to Excel
             const Excel = new createExcel(path.join(os.homedir(), "Documents", "infoRemates"),null,null,false,"macal");

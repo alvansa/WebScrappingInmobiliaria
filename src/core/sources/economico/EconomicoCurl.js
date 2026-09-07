@@ -18,7 +18,7 @@ const SELECTORS =
 
 const URL_BASE = 'https://www.economicos.cl';
 
-class EconomicoAxios {
+class EconomicoCurl {
     constructor() {
         this.proxyList = this._loadProxies();
         this.currentProxyIndex = 0;
@@ -289,4 +289,4 @@ class EconomicoAxios {
 
 }
 
-module.exports = EconomicoAxios;
+module.exports = EconomicoCurl;

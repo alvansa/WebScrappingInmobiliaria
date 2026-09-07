@@ -57,26 +57,6 @@ function extractDirection(data) {
                 return direccionFinal
             }
         }
-
-        // direccionFinal = obtainFinalDirection(direccionTemporal, regexEndByRegion);
-
-        // const indexComuna = obtainIndexByRegex(direccionTemporal, comuna)
-        // if(indexComuna){
-        //    direccionFinal = direccionTemporal.substring(0,indexComuna); 
-        //    return adaptDirectionToExcel(direccionFinal);
-        // }
-
-        // const indexConservador = obtainIndexByRegex(direccionTemporal,regexConservador);
-        // if(indexConservador){
-        //    direccionFinal = direccionTemporal.substring(0,indexConservador); 
-        //    return adaptDirectionToExcel(direccionFinal);
-        // }
-
-        // const indexPunto = obtainIndexByRegex(direccionTemporal, regexPunto);
-        // if(indexPunto){
-        //    direccionFinal = direccionTemporal.substring(0,indexPunto); 
-        //    return adaptDirectionToExcel(direccionFinal);
-        // }
     }
 
     if (direcciones.length > 0) {

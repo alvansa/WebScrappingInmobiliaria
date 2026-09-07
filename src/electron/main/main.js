@@ -315,9 +315,12 @@ class MainApp{
         ipcMain.handle('testEconomico', async (event,args) => {
             try{
                 const test = new testUnitarios(this.mainWindow,app,event,args);
-                await test.mainFunction();
+                const result = await test.mainFunction();
+                return { ok: true, result: result ?? null };
             }catch(error){
                 console.error('Error al obtener resultados:', error);
+                this.logToRenderer(`Error en test ${args?.[0]}: ${error.message}`);
+                return { ok: false, error: error.message };
             }
         });
 
