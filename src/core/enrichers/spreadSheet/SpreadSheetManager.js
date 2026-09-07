@@ -82,25 +82,14 @@ class SpreadSheetManager {
                 isTokenValid = true;
             }
         } catch (error) {
-<<<<<<< HEAD
-            console.log("No se pudo leer el token guardado, se solicitará uno nuevo.");
-        }
-
-        // 3. Si no hay token o caducó, volver a autenticar mediante la ventana/flujo OAuth
-=======
             logger.warn(`No se pudo leer el token guardado, se solicitará uno nuevo. ${error.message}`);
         }
 
->>>>>>> origin/main
         if (!isTokenValid) {
             auth = await authenticate({
                 keyfilePath: credentialsPath,
                 scopes: SCOPES
             });
-<<<<<<< HEAD
-            // Guardar las nuevas credenciales obtenidas
-=======
->>>>>>> origin/main
             await writeFile(TOKEN_PATH, JSON.stringify(auth.credentials));
         }
 
@@ -142,11 +131,7 @@ class SpreadSheetManager {
       
       if (process.platform === 'darwin') {
         // macOS: dentro del .app bundle
-<<<<<<< HEAD
-        console.log(`Buscando en: ${path.join(process.resourcesPath, 'credentials.json')}`)
-=======
         logger.debug(`Buscando en: ${path.join(process.resourcesPath, 'credentials.json')}`)
->>>>>>> origin/main
         return path.join(process.resourcesPath, 'credentials.json');
       } else if (process.platform === 'win32') {
         // Windows: en el directorio resources
