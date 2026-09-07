@@ -2,7 +2,7 @@
 // reintento corran instantáneos.
 jest.mock('#utils/delay.js', () => ({ delay: jest.fn().mockResolvedValue() }));
 
-const EconomicoAxios = require('#sources/economico/EconomicoCurl.js');
+const EconomicoCurl = require('#sources/economico/EconomicoCurl.js');
 
 // Silenciar el ruido de console del constructor / reintentos.
 beforeAll(() => {
@@ -33,7 +33,7 @@ afterEach(() => {
 // _normalizeUrl: migración de esquema viejo -> /search/ (ago-2026)
 // ---------------------------------------------------------------------------
 describe('_normalizeUrl', () => {
-    const scraper = new EconomicoAxios();
+    const scraper = new EconomicoCurl();
 
     test('devuelve null/undefined tal cual', () => {
         expect(scraper._normalizeUrl(null)).toBeNull();
@@ -77,7 +77,7 @@ describe('_normalizeUrl', () => {
 // ---------------------------------------------------------------------------
 describe('carga y rotación de proxies', () => {
     test('sin env no hay proxies', () => {
-        const s = new EconomicoAxios();
+        const s = new EconomicoCurl();
         expect(s.proxyList).toEqual([]);
         expect(s.getNextProxy()).toBeNull();
     });
@@ -87,7 +87,7 @@ describe('carga y rotación de proxies', () => {
             { server: 'h1:1', username: 'u', password: 'p' },
             { server: 'h2:2', username: 'u', password: 'p' },
         ]);
-        const s = new EconomicoAxios();
+        const s = new EconomicoCurl();
         expect(s.proxyList).toHaveLength(2);
     });
 
@@ -95,7 +95,7 @@ describe('carga y rotación de proxies', () => {
         process.env.PROXY_SERVERS = 'h1:1, h2:2 , h3:3';
         process.env.PROXY_USER = 'user';
         process.env.PROXY_PASSWORD = 'pass';
-        const s = new EconomicoAxios();
+        const s = new EconomicoCurl();
         expect(s.proxyList).toEqual([
             { server: 'h1:1', username: 'user', password: 'pass' },
             { server: 'h2:2', username: 'user', password: 'pass' },
@@ -105,13 +105,13 @@ describe('carga y rotación de proxies', () => {
 
     test('PROXY_LIST inválido no rompe, cae a lista vacía', () => {
         process.env.PROXY_LIST = '{ esto no es json';
-        const s = new EconomicoAxios();
+        const s = new EconomicoCurl();
         expect(s.proxyList).toEqual([]);
     });
 
     test('getNextProxy rota en círculo', () => {
         process.env.PROXY_SERVERS = 'a:1,b:2';
-        const s = new EconomicoAxios();
+        const s = new EconomicoCurl();
         expect(s.getNextProxy().server).toBe('a:1');
         expect(s.getNextProxy().server).toBe('b:2');
         expect(s.getNextProxy().server).toBe('a:1');
@@ -124,7 +124,7 @@ describe('carga y rotación de proxies', () => {
 describe('getRequestAgents', () => {
     test("modo 'fallback': intento 0 va directo", () => {
         process.env.PROXY_SERVERS = 'a:1';
-        const s = new EconomicoAxios();
+        const s = new EconomicoCurl();
         const { agents, viaProxy } = s.getRequestAgents(0);
         expect(viaProxy).toBe(false);
         expect(agents).toEqual({});
@@ -132,7 +132,7 @@ describe('getRequestAgents', () => {
 
     test("modo 'fallback': intento 1 usa proxy", () => {
         process.env.PROXY_SERVERS = 'a:1';
-        const s = new EconomicoAxios();
+        const s = new EconomicoCurl();
         const { agents, viaProxy } = s.getRequestAgents(1);
         expect(viaProxy).toBe(true);
         expect(agents.httpsAgent).toBeDefined();
@@ -142,19 +142,19 @@ describe('getRequestAgents', () => {
     test("modo 'never': nunca usa proxy aunque haya", () => {
         process.env.PROXY_SERVERS = 'a:1';
         process.env.ECONOMICOS_PROXY_MODE = 'never';
-        const s = new EconomicoAxios();
+        const s = new EconomicoCurl();
         expect(s.getRequestAgents(3).viaProxy).toBe(false);
     });
 
     test("modo 'always': proxy desde el intento 0", () => {
         process.env.PROXY_SERVERS = 'a:1';
         process.env.ECONOMICOS_PROXY_MODE = 'always';
-        const s = new EconomicoAxios();
+        const s = new EconomicoCurl();
         expect(s.getRequestAgents(0).viaProxy).toBe(true);
     });
 
     test("'fallback' sin proxies configuradas cae a directo", () => {
-        const s = new EconomicoAxios();
+        const s = new EconomicoCurl();
         expect(s.getRequestAgents(2).viaProxy).toBe(false);
     });
 });
@@ -186,7 +186,7 @@ describe('extractCasesFromList', () => {
         </div>`;
 
     test('extrae link + fechaPublicacion y descarta bloques sin fecha', async () => {
-        const s = new EconomicoAxios();
+        const s = new EconomicoCurl();
         mockHtml(s, LISTADO_HTML);
 
         const casos = await s.extractCasesFromList('https://www.economicos.cl/todo_chile/remates');
@@ -202,7 +202,7 @@ describe('extractCasesFromList', () => {
     });
 
     test('normaliza la URL del listado antes de pedirla', async () => {
-        const s = new EconomicoAxios();
+        const s = new EconomicoCurl();
         mockHtml(s, '<html></html>');
 
         await s.extractCasesFromList('https://www.economicos.cl/todo_chile/remates');
@@ -213,7 +213,7 @@ describe('extractCasesFromList', () => {
     });
 
     test('HTTP 404 devuelve [] sin reintentar', async () => {
-        const s = new EconomicoAxios();
+        const s = new EconomicoCurl();
         s.axiosInstance.request = jest.fn().mockRejectedValue({ response: { status: 404 } });
 
         const casos = await s.extractCasesFromList('https://www.economicos.cl/search/remates/0');
@@ -228,7 +228,7 @@ describe('extractCasesFromList', () => {
 // ---------------------------------------------------------------------------
 describe('getPageDescription', () => {
     test('devuelve el texto de div#description p', async () => {
-        const s = new EconomicoAxios();
+        const s = new EconomicoCurl();
         s.axiosInstance.request = jest.fn().mockResolvedValue({
             data: '<div id="description"><p>  Se rematará la propiedad de calle X 123  </p></div>',
         });
@@ -238,7 +238,7 @@ describe('getPageDescription', () => {
     });
 
     test('403 directo (esquema viejo) => null sin reintentar', async () => {
-        const s = new EconomicoAxios(); // modo fallback => intento 0 es directo
+        const s = new EconomicoCurl(); // modo fallback => intento 0 es directo
         s.axiosInstance.request = jest.fn().mockRejectedValue({ response: { status: 403 } });
 
         const desc = await s.getPageDescription('https://www.economicos.cl/remates/clasificados-remates-cod-1.html', 3);
@@ -248,7 +248,7 @@ describe('getPageDescription', () => {
     });
 
     test('error de red reintenta hasta maxRetries y luego devuelve null', async () => {
-        const s = new EconomicoAxios();
+        const s = new EconomicoCurl();
         s.axiosInstance.request = jest.fn().mockRejectedValue({ message: 'ETIMEDOUT' }); // sin .response
 
         const desc = await s.getPageDescription('https://www.economicos.cl/search/remates/clasificados-remates-cod-1.html', 3);
